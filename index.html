@@ -961,6 +961,123 @@
   }
   .filter-chip:hover:not(.active) { background: rgba(255,255,255,0.09); }
 
+  /* ═══════════════════════════════════════
+     MOBILE BOTTOM NAV
+  ═══════════════════════════════════════ */
+  #mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: rgba(8,4,16,0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--glass-border);
+    z-index: 200;
+    padding: 0 8px;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .mobile-nav-item {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    min-width: 44px;
+  }
+  .mobile-nav-item.active { background: rgba(83,34,162,0.3); }
+  .mobile-nav-item .m-icon { font-size: 20px; line-height: 1; }
+  .mobile-nav-item .m-label {
+    font-size: 9px; font-weight: 600;
+    color: var(--text-muted); letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .mobile-nav-item.active .m-label { color: var(--purple-light); }
+
+  /* ═══════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════ */
+  @media (max-width: 768px) {
+    #sidebar { display: none; }
+    #mobile-nav { display: flex; }
+
+    #main { padding: 24px 18px 80px; }
+
+    .home-title { font-size: 52px; letter-spacing: -1px; }
+    .home-quote { font-size: 12px; padding: 0 12px; }
+
+    .stats-row { grid-template-columns: 1fr; gap: 10px; }
+    .stat-card { padding: 16px 18px; }
+    .stat-value { font-size: 26px; }
+
+    .floating-island { padding: 20px 18px; }
+    .task-mini { width: 150px; }
+
+    .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .page-header > div { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    .period-stats {
+      flex-wrap: nowrap; overflow-x: auto;
+      padding-bottom: 6px; scrollbar-width: none; gap: 10px;
+    }
+    .period-stats::-webkit-scrollbar { display: none; }
+    .period-chip { flex-shrink: 0; padding: 10px 16px; }
+
+    .tab-bar { overflow-x: auto; scrollbar-width: none; width: 100%; }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .filter-row {
+      flex-wrap: nowrap; overflow-x: auto;
+      padding-bottom: 4px; scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip { flex-shrink: 0; }
+
+    .two-col { grid-template-columns: 1fr; }
+
+    .modal { padding: 24px 18px; max-height: 85vh; border-radius: 20px 20px 0 0; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+
+    .resumo-grid { grid-template-columns: 1fr; }
+    .big-metric .value { font-size: 40px; }
+
+    .notas-board { padding: 32px 16px 20px; gap: 16px; }
+    .nota-card { width: 150px; min-height: 120px; }
+
+    .perfil-hero { flex-direction: column; text-align: center; padding: 24px; gap: 16px; }
+    .perfil-name { font-size: 22px; }
+
+    .total-banner { flex-direction: column; gap: 12px; padding: 18px; }
+
+    #toast { left: 18px; right: 18px; bottom: 76px; max-width: none; }
+
+    #sel-bar {
+      bottom: 72px !important;
+      left: 12px !important; right: 12px !important;
+      transform: none !important;
+      width: auto;
+    }
+
+    .calendar-dropdown {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 290px;
+      z-index: 700;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .home-title { font-size: 42px; }
+    .task-mini { width: 140px; }
+    .nota-card { width: 140px; }
+  }
+
 </style>
 </head>
 <body>
@@ -1011,6 +1128,36 @@
       <span class="nav-label">Perfil</span>
     </div>
   </nav>
+
+  <!-- ══════════════════════
+       MOBILE BOTTOM NAV
+  ══════════════════════ -->
+  <div id="mobile-nav">
+    <div class="mobile-nav-item active" data-page="home" onclick="mobileNav(this,'home')">
+      <div class="m-icon">🏠</div>
+      <div class="m-label">Home</div>
+    </div>
+    <div class="mobile-nav-item" data-page="metas" onclick="mobileNav(this,'metas')">
+      <div class="m-icon">🎯</div>
+      <div class="m-label">Metas</div>
+    </div>
+    <div class="mobile-nav-item" data-page="tarefas" onclick="mobileNav(this,'tarefas')">
+      <div class="m-icon">✅</div>
+      <div class="m-label">Tarefas</div>
+    </div>
+    <div class="mobile-nav-item" data-page="gastos" onclick="mobileNav(this,'gastos')">
+      <div class="m-icon">💰</div>
+      <div class="m-label">Gastos</div>
+    </div>
+    <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')">
+      <div class="m-icon">📝</div>
+      <div class="m-label">Notas</div>
+    </div>
+    <div class="mobile-nav-item" data-page="perfil" onclick="mobileNav(this,'perfil')">
+      <div class="m-icon">👤</div>
+      <div class="m-label">Perfil</div>
+    </div>
+  </div>
 
   <!-- ══════════════════════
        MAIN
@@ -2718,6 +2865,29 @@ seedDemo();
 renderHome();
 updateGroupSelects();
 updateGroupFilters();
+
+/* ════════════════════════════════════════════
+   MOBILE NAV
+════════════════════════════════════════════ */
+function mobileNav(el, page) {
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  // also sync desktop sidebar
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === page);
+  });
+  goToPage(page);
+}
+
+// Keep mobile nav in sync when desktop sidebar is used
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const page = el.dataset.page;
+    document.querySelectorAll('.mobile-nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.page === page);
+    });
+  });
+});
 </script>
 </body>
 </html>
