@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mindt</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📓</text></svg>">
@@ -1084,10 +1085,113 @@
 </head>
 <body>
 
+
+<!-- ══════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════ -->
+<div id="auth-screen" style="
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  background: linear-gradient(135deg, #090412 0%, #0d0820 100%);
+">
+  <div style="
+    width:100%; max-width:400px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(122,69,212,0.25);
+    border-radius:24px;
+    padding:40px 36px;
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  ">
+    <!-- Logo -->
+    <div style="text-align:center; margin-bottom:32px;">
+      <div style="
+        width:56px; height:56px; border-radius:16px; margin:0 auto 14px;
+        background:linear-gradient(135deg,#7a45d4,#3a1870);
+        display:flex; align-items:center; justify-content:center;
+        font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; color:#fff;
+        box-shadow:0 0 24px rgba(83,34,162,0.5);
+      ">M</div>
+      <div style="
+        font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700;
+        background:linear-gradient(90deg,#fff,#7a45d4);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        letter-spacing:-1px;
+      ">Mindt</div>
+      <div style="font-size:13px; color:rgba(240,234,255,0.4); margin-top:4px;" id="auth-subtitle">Organize sua vida</div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="
+      display:flex; background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:4px; margin-bottom:28px;
+    ">
+      <button id="tab-login" onclick="switchAuthTab('login')" style="
+        flex:1; padding:9px; border:none; border-radius:9px; cursor:pointer;
+        font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+        background:linear-gradient(135deg,#5322a2,#7a45d4); color:#fff;
+        box-shadow:0 4px 16px rgba(83,34,162,0.4);
+        transition:all 0.2s;
+      ">Entrar</button>
+      <button id="tab-signup" onclick="switchAuthTab('signup')" style="
+        flex:1; padding:9px; border:none; border-radius:9px; cursor:pointer;
+        font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+        background:transparent; color:rgba(240,234,255,0.5);
+        transition:all 0.2s;
+      ">Criar conta</button>
+    </div>
+
+    <!-- Form -->
+    <div id="auth-form">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(240,234,255,0.4);margin-bottom:8px;">Email</label>
+        <input id="auth-email" type="email" placeholder="seu@email.com" style="
+          width:100%; padding:13px 14px;
+          background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+          border-radius:10px; color:#f0eaff; font-family:'Inter',sans-serif; font-size:14px;
+          outline:none; box-sizing:border-box; transition:border-color 0.2s;
+        " onfocus="this.style.borderColor='rgba(122,69,212,0.6)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+      </div>
+      <div style="margin-bottom:24px; position:relative;">
+        <label style="display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(240,234,255,0.4);margin-bottom:8px;">Senha</label>
+        <input id="auth-password" type="password" placeholder="••••••••" style="
+          width:100%; padding:13px 14px;
+          background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+          border-radius:10px; color:#f0eaff; font-family:'Inter',sans-serif; font-size:14px;
+          outline:none; box-sizing:border-box; transition:border-color 0.2s;
+        " onfocus="this.style.borderColor='rgba(122,69,212,0.6)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+        onkeydown="if(event.key==='Enter')authSubmit()">
+      </div>
+      <div id="auth-error" style="
+        display:none; margin-bottom:16px;
+        padding:10px 14px; border-radius:9px;
+        background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.25);
+        color:#ef4444; font-size:13px;
+      "></div>
+      <button onclick="authSubmit()" id="auth-btn" style="
+        width:100%; padding:14px;
+        background:linear-gradient(135deg,#5322a2,#7a45d4);
+        border:none; border-radius:12px; cursor:pointer;
+        font-family:'Inter',sans-serif; font-size:15px; font-weight:700; color:#fff;
+        box-shadow:0 8px 28px rgba(83,34,162,0.45);
+        transition:all 0.2s;
+      " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+        Entrar
+      </button>
+      <div id="auth-loading" style="display:none;text-align:center;margin-top:16px;color:rgba(240,234,255,0.4);font-size:13px;">
+        ⏳ Aguarde...
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Background animated canvas -->
 <canvas id="bg-canvas"></canvas>
 
-<div id="app">
+<div id="app" style="visibility:hidden">
 
   <!-- ══════════════════════
        SIDEBAR
@@ -2763,27 +2867,154 @@ function toast(msg) {
 /* ════════════════════════════════════════════
    PERSISTENCE
 ════════════════════════════════════════════ */
-function saveState() {
-  try { localStorage.setItem('mindt-state', JSON.stringify(state)); } catch(e) {}
+/* ════════════════════════════════════════════
+   SUPABASE SETUP
+════════════════════════════════════════════ */
+const SUPA_URL = 'https://eyhttiumvnhksbbjhhzt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5aHR0aXVtdm5oa3NiYmpoaHp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MTA2MzUsImV4cCI6MjA5OTI4NjYzNX0.KVGNxihHSBA2aU-iv4kCC3wBy-abNxzdOLN4UhX6AjM';
+const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let saveTimeout = null;
+
+/* ════════════════════════════════════════════
+   AUTH UI
+════════════════════════════════════════════ */
+let authMode = 'login';
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  const btnLogin = document.getElementById('tab-login');
+  const btnSignup = document.getElementById('tab-signup');
+  const authBtn = document.getElementById('auth-btn');
+  const subtitle = document.getElementById('auth-subtitle');
+
+  const activeStyle = 'background:linear-gradient(135deg,#5322a2,#7a45d4);color:#fff;box-shadow:0 4px 16px rgba(83,34,162,0.4);';
+  const inactiveStyle = 'background:transparent;color:rgba(240,234,255,0.5);box-shadow:none;';
+
+  if (mode === 'login') {
+    btnLogin.style.cssText += activeStyle;
+    btnSignup.style.cssText += inactiveStyle;
+    authBtn.textContent = 'Entrar';
+    subtitle.textContent = 'Organize sua vida';
+  } else {
+    btnSignup.style.cssText += activeStyle;
+    btnLogin.style.cssText += inactiveStyle;
+    authBtn.textContent = 'Criar conta';
+    subtitle.textContent = 'Crie sua conta gratuita';
+  }
+  setAuthError('');
 }
-function loadState() {
-  try {
-    const s = localStorage.getItem('mindt-state');
-    if (s) {
-      const parsed = JSON.parse(s);
-      // Ensure _type field
-      if (parsed.metas) parsed.metas.forEach(m => m._type = 'meta');
-      if (parsed.tasks) parsed.tasks.forEach(t => t._type = 'task');
-      state = { ...state, ...parsed };
+
+function setAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  if (msg) { el.textContent = msg; el.style.display = ''; }
+  else { el.style.display = 'none'; }
+}
+
+function setAuthLoading(on) {
+  document.getElementById('auth-btn').style.display = on ? 'none' : '';
+  document.getElementById('auth-loading').style.display = on ? '' : 'none';
+}
+
+async function authSubmit() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  setAuthError('');
+
+  if (!email || !password) { setAuthError('Preencha email e senha.'); return; }
+  if (password.length < 6) { setAuthError('A senha deve ter pelo menos 6 caracteres.'); return; }
+
+  setAuthLoading(true);
+
+  if (authMode === 'signup') {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) { setAuthError(translateError(error.message)); setAuthLoading(false); return; }
+    if (data.user && !data.session) {
+      setAuthLoading(false);
+      setAuthError('');
+      document.getElementById('auth-form').innerHTML = \`
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:48px;margin-bottom:16px;">📧</div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:8px;">Confirme seu email</div>
+          <div style="font-size:13px;color:rgba(240,234,255,0.5);line-height:1.6;">
+            Enviamos um link de confirmação para<br>
+            <strong style="color:#7a45d4">\${email}</strong><br><br>
+            Após confirmar, volte aqui e faça login.
+          </div>
+          <button onclick="switchAuthTab('login');location.reload()" style="
+            margin-top:24px; padding:12px 28px;
+            background:linear-gradient(135deg,#5322a2,#7a45d4);
+            border:none; border-radius:10px; cursor:pointer;
+            font-size:14px; font-weight:600; color:#fff;
+          ">Ir para login</button>
+        </div>
+      \`;
+      return;
     }
-  } catch(e) {}
+  } else {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setAuthError(translateError(error.message)); setAuthLoading(false); return; }
+  }
+  // session will trigger onAuthStateChange
+}
+
+function translateError(msg) {
+  if (msg.includes('Invalid login')) return 'Email ou senha incorretos.';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu email antes de entrar.';
+  if (msg.includes('User already registered')) return 'Este email já está cadastrado. Faça login.';
+  if (msg.includes('Password should be')) return 'A senha deve ter pelo menos 6 caracteres.';
+  if (msg.includes('Unable to validate')) return 'Email inválido.';
+  return msg;
+}
+
+/* ════════════════════════════════════════════
+   SAVE / LOAD (Supabase)
+════════════════════════════════════════════ */
+function saveState() {
+  // Immediate localStorage backup
+  try { localStorage.setItem('mindt-state', JSON.stringify(state)); } catch(e) {}
+  // Debounce Supabase save (500ms)
+  if (!currentUser) return;
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    await supabase.from('user_data').upsert({
+      user_id: currentUser.id,
+      data: state,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  }, 500);
+}
+
+async function loadState() {
+  if (!currentUser) return;
+  // Show loading state
+  const { data, error } = await supabase
+    .from('user_data')
+    .select('data')
+    .eq('user_id', currentUser.id)
+    .single();
+
+  if (data && data.data) {
+    const parsed = data.data;
+    if (parsed.metas) parsed.metas.forEach(m => m._type = 'meta');
+    if (parsed.tasks) parsed.tasks.forEach(t => t._type = 'task');
+    state = { ...state, ...parsed };
+  } else {
+    // New user — seed demo and save
+    seedDemo();
+  }
+}
+
+function logout() {
+  supabase.auth.signOut();
 }
 
 /* ════════════════════════════════════════════
    SEED DEMO DATA (first visit only)
 ════════════════════════════════════════════ */
 function seedDemo() {
-  if (localStorage.getItem('mindt-seeded')) return;
+  // Called only for brand new users (no data in Supabase)
   state.grupos = ['Pessoal', 'Trabalho', 'Estudos'];
   state.metas = [
     {
@@ -2857,16 +3088,81 @@ function seedDemo() {
     },
   ];
   saveState();
-  localStorage.setItem('mindt-seeded', '1');
 }
 
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
-seedDemo();
-renderHome();
-updateGroupSelects();
-updateGroupFilters();
+/* ════════════════════════════════════════════
+   SUPABASE AUTH STATE
+════════════════════════════════════════════ */
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (session && session.user) {
+    currentUser = session.user;
+    // Hide auth screen
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.visibility = '';
+    // Load data from Supabase
+    await loadState();
+    // Update perfil name from email if not set
+    if (!state.perfil.name || state.perfil.name === 'Meu Nome') {
+      state.perfil.name = session.user.email.split('@')[0];
+    }
+    renderHome();
+    updateGroupSelects();
+    updateGroupFilters();
+    // Add logout button to perfil page
+    addLogoutBtn();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    setAuthLoading(false);
+  }
+});
+
+function addLogoutBtn() {
+  const existing = document.getElementById('logout-btn');
+  if (existing) return;
+  const btn = document.createElement('button');
+  btn.id = 'logout-btn';
+  btn.className = 'btn btn-ghost';
+  btn.style.cssText = 'margin-top:20px;border-color:rgba(239,68,68,0.3);color:#ef4444;';
+  btn.textContent = '↩ Sair da conta';
+  btn.onclick = () => {
+    document.getElementById('confirm-title').textContent = 'Sair da conta';
+    document.getElementById('confirm-body').textContent = 'Tem certeza que deseja sair?';
+    document.getElementById('confirm-ok-btn').textContent = 'Sair';
+    document.getElementById('confirm-ok-btn').onclick = () => {
+      closeModal('modal-confirm');
+      logout();
+      document.getElementById('confirm-ok-btn').textContent = 'Excluir';
+    };
+    openModal('modal-confirm');
+  };
+  // Append to perfil page
+  document.getElementById('page-perfil').appendChild(btn);
+}
+
+// Show user email in perfil
+function renderPerfilEmail() {
+  const existing = document.getElementById('perfil-email-tag');
+  if (existing) existing.remove();
+  if (!currentUser) return;
+  const tag = document.createElement('div');
+  tag.id = 'perfil-email-tag';
+  tag.style.cssText = 'font-size:12px;color:rgba(240,234,255,0.4);margin-top:4px;';
+  tag.textContent = currentUser.email;
+  const sub = document.querySelector('.perfil-sub');
+  if (sub) sub.after(tag);
+}
+
+// Patch renderPerfil to also show email
+const _origRenderPerfil = renderPerfil;
+renderPerfil = function() {
+  _origRenderPerfil();
+  renderPerfilEmail();
+  addLogoutBtn();
+};
 
 /* ════════════════════════════════════════════
    MOBILE NAV
