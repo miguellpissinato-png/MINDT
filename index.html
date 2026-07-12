@@ -1303,35 +1303,74 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var MUSIC_LIBRARY = {
   lofi: [
-    {title:'Rainy Café',artist:'Lo-Fi Beats',icon:'☕',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'},
-    {title:'Midnight Study',artist:'ChillHop',icon:'🌙',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'},
-    {title:'Tokyo Drift',artist:'Lo-Fi Girl',icon:'🗼',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'},
-    {title:'Autumn Leaves',artist:'Beats Lab',icon:'🍂',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'},
-    {title:'Purple Haze',artist:'Chill Studio',icon:'💜',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'},
+    {title:'Lofi Hip Hop Radio - Beats to Study',artist:'Lo-Fi Girl',icon:'☕',ytid:'jfKfPfyJRdk'},
+    {title:'Chillhop Essentials',artist:'Chillhop Music',icon:'🌙',ytid:'5yx6BWlEVcY'},
+    {title:'Late Night Study Session',artist:'Dreamy',icon:'🌃',ytid:'lTRiuFIWV54'},
+    {title:'Coffee Shop Vibes',artist:'Lo-Fi Beats',icon:'🍵',ytid:'MVPTGNGiI-4'},
+    {title:'Rainy Day Lofi',artist:'Chill Vibes',icon:'🌧',ytid:'Na0w3Mz46GA'},
   ],
   jazz: [
-    {title:'Blue in Green',artist:'Jazz Quartet',icon:'🎷',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'},
-    {title:'Take Five',artist:'Cool Jazz',icon:'🎺',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'},
-    {title:'Autumn Rain',artist:'Jazz Café',icon:'🌧',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'},
-    {title:'Night in Paris',artist:'Swing Trio',icon:'🗺',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3'},
-    {title:'Smooth Operator',artist:'Bossa Nova',icon:'🎸',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3'},
+    {title:'Take Five',artist:'Dave Brubeck Quartet',icon:'🎷',ytid:'vmDDOFXSgAs'},
+    {title:'So What',artist:'Miles Davis',icon:'🎺',ytid:'ylXk1LBvIqU'},
+    {title:'Autumn Leaves',artist:'Bill Evans Trio',icon:'🍂',ytid:'r-Z8KuwI7Gc'},
+    {title:'Fly Me to the Moon',artist:'Frank Sinatra',icon:'🌙',ytid:'ZEcqHA7dbwM'},
+    {title:'What a Wonderful World',artist:'Louis Armstrong',icon:'🌍',ytid:'CWzrABouyeE'},
   ],
   classical: [
-    {title:'Moonlight Sonata',artist:'Beethoven',icon:'🌕',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3'},
-    {title:'Clair de Lune',artist:'Debussy',icon:'🎹',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3'},
-    {title:'Canon in D',artist:'Pachelbel',icon:'🎻',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3'},
-    {title:'Four Seasons',artist:'Vivaldi',icon:'🌸',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3'},
-    {title:'Gymnopédie No.1',artist:'Erik Satie',icon:'🕯',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3'},
+    {title:'Clair de Lune',artist:'Claude Debussy',icon:'🌕',ytid:'CvFH_6DNRCY'},
+    {title:'Moonlight Sonata',artist:'Beethoven',icon:'🎹',ytid:'_Dm4z7yt4HU'},
+    {title:'Canon in D',artist:'Pachelbel',icon:'🎻',ytid:'NlprozGcs98'},
+    {title:'Gymnopédie No.1',artist:'Erik Satie',icon:'🕯',ytid:'S-Xm7s9eGxU'},
+    {title:'The Four Seasons - Spring',artist:'Vivaldi',icon:'🌸',ytid:'e3nSvIiBNFo'},
   ]
 };
 
 var currentGenre = 'lofi';
 var currentTrackIdx = -1;
-var audioPlayer = null;
 var isPlaying = false;
+var ytPlayer = null;
+var ytReady = false;
+
+// Load YouTube IFrame API
+(function() {
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+
+window.onYouTubeIframeAPIReady = function() {
+  ytReady = true;
+  // Create hidden player container
+  var container = document.createElement('div');
+  container.id = 'yt-player-container';
+  container.style.cssText = 'position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;';
+  document.body.appendChild(container);
+  ytPlayer = new YT.Player('yt-player-container', {
+    height: '1',
+    width: '1',
+    playerVars: { autoplay: 0, controls: 0 },
+    events: {
+      onStateChange: function(e) {
+        // YT.PlayerState.ENDED = 0
+        if (e.data === 0) { nextTrack(); }
+        if (e.data === 1) {
+          isPlaying = true;
+          document.getElementById('music-play-btn').textContent = '⏸';
+          document.getElementById('music-vinyl').classList.add('spinning');
+        }
+        if (e.data === 2) {
+          isPlaying = false;
+          document.getElementById('music-play-btn').textContent = '▶';
+          document.getElementById('music-vinyl').classList.remove('spinning');
+        }
+      }
+    }
+  });
+};
 
 function switchMusicGenre(genre, el) {
   currentGenre = genre;
+  currentTrackIdx = -1;
   document.querySelectorAll('.music-tab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
   renderMusicList();
@@ -1341,14 +1380,14 @@ function renderMusicList() {
   var list = document.getElementById('music-list');
   var tracks = MUSIC_LIBRARY[currentGenre];
   list.innerHTML = tracks.map(function(t, i) {
-    var isActive = currentGenre === currentGenre && currentTrackIdx === i && isPlaying;
+    var isActive = currentTrackIdx === i && isPlaying;
     return '<div class="music-item' + (isActive ? ' playing' : '') + '" onclick="playTrack(' + i + ')">' +
       '<div class="music-item-icon">' + t.icon + '</div>' +
       '<div class="music-item-info">' +
         '<div class="music-item-title">' + t.title + '</div>' +
         '<div class="music-item-artist">' + t.artist + '</div>' +
       '</div>' +
-      (isActive ? '<div class="music-item-dur" style="color:var(--purple-light)">▶</div>' : '') +
+      '<div class="music-item-dur" style="color:var(--purple-light)">' + (isActive ? '▶' : '') + '</div>' +
     '</div>';
   }).join('');
 }
@@ -1356,11 +1395,14 @@ function renderMusicList() {
 function playTrack(idx) {
   currentTrackIdx = idx;
   var track = MUSIC_LIBRARY[currentGenre][idx];
-  if (audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
-  audioPlayer = new Audio(track.url);
-  audioPlayer.volume = (document.getElementById('music-volume').value || 60) / 100;
-  audioPlayer.play().catch(function() {});
-  audioPlayer.onended = function() { nextTrack(); };
+  if (!ytReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') {
+    toast('⚠️ Player ainda carregando, tente em instantes.');
+    return;
+  }
+  var vol = parseInt(document.getElementById('music-volume').value) || 60;
+  ytPlayer.setVolume(vol);
+  ytPlayer.loadVideoById(track.ytid);
+  ytPlayer.playVideo();
   isPlaying = true;
   document.getElementById('music-player').style.display = 'flex';
   document.getElementById('music-player').style.flexDirection = 'column';
@@ -1372,17 +1414,12 @@ function playTrack(idx) {
 }
 
 function togglePlay() {
-  if (!audioPlayer) return;
-  if (isPlaying) {
-    audioPlayer.pause();
-    isPlaying = false;
-    document.getElementById('music-play-btn').textContent = '▶';
-    document.getElementById('music-vinyl').classList.remove('spinning');
+  if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+  var state = ytPlayer.getPlayerState();
+  if (state === 1) {
+    ytPlayer.pauseVideo();
   } else {
-    audioPlayer.play().catch(function() {});
-    isPlaying = true;
-    document.getElementById('music-play-btn').textContent = '⏸';
-    document.getElementById('music-vinyl').classList.add('spinning');
+    ytPlayer.playVideo();
   }
 }
 
@@ -1399,7 +1436,7 @@ function prevTrack() {
 }
 
 function setVolume(val) {
-  if (audioPlayer) audioPlayer.volume = val / 100;
+  if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(val));
 }
 
 // ─── TIMER ───────────────────────────────────────────────
