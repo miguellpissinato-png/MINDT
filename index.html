@@ -803,7 +803,19 @@ async function loadUserData(){
     if(p.metas)p.metas.forEach(function(m){m._type='meta';});
     if(p.tasks)p.tasks.forEach(function(t){t._type='task';});
     state=Object.assign({},state,p);
-  }else{seedDemo();}
+  }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
+    seedDemo();
+  }else{
+    try{
+      var local=localStorage.getItem('mindt-local');
+      if(local){
+        var lp=JSON.parse(local);
+        if(lp.metas)lp.metas.forEach(function(m){m._type='meta';});
+        if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
+        state=Object.assign({},state,lp);
+      }
+    }catch(e){}
+  }
   if(!state.perfil)state.perfil={name:'',avatar:null};
   if(!state.perfil.name)state.perfil.name=currentUser.email.split('@')[0];
 }
@@ -1268,10 +1280,12 @@ function renderEstudos() {
 
 // SEED
 function seedDemo(){
-  state.grupos=['Pessoal','Trabalho','Estudos'];
-  state.metas=[{id:uid(),_type:'meta',name:'Aprender violão',desc:'Aprender acordes básicos e tocar 3 músicas.',group:'Pessoal',deadline:'31/12/2026',budget:'500',checklist:[{text:'Comprar o violão',done:true},{text:'Acordes básicos (C,G,Am,F)',done:true},{text:'Praticar 20min por dia',done:false}],img:null,done:false,createdAt:new Date(Date.now()-5*86400000).toISOString()}];
-  state.tasks=[{id:uid(),_type:'task',name:'Revisar relatório',desc:'Relatório de segurança do trabalho do mês.',group:'Trabalho',deadline:'15/07/2026',budget:'',img:null,done:false,createdAt:new Date(Date.now()-2*86400000).toISOString()}];
-  state.notas=[{id:uid(),title:'Ideia de projeto',body:'Sistema de monitoramento de NRs com GitHub Actions.',createdAt:new Date().toISOString()}];
+  // Only runs once for brand new users — data is immediately saved to Supabase
+  state.grupos=[];
+  state.metas=[];
+  state.tasks=[];
+  state.notas=[];
+  state.perfil={name:'',avatar:null};
   saveState();
 }
 
