@@ -790,31 +790,57 @@ function confirmLogout(){
 }
 
 // SAVE/LOAD
-function saveState(){
+async function saveState(){
+  // 1. Save to localStorage immediately (instant backup)
   try{localStorage.setItem('mindt-local',JSON.stringify(state));}catch(e){}
+  // 2. Save to Supabase immediately (no debounce, no setTimeout)
   if(!currentUser)return;
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(function(){sb.from('user_data').upsert({user_id:currentUser.id,data:state,updated_at:new Date().toISOString()},{onConflict:'user_id'});},600);
+  try{
+    var res=await sb.from('user_data').upsert(
+      {user_id:currentUser.id,data:state,updated_at:new Date().toISOString()},
+      {onConflict:'user_id'}
+    );
+    if(res.error){console.error('Supabase save error:',res.error);}
+  }catch(e){console.error('saveState exception:',e);}
 }
+
 async function loadUserData(){
   var res=await sb.from('user_data').select('data').eq('user_id',currentUser.id).single();
   if(res.data&&res.data.data){
+    // Found data in Supabase — use it
     var p=res.data.data;
     if(p.metas)p.metas.forEach(function(m){m._type='meta';});
     if(p.tasks)p.tasks.forEach(function(t){t._type='task';});
     state=Object.assign({},state,p);
   }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
-    seedDemo();
-  }else{
+    // Brand new user — check localStorage first, if nothing, start empty
     try{
       var local=localStorage.getItem('mindt-local');
       if(local){
         var lp=JSON.parse(local);
-        if(lp.metas)lp.metas.forEach(function(m){m._type='meta';});
-        if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
-        state=Object.assign({},state,lp);
+        if(lp.metas&&lp.metas.length>0){
+          // Has local data (e.g. used before Supabase) — migrate it
+          if(lp.metas)lp.metas.forEach(function(m){m._type='meta';});
+          if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
+          state=Object.assign({},state,lp);
+          await saveState(); // Migrate to Supabase immediately
+          return;
+        }
       }
     }catch(e){}
+    // Truly new user — start empty
+    seedDemo();
+  }else{
+    // Network error — fall back to localStorage
+    try{
+      var local2=localStorage.getItem('mindt-local');
+      if(local2){
+        var lp2=JSON.parse(local2);
+        if(lp2.metas)lp2.metas.forEach(function(m){m._type='meta';});
+        if(lp2.tasks)lp2.tasks.forEach(function(t){t._type='task';});
+        state=Object.assign({},state,lp2);
+      }
+    }catch(e2){}
   }
   if(!state.perfil)state.perfil={name:'',avatar:null};
   if(!state.perfil.name)state.perfil.name=currentUser.email.split('@')[0];
@@ -1642,6 +1668,19 @@ function updateSessionDots() {
 
 // Init music list on page load
 renderMusicList();
+
+// Force save before page unload
+window.addEventListener('beforeunload', function() {
+  if(currentUser && state){
+    try{localStorage.setItem('mindt-local',JSON.stringify(state));}catch(e){}
+    // Use sendBeacon for reliable save on page close
+    var payload=JSON.stringify({user_id:currentUser.id,data:state,updated_at:new Date().toISOString()});
+    navigator.sendBeacon&&navigator.sendBeacon(
+      SUPA_URL+'/rest/v1/user_data',
+      new Blob([payload],{type:'application/json'})
+    );
+  }
+});
 
 </script>
 </body>
