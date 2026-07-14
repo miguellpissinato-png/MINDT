@@ -23,7 +23,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 /* AUTH */
 #auth-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#090412 0%,#0d0820 100%)}
 .auth-card{width:100%;max-width:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(122,69,212,0.25);border-radius:24px;padding:40px 36px;backdrop-filter:blur(24px);box-shadow:0 24px 80px rgba(0,0,0,0.5)}
-.auth-logo-icon{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:linear-gradient(135deg,#7a45d4,#3a1870);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#fff;box-shadow:0 0 24px rgba(83,34,162,0.5)}
+.auth-logo-icon{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:linear-gradient(135deg,#7a45d4,#3a1870);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;box-shadow:0 0 24px rgba(83,34,162,0.5)}
 .auth-logo-text{text-align:center;font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;background:linear-gradient(90deg,#fff,#7a45d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px}
 .auth-subtitle{text-align:center;font-size:13px;color:rgba(240,234,255,0.4);margin-top:4px;margin-bottom:28px}
 .auth-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:28px}
@@ -534,7 +534,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
             <select class="form-select" id="gasto-categoria" style="flex:1">
               <option value="">Sem categoria</option>
             </select>
-            <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-add-gasto');openModal('modal-add-categoria')">+</button>
+            <button class="btn btn-ghost btn-sm" onclick="openCatFromGasto()">+</button>
           </div>
         </div>
         <div class="form-group">
@@ -564,7 +564,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         <div class="section-title" style="margin-top:0">Categorias criadas</div>
         <div id="categorias-list"></div>
         <div class="modal-actions">
-          <button class="btn btn-ghost" onclick="closeModal('modal-add-categoria')">Fechar</button>
+          <button class="btn btn-ghost" onclick="closeCatBackToGasto()">Fechar</button>
         </div>
       </div>
     </div>
@@ -1278,11 +1278,20 @@ function getCat(id) {
   return state.categorias.find(function(c){return c.id===id;}) || null;
 }
 
+// Fallback palette for categories without custom color (but user sets color, so this is backup)
+var PIZZA_FALLBACK_COLORS = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
+
+// Store slices for tooltip hit detection
+var pizzaSlices = [];
+
 function renderPizzaChart(lista) {
   var canvas = document.getElementById('pizza-chart');
   if(!canvas) return;
   var ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,200,200);
+  var W = canvas.width, H = canvas.height;
+  var cx = W/2, cy = H/2, R = 78, r = 50;
+  ctx.clearRect(0,0,W,H);
+  pizzaSlices = [];
 
   // Group by category
   var bycat = {};
@@ -1295,48 +1304,126 @@ function renderPizzaChart(lista) {
   var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
 
   if(!total || !keys.length) {
-    // Draw empty donut
     ctx.beginPath();
-    ctx.arc(100,100,80,0,Math.PI*2);
-    ctx.strokeStyle='rgba(255,255,255,0.06)';
-    ctx.lineWidth=28;
-    ctx.stroke();
+    ctx.arc(cx,cy,R,0,Math.PI*2);
+    ctx.arc(cx,cy,r,0,Math.PI*2,true);
+    ctx.fillStyle='rgba(255,255,255,0.05)';
+    ctx.fill();
     document.getElementById('pizza-legend').innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center">Nenhum gasto ainda</div>';
     return;
   }
 
   var startAngle = -Math.PI/2;
+  var GAP = 0.03; // gap between slices in radians
   var legend = [];
+  var fallbackIdx = 0;
 
-  keys.forEach(function(key){
+  keys.forEach(function(key, i){
     var cat = getCat(key);
-    var cor = cat ? cat.cor : '#5322a2';
+    // Use cat color if exists, else assign a fallback from palette
+    var cor = (cat && cat.cor) ? cat.cor : PIZZA_FALLBACK_COLORS[fallbackIdx++ % PIZZA_FALLBACK_COLORS.length];
     var nome = cat ? cat.nome : 'Sem categoria';
     var val = bycat[key];
-    var slice = (val/total)*Math.PI*2;
+    var sliceAngle = (val/total)*Math.PI*2;
+    var endAngle = startAngle + sliceAngle;
+    var midAngle = startAngle + sliceAngle/2;
 
-    // Draw donut slice
+    // Draw filled donut slice with gap
     ctx.beginPath();
-    ctx.arc(100,100,80,startAngle,startAngle+slice);
-    ctx.strokeStyle = cor;
-    ctx.lineWidth = 28;
-    ctx.stroke();
+    ctx.moveTo(cx + r*Math.cos(startAngle+GAP), cy + r*Math.sin(startAngle+GAP));
+    ctx.arc(cx, cy, R, startAngle+GAP, endAngle-GAP);
+    ctx.arc(cx, cy, r, endAngle-GAP, startAngle+GAP, true);
+    ctx.closePath();
+    ctx.fillStyle = cor;
+    ctx.shadowColor = cor;
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Store slice data for tooltip
+    pizzaSlices.push({
+      startAngle: startAngle+GAP,
+      endAngle: endAngle-GAP,
+      cor: cor,
+      nome: nome,
+      val: val,
+      pct: ((val/total)*100).toFixed(1),
+      midAngle: midAngle
+    });
 
     legend.push({cor:cor,nome:nome,val:val,pct:((val/total)*100).toFixed(0)});
-    startAngle += slice;
+    startAngle = endAngle;
   });
 
   // Legend
   document.getElementById('pizza-legend').innerHTML = legend.map(function(l){
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
       +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<div style="width:10px;height:10px;border-radius:50%;background:'+l.cor+';flex-shrink:0"></div>'
+        +'<div style="width:10px;height:10px;border-radius:50%;background:'+l.cor+';flex-shrink:0;box-shadow:0 0 6px '+l.cor+'88"></div>'
         +'<span style="font-size:12px">'+esc(l.nome)+'</span>'
       +'</div>'
-      +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">R$ '+l.val.toFixed(2).replace('.',',')+'</span></div>'
+      +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">R$ '+l.val.toFixed(2).replace('.',',')+'</span></div>'
     +'</div>';
   }).join('');
 }
+
+// Pizza tooltip
+(function setupPizzaTooltip(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var canvas = document.getElementById('pizza-chart');
+    if(!canvas) return;
+    var tooltip = document.createElement('div');
+    tooltip.id = 'pizza-tooltip';
+    tooltip.style.cssText = 'position:fixed;display:none;background:rgba(12,7,22,0.95);border:1px solid rgba(122,69,212,0.4);backdrop-filter:blur(16px);border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
+    document.body.appendChild(tooltip);
+
+    canvas.addEventListener('mousemove', function(e){
+      var rect = canvas.getBoundingClientRect();
+      var scaleX = canvas.width / rect.width;
+      var scaleY = canvas.height / rect.height;
+      var x = (e.clientX - rect.left) * scaleX - canvas.width/2;
+      var y = (e.clientY - rect.top) * scaleY - canvas.height/2;
+      var dist = Math.sqrt(x*x + y*y);
+      var R = 78, r = 50;
+
+      if(dist >= r && dist <= R && pizzaSlices.length){
+        var angle = Math.atan2(y, x);
+        if(angle < -Math.PI/2) angle += Math.PI*2;
+        // Find matching slice
+        var hit = null;
+        for(var i=0;i<pizzaSlices.length;i++){
+          var s = pizzaSlices[i];
+          var sa = s.startAngle < -Math.PI/2 ? s.startAngle + Math.PI*2 : s.startAngle;
+          var ea = s.endAngle < -Math.PI/2 ? s.endAngle + Math.PI*2 : s.endAngle;
+          var a = angle < sa ? angle + Math.PI*2 : angle;
+          if(a >= sa && a <= ea){ hit = s; break; }
+        }
+        if(hit){
+          tooltip.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+            +'<div style="width:10px;height:10px;border-radius:50%;background:'+hit.cor+'"></div>'
+            +'<strong>'+esc(hit.nome)+'</strong>'
+            +'</div>'
+            +'<div style="color:rgba(240,234,255,0.6)">'+hit.pct+'% do total</div>'
+            +'<div style="font-size:16px;font-weight:700;margin-top:4px">R$ '+hit.val.toFixed(2).replace('.',',')+'</div>';
+          tooltip.style.display = 'block';
+          tooltip.style.left = (e.clientX + 14)+'px';
+          tooltip.style.top = (e.clientY - 20)+'px';
+          canvas.style.cursor = 'pointer';
+        } else {
+          tooltip.style.display = 'none';
+          canvas.style.cursor = 'default';
+        }
+      } else {
+        tooltip.style.display = 'none';
+        canvas.style.cursor = 'default';
+      }
+    });
+
+    canvas.addEventListener('mouseleave', function(){
+      tooltip.style.display = 'none';
+    });
+  });
+})();
 
 function gastoRow(icon,item){return '<div class="gasto-row"><div class="gasto-icon">'+icon+'</div><div class="gasto-info"><div class="gasto-name">'+esc(item.name)+'</div><div class="gasto-meta">'+(item.group||'Sem grupo')+' • '+(item.deadline||'Sem prazo')+'</div></div><div class="gasto-value">R$ '+parseFloat(item.budget).toFixed(2).replace('.',',')+'</div></div>';}
 function switchGastosTab(tabId,btn){document.querySelectorAll('#page-gastos .tab-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.getElementById('metas-tab').style.display=tabId==='metas-tab'?'':'none';document.getElementById('tasks-tab').style.display=tabId==='tasks-tab'?'':'none';}
@@ -1423,6 +1510,24 @@ function deleteGasto(id) {
 }
 
 // ─── CATEGORIAS ──────────────────────────────────────────
+var _catFromGasto = false; // track if categoria modal was opened from gasto modal
+
+function openCatFromGasto() {
+  _catFromGasto = true;
+  closeModal('modal-add-gasto');
+  openModal('modal-add-categoria');
+}
+
+function closeCatBackToGasto() {
+  closeModal('modal-add-categoria');
+  if(_catFromGasto) {
+    _catFromGasto = false;
+    // Re-open add-gasto with current values preserved
+    updateCategoriaSelect();
+    openModal('modal-add-gasto');
+  }
+}
+
 function saveCategoria() {
   var nome = document.getElementById('cat-nome').value.trim();
   var cor = document.getElementById('cat-cor').value;
