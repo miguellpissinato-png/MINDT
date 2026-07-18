@@ -108,26 +108,44 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 .tab-btn{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text-dim);transition:all 0.2s;white-space:nowrap}
 .tab-btn.active{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:#fff;box-shadow:0 4px 16px var(--purple-glow)}
 .tab-btn:hover:not(.active){background:var(--glass-hover);color:var(--text)}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:16px}
-.meta-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s,border-color 0.3s;position:relative}
-.meta-card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 20px 48px rgba(83,34,162,0.3);border-color:rgba(122,69,212,0.4)}
-.meta-card-img{width:100%;height:120px;background:linear-gradient(135deg,rgba(83,34,162,0.3),rgba(10,6,18,0.8));display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden}
+.cards-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+.meta-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.25s,border-color 0.25s,background 0.25s;position:relative;display:flex;flex-direction:row;align-items:stretch;width:100%}
+.meta-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(83,34,162,0.22);border-color:rgba(122,69,212,0.35);background:rgba(255,255,255,0.06)}
+.meta-card-img{width:100px;min-width:100px;height:auto;background:linear-gradient(135deg,rgba(83,34,162,0.3),rgba(10,6,18,0.8));display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden;flex-shrink:0}
 .meta-card-img img{width:100%;height:100%;object-fit:cover}
-.meta-card-body{padding:14px 16px}
-.meta-card-title{font-size:15px;font-weight:600;margin-bottom:6px}
-.meta-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
+.meta-card-body{padding:14px 16px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
+.meta-card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.meta-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px}
 .meta-card-date{font-size:11px;color:var(--text-muted)}
+.meta-inline-checklist{margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;display:flex;flex-direction:column;gap:5px}
+.meta-inline-check-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)}
+.meta-inline-check-item input{width:13px;height:13px;accent-color:var(--purple-light);cursor:pointer;flex-shrink:0}
+.meta-inline-check-item label{cursor:pointer;transition:all 0.15s}
+.meta-inline-check-item input:checked+label{text-decoration:line-through;color:var(--text-muted)}
 .progress-bar-wrap{margin-top:10px}
 .progress-bar-track{height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden}
 .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple-light));border-radius:99px;transition:width 0.6s ease}
 .progress-label{font-size:10px;color:var(--text-muted);margin-top:4px;text-align:right}
-.task-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;cursor:pointer;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s,border-color 0.3s;aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;position:relative}
-.task-card:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 16px 40px rgba(83,34,162,0.28);border-color:rgba(122,69,212,0.4)}
-.task-card-icon{width:40px;height:40px;border-radius:50%;border:2px solid rgba(122,69,212,0.4);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;overflow:hidden}
-.task-card-title{font-size:14px;font-weight:600;margin-bottom:6px}
-.task-card-desc{font-size:11px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.task-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.task-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 22px;cursor:pointer;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.25s,border-color 0.25s,background 0.25s;display:flex;flex-direction:column;gap:0;position:relative;width:100%}
+.task-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(83,34,162,0.22);border-color:rgba(122,69,212,0.35);background:rgba(255,255,255,0.06)}
+.task-card-header{display:flex;align-items:center;gap:14px}
+.task-card-check{width:22px;height:22px;border-radius:6px;border:2px solid rgba(122,69,212,0.5);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.task-card-check.done{background:linear-gradient(135deg,var(--purple),var(--purple-light));border-color:transparent}
+.task-card-check svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none;opacity:0;transition:opacity 0.2s}
+.task-card-check.done svg{opacity:1}
+.task-card-main{flex:1;min-width:0}
+.task-card-title{font-size:14px;font-weight:600;margin-bottom:3px;transition:color 0.2s}
+.task-card-title.done{text-decoration:line-through;color:var(--text-muted)}
+.task-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.task-card-meta{display:flex;align-items:center;gap:10px;margin-left:36px;margin-top:8px;flex-wrap:wrap}
 .task-card-date{font-size:10px;color:var(--text-muted)}
+.task-status-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(83,34,162,0.3);color:var(--purple-light)}
+.task-status-badge.done{background:rgba(34,197,94,0.15);color:var(--green)}
+.task-inline-checklist{margin-left:36px;margin-top:10px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.task-inline-check-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)}
+.task-inline-check-item input{width:14px;height:14px;accent-color:var(--purple-light);cursor:pointer;flex-shrink:0}
+.task-inline-check-item label{cursor:pointer;transition:all 0.15s}
+.task-inline-check-item input:checked+label{text-decoration:line-through;color:var(--text-muted)}
 .task-status-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(83,34,162,0.3);color:var(--purple-light)}
 .task-status-badge.done{background:rgba(34,197,94,0.15);color:var(--green)}
 .period-stats{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
@@ -342,6 +360,44 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 .cat-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .cat-chip-name{font-size:14px;font-weight:500}
 @media(max-width:768px){.gastos-layout{grid-template-columns:1fr}}
+
+/* ═══ TIMER INLINE EDIT ═══ */
+.timer-time{cursor:pointer;transition:opacity 0.2s}
+.timer-time:hover{opacity:0.8}
+.timer-time-input{
+  font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;
+  letter-spacing:-1px;line-height:1;text-align:center;
+  background:rgba(83,34,162,0.2);border:2px solid rgba(122,69,212,0.6);
+  border-radius:12px;color:var(--text);outline:none;width:160px;padding:4px 8px;
+}
+
+/* ═══ SMOOTHER GLOBAL ANIMATIONS ═══ */
+*{transition-timing-function:cubic-bezier(0.4,0,0.2,1)}
+.page{animation:pageIn 0.4s cubic-bezier(0.4,0,0.2,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-overlay.open .modal{animation:modalIn 0.35s cubic-bezier(0.34,1.4,0.64,1)}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.nota-card{transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.35s}
+.btn{transition:all 0.2s cubic-bezier(0.4,0,0.2,1)}
+.nav-item{transition:background 0.18s,border-color 0.18s}
+.filter-chip{transition:all 0.18s cubic-bezier(0.4,0,0.2,1)}
+
+/* ═══ SVG NAV ICONS ═══ */
+.nav-icon svg,.m-icon svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round;color:var(--text-dim)}
+.nav-item.active .nav-icon svg{color:var(--text)}
+.mobile-nav-item.active .m-icon svg{stroke:var(--purple-light)}
+
+/* ═══ CARD ANIMATIONS ═══ */
+.task-card,.meta-card{animation:cardIn 0.3s cubic-bezier(0.4,0,0.2,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.task-card:nth-child(1){animation-delay:0ms}
+.task-card:nth-child(2){animation-delay:40ms}
+.task-card:nth-child(3){animation-delay:80ms}
+.task-card:nth-child(4){animation-delay:120ms}
+.task-card:nth-child(5){animation-delay:160ms}
+.meta-card:nth-child(1){animation-delay:0ms}
+.meta-card:nth-child(2){animation-delay:40ms}
+.meta-card:nth-child(3){animation-delay:80ms}
 </style>
 </head>
 <body>
@@ -371,24 +427,24 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
   <nav id="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">M</div><span class="logo-text">Mindt</span></div>
     <div class="nav-item active" data-page="home"><div class="nav-icon">🏠</div><span class="nav-label">Home</span></div>
-    <div class="nav-item" data-page="metas"><div class="nav-icon">🎯</div><span class="nav-label">Metas</span></div>
-    <div class="nav-item" data-page="tarefas"><div class="nav-icon">✅</div><span class="nav-label">Tarefas</span></div>
-    <div class="nav-item" data-page="gastos"><div class="nav-icon">💰</div><span class="nav-label">Gastos</span></div>
-    <div class="nav-item" data-page="resumo"><div class="nav-icon">📊</div><span class="nav-label">Resumo</span></div>
-    <div class="nav-item" data-page="estudos"><div class="nav-icon">📚</div><span class="nav-label">Estudos</span></div>
-    <div class="nav-item" data-page="notas"><div class="nav-icon">📝</div><span class="nav-label">Notas</span></div>
+    <div class="nav-item" data-page="metas"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><span class="nav-label">Metas</span></div>
+    <div class="nav-item" data-page="tarefas"><div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="nav-label">Tarefas</span></div>
+    <div class="nav-item" data-page="gastos"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="nav-label">Gastos</span></div>
+    <div class="nav-item" data-page="resumo"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="nav-label">Resumo</span></div>
+    <div class="nav-item" data-page="estudos"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span class="nav-label">Estudos</span></div>
+    <div class="nav-item" data-page="notas"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="nav-label">Notas</span></div>
     <div class="sidebar-divider"></div>
-    <div class="nav-item" data-page="perfil"><div class="nav-icon">👤</div><span class="nav-label">Perfil</span></div>
+    <div class="nav-item" data-page="perfil"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Perfil</span></div>
   </nav>
 
   <div id="mobile-nav">
-    <div class="mobile-nav-item active" data-page="home" onclick="mobileNav(this,'home')"><div class="m-icon">🏠</div><div class="m-label">Home</div></div>
-    <div class="mobile-nav-item" data-page="metas" onclick="mobileNav(this,'metas')"><div class="m-icon">🎯</div><div class="m-label">Metas</div></div>
-    <div class="mobile-nav-item" data-page="tarefas" onclick="mobileNav(this,'tarefas')"><div class="m-icon">✅</div><div class="m-label">Tarefas</div></div>
-    <div class="mobile-nav-item" data-page="gastos" onclick="mobileNav(this,'gastos')"><div class="m-icon">💰</div><div class="m-label">Gastos</div></div>
-    <div class="mobile-nav-item" data-page="estudos" onclick="mobileNav(this,'estudos')"><div class="m-icon">📚</div><div class="m-label">Estudos</div></div>
-    <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')"><div class="m-icon">📝</div><div class="m-label">Notas</div></div>
-    <div class="mobile-nav-item" data-page="perfil" onclick="mobileNav(this,'perfil')"><div class="m-icon">👤</div><div class="m-label">Perfil</div></div>
+    <div class="mobile-nav-item active" data-page="home" onclick="mobileNav(this,'home')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="m-label">Home</div></div>
+    <div class="mobile-nav-item" data-page="metas" onclick="mobileNav(this,'metas')"><div class="m-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="m-label">Metas</div></div>
+    <div class="mobile-nav-item" data-page="tarefas" onclick="mobileNav(this,'tarefas')"><div class="m-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="m-label">Tarefas</div></div>
+    <div class="mobile-nav-item" data-page="gastos" onclick="mobileNav(this,'gastos')"><div class="m-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="m-label">Gastos</div></div>
+    <div class="mobile-nav-item" data-page="estudos" onclick="mobileNav(this,'estudos')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="m-label">Estudos</div></div>
+    <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="m-label">Notas</div></div>
+    <div class="mobile-nav-item" data-page="perfil" onclick="mobileNav(this,'perfil')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="m-label">Perfil</div></div>
   </div>
 
   <main id="main">
@@ -643,8 +699,9 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
               <circle class="timer-ring-fill" id="timer-ring-fill" cx="100" cy="100" r="88"/>
             </svg>
             <div class="timer-display-inner">
-              <div class="timer-time" id="timer-display">25:00</div>
-              <div class="timer-label" id="timer-label">Pronto para começar</div>
+              <div class="timer-time" id="timer-display" onclick="startInlineEdit()" title="Clique para editar">25:00</div>
+              <input class="timer-time-input" id="timer-inline-input" type="text" placeholder="25:00" onblur="applyInlineEdit()" onkeydown="if(event.key==='Enter')applyInlineEdit();if(event.key==='Escape')cancelInlineEdit()" style="display:none">
+              <div class="timer-label" id="timer-label">Clique no tempo para editar</div>
             </div>
           </div>
 
@@ -1046,17 +1103,34 @@ function renderMetas(filter,groupFilter){
   if(list.length===0){grid.innerHTML='<div class="empty-state"><div class="empty-icon">🎯</div><p>Nenhuma meta ainda.</p></div>';return;}
   grid.innerHTML=list.map(function(m){
     var pct=calcProgress(m);
-    return '<div class="meta-card'+(deleteMode.type==='metas'?' selection-mode':'')+'" data-id="'+m.id+'" onclick="handleCardClick(\'meta\',\''+m.id+'\',event)">'+
-      '<input type="checkbox" class="select-checkbox" onchange="toggleSelect(\''+m.id+'\',this)">'+
-      '<div class="meta-card-img">'+(m.img?'<img src="'+m.img+'">':`🎯`)+`</div>`+
-      `<div class="meta-card-body">`+
-      (m.group?`<div class="chip" style="margin-bottom:6px;font-size:10px">`+esc(m.group)+`</div>`:``)+
-      `<div class="meta-card-title">`+esc(m.name)+`</div>`+
-      `<div class="meta-card-desc">`+esc(m.desc||'')+`</div>`+
-      `<div class="meta-card-date">📅 `+(m.deadline||'Sem prazo')+`</div>`+
-      `<div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:`+pct+`%"></div></div><div class="progress-label">`+pct+`%</div></div>`+
-      `</div></div>`;
-  }).join('');
+    var inlineChecklist='';
+    if(m.checklist&&m.checklist.length){
+      inlineChecklist='<div class="meta-inline-checklist" onclick="event.stopPropagation()">'
+        +m.checklist.map(function(ci,idx2){
+          var cid='mcl-'+m.id+'-'+idx2;
+          return '<div class="meta-inline-check-item">'
+            +'<input type="checkbox" class="meta-cl-cb" data-mid="'+m.id+'" data-idx="'+idx2+'" id="'+cid+'" '+(ci.done?'checked':'')+'>'
+            +'<label for="'+cid+'">'+esc(ci.text)+'</label>'
+            +'</div>';
+        }).join('')+'</div>';
+    }
+    return '<div class="meta-card'+(deleteMode.type==='metas'?' selection-mode':'')+'" data-id="'+m.id+'" onclick="handleCardClick(\'meta\',\''+m.id+'\',event)">'
+      +'<input type="checkbox" class="select-checkbox" onchange="toggleSelect(\''+m.id+'\',this)">'
+      +'<div class="meta-card-img">'+(m.img?'<img src="'+m.img+'">':(m.done?'✅':'🎯'))+'</div>'
+      +'<div class="meta-card-body">'
+        +'<div>'
+          +(m.group?'<div class="chip" style="margin-bottom:6px;font-size:10px">'+esc(m.group)+'</div>':'')
+          +'<div class="meta-card-title">'+esc(m.name)+'</div>'
+          +(m.desc?'<div class="meta-card-desc">'+esc(m.desc)+'</div>':'')
+        +'</div>'
+        +'<div>'
+          +(m.deadline?'<div class="meta-card-date">📅 '+(m.deadline||'Sem prazo')+'</div>':'')
+          +'<div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div><div class="progress-label">'+pct+'%</div></div>'
+          +inlineChecklist
+        +'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');;
 }
 function filterMetas(type,el){document.querySelectorAll('#metas-filter-row .filter-chip').forEach(function(c){c.classList.remove('active');});if(el)el.classList.add('active');renderMetas(type);}
 
@@ -1070,14 +1144,36 @@ function renderTasks(filter){
   if(filter==='recent')list.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
   if(list.length===0){grid.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhuma tarefa ainda.</p></div>';return;}
   grid.innerHTML=list.map(function(t){
-    return '<div class="task-card'+(deleteMode.type==='tasks'?' selection-mode':'')+'" data-id="'+t.id+'" onclick="handleCardClick(\'task\',\''+t.id+'\',event)">'+
-      '<input type="checkbox" class="select-checkbox" onchange="toggleSelect(\''+t.id+'\',this)">'+
-      '<div><div class="task-card-icon">'+(t.img?'<img src="'+t.img+'" style="width:100%;height:100%;object-fit:cover">':`✓`)+`</div>`+
-      `<div class="task-card-title">`+esc(t.name)+`</div>`+
-      `<div class="task-card-desc">`+esc(t.desc||'')+`</div></div>`+
-      `<div class="task-card-footer"><div class="task-card-date">`+(t.deadline||'')+`</div>`+
-      `<div class="task-status-badge`+(t.done?' done':'')+`">`+(t.done?'Concluída':'Andamento')+`</div></div></div>`;
-  }).join('');
+    var chkSvg='<svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>';
+    var inlineChecklist='';
+    if(t.checklist&&t.checklist.length){
+      inlineChecklist='<div class="task-inline-checklist" onclick="event.stopPropagation()" data-taskid="'+t.id+'">'
+        +t.checklist.map(function(ci,idx2){
+          var cid='tcl-'+t.id+'-'+idx2;
+          return '<div class="task-inline-check-item">'
+            +'<input type="checkbox" class="task-cl-cb" data-tid="'+t.id+'" data-idx="'+idx2+'" id="'+cid+'" '+(ci.done?'checked':'')+'>'
+            +'<label for="'+cid+'">'+esc(ci.text)+'</label>'
+            +'</div>';
+        }).join('')+'</div>';
+    }
+    return '<div class="task-card'+(deleteMode.type==='tasks'?' selection-mode':'')+'" data-id="'+t.id+'" onclick="handleCardClick(\'task\',\''+t.id+'\',event)">'
+      +'<input type="checkbox" class="select-checkbox" onchange="toggleSelect(\''+t.id+'\',this)">'
+      +'<div class="task-card-header">'
+        +'<div class="task-card-check'+(t.done?' done':'')+'" onclick="event.stopPropagation();quickCompleteTask(\''+t.id+'\')" title="Concluir">'+chkSvg+'</div>'
+        +'<div class="task-card-main">'
+          +'<div class="task-card-title'+(t.done?' done':'')+'">'+esc(t.name)+'</div>'
+          +(t.desc?'<div class="task-card-desc">'+esc(t.desc)+'</div>':'')
+        +'</div>'
+        +'<div class="task-status-badge'+(t.done?' done':'')+'" style="flex-shrink:0;margin-left:auto">'+(t.done?'Concluída':'Andamento')+'</div>'
+      +'</div>'
+      +'<div class="task-card-meta">'
+        +(t.deadline?'<span class="task-card-date">📅 '+t.deadline+'</span>':'')
+        +(t.group?'<span class="task-card-date">📁 '+esc(t.group)+'</span>':'')
+        +(t.budget?'<span class="task-card-date">💰 R$'+parseFloat(t.budget).toFixed(0)+'</span>':'')
+      +'</div>'
+      +inlineChecklist
+      +'</div>';
+  }).join('');;
 }
 function filterTasks(type,el){document.querySelectorAll('#tasks-filter-row .filter-chip').forEach(function(c){c.classList.remove('active');});if(el)el.classList.add('active');renderTasks(type);}
 
@@ -1795,6 +1891,79 @@ function renderEstudos() {
   updateSessionDots();
 }
 
+
+// Quick complete task from card
+function quickCompleteTask(id) {
+  var t = state.tasks.find(function(x){return x.id===id;});
+  if(!t) return;
+  t.done = !t.done;
+  t.completedAt = t.done ? new Date().toISOString() : null;
+  saveState();
+  renderTasks();
+  renderHome();
+  toast(t.done ? '✅ Concluída!' : '↩ Reaberta!');
+}
+
+// Toggle checklist item directly from task card
+function toggleTaskInlineCheck(taskId, idx, cb) {
+  var t = state.tasks.find(function(x){return x.id===taskId;});
+  if(!t||!t.checklist) return;
+  t.checklist[idx].done = cb.checked;
+  saveState();
+  renderTasks();
+}
+
+// Toggle checklist item directly from meta card
+function toggleMetaInlineCheck(metaId, idx, cb) {
+  var m = state.metas.find(function(x){return x.id===metaId;});
+  if(!m||!m.checklist) return;
+  m.checklist[idx].done = cb.checked;
+  m.progress = calcProgress(m);
+  saveState();
+  renderMetas();
+}
+
+// Timer inline edit
+function startInlineEdit() {
+  if(timerRunning) return;
+  var disp = document.getElementById('timer-display');
+  var inp = document.getElementById('timer-inline-input');
+  inp.value = disp.textContent;
+  disp.style.display = 'none';
+  inp.style.display = 'block';
+  inp.focus();
+  inp.select();
+  document.getElementById('timer-label').textContent = 'Digite mm:ss e pressione Enter';
+}
+
+function applyInlineEdit() {
+  var inp = document.getElementById('timer-inline-input');
+  var val = inp.value.trim();
+  var parts = val.split(':');
+  var mins = 0, secs = 0;
+  if(parts.length === 2) {
+    mins = parseInt(parts[0]) || 0;
+    secs = parseInt(parts[1]) || 0;
+  } else {
+    mins = parseInt(val) || 0;
+  }
+  var total = mins * 60 + secs;
+  if(total > 0) {
+    timerTotal = total;
+    timerRemaining = total;
+    document.querySelectorAll('.timer-preset-btn').forEach(function(b){b.classList.remove('active');});
+  }
+  cancelInlineEdit();
+  updateTimerDisplay();
+  updateTimerRing();
+  if(total > 0) toast('⏱ Timer: ' + pad(mins) + ':' + pad(secs));
+}
+
+function cancelInlineEdit() {
+  document.getElementById('timer-display').style.display = 'block';
+  document.getElementById('timer-inline-input').style.display = 'none';
+  document.getElementById('timer-label').textContent = timerRunning ? 'Estudando...' : 'Clique no tempo para editar';
+}
 // SEED
 function seedDemo(){
   // Only runs once for brand new users — data is immediately saved to Supabase
@@ -1975,6 +2144,8 @@ var timerTotal = 25 * 60;
 var timerRemaining = 25 * 60;
 var timerInterval = null;
 var timerRunning = false;
+var timerStartedAt = null;   // Date.now() when timer started
+var timerBaseRemaining = 0;  // remaining at the moment start was pressed
 var todaySessions = 0;
 var studyXP = 0;
 var studyLevel = 1;
@@ -2025,11 +2196,14 @@ function applyCustomTimer() {
 function startTimer() {
   if (timerRunning) return;
   timerRunning = true;
+  timerStartedAt = Date.now();
+  timerBaseRemaining = timerRemaining;
   document.getElementById('timer-start-btn').style.display = 'none';
   document.getElementById('timer-pause-btn').style.display = 'inline-flex';
   document.getElementById('timer-label').textContent = 'Estudando...';
   timerInterval = setInterval(function() {
-    timerRemaining--;
+    var elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+    timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
     updateTimerDisplay();
     updateTimerRing();
     if (timerRemaining <= 0) {
@@ -2037,17 +2211,23 @@ function startTimer() {
       timerRunning = false;
       timerFinished();
     }
-  }, 1000);
+  }, 500); // tick every 500ms for accuracy
 }
 
 function pauseTimer() {
   if (!timerRunning) return;
+  // Capture exact remaining before clearing interval
+  var elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
+  timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
   clearInterval(timerInterval);
   timerRunning = false;
+  timerStartedAt = null;
   document.getElementById('timer-start-btn').style.display = 'inline-flex';
   document.getElementById('timer-start-btn').textContent = '▶ Continuar';
   document.getElementById('timer-pause-btn').style.display = 'none';
   document.getElementById('timer-label').textContent = 'Pausado';
+  updateTimerDisplay();
+  updateTimerRing();
 }
 
 function resetTimer() {
@@ -2173,6 +2353,34 @@ window.addEventListener('beforeunload', function() {
   }
 });
 
+
+// Event delegation for inline card checkboxes
+document.addEventListener('change', function(e) {
+  if(e.target.classList.contains('task-cl-cb')) {
+    var tid = e.target.dataset.tid;
+    var idx = parseInt(e.target.dataset.idx);
+    var t = state.tasks.find(function(x){return x.id===tid;});
+    if(t&&t.checklist&&t.checklist[idx]!==undefined) {
+      t.checklist[idx].done = e.target.checked;
+      saveState();
+    }
+  }
+  if(e.target.classList.contains('meta-cl-cb')) {
+    var mid = e.target.dataset.mid;
+    var idx2 = parseInt(e.target.dataset.idx);
+    var m = state.metas.find(function(x){return x.id===mid;});
+    if(m&&m.checklist&&m.checklist[idx2]!==undefined) {
+      m.checklist[idx2].done = e.target.checked;
+      m.progress = calcProgress(m);
+      saveState();
+      // Update progress bar in card without full re-render
+      var card = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-bar-fill');
+      if(card) card.style.width = m.progress+'%';
+      var label = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-label');
+      if(label) label.textContent = m.progress+'%';
+    }
+  }
+});
 </script>
 </body>
 </html>
