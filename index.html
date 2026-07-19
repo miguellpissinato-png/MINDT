@@ -148,10 +148,11 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 .task-inline-check-item input:checked+label{text-decoration:line-through;color:var(--text-muted)}
 .task-status-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(83,34,162,0.3);color:var(--purple-light)}
 .task-status-badge.done{background:rgba(34,197,94,0.15);color:var(--green)}
-.period-stats{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.period-chip{padding:10px 20px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;display:flex;flex-direction:column;gap:3px}
-.period-chip-label{font-size:10px;color:var(--text-muted);letter-spacing:0.8px;text-transform:uppercase}
-.period-chip-value{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700}
+.period-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.period-chip{padding:16px 20px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:14px;display:flex;flex-direction:column;gap:4px;transition:background 0.2s,border-color 0.2s}
+.period-chip:hover{background:rgba(255,255,255,0.07);border-color:rgba(122,69,212,0.3)}
+.period-chip-label{font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.period-chip-value{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:var(--text)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;cursor:pointer;border-radius:10px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:all 0.2s;white-space:nowrap}
 .btn-primary{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:#fff;box-shadow:0 4px 20px var(--purple-glow)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--purple-glow)}
@@ -276,7 +277,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
   .floating-island{padding:20px 18px}.task-mini{width:150px}
   .page-header{flex-direction:column;align-items:flex-start;gap:12px}.page-header>div{display:flex;flex-wrap:wrap;gap:8px}
   .cards-grid{grid-template-columns:repeat(2,1fr);gap:12px}
-  .period-stats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:10px}.period-chip{flex-shrink:0}
+  .period-stats{grid-template-columns:repeat(3,1fr);gap:8px}.period-chip{padding:12px 14px}
   .tab-bar{overflow-x:auto;scrollbar-width:none;width:100%}
   .filter-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.filter-chip{flex-shrink:0}
   .two-col{grid-template-columns:1fr}
@@ -398,6 +399,59 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 .meta-card:nth-child(1){animation-delay:0ms}
 .meta-card:nth-child(2){animation-delay:40ms}
 .meta-card:nth-child(3){animation-delay:80ms}
+
+/* ═══ ESTUDOS FULL LAYOUT ═══ */
+.estudos-full-layout{display:flex;flex-direction:column;gap:24px}
+.estudos-timer-card{padding:32px;display:flex;flex-direction:column;gap:24px}
+.timer-main-area{display:grid;grid-template-columns:220px 1fr;gap:40px;align-items:center}
+.timer-side-panel{display:flex;flex-direction:column;gap:20px}
+@media(max-width:768px){.timer-main-area{grid-template-columns:1fr;justify-items:center}}
+
+/* ═══ GASTOS FILTER BAR ═══ */
+.gastos-filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.gastos-filter-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--glass-border);background:rgba(255,255,255,0.04);color:var(--text-dim);cursor:pointer;transition:all 0.18s}
+.gastos-filter-btn.active{background:rgba(83,34,162,0.35);border-color:rgba(122,69,212,0.5);color:var(--text)}
+.gastos-filter-btn:hover:not(.active){background:rgba(255,255,255,0.09);color:var(--text)}
+.gastos-cal-btn{margin-left:auto;width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);transition:all 0.18s;flex-shrink:0}
+.gastos-cal-btn:hover{background:rgba(122,69,212,0.25);color:var(--text)}
+
+/* ═══ TOGGLE SWITCH ═══ */
+.installment-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:12px;cursor:pointer;transition:background 0.2s;user-select:none;margin-bottom:8px}
+.installment-toggle:hover{background:rgba(255,255,255,0.06)}
+.toggle-switch{width:36px;height:20px;border-radius:99px;background:rgba(255,255,255,0.12);position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle-switch::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.toggle-switch.on{background:linear-gradient(135deg,var(--purple),var(--purple-light))}
+.toggle-switch.on::after{transform:translateX(16px)}
+
+/* ═══ COLLAPSIBLE GASTO ITEM ═══ */
+.gasto-group-card{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden;margin-bottom:10px;transition:border-color 0.2s}
+.gasto-group-card:hover{border-color:rgba(122,69,212,0.25)}
+.gasto-group-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.gasto-group-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.gasto-group-name{font-size:14px;font-weight:600;flex:1}
+.gasto-group-total{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--purple-light)}
+.gasto-group-count{font-size:11px;color:var(--text-muted);margin-left:4px}
+.gasto-group-arrow{font-size:14px;color:var(--text-muted);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);flex-shrink:0}
+.gasto-group-arrow.open{transform:rotate(90deg)}
+.gasto-group-body{display:none;border-top:1px solid rgba(255,255,255,0.05)}
+.gasto-group-body.open{display:block}
+.gasto-item{display:flex;align-items:center;gap:12px;padding:11px 16px;transition:background 0.15s;position:relative}
+.gasto-item:hover{background:rgba(255,255,255,0.04)}
+.gasto-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.04)}
+.gasto-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gasto-item-info{flex:1;min-width:0}
+.gasto-item-desc{font-size:13px;font-weight:600}
+.gasto-item-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.gasto-item-valor{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--purple-light);flex-shrink:0}
+.gasto-item-actions{display:flex;gap:5px;opacity:0;transition:opacity 0.15s;flex-shrink:0}
+.gasto-item:hover .gasto-item-actions{opacity:1}
+.parcela-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(83,34,162,0.3);color:var(--purple-light);margin-left:4px}
+
+/* ═══ INSTALLMENT PREVIEW ═══ */
+#installment-preview table{width:100%;border-collapse:collapse;font-size:12px}
+#installment-preview th{color:var(--text-muted);text-align:left;padding:4px 8px;font-weight:600;font-size:10px;letter-spacing:0.5px;text-transform:uppercase}
+#installment-preview td{padding:5px 8px;border-top:1px solid rgba(255,255,255,0.05)}
+#installment-preview tr:hover td{background:rgba(255,255,255,0.03)}
 </style>
 </head>
 <body>
@@ -426,7 +480,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 <div id="app" style="visibility:hidden">
   <nav id="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">M</div><span class="logo-text">Mindt</span></div>
-    <div class="nav-item active" data-page="home"><div class="nav-icon">🏠</div><span class="nav-label">Home</span></div>
+    <div class="nav-item active" data-page="home"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nav-label">Home</span></div>
     <div class="nav-item" data-page="metas"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><span class="nav-label">Metas</span></div>
     <div class="nav-item" data-page="tarefas"><div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="nav-label">Tarefas</span></div>
     <div class="nav-item" data-page="gastos"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="nav-label">Gastos</span></div>
@@ -526,25 +580,51 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         <div style="text-align:right"><div class="total-banner-label">Transações</div><div style="font-size:24px;font-weight:700" id="gastos-count">0</div></div>
       </div>
 
-      <!-- FILTRO MÊS -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-        <div class="filter-row" style="margin:0" id="gastos-month-filter">
-          <div class="filter-chip active" onclick="filterGastosMes('all',this)">Todos</div>
-          <div class="filter-chip" onclick="filterGastosMes('mes',this)">Este mês</div>
-          <div class="filter-chip" onclick="filterGastosMes('semana',this)">Esta semana</div>
-        </div>
-      </div>
-
       <!-- LAYOUT: gráfico + lista -->
       <div class="gastos-layout">
 
         <!-- GRÁFICO PIZZA -->
         <div class="glass" style="padding:24px;display:flex;flex-direction:column;gap:16px">
+
+          <!-- FILTRO BAR -->
+          <div class="gastos-filter-bar">
+            <button class="gastos-filter-btn active" onclick="setGastosFiltro('mes',this)">Este mês</button>
+            <button class="gastos-filter-btn" onclick="setGastosFiltro('semana',this)">Esta semana</button>
+            <button class="gastos-filter-btn" onclick="setGastosFiltro('hoje',this)">Hoje</button>
+            <button class="gastos-filter-btn" onclick="setGastosFiltro('ano',this)">Este ano</button>
+            <button class="gastos-filter-btn" onclick="setGastosFiltro('all',this)">Todos</button>
+            <button class="gastos-cal-btn" onclick="toggleGastosCal()" title="Filtrar por data">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </button>
+          </div>
+
+          <!-- CALENDÁRIO CUSTOM FILTER -->
+          <div id="gastos-cal-picker" style="display:none;background:rgba(12,7,22,0.97);border:1px solid rgba(122,69,212,0.3);border-radius:14px;padding:16px;margin-top:-8px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <div class="form-group" style="margin:0"><label class="form-label">Mês</label>
+                <select class="form-select" id="cal-filter-month">
+                  <option value="">Todos</option>
+                  <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                  <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                  <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                  <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0"><label class="form-label">Ano</label>
+                <input class="form-input" id="cal-filter-year" type="number" placeholder="2026" value="2026">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="applyCalFilter()">Aplicar</button>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gastos-cal-picker').style.display='none'">Fechar</button>
+            </div>
+          </div>
+
           <div class="section-title" style="margin:0">Distribuição por categoria</div>
           <div style="position:relative;width:200px;height:200px;margin:0 auto">
             <canvas id="pizza-chart" width="200" height="200"></canvas>
             <div id="pizza-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-              <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700" id="pizza-total-label">R$ 0</div>
+              <div style="font-size:18px;font-weight:700" id="pizza-total-label">R$ 0</div>
               <div style="font-size:10px;color:var(--text-muted)">total</div>
             </div>
           </div>
@@ -552,14 +632,14 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         </div>
 
         <!-- LISTA DE GASTOS -->
-        <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:10px">
           <div class="section-title" style="margin:0">Lançamentos</div>
           <div id="gastos-lista"></div>
         </div>
 
       </div>
 
-      <!-- Por grupo de metas/tarefas -->
+      <!-- METAS/TAREFAS PREVISTAS -->
       <div class="section-title">Previsto em metas e tarefas</div>
       <div id="gastos-groups-bars" style="margin-bottom:16px"></div>
       <div class="tab-bar" style="margin-bottom:20px">
@@ -572,31 +652,88 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 
     <!-- MODAL ADICIONAR GASTO -->
     <div class="modal-overlay" id="modal-add-gasto">
-      <div class="modal modal-sm">
+      <div class="modal modal-wide">
         <div class="modal-close" onclick="closeModal('modal-add-gasto')">✕</div>
         <div class="modal-title" id="gasto-modal-title">Novo gasto</div>
         <input type="hidden" id="gasto-edit-id">
-        <div class="form-group">
-          <label class="form-label">Descrição</label>
-          <input class="form-input" id="gasto-desc" placeholder="Ex: Almoço, Uber, Camisa...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Valor (R$)</label>
-          <input class="form-input" id="gasto-valor" type="number" step="0.01" placeholder="0,00">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Categoria</label>
-          <div style="display:flex;gap:8px">
-            <select class="form-select" id="gasto-categoria" style="flex:1">
-              <option value="">Sem categoria</option>
-            </select>
-            <button class="btn btn-ghost btn-sm" onclick="openCatFromGasto()">+</button>
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Descrição</label>
+            <input class="form-input" id="gasto-desc" placeholder="Ex: Almoço, Uber, Camisa...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <div style="display:flex;gap:8px">
+              <select class="form-select" id="gasto-categoria" style="flex:1"><option value="">Sem categoria</option></select>
+              <button class="btn btn-ghost btn-sm" onclick="openCatFromGasto()">+</button>
+            </div>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Data</label>
-          <input class="form-input" id="gasto-data" type="date">
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Valor total (R$)</label>
+            <input class="form-input" id="gasto-valor" type="number" step="0.01" placeholder="0,00" oninput="calcInstallments()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data</label>
+            <input class="form-input" id="gasto-data" type="date">
+          </div>
         </div>
+
+        <!-- PARCELAMENTO -->
+        <div class="installment-toggle" onclick="toggleInstallment()">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="toggle-switch" id="installment-toggle-sw"></div>
+            <span style="font-size:14px;font-weight:500">Compra parcelada</span>
+          </div>
+          <span style="font-size:12px;color:var(--text-muted)">Dividir em parcelas</span>
+        </div>
+
+        <div id="installment-wrap" style="display:none;margin-top:4px">
+          <div style="background:rgba(83,34,162,0.08);border:1px solid rgba(122,69,212,0.2);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px">
+            <div class="two-col">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Nº de parcelas</label>
+                <input class="form-input" id="gasto-parcelas" type="number" min="2" max="120" value="2" oninput="calcInstallments()">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Valor por parcela</label>
+                <input class="form-input" id="gasto-valor-parcela" type="number" step="0.01" placeholder="—" oninput="onParcelaManualEdit()">
+              </div>
+            </div>
+
+            <!-- JUROS -->
+            <div class="installment-toggle" onclick="toggleJuros()" style="padding:10px 14px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="toggle-switch" id="juros-toggle-sw"></div>
+                <span style="font-size:13px;font-weight:500">Com juros</span>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted)">Adicionar juros nas parcelas</span>
+            </div>
+
+            <div id="juros-wrap" style="display:none">
+              <div class="two-col">
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Taxa de juros (%)</label>
+                  <input class="form-input" id="gasto-juros" type="number" step="0.01" min="0" placeholder="Ex: 2.5" oninput="calcInstallments()">
+                </div>
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">Tipo</label>
+                  <select class="form-select" id="gasto-juros-tipo" onchange="calcInstallments()">
+                    <option value="simples">Juros simples</option>
+                    <option value="composto">Juros compostos</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- PREVIEW -->
+            <div id="installment-preview" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;font-size:13px;color:var(--text-dim)">
+              Preencha o valor e número de parcelas para visualizar.
+            </div>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button class="btn btn-primary" onclick="saveGasto()">Salvar</button>
           <button class="btn btn-ghost" onclick="closeModal('modal-add-gasto')">Cancelar</button>
@@ -649,42 +786,10 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         </div>
       </div>
 
-      <div class="estudos-layout">
+      <div class="estudos-full-layout">
 
-        <!-- MÚSICA (esquerda) -->
-        <div class="estudos-card glass">
-          <div class="estudos-card-title">🎵 Biblioteca Musical</div>
-          <div class="music-genre-tabs">
-            <button class="music-tab active" onclick="switchMusicGenre('lofi',this)">Lo-Fi</button>
-            <button class="music-tab" onclick="switchMusicGenre('jazz',this)">Jazz</button>
-            <button class="music-tab" onclick="switchMusicGenre('classical',this)">Clássico</button>
-          </div>
-          <div class="music-list" id="music-list"></div>
-          <div class="music-player" id="music-player" style="display:none">
-            <div class="music-player-info">
-              <div class="music-vinyl" id="music-vinyl">🎵</div>
-              <div>
-                <div class="music-playing-title" id="music-playing-title">—</div>
-                <div class="music-playing-artist" id="music-playing-artist">—</div>
-              </div>
-            </div>
-            <div class="music-controls">
-              <button class="music-ctrl-btn" onclick="prevTrack()">⏮</button>
-              <button class="music-ctrl-btn play" id="music-play-btn" onclick="togglePlay()">▶</button>
-              <button class="music-ctrl-btn" onclick="nextTrack()">⏭</button>
-            </div>
-            <div class="music-volume-row">
-              <span style="font-size:13px">🔈</span>
-              <input type="range" id="music-volume" min="0" max="100" value="60" oninput="setVolume(this.value)" style="flex:1;accent-color:var(--purple-light)">
-              <span style="font-size:13px">🔊</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TIMER (direita) -->
-        <div class="estudos-card glass">
-          <div class="estudos-card-title">⏱ Timer de Estudo</div>
-
+        <!-- TIMER -->
+        <div class="estudos-timer-card glass">
           <div class="timer-presets">
             <button class="timer-preset-btn active" onclick="setTimerPreset(25,this)">25 min</button>
             <button class="timer-preset-btn" onclick="setTimerPreset(45,this)">45 min</button>
@@ -693,55 +798,52 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
             <button class="timer-preset-btn" onclick="openCustomTimer()">✎ Customizar</button>
           </div>
 
-          <div class="timer-display-wrap">
-            <svg class="timer-ring" viewBox="0 0 200 200">
-              <circle class="timer-ring-bg" cx="100" cy="100" r="88"/>
-              <circle class="timer-ring-fill" id="timer-ring-fill" cx="100" cy="100" r="88"/>
-            </svg>
-            <div class="timer-display-inner">
-              <div class="timer-time" id="timer-display" onclick="startInlineEdit()" title="Clique para editar">25:00</div>
-              <input class="timer-time-input" id="timer-inline-input" type="text" placeholder="25:00" onblur="applyInlineEdit()" onkeydown="if(event.key==='Enter')applyInlineEdit();if(event.key==='Escape')cancelInlineEdit()" style="display:none">
-              <div class="timer-label" id="timer-label">Clique no tempo para editar</div>
-            </div>
-          </div>
-
-          <div class="timer-controls">
-            <button class="btn btn-primary" id="timer-start-btn" onclick="startTimer()">▶ Iniciar</button>
-            <button class="btn btn-ghost" id="timer-pause-btn" onclick="pauseTimer()" style="display:none">⏸ Pausar</button>
-            <button class="btn btn-ghost" onclick="resetTimer()">↺ Resetar</button>
-          </div>
-
-          <div class="timer-sessions">
-            <div class="timer-sessions-label">Sessões hoje</div>
-            <div class="timer-sessions-dots" id="timer-sessions-dots"></div>
-          </div>
-
-          <div class="xp-bar-wrap">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-              <span style="font-size:12px;color:var(--text-muted)">XP acumulado</span>
-              <span style="font-size:12px;font-weight:600;color:var(--purple-light)" id="xp-total-label">0 XP</span>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" id="xp-bar-fill" style="width:0%"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-muted)">
-              <span>Nível <span id="xp-level">1</span></span>
-              <span><span id="xp-next">100</span> XP para o próximo</span>
-            </div>
-          </div>
-
-          <div id="custom-timer-wrap" style="display:none;margin-top:16px">
-            <div class="two-col">
-              <div class="form-group">
-                <label class="form-label">Minutos</label>
-                <input class="form-input" id="custom-minutes" type="number" min="1" max="180" value="30" placeholder="Min">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Segundos</label>
-                <input class="form-input" id="custom-seconds" type="number" min="0" max="59" value="0" placeholder="Seg">
+          <div class="timer-main-area">
+            <div class="timer-display-wrap">
+              <svg class="timer-ring" viewBox="0 0 200 200">
+                <defs><linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#5322a2"/><stop offset="100%" style="stop-color:#7a45d4"/></linearGradient></defs>
+                <circle class="timer-ring-bg" cx="100" cy="100" r="88"/>
+                <circle class="timer-ring-fill" id="timer-ring-fill" cx="100" cy="100" r="88"/>
+              </svg>
+              <div class="timer-display-inner">
+                <div class="timer-time" id="timer-display" onclick="startInlineEdit()" title="Clique para editar">25:00</div>
+                <input class="timer-time-input" id="timer-inline-input" type="text" placeholder="25:00" onblur="applyInlineEdit()" onkeydown="if(event.key==='Enter')applyInlineEdit();if(event.key==='Escape')cancelInlineEdit()" style="display:none">
+                <div class="timer-label" id="timer-label">Clique no tempo para editar</div>
               </div>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="applyCustomTimer()">Aplicar</button>
+
+            <div class="timer-side-panel">
+              <div class="timer-controls">
+                <button class="btn btn-primary" id="timer-start-btn" onclick="startTimer()">▶ Iniciar</button>
+                <button class="btn btn-ghost" id="timer-pause-btn" onclick="pauseTimer()" style="display:none">⏸ Pausar</button>
+                <button class="btn btn-ghost" onclick="resetTimer()">↺ Resetar</button>
+              </div>
+
+              <div id="custom-timer-wrap" style="display:none">
+                <div class="two-col">
+                  <div class="form-group"><label class="form-label">Minutos</label><input class="form-input" id="custom-minutes" type="number" min="1" max="180" value="30"></div>
+                  <div class="form-group"><label class="form-label">Segundos</label><input class="form-input" id="custom-seconds" type="number" min="0" max="59" value="0"></div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="applyCustomTimer()">Aplicar</button>
+              </div>
+
+              <div class="xp-bar-wrap">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-size:12px;color:var(--text-muted)">XP acumulado</span>
+                  <span style="font-size:12px;font-weight:600;color:var(--purple-light)" id="xp-total-label">0 XP</span>
+                </div>
+                <div class="progress-bar-track"><div class="progress-bar-fill" id="xp-bar-fill" style="width:0%"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-muted)">
+                  <span>Nível <span id="xp-level">1</span></span>
+                  <span><span id="xp-next">100</span> XP para o próximo</span>
+                </div>
+              </div>
+
+              <div class="timer-sessions">
+                <div class="timer-sessions-label">Sessões hoje</div>
+                <div class="timer-sessions-dots" id="timer-sessions-dots"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1292,12 +1394,32 @@ function savePerfil(){
 
 // GASTOS
 // ─── GASTOS ──────────────────────────────────────────────
-var gastosMesFiltro = 'all';
+var gastosFiltro = 'mes';
+var gastosCalFilter = null; // {month, year} or null
 
-function filterGastosMes(tipo, el) {
-  gastosMesFiltro = tipo;
-  document.querySelectorAll('#gastos-month-filter .filter-chip').forEach(function(c){c.classList.remove('active');});
+function setGastosFiltro(tipo, el) {
+  gastosFiltro = tipo;
+  gastosCalFilter = null;
+  document.querySelectorAll('.gastos-filter-btn').forEach(function(b){b.classList.remove('active');});
   if(el) el.classList.add('active');
+  document.getElementById('gastos-cal-picker').style.display = 'none';
+  renderGastos();
+}
+
+function toggleGastosCal() {
+  var el = document.getElementById('gastos-cal-picker');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  // Set current year
+  document.getElementById('cal-filter-year').value = new Date().getFullYear();
+}
+
+function applyCalFilter() {
+  var month = document.getElementById('cal-filter-month').value;
+  var year = parseInt(document.getElementById('cal-filter-year').value);
+  gastosCalFilter = { month: month === '' ? null : parseInt(month), year: year };
+  gastosFiltro = 'custom';
+  document.querySelectorAll('.gastos-filter-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('gastos-cal-picker').style.display = 'none';
   renderGastos();
 }
 
@@ -1305,14 +1427,23 @@ function getGastosFiltrados() {
   if(!state.gastos) return [];
   var lista = state.gastos.slice();
   var now = new Date();
-  if(gastosMesFiltro === 'mes') {
+  if(gastosCalFilter) {
     lista = lista.filter(function(g) {
-      var d = new Date(g.data);
-      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+      var d = new Date(g.data + 'T12:00:00');
+      var yearMatch = d.getFullYear() === gastosCalFilter.year;
+      var monthMatch = gastosCalFilter.month === null || d.getMonth() === gastosCalFilter.month;
+      return yearMatch && monthMatch;
     });
-  } else if(gastosMesFiltro === 'semana') {
+  } else if(gastosFiltro === 'mes') {
+    lista = lista.filter(function(g){var d=new Date(g.data+'T12:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  } else if(gastosFiltro === 'semana') {
     var weekAgo = new Date(now - 7*86400000);
-    lista = lista.filter(function(g){ return new Date(g.data) >= weekAgo; });
+    lista = lista.filter(function(g){return new Date(g.data+'T12:00:00')>=weekAgo;});
+  } else if(gastosFiltro === 'hoje') {
+    var todayStr = now.toDateString();
+    lista = lista.filter(function(g){return new Date(g.data+'T12:00:00').toDateString()===todayStr;});
+  } else if(gastosFiltro === 'ano') {
+    lista = lista.filter(function(g){return new Date(g.data+'T12:00:00').getFullYear()===now.getFullYear();});
   }
   return lista;
 }
@@ -1325,224 +1456,171 @@ function renderGastos(){
   var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
   document.getElementById('gastos-total').textContent = 'R$ '+total.toFixed(2).replace('.',',');
   document.getElementById('gastos-count').textContent = lista.length;
-  document.getElementById('pizza-total-label').textContent = 'R$ '+total.toFixed(0);
+  document.getElementById('pizza-total-label').textContent = 'R$ '+total.toFixed(0);
 
-  // Pizza chart
   renderPizzaChart(lista);
 
-  // Lista de lançamentos
+  // ── Collapsible grouped list ──
   var listEl = document.getElementById('gastos-lista');
   if(!lista.length){
-    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto registrado ainda.</p></div>';
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto no período selecionado.</p></div>';
   } else {
-    // Sort by date desc
-    var sorted = lista.slice().sort(function(a,b){return new Date(b.data)-new Date(a.data);});
-    listEl.innerHTML = sorted.map(function(g){
-      var cat = getCat(g.categoriaId);
-      var cor = cat ? cat.cor : '#7a45d4';
-      var catNome = cat ? cat.nome : 'Sem categoria';
-      var dataFmt = g.data ? new Date(g.data+'T12:00:00').toLocaleDateString('pt-BR') : '';
-      return '<div class="gasto-item">'
-        +'<div class="gasto-cat-dot" style="background:'+cor+'"></div>'
-        +'<div class="gasto-item-info">'
-          +'<div class="gasto-item-desc">'+esc(g.desc)+'</div>'
-          +'<div class="gasto-item-meta">'+esc(catNome)+' • '+dataFmt+'</div>'
+    // Group by category
+    var bycat = {};
+    lista.forEach(function(g){
+      var key = g.categoriaId || '__none__';
+      if(!bycat[key]) bycat[key] = [];
+      bycat[key].push(g);
+    });
+
+    var html = '';
+    Object.keys(bycat).forEach(function(key, gi) {
+      var cat = getCat(key);
+      var cor = (cat && cat.cor) ? cat.cor : '#7a45d4';
+      var nome = cat ? cat.nome : 'Sem categoria';
+      var items = bycat[key];
+      var subtotal = items.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
+      var groupId = 'gasto-group-'+gi;
+
+      html += '<div class="gasto-group-card">'
+        +'<div class="gasto-group-header" onclick="toggleGastoGroup(''+groupId+'')">'
+          +'<div class="gasto-group-dot" style="background:'+cor+'"></div>'
+          +'<div class="gasto-group-name">'+esc(nome)+'</div>'
+          +'<div class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</div>'
+          +'<div class="gasto-group-total">R$ '+subtotal.toFixed(2).replace('.',',')+'</div>'
+          +'<div class="gasto-group-arrow" id="arr-'+groupId+'">›</div>'
         +'</div>'
-        +'<div class="gasto-item-valor">R$ '+parseFloat(g.valor).toFixed(2).replace('.',',')+'</div>'
-        +'<div class="gasto-item-actions" data-id="'+g.id+'">'
-          +'<div class="icon-btn gasto-edit-btn" title="Editar">✏️</div>'
-          +'<div class="icon-btn danger gasto-del-btn" title="Excluir">🗑</div>'
-        +'</div>'
-      +'</div>';
-    }).join('');
+        +'<div class="gasto-group-body" id="'+groupId+'">';
+
+      items.sort(function(a,b){return new Date(b.data)-new Date(a.data);}).forEach(function(g){
+        var dataFmt = g.data ? new Date(g.data+'T12:00:00').toLocaleDateString('pt-BR') : '';
+        var parcelaBadge = g.parcelas ? '<span class="parcela-badge">'+g.parcelaAtual+'/'+g.parcelas+'x</span>' : '';
+        html += '<div class="gasto-item">'
+          +'<div class="gasto-cat-dot" style="background:'+cor+'"></div>'
+          +'<div class="gasto-item-info">'
+            +'<div class="gasto-item-desc">'+esc(g.desc)+parcelaBadge+'</div>'
+            +'<div class="gasto-item-meta">'+dataFmt+(g.juros?' • Juros: '+g.juros+'%':'')+'</div>'
+          +'</div>'
+          +'<div class="gasto-item-valor">R$ '+parseFloat(g.valor).toFixed(2).replace('.',',')+'</div>'
+          +'<div class="gasto-item-actions">'
+            +'<div class="icon-btn gasto-edit-btn" data-id="'+g.id+'" title="Editar">✏️</div>'
+            +'<div class="icon-btn danger gasto-del-btn" data-id="'+g.id+'" title="Excluir">🗑</div>'
+          +'</div>'
+        +'</div>';
+      });
+      html += '</div></div>';
+    });
+    listEl.innerHTML = html;
   }
 
-  // Metas/tarefas com orçamento
+  // Metas/tarefas
   var all=state.metas.filter(function(m){return m.budget;}).concat(state.tasks.filter(function(t){return t.budget;}));
   var byG={};all.forEach(function(i){var g=i.group||'Sem grupo';byG[g]=(byG[g]||0)+parseFloat(i.budget||0);});
   var gBar=document.getElementById('gastos-groups-bars'),keys=Object.keys(byG);
   if(!keys.length){gBar.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Nenhum item com valor previsto.</div>';}
-  else{var maxV=Math.max.apply(null,keys.map(function(k){return byG[k];}));gBar.innerHTML=keys.map(function(g){return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(g)+'</span><span>R$ '+byG[g].toFixed(2).replace('.',',')+'</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+(byG[g]/maxV*100).toFixed(0)+'%"></div></div></div>';}).join('');}
+  else{var maxV=Math.max.apply(null,keys.map(function(k){return byG[k];}));gBar.innerHTML=keys.map(function(g){return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(g)+'</span><span>R$ '+byG[g].toFixed(2).replace('.',',')+'</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+(byG[g]/maxV*100).toFixed(0)+'%"></div></div></div>';}).join('');}
   var ml=document.getElementById('gastos-metas-list'),mf=state.metas.filter(function(m){return m.budget;});
   ml.innerHTML=mf.length?mf.map(function(m){return gastoRow('🎯',m);}).join(''):'<div class="empty-state"><p>Nenhuma meta com valor.</p></div>';
   var tl=document.getElementById('gastos-tasks-list'),tf=state.tasks.filter(function(t){return t.budget;});
   tl.innerHTML=tf.length?tf.map(function(t){return gastoRow('✅',t);}).join(''):'<div class="empty-state"><p>Nenhuma tarefa com valor.</p></div>';
 }
 
-function getCat(id) {
-  if(!state.categorias||!id) return null;
-  return state.categorias.find(function(c){return c.id===id;}) || null;
+function toggleGastoGroup(id) {
+  var body = document.getElementById(id);
+  var arrow = document.getElementById('arr-'+id);
+  if(!body || !arrow) return;
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
 }
-
-// Fallback palette for categories without custom color (but user sets color, so this is backup)
-var PIZZA_FALLBACK_COLORS = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
-
-// Store slices for tooltip hit detection
-var pizzaSlices = [];
-
-function renderPizzaChart(lista) {
-  var canvas = document.getElementById('pizza-chart');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
-  var cx = W/2, cy = H/2, R = 78, r = 50;
-  ctx.clearRect(0,0,W,H);
-  pizzaSlices = [];
-
-  // Group by category
-  var bycat = {};
-  lista.forEach(function(g){
-    var key = g.categoriaId || '__none__';
-    bycat[key] = (bycat[key]||0) + parseFloat(g.valor||0);
-  });
-
-  var keys = Object.keys(bycat);
-  var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
-
-  if(!total || !keys.length) {
-    ctx.beginPath();
-    ctx.arc(cx,cy,R,0,Math.PI*2);
-    ctx.arc(cx,cy,r,0,Math.PI*2,true);
-    ctx.fillStyle='rgba(255,255,255,0.05)';
-    ctx.fill();
-    document.getElementById('pizza-legend').innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center">Nenhum gasto ainda</div>';
-    return;
-  }
-
-  var startAngle = -Math.PI/2;
-  var GAP = 0.03; // gap between slices in radians
-  var legend = [];
-  var fallbackIdx = 0;
-
-  keys.forEach(function(key, i){
-    var cat = getCat(key);
-    // Use cat color if exists, else assign a fallback from palette
-    var cor = (cat && cat.cor) ? cat.cor : PIZZA_FALLBACK_COLORS[fallbackIdx++ % PIZZA_FALLBACK_COLORS.length];
-    var nome = cat ? cat.nome : 'Sem categoria';
-    var val = bycat[key];
-    var sliceAngle = (val/total)*Math.PI*2;
-    var endAngle = startAngle + sliceAngle;
-    var midAngle = startAngle + sliceAngle/2;
-
-    // Draw filled donut slice with gap
-    ctx.beginPath();
-    ctx.moveTo(cx + r*Math.cos(startAngle+GAP), cy + r*Math.sin(startAngle+GAP));
-    ctx.arc(cx, cy, R, startAngle+GAP, endAngle-GAP);
-    ctx.arc(cx, cy, r, endAngle-GAP, startAngle+GAP, true);
-    ctx.closePath();
-    ctx.fillStyle = cor;
-    ctx.shadowColor = cor;
-    ctx.shadowBlur = 8;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Store slice data for tooltip
-    pizzaSlices.push({
-      startAngle: startAngle+GAP,
-      endAngle: endAngle-GAP,
-      cor: cor,
-      nome: nome,
-      val: val,
-      pct: ((val/total)*100).toFixed(1),
-      midAngle: midAngle
-    });
-
-    legend.push({cor:cor,nome:nome,val:val,pct:((val/total)*100).toFixed(0)});
-    startAngle = endAngle;
-  });
-
-  // Legend
-  document.getElementById('pizza-legend').innerHTML = legend.map(function(l){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<div style="width:10px;height:10px;border-radius:50%;background:'+l.cor+';flex-shrink:0;box-shadow:0 0 6px '+l.cor+'88"></div>'
-        +'<span style="font-size:12px">'+esc(l.nome)+'</span>'
-      +'</div>'
-      +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">R$ '+l.val.toFixed(2).replace('.',',')+'</span></div>'
-    +'</div>';
-  }).join('');
-}
-
-// Pizza tooltip
-(function setupPizzaTooltip(){
-  document.addEventListener('DOMContentLoaded', function(){
-    var canvas = document.getElementById('pizza-chart');
-    if(!canvas) return;
-    var tooltip = document.createElement('div');
-    tooltip.id = 'pizza-tooltip';
-    tooltip.style.cssText = 'position:fixed;display:none;background:rgba(12,7,22,0.95);border:1px solid rgba(122,69,212,0.4);backdrop-filter:blur(16px);border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
-    document.body.appendChild(tooltip);
-
-    canvas.addEventListener('mousemove', function(e){
-      var rect = canvas.getBoundingClientRect();
-      var scaleX = canvas.width / rect.width;
-      var scaleY = canvas.height / rect.height;
-      var x = (e.clientX - rect.left) * scaleX - canvas.width/2;
-      var y = (e.clientY - rect.top) * scaleY - canvas.height/2;
-      var dist = Math.sqrt(x*x + y*y);
-      var R = 78, r = 50;
-
-      if(dist >= r && dist <= R && pizzaSlices.length){
-        var angle = Math.atan2(y, x);
-        if(angle < -Math.PI/2) angle += Math.PI*2;
-        // Find matching slice
-        var hit = null;
-        for(var i=0;i<pizzaSlices.length;i++){
-          var s = pizzaSlices[i];
-          var sa = s.startAngle < -Math.PI/2 ? s.startAngle + Math.PI*2 : s.startAngle;
-          var ea = s.endAngle < -Math.PI/2 ? s.endAngle + Math.PI*2 : s.endAngle;
-          var a = angle < sa ? angle + Math.PI*2 : angle;
-          if(a >= sa && a <= ea){ hit = s; break; }
-        }
-        if(hit){
-          tooltip.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-            +'<div style="width:10px;height:10px;border-radius:50%;background:'+hit.cor+'"></div>'
-            +'<strong>'+esc(hit.nome)+'</strong>'
-            +'</div>'
-            +'<div style="color:rgba(240,234,255,0.6)">'+hit.pct+'% do total</div>'
-            +'<div style="font-size:16px;font-weight:700;margin-top:4px">R$ '+hit.val.toFixed(2).replace('.',',')+'</div>';
-          tooltip.style.display = 'block';
-          tooltip.style.left = (e.clientX + 14)+'px';
-          tooltip.style.top = (e.clientY - 20)+'px';
-          canvas.style.cursor = 'pointer';
-        } else {
-          tooltip.style.display = 'none';
-          canvas.style.cursor = 'default';
-        }
-      } else {
-        tooltip.style.display = 'none';
-        canvas.style.cursor = 'default';
-      }
-    });
-
-    canvas.addEventListener('mouseleave', function(){
-      tooltip.style.display = 'none';
-    });
-  });
-})();
 
 function gastoRow(icon,item){return '<div class="gasto-row"><div class="gasto-icon">'+icon+'</div><div class="gasto-info"><div class="gasto-name">'+esc(item.name)+'</div><div class="gasto-meta">'+(item.group||'Sem grupo')+' • '+(item.deadline||'Sem prazo')+'</div></div><div class="gasto-value">R$ '+parseFloat(item.budget).toFixed(2).replace('.',',')+'</div></div>';}
 function switchGastosTab(tabId,btn){document.querySelectorAll('#page-gastos .tab-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.getElementById('metas-tab').style.display=tabId==='metas-tab'?'':'none';document.getElementById('tasks-tab').style.display=tabId==='tasks-tab'?'':'none';}
 
 // ─── ADICIONAR/EDITAR GASTO ──────────────────────────────
+var _installmentOn = false;
+var _jurosOn = false;
+
 function openModal_addGasto() {
   document.getElementById('gasto-modal-title').textContent = 'Novo gasto';
   document.getElementById('gasto-edit-id').value = '';
   document.getElementById('gasto-desc').value = '';
   document.getElementById('gasto-valor').value = '';
   document.getElementById('gasto-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('gasto-parcelas').value = '2';
+  document.getElementById('gasto-valor-parcela').value = '';
+  document.getElementById('gasto-juros').value = '';
+  _installmentOn = false;
+  _jurosOn = false;
+  document.getElementById('installment-toggle-sw').className = 'toggle-switch';
+  document.getElementById('juros-toggle-sw').className = 'toggle-switch';
+  document.getElementById('installment-wrap').style.display = 'none';
+  document.getElementById('juros-wrap').style.display = 'none';
+  document.getElementById('installment-preview').textContent = 'Preencha o valor e número de parcelas para visualizar.';
   updateCategoriaSelect();
   openModal('modal-add-gasto');
 }
 
-function updateCategoriaSelect() {
-  var sel = document.getElementById('gasto-categoria');
-  if(!sel) return;
-  var cur = sel.value;
-  sel.innerHTML = '<option value="">Sem categoria</option>'
-    + (state.categorias||[]).map(function(c){
-        return '<option value="'+c.id+'"'+(c.id===cur?' selected':'')+'>'+esc(c.nome)+'</option>';
-      }).join('');
+function toggleInstallment() {
+  _installmentOn = !_installmentOn;
+  document.getElementById('installment-toggle-sw').className = 'toggle-switch' + (_installmentOn?' on':'');
+  document.getElementById('installment-wrap').style.display = _installmentOn ? 'block' : 'none';
+  if(_installmentOn) calcInstallments();
+}
+
+function toggleJuros() {
+  _jurosOn = !_jurosOn;
+  document.getElementById('juros-toggle-sw').className = 'toggle-switch' + (_jurosOn?' on':'');
+  document.getElementById('juros-wrap').style.display = _jurosOn ? 'block' : 'none';
+  calcInstallments();
+}
+
+function calcInstallments() {
+  if(!_installmentOn) return;
+  var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
+  var n = parseInt(document.getElementById('gasto-parcelas').value) || 2;
+  var taxa = _jurosOn ? (parseFloat(document.getElementById('gasto-juros').value) || 0) / 100 : 0;
+  var tipo = document.getElementById('gasto-juros-tipo') ? document.getElementById('gasto-juros-tipo').value : 'simples';
+
+  var valorParcela = 0;
+  var totalComJuros = valor;
+
+  if(valor > 0 && n > 0) {
+    if(taxa === 0) {
+      valorParcela = valor / n;
+    } else if(tipo === 'simples') {
+      totalComJuros = valor * (1 + taxa * n);
+      valorParcela = totalComJuros / n;
+    } else {
+      // Composto: PMT = PV * i / (1-(1+i)^-n)
+      valorParcela = valor * taxa / (1 - Math.pow(1+taxa, -n));
+      totalComJuros = valorParcela * n;
+    }
+    document.getElementById('gasto-valor-parcela').value = valorParcela.toFixed(2);
+
+    var rows = '';
+    for(var i=1;i<=Math.min(n,12);i++){
+      rows += '<tr><td>'+i+'ª parcela</td><td>R$ '+valorParcela.toFixed(2).replace('.',',')+'</td></tr>';
+    }
+    if(n>12) rows += '<tr><td colspan="2" style="color:var(--text-muted)">... e mais '+(n-12)+' parcelas</td></tr>';
+
+    document.getElementById('installment-preview').innerHTML =
+      '<table><thead><tr><th>Parcela</th><th>Valor</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +'<div style="margin-top:8px;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07)">'
+        +'<span style="color:var(--text-muted)">Total com juros:</span>'
+        +'<span style="font-weight:700;color:var(--purple-light)">R$ '+totalComJuros.toFixed(2).replace('.',',')+'</span>'
+      +'</div>';
+  }
+}
+
+function onParcelaManualEdit() {
+  // User manually typed parcela value — recalculate total
+  var parcela = parseFloat(document.getElementById('gasto-valor-parcela').value) || 0;
+  var n = parseInt(document.getElementById('gasto-parcelas').value) || 2;
+  if(parcela > 0 && n > 0) {
+    document.getElementById('gasto-valor').value = (parcela * n).toFixed(2);
+    calcInstallments();
+  }
 }
 
 function saveGasto() {
@@ -1558,27 +1636,39 @@ function saveGasto() {
 
   if(!state.gastos) state.gastos = [];
 
-  if(editId) {
-    var g = state.gastos.find(function(x){return x.id===editId;});
-    if(g){ g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; }
+  if(_installmentOn) {
+    var n = parseInt(document.getElementById('gasto-parcelas').value) || 2;
+    var taxa = _jurosOn ? (parseFloat(document.getElementById('gasto-juros').value)||0) : 0;
+    var tipo = document.getElementById('gasto-juros-tipo').value;
+    var valorParcela = parseFloat(document.getElementById('gasto-valor-parcela').value) || (valor/n);
+    // Create one entry per installment
+    var dataBase = new Date(data+'T12:00:00');
+    for(var i=0;i<n;i++){
+      var d = new Date(dataBase);
+      d.setMonth(d.getMonth()+i);
+      var dStr = d.toISOString().slice(0,10);
+      state.gastos.push({
+        id:uid(), desc:desc, valor:valorParcela, categoriaId:catId,
+        data:dStr, parcelas:n, parcelaAtual:i+1,
+        juros:taxa, jurosTipo:tipo,
+        createdAt:new Date().toISOString()
+      });
+    }
+    toast('💳 '+n+' parcelas criadas!');
   } else {
-    state.gastos.push({id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,createdAt:new Date().toISOString()});
+    if(editId) {
+      var g = state.gastos.find(function(x){return x.id===editId;});
+      if(g){ g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; }
+      toast('✏️ Gasto atualizado!');
+    } else {
+      state.gastos.push({id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,createdAt:new Date().toISOString()});
+      toast('💸 Gasto registrado!');
+    }
   }
   saveState();
   closeModal('modal-add-gasto');
   renderGastos();
-  toast(editId ? '✏️ Gasto atualizado!' : '💸 Gasto registrado!');
 }
-
-// Event delegation for gasto action buttons
-document.addEventListener('click', function(e) {
-  var actionsEl = e.target.closest('.gasto-item-actions');
-  if(!actionsEl) return;
-  var id = actionsEl.dataset.id;
-  if(!id) return;
-  if(e.target.classList.contains('gasto-edit-btn')) editGasto(id);
-  if(e.target.classList.contains('gasto-del-btn')) deleteGasto(id);
-});
 
 function editGasto(id) {
   var g = (state.gastos||[]).find(function(x){return x.id===id;});
@@ -1588,6 +1678,12 @@ function editGasto(id) {
   document.getElementById('gasto-desc').value = g.desc;
   document.getElementById('gasto-valor').value = g.valor;
   document.getElementById('gasto-data').value = g.data;
+  _installmentOn = false;
+  _jurosOn = false;
+  document.getElementById('installment-toggle-sw').className = 'toggle-switch';
+  document.getElementById('juros-toggle-sw').className = 'toggle-switch';
+  document.getElementById('installment-wrap').style.display = 'none';
+  document.getElementById('juros-wrap').style.display = 'none';
   updateCategoriaSelect();
   document.getElementById('gasto-categoria').value = g.categoriaId||'';
   openModal('modal-add-gasto');
@@ -1713,8 +1809,8 @@ function renderResumo(){
   document.getElementById('res-total-tasks').textContent=state.tasks.length;
   document.getElementById('res-done-tasks').textContent=state.tasks.filter(function(t){return t.done;}).length;
   document.getElementById('res-total-metas').textContent=state.metas.length;
-  var total=[].concat(state.metas,state.tasks).filter(function(i){return i.budget;}).reduce(function(s,i){return s+parseFloat(i.budget||0);},0);
-  document.getElementById('res-gastos').textContent='R$'+total.toFixed(0);
+  var totalGastos=(state.gastos||[]).reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
+  document.getElementById('res-gastos').textContent='R$'+totalGastos.toFixed(0);
   var mp=document.getElementById('res-metas-progress');
   mp.innerHTML=state.metas.length?state.metas.map(function(m){var pct=calcProgress(m);return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(m.name)+'</span><span>'+pct+'%</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div></div>';}).join(''):'<div style="color:var(--text-muted);font-size:13px">Nenhuma meta ainda.</div>';
   var np=document.getElementById('res-notas-preview');
