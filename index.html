@@ -1079,42 +1079,53 @@ async function saveState(){
 }
 
 async function loadUserData(){
-  var res=await sb.from('user_data').select('data').eq('user_id',currentUser.id).single();
-  if(res.data&&res.data.data){
-    // Found data in Supabase — use it
-    var p=res.data.data;
-    if(p.metas)p.metas.forEach(function(m){m._type='meta';});
-    if(p.tasks)p.tasks.forEach(function(t){t._type='task';});
-    state=Object.assign({},state,p);
-  }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
-    // Brand new user — check localStorage first, if nothing, start empty
-    try{
-      var local=localStorage.getItem('mindt-local');
-      if(local){
-        var lp=JSON.parse(local);
-        if(lp.metas&&lp.metas.length>0){
-          // Has local data (e.g. used before Supabase) — migrate it
-          if(lp.metas)lp.metas.forEach(function(m){m._type='meta';});
-          if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
-          state=Object.assign({},state,lp);
-          await saveState(); // Migrate to Supabase immediately
-          return;
+  try{
+    var res=await sb.from('user_data').select('data').eq('user_id',currentUser.id).single();
+    if(res.data&&res.data.data){
+      var p=res.data.data;
+      if(p.metas)p.metas.forEach(function(m){m._type='meta';});
+      if(p.tasks)p.tasks.forEach(function(t){t._type='task';});
+      state=Object.assign({},state,p);
+    }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
+      // Brand new user
+      try{
+        var local=localStorage.getItem('mindt-local');
+        if(local){
+          var lp=JSON.parse(local);
+          if(lp.metas&&lp.metas.length>0){
+            if(lp.metas)lp.metas.forEach(function(m){m._type='meta';});
+            if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
+            state=Object.assign({},state,lp);
+            await saveState();
+            return;
+          }
         }
-      }
-    }catch(e){}
-    // Truly new user — start empty
-    seedDemo();
-  }else{
-    // Network error — fall back to localStorage
+      }catch(e){}
+      seedDemo();
+    }else{
+      // Network error — fall back to localStorage
+      try{
+        var local2=localStorage.getItem('mindt-local');
+        if(local2){
+          var lp2=JSON.parse(local2);
+          if(lp2.metas)lp2.metas.forEach(function(m){m._type='meta';});
+          if(lp2.tasks)lp2.tasks.forEach(function(t){t._type='task';});
+          state=Object.assign({},state,lp2);
+        }
+      }catch(e2){}
+    }
+  }catch(err){
+    // Any unexpected error — try localStorage
+    console.error('loadUserData caught:', err);
     try{
-      var local2=localStorage.getItem('mindt-local');
-      if(local2){
-        var lp2=JSON.parse(local2);
-        if(lp2.metas)lp2.metas.forEach(function(m){m._type='meta';});
-        if(lp2.tasks)lp2.tasks.forEach(function(t){t._type='task';});
-        state=Object.assign({},state,lp2);
+      var local3=localStorage.getItem('mindt-local');
+      if(local3){
+        var lp3=JSON.parse(local3);
+        if(lp3.metas)lp3.metas.forEach(function(m){m._type='meta';});
+        if(lp3.tasks)lp3.tasks.forEach(function(t){t._type='task';});
+        state=Object.assign({},state,lp3);
       }
-    }catch(e2){}
+    }catch(e3){}
   }
   if(!state.perfil)state.perfil={name:'',avatar:null};
   if(!state.perfil.name)state.perfil.name=currentUser.email.split('@')[0];
@@ -1123,6 +1134,12 @@ sb.auth.onAuthStateChange(function(event,session){
   if(session&&session.user){
     currentUser=session.user;
     loadUserData().then(function(){
+      document.getElementById('auth-screen').style.display='none';
+      document.getElementById('app').style.visibility='visible';
+      updateGroupSelects();updateGroupFilters();renderHome();
+    }).catch(function(err){
+      // Even if loadUserData fails, show the app with empty state
+      console.error('loadUserData error:', err);
       document.getElementById('auth-screen').style.display='none';
       document.getElementById('app').style.visibility='visible';
       updateGroupSelects();updateGroupFilters();renderHome();
@@ -1174,6 +1191,7 @@ function mobileNav(el,page){document.querySelectorAll('.mobile-nav-item').forEac
 
 // HOME
 function renderHome(){
+  if(!document.getElementById('home-stat-tasks')) return;
   var active=state.tasks.filter(function(t){return !t.done;});
   document.getElementById('home-stat-tasks').textContent=active.length;
   document.getElementById('home-stat-metas').textContent=state.metas.length;
@@ -1195,6 +1213,7 @@ function scrollTasks(dir){document.getElementById('home-tasks-scroll').scrollBy(
 
 // METAS
 function renderMetas(filter,groupFilter){
+  if(!document.getElementById('metas-grid')) return;
   filter=filter||'all';
   updatePeriodStats('metas');updateGroupFilters();
   var grid=document.getElementById('metas-grid');
@@ -1238,6 +1257,7 @@ function filterMetas(type,el){document.querySelectorAll('#metas-filter-row .filt
 
 // TASKS
 function renderTasks(filter){
+  if(!document.getElementById('tasks-grid')) return;
   filter=filter||'all';updatePeriodStats('tasks');
   var grid=document.getElementById('tasks-grid');
   var list=state.tasks.slice();
@@ -1449,6 +1469,7 @@ function getGastosFiltrados() {
 }
 
 function renderGastos(){
+  if(!document.getElementById('gastos-total')) return;
   if(!state.gastos) state.gastos = [];
   if(!state.categorias) state.categorias = [];
 
@@ -1483,7 +1504,8 @@ function renderGastos(){
       var groupId = 'gasto-group-'+gi;
 
       html += '<div class="gasto-group-card">'
-        +'<div class="gasto-group-header" onclick="toggleGastoGroup(''+groupId+'')">'
+        +'<div class="gasto-group-header" onclick="toggleGastoGroup(\''+groupId+'\')">'
+
           +'<div class="gasto-group-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-group-name">'+esc(nome)+'</div>'
           +'<div class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</div>'
@@ -1778,6 +1800,7 @@ function deleteCategoria(id) {
 // NOTAS
 function renderNotas(){
   var board=document.getElementById('notas-board');
+  if(!board) return;
   if(!state.notas.length){board.innerHTML='<div class="empty-state" style="width:100%"><div class="empty-icon">📝</div><p>Nenhuma nota ainda.</p></div>';return;}
   board.innerHTML=state.notas.map(function(n){
     return '<div class="nota-card'+(deleteMode.type==='notas'?' selection-mode':'')+'" data-id="'+n.id+'" onclick="openNotaDetail(\''+n.id+'\')">'+
@@ -1806,6 +1829,7 @@ function editCurrentNota(){
 
 // RESUMO
 function renderResumo(){
+  if(!document.getElementById('res-total-tasks')) return;
   document.getElementById('res-total-tasks').textContent=state.tasks.length;
   document.getElementById('res-done-tasks').textContent=state.tasks.filter(function(t){return t.done;}).length;
   document.getElementById('res-total-metas').textContent=state.metas.length;
@@ -1819,6 +1843,7 @@ function renderResumo(){
 
 // PERFIL
 function renderPerfil(){
+  if(!document.getElementById('perfil-name-display')) return;
   document.getElementById('perfil-name-display').textContent=state.perfil.name||'Meu Nome';
   document.getElementById('perfil-name-input').value=state.perfil.name||'';
   document.getElementById('perfil-email-display').textContent=currentUser?currentUser.email:'';
@@ -1981,7 +2006,6 @@ function toast(msg){var el=document.getElementById('toast');el.textContent=msg;e
 // ESTUDOS
 function renderEstudos() {
   loadStudyXP();
-  renderMusicList();
   updateTimerDisplay();
   updateTimerRing();
   updateSessionDots();
@@ -2096,144 +2120,6 @@ document.addEventListener('DOMContentLoaded', function() {
     svg.insertBefore(defs, svg.firstChild);
   }
 });
-
-var MUSIC_LIBRARY = {
-  lofi: [
-    {title:'Lofi Hip Hop Radio - Beats to Study',artist:'Lo-Fi Girl',icon:'☕',ytid:'jfKfPfyJRdk'},
-    {title:'Chillhop Essentials',artist:'Chillhop Music',icon:'🌙',ytid:'5yx6BWlEVcY'},
-    {title:'Late Night Study Session',artist:'Dreamy',icon:'🌃',ytid:'lTRiuFIWV54'},
-    {title:'Coffee Shop Vibes',artist:'Lo-Fi Beats',icon:'🍵',ytid:'MVPTGNGiI-4'},
-    {title:'Rainy Day Lofi',artist:'Chill Vibes',icon:'🌧',ytid:'Na0w3Mz46GA'},
-  ],
-  jazz: [
-    {title:'Take Five',artist:'Dave Brubeck Quartet',icon:'🎷',ytid:'vmDDOFXSgAs'},
-    {title:'So What',artist:'Miles Davis',icon:'🎺',ytid:'ylXk1LBvIqU'},
-    {title:'Autumn Leaves',artist:'Bill Evans Trio',icon:'🍂',ytid:'r-Z8KuwI7Gc'},
-    {title:'Fly Me to the Moon',artist:'Frank Sinatra',icon:'🌙',ytid:'ZEcqHA7dbwM'},
-    {title:'What a Wonderful World',artist:'Louis Armstrong',icon:'🌍',ytid:'CWzrABouyeE'},
-  ],
-  classical: [
-    {title:'Clair de Lune',artist:'Claude Debussy',icon:'🌕',ytid:'CvFH_6DNRCY'},
-    {title:'Moonlight Sonata',artist:'Beethoven',icon:'🎹',ytid:'_Dm4z7yt4HU'},
-    {title:'Canon in D',artist:'Pachelbel',icon:'🎻',ytid:'NlprozGcs98'},
-    {title:'Gymnopédie No.1',artist:'Erik Satie',icon:'🕯',ytid:'S-Xm7s9eGxU'},
-    {title:'The Four Seasons - Spring',artist:'Vivaldi',icon:'🌸',ytid:'e3nSvIiBNFo'},
-  ]
-};
-
-var currentGenre = 'lofi';
-var currentTrackIdx = -1;
-var isPlaying = false;
-var ytPlayer = null;
-var ytReady = false;
-
-// Load YouTube IFrame API
-(function() {
-  var tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(tag);
-})();
-
-window.onYouTubeIframeAPIReady = function() {
-  ytReady = true;
-  // Create hidden player container
-  var container = document.createElement('div');
-  container.id = 'yt-player-container';
-  container.style.cssText = 'position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;';
-  document.body.appendChild(container);
-  ytPlayer = new YT.Player('yt-player-container', {
-    height: '1',
-    width: '1',
-    playerVars: { autoplay: 0, controls: 0 },
-    events: {
-      onStateChange: function(e) {
-        // YT.PlayerState.ENDED = 0
-        if (e.data === 0) { nextTrack(); }
-        if (e.data === 1) {
-          isPlaying = true;
-          document.getElementById('music-play-btn').textContent = '⏸';
-          document.getElementById('music-vinyl').classList.add('spinning');
-        }
-        if (e.data === 2) {
-          isPlaying = false;
-          document.getElementById('music-play-btn').textContent = '▶';
-          document.getElementById('music-vinyl').classList.remove('spinning');
-        }
-      }
-    }
-  });
-};
-
-function switchMusicGenre(genre, el) {
-  currentGenre = genre;
-  currentTrackIdx = -1;
-  document.querySelectorAll('.music-tab').forEach(function(t) { t.classList.remove('active'); });
-  el.classList.add('active');
-  renderMusicList();
-}
-
-function renderMusicList() {
-  var list = document.getElementById('music-list');
-  var tracks = MUSIC_LIBRARY[currentGenre];
-  list.innerHTML = tracks.map(function(t, i) {
-    var isActive = currentTrackIdx === i && isPlaying;
-    return '<div class="music-item' + (isActive ? ' playing' : '') + '" onclick="playTrack(' + i + ')">' +
-      '<div class="music-item-icon">' + t.icon + '</div>' +
-      '<div class="music-item-info">' +
-        '<div class="music-item-title">' + t.title + '</div>' +
-        '<div class="music-item-artist">' + t.artist + '</div>' +
-      '</div>' +
-      '<div class="music-item-dur" style="color:var(--purple-light)">' + (isActive ? '▶' : '') + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function playTrack(idx) {
-  currentTrackIdx = idx;
-  var track = MUSIC_LIBRARY[currentGenre][idx];
-  if (!ytReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') {
-    toast('⚠️ Player ainda carregando, tente em instantes.');
-    return;
-  }
-  var vol = parseInt(document.getElementById('music-volume').value) || 60;
-  ytPlayer.setVolume(vol);
-  ytPlayer.loadVideoById(track.ytid);
-  ytPlayer.playVideo();
-  isPlaying = true;
-  document.getElementById('music-player').style.display = 'flex';
-  document.getElementById('music-player').style.flexDirection = 'column';
-  document.getElementById('music-playing-title').textContent = track.title;
-  document.getElementById('music-playing-artist').textContent = track.artist;
-  document.getElementById('music-play-btn').textContent = '⏸';
-  document.getElementById('music-vinyl').classList.add('spinning');
-  renderMusicList();
-}
-
-function togglePlay() {
-  if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
-  var state = ytPlayer.getPlayerState();
-  if (state === 1) {
-    ytPlayer.pauseVideo();
-  } else {
-    ytPlayer.playVideo();
-  }
-}
-
-function nextTrack() {
-  var tracks = MUSIC_LIBRARY[currentGenre];
-  var next = (currentTrackIdx + 1) % tracks.length;
-  playTrack(next);
-}
-
-function prevTrack() {
-  var tracks = MUSIC_LIBRARY[currentGenre];
-  var prev = (currentTrackIdx - 1 + tracks.length) % tracks.length;
-  playTrack(prev);
-}
-
-function setVolume(val) {
-  if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(val));
-}
 
 // ─── TIMER ───────────────────────────────────────────────
 var timerTotal = 25 * 60;
@@ -2364,17 +2250,18 @@ function timerFinished() {
 }
 
 function updateTimerDisplay() {
+  var dispEl = document.getElementById('timer-display'); if(!dispEl) return;
   var m = Math.floor(timerRemaining / 60);
   var s = timerRemaining % 60;
-  document.getElementById('timer-display').textContent = pad(m) + ':' + pad(s);
+  dispEl.textContent = pad(m) + ':' + pad(s);
 }
 
 function updateTimerRing() {
   var circumference = 553;
+  var ring = document.getElementById('timer-ring-fill'); if(!ring) return;
   var progress = timerRemaining / timerTotal;
   var offset = circumference * (1 - progress);
-  var ring = document.getElementById('timer-ring-fill');
-  if (ring) ring.style.strokeDashoffset = offset;
+  ring.style.strokeDashoffset = offset;
 }
 
 function playAlertSound() {
@@ -2434,8 +2321,6 @@ function updateSessionDots() {
 }
 
 // Init music list on page load
-renderMusicList();
-
 // Force save before page unload
 window.addEventListener('beforeunload', function() {
   if(currentUser && state){
