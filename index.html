@@ -346,7 +346,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 }
 
 /* ═══ GASTOS NOVO ═══ */
-.gastos-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;margin-bottom:32px;align-items:start}
+.gastos-layout{display:block;margin-bottom:24px}
 .gasto-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:12px;transition:background 0.2s;position:relative}
 .gasto-item:hover{background:rgba(255,255,255,0.06)}
 .gasto-cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
@@ -408,7 +408,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 @media(max-width:768px){.timer-main-area{grid-template-columns:1fr;justify-items:center}}
 
 /* ═══ GASTOS FILTER BAR ═══ */
-.gastos-filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.gastos-filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;width:100%}
 .gastos-filter-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--glass-border);background:rgba(255,255,255,0.04);color:var(--text-dim);cursor:pointer;transition:all 0.18s}
 .gastos-filter-btn.active{background:rgba(83,34,162,0.35);border-color:rgba(122,69,212,0.5);color:var(--text)}
 .gastos-filter-btn:hover:not(.active){background:rgba(255,255,255,0.09);color:var(--text)}
@@ -433,8 +433,8 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 .gasto-group-count{font-size:11px;color:var(--text-muted);margin-left:4px}
 .gasto-group-arrow{font-size:14px;color:var(--text-muted);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);flex-shrink:0}
 .gasto-group-arrow.open{transform:rotate(90deg)}
-.gasto-group-body{display:none;border-top:1px solid rgba(255,255,255,0.05)}
-.gasto-group-body.open{display:block}
+.gasto-group-body{max-height:0;overflow:hidden;border-top:0px solid rgba(255,255,255,0.05);transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),border-top 0.2s}
+.gasto-group-body.open{max-height:2000px;border-top:1px solid rgba(255,255,255,0.05)}
 .gasto-item{display:flex;align-items:center;gap:12px;padding:11px 16px;transition:background 0.15s;position:relative}
 .gasto-item:hover{background:rgba(255,255,255,0.04)}
 .gasto-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.04)}
@@ -452,6 +452,12 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 #installment-preview th{color:var(--text-muted);text-align:left;padding:4px 8px;font-weight:600;font-size:10px;letter-spacing:0.5px;text-transform:uppercase}
 #installment-preview td{padding:5px 8px;border-top:1px solid rgba(255,255,255,0.05)}
 #installment-preview tr:hover td{background:rgba(255,255,255,0.03)}
+
+/* Pizza chart responsive inside card */
+@media(max-width:768px){
+  #page-gastos .glass > div[style*="grid-template-columns:220px"]{grid-template-columns:1fr !important}
+  #page-gastos canvas{margin:0 auto;display:block}
+}
 </style>
 </head>
 <body>
@@ -574,80 +580,86 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         </div>
       </div>
 
-      <!-- TOTAIS -->
-      <div class="total-banner glass">
+      <!-- BANNER TOTAL -->
+      <div class="total-banner glass" style="margin-bottom:20px">
         <div><div class="total-banner-label">Total gasto</div><div class="total-banner-value" id="gastos-total">R$ 0,00</div></div>
         <div style="text-align:right"><div class="total-banner-label">Transações</div><div style="font-size:24px;font-weight:700" id="gastos-count">0</div></div>
       </div>
 
-      <!-- LAYOUT: gráfico + lista -->
-      <div class="gastos-layout">
+      <!-- CARD PRINCIPAL: filtros + lançamentos -->
+      <div class="glass" style="padding:24px;margin-bottom:20px">
 
-        <!-- GRÁFICO PIZZA -->
-        <div class="glass" style="padding:24px;display:flex;flex-direction:column;gap:16px">
+        <!-- BARRA DE FILTROS -->
+        <div class="gastos-filter-bar" style="margin-bottom:20px">
+          <button class="gastos-filter-btn active" onclick="setGastosFiltro('mes',this)">Este mês</button>
+          <button class="gastos-filter-btn" onclick="setGastosFiltro('semana',this)">Esta semana</button>
+          <button class="gastos-filter-btn" onclick="setGastosFiltro('hoje',this)">Hoje</button>
+          <button class="gastos-filter-btn" onclick="setGastosFiltro('ano',this)">Este ano</button>
+          <button class="gastos-filter-btn" onclick="setGastosFiltro('all',this)">Todos</button>
+          <button class="gastos-cal-btn" onclick="toggleGastosCal()" title="Filtrar por data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+        </div>
 
-          <!-- FILTRO BAR -->
-          <div class="gastos-filter-bar">
-            <button class="gastos-filter-btn active" onclick="setGastosFiltro('mes',this)">Este mês</button>
-            <button class="gastos-filter-btn" onclick="setGastosFiltro('semana',this)">Esta semana</button>
-            <button class="gastos-filter-btn" onclick="setGastosFiltro('hoje',this)">Hoje</button>
-            <button class="gastos-filter-btn" onclick="setGastosFiltro('ano',this)">Este ano</button>
-            <button class="gastos-filter-btn" onclick="setGastosFiltro('all',this)">Todos</button>
-            <button class="gastos-cal-btn" onclick="toggleGastosCal()" title="Filtrar por data">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </button>
-          </div>
-
-          <!-- CALENDÁRIO CUSTOM FILTER -->
-          <div id="gastos-cal-picker" style="display:none;background:rgba(12,7,22,0.97);border:1px solid rgba(122,69,212,0.3);border-radius:14px;padding:16px;margin-top:-8px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-              <div class="form-group" style="margin:0"><label class="form-label">Mês</label>
-                <select class="form-select" id="cal-filter-month">
-                  <option value="">Todos</option>
-                  <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                  <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                  <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                  <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin:0"><label class="form-label">Ano</label>
-                <input class="form-input" id="cal-filter-year" type="number" placeholder="2026" value="2026">
-              </div>
+        <!-- CALENDÁRIO CUSTOM -->
+        <div id="gastos-cal-picker" style="display:none;background:rgba(83,34,162,0.1);border:1px solid rgba(122,69,212,0.25);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Mês</label>
+              <select class="form-select" id="cal-filter-month">
+                <option value="">Todos os meses</option>
+                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+              </select>
             </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-primary btn-sm" onclick="applyCalFilter()">Aplicar</button>
-              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gastos-cal-picker').style.display='none'">Fechar</button>
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Ano</label>
+              <input class="form-input" id="cal-filter-year" type="number" placeholder="2026" value="2026">
             </div>
           </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="applyCalFilter()">Aplicar filtro</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gastos-cal-picker').style.display='none'">Cancelar</button>
+          </div>
+        </div>
 
-          <div class="section-title" style="margin:0">Distribuição por categoria</div>
-          <div style="position:relative;width:200px;height:200px;margin:0 auto">
+        <!-- LANÇAMENTOS COLAPSÁVEIS -->
+        <div class="section-title" style="margin:0 0 12px 0">Lançamentos</div>
+        <div id="gastos-lista">
+          <div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto registrado ainda.</p></div>
+        </div>
+
+      </div>
+
+      <!-- GRÁFICO DE PIZZA -->
+      <div class="glass" style="padding:24px;margin-bottom:20px">
+        <div class="section-title" style="margin:0 0 16px 0">Distribuição por categoria</div>
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:center">
+          <div style="position:relative;width:200px;height:200px">
             <canvas id="pizza-chart" width="200" height="200"></canvas>
             <div id="pizza-center" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-              <div style="font-size:18px;font-weight:700" id="pizza-total-label">R$ 0</div>
+              <div style="font-size:20px;font-weight:700" id="pizza-total-label">R$ 0</div>
               <div style="font-size:10px;color:var(--text-muted)">total</div>
             </div>
           </div>
-          <div id="pizza-legend" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div id="pizza-legend" style="display:flex;flex-direction:column;gap:10px"></div>
         </div>
-
-        <!-- LISTA DE GASTOS -->
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="section-title" style="margin:0">Lançamentos</div>
-          <div id="gastos-lista"></div>
-        </div>
-
       </div>
 
-      <!-- METAS/TAREFAS PREVISTAS -->
-      <div class="section-title">Previsto em metas e tarefas</div>
-      <div id="gastos-groups-bars" style="margin-bottom:16px"></div>
-      <div class="tab-bar" style="margin-bottom:20px">
-        <button class="tab-btn active" onclick="switchGastosTab('metas-tab',this)">📌 Metas</button>
-        <button class="tab-btn" onclick="switchGastosTab('tasks-tab',this)">✅ Tarefas</button>
+      <!-- PREVISTO EM METAS E TAREFAS -->
+      <div class="glass" style="padding:24px">
+        <div class="section-title" style="margin:0 0 14px 0">Previsto em metas e tarefas</div>
+        <div id="gastos-groups-bars" style="margin-bottom:16px"></div>
+        <div class="tab-bar" style="margin-bottom:16px">
+          <button class="tab-btn active" onclick="switchGastosTab('metas-tab',this)">📌 Metas</button>
+          <button class="tab-btn" onclick="switchGastosTab('tasks-tab',this)">✅ Tarefas</button>
+        </div>
+        <div id="metas-tab"><div id="gastos-metas-list"></div></div>
+        <div id="tasks-tab" style="display:none"><div id="gastos-tasks-list"></div></div>
       </div>
-      <div id="metas-tab"><div id="gastos-metas-list"></div></div>
-      <div id="tasks-tab" style="display:none"><div id="gastos-tasks-list"></div></div>
+
     </section>
 
     <!-- MODAL ADICIONAR GASTO -->
@@ -1415,7 +1427,7 @@ function savePerfil(){
 // GASTOS
 // ─── GASTOS ──────────────────────────────────────────────
 var gastosFiltro = 'mes';
-var gastosCalFilter = null; // {month, year} or null
+var gastosCalFilter = null;
 
 function setGastosFiltro(tipo, el) {
   gastosFiltro = tipo;
@@ -1429,7 +1441,6 @@ function setGastosFiltro(tipo, el) {
 function toggleGastosCal() {
   var el = document.getElementById('gastos-cal-picker');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
-  // Set current year
   document.getElementById('cal-filter-year').value = new Date().getFullYear();
 }
 
@@ -1455,7 +1466,10 @@ function getGastosFiltrados() {
       return yearMatch && monthMatch;
     });
   } else if(gastosFiltro === 'mes') {
-    lista = lista.filter(function(g){var d=new Date(g.data+'T12:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+    lista = lista.filter(function(g){
+      var d=new Date(g.data+'T12:00:00');
+      return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    });
   } else if(gastosFiltro === 'semana') {
     var weekAgo = new Date(now - 7*86400000);
     lista = lista.filter(function(g){return new Date(g.data+'T12:00:00')>=weekAgo;});
@@ -1477,12 +1491,16 @@ function renderGastos(){
   var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
   document.getElementById('gastos-total').textContent = 'R$ '+total.toFixed(2).replace('.',',');
   document.getElementById('gastos-count').textContent = lista.length;
-  document.getElementById('pizza-total-label').textContent = 'R$ '+total.toFixed(0);
+  var ptl = document.getElementById('pizza-total-label');
+  if(ptl) ptl.textContent = 'R$ '+total.toFixed(0);
 
+  // ── Render pizza chart ──
   renderPizzaChart(lista);
 
   // ── Collapsible grouped list ──
   var listEl = document.getElementById('gastos-lista');
+  if(!listEl) return;
+
   if(!lista.length){
     listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto no período selecionado.</p></div>';
   } else {
@@ -1494,34 +1512,36 @@ function renderGastos(){
       bycat[key].push(g);
     });
 
+    var FALLBACK = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
+    var fallbackIdx = 0;
     var html = '';
+
     Object.keys(bycat).forEach(function(key, gi) {
       var cat = getCat(key);
-      var cor = (cat && cat.cor) ? cat.cor : '#7a45d4';
+      var cor = (cat && cat.cor) ? cat.cor : FALLBACK[fallbackIdx++ % FALLBACK.length];
       var nome = cat ? cat.nome : 'Sem categoria';
       var items = bycat[key];
       var subtotal = items.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
       var groupId = 'gasto-group-'+gi;
 
       html += '<div class="gasto-group-card">'
-        +'<div class="gasto-group-header" onclick="toggleGastoGroup(\''+groupId+'\')">'
-
+        +'<div class="gasto-group-header" onclick="toggleGastoGroup(\'+groupId+\')">'
           +'<div class="gasto-group-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-group-name">'+esc(nome)+'</div>'
-          +'<div class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</div>'
+          +'<span class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</span>'
           +'<div class="gasto-group-total">R$ '+subtotal.toFixed(2).replace('.',',')+'</div>'
           +'<div class="gasto-group-arrow" id="arr-'+groupId+'">›</div>'
         +'</div>'
         +'<div class="gasto-group-body" id="'+groupId+'">';
 
-      items.sort(function(a,b){return new Date(b.data)-new Date(a.data);}).forEach(function(g){
+      items.slice().sort(function(a,b){return new Date(b.data)-new Date(a.data);}).forEach(function(g){
         var dataFmt = g.data ? new Date(g.data+'T12:00:00').toLocaleDateString('pt-BR') : '';
         var parcelaBadge = g.parcelas ? '<span class="parcela-badge">'+g.parcelaAtual+'/'+g.parcelas+'x</span>' : '';
         html += '<div class="gasto-item">'
           +'<div class="gasto-cat-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-item-info">'
             +'<div class="gasto-item-desc">'+esc(g.desc)+parcelaBadge+'</div>'
-            +'<div class="gasto-item-meta">'+dataFmt+(g.juros?' • Juros: '+g.juros+'%':'')+'</div>'
+            +'<div class="gasto-item-meta">'+dataFmt+(g.juros?' • Juros '+g.juros+'%':'')+'</div>'
           +'</div>'
           +'<div class="gasto-item-valor">R$ '+parseFloat(g.valor).toFixed(2).replace('.',',')+'</div>'
           +'<div class="gasto-item-actions">'
@@ -1530,21 +1550,41 @@ function renderGastos(){
           +'</div>'
         +'</div>';
       });
+
       html += '</div></div>';
     });
+
     listEl.innerHTML = html;
   }
 
-  // Metas/tarefas
-  var all=state.metas.filter(function(m){return m.budget;}).concat(state.tasks.filter(function(t){return t.budget;}));
-  var byG={};all.forEach(function(i){var g=i.group||'Sem grupo';byG[g]=(byG[g]||0)+parseFloat(i.budget||0);});
-  var gBar=document.getElementById('gastos-groups-bars'),keys=Object.keys(byG);
-  if(!keys.length){gBar.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Nenhum item com valor previsto.</div>';}
-  else{var maxV=Math.max.apply(null,keys.map(function(k){return byG[k];}));gBar.innerHTML=keys.map(function(g){return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(g)+'</span><span>R$ '+byG[g].toFixed(2).replace('.',',')+'</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+(byG[g]/maxV*100).toFixed(0)+'%"></div></div></div>';}).join('');}
-  var ml=document.getElementById('gastos-metas-list'),mf=state.metas.filter(function(m){return m.budget;});
-  ml.innerHTML=mf.length?mf.map(function(m){return gastoRow('🎯',m);}).join(''):'<div class="empty-state"><p>Nenhuma meta com valor.</p></div>';
-  var tl=document.getElementById('gastos-tasks-list'),tf=state.tasks.filter(function(t){return t.budget;});
-  tl.innerHTML=tf.length?tf.map(function(t){return gastoRow('✅',t);}).join(''):'<div class="empty-state"><p>Nenhuma tarefa com valor.</p></div>';
+  // ── Metas/tarefas previstas ──
+  var all = state.metas.filter(function(m){return m.budget;}).concat(state.tasks.filter(function(t){return t.budget;}));
+  var byG = {};
+  all.forEach(function(i){var g=i.group||'Sem grupo';byG[g]=(byG[g]||0)+parseFloat(i.budget||0);});
+  var gBar = document.getElementById('gastos-groups-bars');
+  var keys = Object.keys(byG);
+  if(gBar) {
+    if(!keys.length){
+      gBar.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Nenhum item com valor previsto.</div>';
+    } else {
+      var maxV=Math.max.apply(null,keys.map(function(k){return byG[k];}));
+      gBar.innerHTML=keys.map(function(g){
+        return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(g)+'</span><span>R$ '+byG[g].toFixed(2).replace('.',',')+'</span></div>'
+          +'<div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+(byG[g]/maxV*100).toFixed(0)+'%"></div></div></div>';
+      }).join('');
+    }
+  }
+
+  var ml = document.getElementById('gastos-metas-list');
+  if(ml) {
+    var mf = state.metas.filter(function(m){return m.budget;});
+    ml.innerHTML = mf.length ? mf.map(function(m){return gastoRow('🎯',m);}).join('') : '<div class="empty-state"><p>Nenhuma meta com valor.</p></div>';
+  }
+  var tl = document.getElementById('gastos-tasks-list');
+  if(tl) {
+    var tf = state.tasks.filter(function(t){return t.budget;});
+    tl.innerHTML = tf.length ? tf.map(function(t){return gastoRow('✅',t);}).join('') : '<div class="empty-state"><p>Nenhuma tarefa com valor.</p></div>';
+  }
 }
 
 function toggleGastoGroup(id) {
