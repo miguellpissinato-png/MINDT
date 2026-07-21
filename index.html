@@ -1425,6 +1425,145 @@ function savePerfil(){
 }
 
 // GASTOS
+
+function getCat(id) {
+  if(!state.categorias||!id||id==='__none__') return null;
+  return state.categorias.find(function(c){return c.id===id;}) || null;
+}
+
+// ─── PIZZA CHART ─────────────────────────────────────────
+var PIZZA_FALLBACK_COLORS = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
+var pizzaSlices = [];
+
+function renderPizzaChart(lista) {
+  var canvas = document.getElementById('pizza-chart');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W/2, cy = H/2, R = 78, r = 50;
+  ctx.clearRect(0,0,W,H);
+  pizzaSlices = [];
+
+  var bycat = {};
+  lista.forEach(function(g){
+    var key = g.categoriaId || '__none__';
+    bycat[key] = (bycat[key]||0) + parseFloat(g.valor||0);
+  });
+
+  var keys = Object.keys(bycat);
+  var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
+
+  if(!total || !keys.length) {
+    ctx.beginPath();
+    ctx.arc(cx,cy,R,0,Math.PI*2);
+    ctx.arc(cx,cy,r,0,Math.PI*2,true);
+    ctx.fillStyle='rgba(255,255,255,0.05)';
+    ctx.fill();
+    var leg = document.getElementById('pizza-legend');
+    if(leg) leg.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center">Nenhum gasto ainda</div>';
+    return;
+  }
+
+  var startAngle = -Math.PI/2;
+  var GAP = 0.03;
+  var legend = [];
+  var fallbackIdx = 0;
+
+  keys.forEach(function(key) {
+    var cat = getCat(key);
+    var cor = (cat && cat.cor) ? cat.cor : PIZZA_FALLBACK_COLORS[fallbackIdx++ % PIZZA_FALLBACK_COLORS.length];
+    var nome = cat ? cat.nome : 'Sem categoria';
+    var val = bycat[key];
+    var sliceAngle = (val/total)*Math.PI*2;
+    var endAngle = startAngle + sliceAngle;
+
+    ctx.beginPath();
+    ctx.moveTo(cx + r*Math.cos(startAngle+GAP), cy + r*Math.sin(startAngle+GAP));
+    ctx.arc(cx, cy, R, startAngle+GAP, endAngle-GAP);
+    ctx.arc(cx, cy, r, endAngle-GAP, startAngle+GAP, true);
+    ctx.closePath();
+    ctx.fillStyle = cor;
+    ctx.shadowColor = cor;
+    ctx.shadowBlur = 6;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    pizzaSlices.push({
+      startAngle: startAngle+GAP, endAngle: endAngle-GAP,
+      cor: cor, nome: nome, val: val,
+      pct: ((val/total)*100).toFixed(1)
+    });
+
+    legend.push({cor:cor, nome:nome, val:val, pct:((val/total)*100).toFixed(0)});
+    startAngle = endAngle;
+  });
+
+  var leg2 = document.getElementById('pizza-legend');
+  if(leg2) {
+    leg2.innerHTML = legend.map(function(l){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<div style="width:10px;height:10px;border-radius:50%;background:'+l.cor+';flex-shrink:0;box-shadow:0 0 6px '+l.cor+'88"></div>'
+          +'<span style="font-size:13px">'+esc(l.nome)+'</span>'
+        +'</div>'
+        +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">R$ '+l.val.toFixed(2).replace('.',',')+'</span></div>'
+      +'</div>';
+    }).join('');
+  }
+}
+
+// Pizza tooltip
+document.addEventListener('DOMContentLoaded', function(){
+  var canvas = document.getElementById('pizza-chart');
+  if(!canvas) return;
+  var tooltip = document.createElement('div');
+  tooltip.id = 'pizza-tooltip';
+  tooltip.style.cssText = 'position:fixed;display:none;background:rgba(12,7,22,0.95);border:1px solid rgba(122,69,212,0.4);backdrop-filter:blur(16px);border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
+  document.body.appendChild(tooltip);
+
+  canvas.addEventListener('mousemove', function(e){
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var x = (e.clientX - rect.left) * scaleX - canvas.width/2;
+    var y = (e.clientY - rect.top) * scaleY - canvas.height/2;
+    var dist = Math.sqrt(x*x + y*y);
+    var R = 78, r = 50;
+    if(dist >= r && dist <= R && pizzaSlices.length){
+      var angle = Math.atan2(y, x);
+      if(angle < -Math.PI/2) angle += Math.PI*2;
+      var hit = null;
+      for(var i=0;i<pizzaSlices.length;i++){
+        var s = pizzaSlices[i];
+        var sa = s.startAngle < -Math.PI/2 ? s.startAngle + Math.PI*2 : s.startAngle;
+        var ea = s.endAngle < -Math.PI/2 ? s.endAngle + Math.PI*2 : s.endAngle;
+        var a = angle < sa ? angle + Math.PI*2 : angle;
+        if(a >= sa && a <= ea){ hit = s; break; }
+      }
+      if(hit){
+        tooltip.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+          +'<div style="width:10px;height:10px;border-radius:50%;background:'+hit.cor+'"></div>'
+          +'<strong>'+esc(hit.nome)+'</strong></div>'
+          +'<div style="color:rgba(240,234,255,0.6)">'+hit.pct+'% do total</div>'
+          +'<div style="font-size:16px;font-weight:700;margin-top:4px">R$ '+hit.val.toFixed(2).replace('.',',')+'</div>';
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.clientX + 14)+'px';
+        tooltip.style.top = (e.clientY - 20)+'px';
+        canvas.style.cursor = 'pointer';
+      } else {
+        tooltip.style.display = 'none';
+        canvas.style.cursor = 'default';
+      }
+    } else {
+      tooltip.style.display = 'none';
+      canvas.style.cursor = 'default';
+    }
+  });
+  canvas.addEventListener('mouseleave', function(){
+    tooltip.style.display = 'none';
+  });
+});
+
 // ─── GASTOS ──────────────────────────────────────────────
 var gastosFiltro = 'mes';
 var gastosCalFilter = null;
