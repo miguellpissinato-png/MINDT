@@ -1664,7 +1664,7 @@ function renderGastos(){
       var groupId = 'gasto-group-'+gi;
 
       html += '<div class="gasto-group-card">'
-        +'<div class="gasto-group-header" onclick="toggleGastoGroup(\'+groupId+\')">'
+        +'<div class="gasto-group-header" data-gid="'+groupId+'" style="cursor:pointer">'
           +'<div class="gasto-group-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-group-name">'+esc(nome)+'</div>'
           +'<span class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</span>'
@@ -2541,6 +2541,20 @@ document.addEventListener('change', function(e) {
     }
   }
 });
-</script>
+
+// Event delegation for gasto buttons
+document.addEventListener('click', function(e) {
+  // Collapsible group header
+  var header = e.target.closest('.gasto-group-header');
+  if(header && header.dataset.gid) {
+    toggleGastoGroup(header.dataset.gid);
+    return;
+  }
+  // Edit / delete buttons
+  var editBtn = e.target.closest('.gasto-edit-btn');
+  if(editBtn){ editGasto(editBtn.dataset.id); return; }
+  var delBtn = e.target.closest('.gasto-del-btn');
+  if(delBtn){ deleteGasto(delBtn.dataset.id); return; }
+});</script>
 </body>
 </html>
