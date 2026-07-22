@@ -1742,6 +1742,16 @@ function switchGastosTab(tabId,btn){document.querySelectorAll('#page-gastos .tab
 var _installmentOn = false;
 var _jurosOn = false;
 
+function updateCategoriaSelect() {
+  var sel = document.getElementById('gasto-categoria');
+  if(!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">Sem categoria</option>'
+    + (state.categorias||[]).map(function(c){
+        return '<option value="'+c.id+'"'+(c.id===cur?' selected':'')+'>'+esc(c.nome)+'</option>';
+      }).join('');
+}
+
 function openModal_addGasto() {
   document.getElementById('gasto-modal-title').textContent = 'Novo gasto';
   document.getElementById('gasto-edit-id').value = '';
