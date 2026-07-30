@@ -658,6 +658,214 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
   .trophies-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .trophy-card { padding: 16px 10px 12px; }
 }
+
+/* ═══ LEITURA PAGE ═══ */
+.leitura-hero-wrap{display:flex;flex-direction:column;gap:0;margin-bottom:32px}
+.leitura-hero-card{
+  padding:40px 32px;display:flex;flex-direction:column;align-items:center;
+  gap:24px;transition:transform 0.5s ease,opacity 0.5s ease,box-shadow 0.5s ease;
+  position:sticky;top:0;z-index:10;
+}
+.leitura-hero-card.scrolled{
+  transform:scale(0.94);opacity:0.55;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  pointer-events:none;
+}
+
+/* ADD BUTTON */
+.leitura-add-btn{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  width:180px;height:180px;border-radius:20px;
+  background:rgba(255,255,255,0.03);border:2px dashed rgba(122,69,212,0.3);
+  justify-content:center;cursor:pointer;
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  color:var(--text-muted);
+}
+.leitura-add-btn:hover{
+  background:rgba(83,34,162,0.12);border-color:rgba(122,69,212,0.6);
+  color:var(--text);transform:scale(1.04);
+  box-shadow:0 0 24px rgba(83,34,162,0.25);
+}
+.leitura-add-label{font-size:13px;font-weight:600;text-align:center;line-height:1.4;padding:0 12px}
+
+/* ACTIVE BOOK */
+.leitura-book-cover-wrap{position:relative;width:120px}
+.leitura-book-cover{
+  width:120px;height:170px;object-fit:cover;border-radius:3px 10px 10px 3px;
+  box-shadow:-6px 6px 20px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08);
+  display:block;
+}
+.leitura-book-spine{
+  position:absolute;left:0;top:0;width:16px;height:170px;
+  background:linear-gradient(90deg,rgba(0,0,0,0.4),rgba(0,0,0,0.15));
+  border-radius:3px 0 0 3px;
+}
+.leitura-book-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.leitura-book-author{font-size:13px;color:var(--text-muted);margin-bottom:8px}
+.leitura-book-genre-badge{display:inline-block;padding:3px 12px;border-radius:99px;background:rgba(83,34,162,0.25);border:1px solid rgba(122,69,212,0.3);font-size:11px;color:var(--purple-light)}
+.leitura-progress-wrap{width:100%;max-width:320px}
+
+/* RESUMO BAR */
+.leitura-resumo-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);
+  border-top:none;border-radius:0 0 16px 16px;
+  transition:opacity 0.5s;
+}
+
+/* SHELF SECTION */
+.leitura-shelf-section{display:flex;flex-direction:column;gap:16px}
+.shelf-top-bar{display:flex;gap:10px;align-items:center}
+.shelf-search-wrap{
+  flex:1;display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:10px 16px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25) inset;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.shelf-search-wrap:focus-within{
+  border-color:rgba(122,69,212,0.5);
+  box-shadow:0 4px 20px rgba(0,0,0,0.25) inset,0 0 0 3px rgba(83,34,162,0.12);
+}
+.shelf-search-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
+}
+.shelf-search-input::placeholder{color:var(--text-muted)}
+.shelf-filter-btn{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-dim);transition:all 0.2s;flex-shrink:0;
+}
+.shelf-filter-btn:hover{background:rgba(122,69,212,0.2);color:var(--text)}
+.shelf-filter-dropdown{
+  background:rgba(10,6,20,0.95);border:1px solid rgba(122,69,212,0.2);
+  border-radius:14px;padding:16px;
+  animation:fadeIn 0.2s ease;
+}
+
+/* BOOKSHELF 3D */
+.bookshelf-3d{
+  background:linear-gradient(180deg,rgba(30,10,60,0.3) 0%,rgba(10,4,20,0.2) 100%);
+  border:1px solid rgba(122,69,212,0.15);
+  border-radius:16px;padding:24px 24px 8px;
+  backdrop-filter:blur(8px);
+  box-shadow:0 8px 40px rgba(0,0,0,0.3) inset;
+}
+.bookshelf-shelves{display:flex;flex-direction:column;gap:0}
+.shelf-row{
+  display:flex;align-items:flex-end;gap:0;
+  padding:16px 8px 0;
+  position:relative;min-height:140px;
+  border-bottom:none;
+}
+.shelf-plank{
+  position:absolute;bottom:0;left:0;right:0;height:12px;
+  background:linear-gradient(180deg,rgba(122,69,212,0.25) 0%,rgba(60,20,120,0.4) 100%);
+  border-radius:4px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4),0 -1px 0 rgba(122,69,212,0.2);
+}
+.shelf-support{
+  position:absolute;bottom:0;width:8px;height:24px;
+  background:rgba(83,34,162,0.3);border-radius:4px 4px 0 0;
+}
+.shelf-support.left{left:16px}
+.shelf-support.right{right:16px}
+
+/* BOOK SPINE (on shelf) */
+.shelf-book{
+  position:relative;
+  width:32px;height:110px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  transform-origin:bottom center;
+}
+.shelf-book:hover{transform:translateY(-12px) scale(1.08)}
+.shelf-book-spine-inner{
+  width:100%;height:100%;
+  border-radius:3px 6px 6px 3px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  box-shadow:-2px 3px 10px rgba(0,0,0,0.5),inset -3px 0 6px rgba(0,0,0,0.2);
+}
+.shelf-book-spine-inner img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;
+}
+.shelf-book-title-spine{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  font-size:9px;font-weight:700;color:rgba(255,255,255,0.9);
+  letter-spacing:0.5px;padding:4px 2px;
+  position:relative;z-index:1;
+  text-shadow:0 1px 3px rgba(0,0,0,0.8);
+  max-height:90px;overflow:hidden;text-overflow:ellipsis;
+}
+.shelf-book-star{
+  position:absolute;top:4px;right:3px;z-index:2;
+  width:14px;height:14px;cursor:pointer;
+  color:rgba(255,255,255,0.3);font-size:12px;line-height:1;
+  transition:all 0.2s;
+}
+.shelf-book-star.favorited{color:#fbbf24;text-shadow:0 0 6px rgba(251,191,36,0.6)}
+.shelf-book-add{
+  width:32px;height:110px;flex-shrink:0;
+  border:1.5px dashed rgba(122,69,212,0.3);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:rgba(122,69,212,0.4);font-size:18px;
+  transition:all 0.2s;margin-left:6px;
+}
+.shelf-book-add:hover{border-color:rgba(122,69,212,0.7);color:var(--purple-light);background:rgba(83,34,162,0.1)}
+
+/* SHELF POPUP BUTTONS */
+.shelf-popup-btn{
+  flex:1;padding:7px 8px;border-radius:8px;border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s;
+}
+.shelf-popup-btn.edit{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+.shelf-popup-btn.edit:hover{background:rgba(59,130,246,0.25)}
+.shelf-popup-btn.delete{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3)}
+.shelf-popup-btn.delete:hover{background:rgba(239,68,68,0.22)}
+
+/* YES/NO BUTTON */
+.livro-yesno-btn{
+  flex:1;padding:8px 16px;border-radius:9px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:var(--text-dim);
+  cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  transition:all 0.2s;
+}
+.livro-yesno-btn.active{background:rgba(83,34,162,0.35);border-color:rgba(122,69,212,0.5);color:var(--text)}
+
+/* RESUMO PENCIL ANIMATION */
+.resumo-pencil-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.resumo-pencil{animation:pencilWrite 0.6s ease-in-out infinite alternate}
+@keyframes pencilWrite{
+  from{transform:rotate(-8deg) translateX(-8px)}
+  to{transform:rotate(8deg) translateX(8px)}
+}
+.wave-path{stroke-dasharray:200;stroke-dashoffset:200;animation:waveAnim 1.2s linear infinite}
+@keyframes waveAnim{to{stroke-dashoffset:0}}
+
+/* RESUMO RESULT */
+.resumo-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.resumo-stat-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;text-align:center}
+.resumo-stat-value{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;background:linear-gradient(135deg,#fff,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.resumo-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* WEB IMAGE SEARCH */
+#web-image-results img{width:100%;height:70px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all 0.2s}
+#web-image-results img:hover{border-color:var(--purple-light);transform:scale(1.05)}
+#web-image-results img.selected{border-color:var(--green)}
+
+@media(max-width:768px){
+  .leitura-hero-card{padding:24px 18px}
+  .resumo-stat-grid{grid-template-columns:1fr}
+  .shelf-book{width:26px;height:90px}
+}
 </style>
 </head>
 <body>
@@ -692,6 +900,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
     <div class="nav-item" data-page="gastos"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="nav-label">Gastos</span></div>
     <div class="nav-item" data-page="resumo"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="nav-label">Resumo</span></div>
     <div class="nav-item" data-page="estudos"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span class="nav-label">Estudos</span></div>
+    <div class="nav-item" data-page="leitura"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><span class="nav-label">Leitura</span></div>
     <div class="nav-item" data-page="notas"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="nav-label">Notas</span></div>
     <div class="sidebar-divider"></div>
     <div class="nav-item" data-page="perfil"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Perfil</span></div>
@@ -1078,6 +1287,98 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 
     </section>
 
+
+    <!-- ─────── LEITURA ─────── -->
+    <section class="page" id="page-leitura">
+
+      <!-- CURRENT BOOK HERO -->
+      <div class="leitura-hero-wrap" id="leitura-hero-wrap">
+        <div class="leitura-hero-card glass" id="leitura-hero-card">
+          <!-- No book reading -->
+          <div id="leitura-empty-state" style="display:flex;flex-direction:column;align-items:center;gap:0">
+            <div class="leitura-add-btn" id="leitura-add-btn" onclick="openModal('modal-add-livro')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="leitura-add-label">O que você está lendo?</span>
+            </div>
+          </div>
+          <!-- Active book reading -->
+          <div id="leitura-active-book" style="display:none;width:100%;align-items:center;flex-direction:column;gap:20px">
+            <div class="leitura-book-cover-wrap">
+              <img id="leitura-book-cover-img" src="" alt="capa" class="leitura-book-cover">
+              <div class="leitura-book-spine"></div>
+            </div>
+            <div style="text-align:center">
+              <div class="leitura-book-title" id="leitura-book-title-display"></div>
+              <div class="leitura-book-author" id="leitura-book-author-display"></div>
+              <div class="leitura-book-genre-badge" id="leitura-book-genre-display"></div>
+            </div>
+            <div class="leitura-progress-wrap">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px">
+                <span id="leitura-pages-read">0 páginas lidas</span>
+                <span id="leitura-pct-display">0%</span>
+              </div>
+              <div class="progress-bar-track" style="height:8px;border-radius:99px">
+                <div class="progress-bar-fill" id="leitura-progress-bar" style="width:0%;border-radius:99px"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;text-align:right" id="leitura-pages-total"></div>
+            </div>
+            <div style="display:flex;gap:10px;width:100%;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-registrar-leitura')">📖 Registrar leitura</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-livro')" style="border-color:rgba(59,130,246,0.4);color:#60a5fa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Editar
+              </button>
+              <button class="btn btn-sm" onclick="openAbandonarLeitura()" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#ef4444">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                Abandonar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESUMO BAR -->
+        <div class="leitura-resumo-bar" id="leitura-resumo-bar">
+          <div style="display:flex;align-items:center;gap:10px;flex:1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="color:var(--text-muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+            <span style="font-size:13px;color:var(--text-dim)">Resumo de leitura</span>
+            <span style="font-size:11px;color:var(--text-muted)" id="resumo-livros-count"></span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="openResumoLeitura()">Ver resumo</button>
+        </div>
+      </div>
+
+      <!-- BOOKSHELF -->
+      <div class="leitura-shelf-section" id="leitura-shelf-section">
+        <div class="shelf-top-bar">
+          <div class="shelf-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="shelf-search-input" id="shelf-search" type="text" placeholder="Buscar livros na estante..." oninput="filterShelf()">
+          </div>
+          <button class="shelf-filter-btn" onclick="toggleShelfFilter()" title="Filtrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </button>
+        </div>
+
+        <!-- FILTER DROPDOWN -->
+        <div class="shelf-filter-dropdown" id="shelf-filter-dropdown" style="display:none">
+          <div class="two-col" style="gap:10px">
+            <div class="form-group" style="margin:0"><label class="form-label">Gênero</label><select class="form-select" id="filter-genero" onchange="filterShelf()"><option value="">Todos</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Editora</label><select class="form-select" id="filter-editora" onchange="filterShelf()"><option value="">Todas</option></select></div>
+          </div>
+          <div class="form-group" style="margin:0;margin-top:10px"><label class="form-label">Autor</label><select class="form-select" id="filter-autor" onchange="filterShelf()"><option value="">Todos</option></select></div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <button class="btn btn-ghost btn-sm" onclick="clearShelfFilters()">Limpar filtros</button>
+          </div>
+        </div>
+
+        <!-- BOOKSHELF VISUAL -->
+        <div class="bookshelf-3d" id="bookshelf-3d">
+          <div class="bookshelf-shelves" id="bookshelf-shelves"></div>
+        </div>
+      </div>
+
+    </section>
+
     <section class="page" id="page-notas">
       <div class="page-header">
         <h2 class="page-title">Notas</h2>
@@ -1413,6 +1714,7 @@ function goToPage(name){
   else if(name==='estudos')renderEstudos();
   else if(name==='notas')renderNotas();
   else if(name==='resumo')renderResumo();
+  else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
 }
 function mobileNav(el,page){document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.remove('active');});el.classList.add('active');goToPage(page);}
@@ -2798,6 +3100,596 @@ function stopConfetti() {
   if(canvas) { var ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
 
+
+// ─── LEITURA ─────────────────────────────────────────────
+
+var _lendoAgoraOn = false;
+var _jaLeuSim = false;
+var _shelfPopupBookId = null;
+var _selectedWebImg = null;
+var _shelfFilterVisible = false;
+
+function renderLeitura() {
+  if(!document.getElementById('page-leitura')) return;
+  if(!state.livros) state.livros = [];
+  renderHeroBook();
+  renderBookshelf();
+  updateResumoBar();
+  setupScrollEffect();
+}
+
+// ── HERO BOOK ──
+function renderHeroBook() {
+  var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
+  var emptyEl = document.getElementById('leitura-empty-state');
+  var activeEl = document.getElementById('leitura-active-book');
+  if(!emptyEl || !activeEl) return;
+
+  if(!active) {
+    emptyEl.style.display = 'flex';
+    activeEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  activeEl.style.display = 'flex';
+
+  var coverImg = document.getElementById('leitura-book-cover-img');
+  if(active.cover) {
+    coverImg.src = active.cover;
+    coverImg.style.display = 'block';
+  } else {
+    coverImg.style.display = 'none';
+  }
+  document.getElementById('leitura-book-title-display').textContent = active.titulo || '';
+  document.getElementById('leitura-book-author-display').textContent = active.autor || '';
+  document.getElementById('leitura-book-genre-display').textContent = active.genero || '';
+
+  var pagesRead = active.paginasLidas || 0;
+  var total = parseInt(active.paginas) || 1;
+  var pct = Math.min(100, Math.round((pagesRead / total) * 100));
+  document.getElementById('leitura-pages-read').textContent = pagesRead + ' páginas lidas';
+  document.getElementById('leitura-pct-display').textContent = pct + '%';
+  document.getElementById('leitura-progress-bar').style.width = pct + '%';
+  document.getElementById('leitura-pages-total').textContent = 'de ' + total + ' páginas';
+}
+
+// ── SCROLL EFFECT ──
+function setupScrollEffect() {
+  var main = document.getElementById('main');
+  var hero = document.getElementById('leitura-hero-card');
+  if(!main || !hero) return;
+  function onScroll() {
+    if(main.scrollTop > 80) {
+      hero.classList.add('scrolled');
+    } else {
+      hero.classList.remove('scrolled');
+    }
+  }
+  main.removeEventListener('scroll', main._leituraScroll);
+  main._leituraScroll = onScroll;
+  main.addEventListener('scroll', onScroll);
+}
+
+// ── BOOKSHELF ──
+var BOOKS_PER_SHELF = 12;
+var SPINE_COLORS = [
+  ['#5322a2','#7a45d4'],['#3a1870','#5322a2'],['#7c3aed','#a78bfa'],
+  ['#6d28d9','#8b5cf6'],['#4c1d95','#6d28d9'],['#2e1065','#4c1d95'],
+  ['#581c87','#7c3aed'],['#3b0764','#581c87'],
+];
+
+function renderBookshelf(filterFn) {
+  var container = document.getElementById('bookshelf-shelves');
+  if(!container) return;
+  var livros = (state.livros||[]).slice();
+  if(filterFn) livros = livros.filter(filterFn);
+
+  // Populate filter dropdowns
+  updateShelfFilters();
+
+  if(!livros.length) {
+    container.innerHTML = '<div class="shelf-row" style="justify-content:center;align-items:center;min-height:120px"><div style="color:var(--text-muted);font-size:13px">Sua estante está vazia. Adicione seu primeiro livro!</div></div>';
+    return;
+  }
+
+  // Split into shelves of BOOKS_PER_SHELF
+  var shelves = [];
+  for(var i = 0; i < livros.length; i += BOOKS_PER_SHELF) {
+    shelves.push(livros.slice(i, i + BOOKS_PER_SHELF));
+  }
+  // Always at least 3 shelves visually, but only render filled ones + 1 empty
+  while(shelves.length < 3) shelves.push([]);
+
+  container.innerHTML = shelves.map(function(shelf, si) {
+    var books = shelf.map(function(livro, bi) {
+      var colorPair = SPINE_COLORS[(livro.titulo||'').length % SPINE_COLORS.length];
+      var pct = livro.paginas ? Math.round(((livro.paginasLidas||0)/livro.paginas)*100) : 0;
+      var statusClass = livro.lendoAgora ? 'border-top:3px solid #7a45d4' : (livro.abandonado ? 'border-top:3px solid #ef4444' : '');
+      return '<div class="shelf-book" data-id="' + livro.id + '">';
+        + '<div class="shelf-book-spine-inner" style="background:linear-gradient(135deg,' + colorPair[0] + ',' + colorPair[1] + ');' + statusClass + '">'
+        + (livro.cover ? '<img src="' + livro.cover + '">' : '')
+        + '<span class="shelf-book-title-spine">' + esc(livro.titulo||'') + '</span>'
+        + '</div>'
+        + '<div class="shelf-book-star ' + (livro.favorito ? 'favorited' : '') + '" data-favid="' + livro.id + '" title="Favoritar">★</div>'
+        + '</div>';
+    }).join('');
+
+    // Add "+" button at end of last shelf
+    var addBtn = si === shelves.length - 1 ? '<div class="shelf-book-add" data-addbook="1">+</div>' : '';
+
+    return '<div class="shelf-row">'
+      + books + addBtn
+      + '<div class="shelf-plank"></div>'
+      + '<div class="shelf-support left"></div>'
+      + '<div class="shelf-support right"></div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── SHELF POPUP ──
+var _hidePopupTimer = null;
+function showShelfPopup(e, id) {
+  clearTimeout(_hidePopupTimer);
+  var livro = (state.livros||[]).find(function(l){ return l.id === id; });
+  if(!livro) return;
+  _shelfPopupBookId = id;
+  var popup = document.getElementById('shelf-book-popup');
+  if(!popup) return;
+
+  var coverEl = document.getElementById('shelf-popup-cover');
+  if(livro.cover) { coverEl.src = livro.cover; coverEl.style.display = 'block'; }
+  else { coverEl.style.display = 'none'; }
+
+  document.getElementById('shelf-popup-title').textContent = livro.titulo || '';
+  document.getElementById('shelf-popup-author').textContent = livro.autor || '';
+
+  var progEl = document.getElementById('shelf-popup-progress');
+  if(livro.lendoAgora && livro.paginas) {
+    var pct = Math.round(((livro.paginasLidas||0)/livro.paginas)*100);
+    document.getElementById('shelf-popup-pct').textContent = pct + '% lido';
+    document.getElementById('shelf-popup-pct-bar').style.width = pct + '%';
+    progEl.style.display = 'block';
+  } else {
+    progEl.style.display = 'none';
+  }
+
+  var target = e.currentTarget || e.target;
+  var bookEl = target.closest ? target.closest('.shelf-book') : target;
+  var rect = bookEl ? bookEl.getBoundingClientRect() : {left:e.clientX,top:e.clientY};
+  popup.style.display = 'block';
+  popup.style.left = Math.min(rect.left, window.innerWidth - 200) + 'px';
+  popup.style.top = (rect.top - 10) + 'px';
+}
+
+function hideShelfPopupDelayed() {
+  _hidePopupTimer = setTimeout(function() {
+    var popup = document.getElementById('shelf-book-popup');
+    if(popup) popup.style.display = 'none';
+  }, 300);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var popup = document.getElementById('shelf-book-popup');
+  if(popup) {
+    popup.addEventListener('mouseenter', function(){ clearTimeout(_hidePopupTimer); });
+    popup.addEventListener('mouseleave', function(){ hideShelfPopupDelayed(); });
+  }
+});
+
+function editLivroFromPopup() {
+  if(!_shelfPopupBookId) return;
+  document.getElementById('shelf-book-popup').style.display = 'none';
+  openEditLivro(_shelfPopupBookId);
+}
+
+function deleteLivroFromPopup() {
+  if(!_shelfPopupBookId) return;
+  document.getElementById('shelf-book-popup').style.display = 'none';
+  var id = _shelfPopupBookId;
+  document.getElementById('confirm-icon').textContent = '📚';
+  document.getElementById('confirm-title').textContent = 'Remover livro';
+  document.getElementById('confirm-body').textContent = 'Remover este livro da sua estante?';
+  document.getElementById('confirm-ok-btn').textContent = 'Remover';
+  document.getElementById('confirm-ok-btn').onclick = function() {
+    state.livros = (state.livros||[]).filter(function(l){ return l.id !== id; });
+    saveState(); closeModal('modal-confirm'); renderLeitura(); toast('📚 Livro removido!'); resetConfirmBtn();
+  };
+  openModal('modal-confirm');
+}
+
+function toggleFavorito(id) {
+  var livro = (state.livros||[]).find(function(l){ return l.id === id; });
+  if(!livro) return;
+  livro.favorito = !livro.favorito;
+  saveState();
+  renderBookshelf();
+  toast(livro.favorito ? '⭐ Favoritado!' : 'Removido dos favoritos');
+}
+
+// ── FILTERS ──
+function toggleShelfFilter() {
+  _shelfFilterVisible = !_shelfFilterVisible;
+  var el = document.getElementById('shelf-filter-dropdown');
+  if(el) el.style.display = _shelfFilterVisible ? 'block' : 'none';
+}
+
+function updateShelfFilters() {
+  var livros = state.livros || [];
+  var generos = [...new Set(livros.map(function(l){ return l.genero; }).filter(Boolean))];
+  var editoras = [...new Set(livros.map(function(l){ return l.editora; }).filter(Boolean))];
+  var autores = [...new Set(livros.map(function(l){ return l.autor; }).filter(Boolean))];
+
+  function fillSelect(id, items) {
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Todos</option>' + items.map(function(v){ return '<option value="' + esc(v) + '"' + (v===cur?' selected':'') + '>' + esc(v) + '</option>'; }).join('');
+  }
+  fillSelect('filter-genero', generos);
+  fillSelect('filter-editora', editoras);
+  fillSelect('filter-autor', autores);
+}
+
+function filterShelf() {
+  var query = (document.getElementById('shelf-search').value || '').toLowerCase();
+  var genero = document.getElementById('filter-genero') ? document.getElementById('filter-genero').value : '';
+  var editora = document.getElementById('filter-editora') ? document.getElementById('filter-editora').value : '';
+  var autor = document.getElementById('filter-autor') ? document.getElementById('filter-autor').value : '';
+
+  renderBookshelf(function(l) {
+    var matchQ = !query || (l.titulo||'').toLowerCase().includes(query) || (l.autor||'').toLowerCase().includes(query);
+    var matchG = !genero || l.genero === genero;
+    var matchE = !editora || l.editora === editora;
+    var matchA = !autor || l.autor === autor;
+    return matchQ && matchG && matchE && matchA;
+  });
+}
+
+function clearShelfFilters() {
+  ['filter-genero','filter-editora','filter-autor'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  var sq = document.getElementById('shelf-search'); if(sq) sq.value = '';
+  renderBookshelf();
+}
+
+// ── ADD / EDIT LIVRO ──
+function setJaLeu(val) {
+  _jaLeuSim = val;
+  document.getElementById('jaleu-sim').classList.toggle('active', val);
+  document.getElementById('jaleu-nao').classList.toggle('active', !val);
+  document.getElementById('jaleu-vezes-wrap').style.display = val ? 'block' : 'none';
+}
+
+function toggleLendoAgora() {
+  _lendoAgoraOn = !_lendoAgoraOn;
+  document.getElementById('lendo-agora-toggle').className = 'toggle-switch' + (_lendoAgoraOn ? ' on' : '');
+}
+
+function previewLivroCover(e) {
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    _selectedWebImg = ev.target.result;
+    document.getElementById('livro-cover-img').src = ev.target.result;
+    document.getElementById('livro-cover-preview').style.display = 'block';
+    document.getElementById('livro-cover-empty').style.display = 'none';
+    document.getElementById('web-image-search-wrap').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLivroCover() {
+  _selectedWebImg = null;
+  document.getElementById('livro-cover-preview').style.display = 'none';
+  document.getElementById('livro-cover-empty').style.display = 'block';
+  document.getElementById('livro-cover-img').src = '';
+}
+
+function openWebImageSearch() {
+  var wrap = document.getElementById('web-image-search-wrap');
+  wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+  if(wrap.style.display === 'block') {
+    var titulo = document.getElementById('livro-titulo').value;
+    var autor = document.getElementById('livro-autor').value;
+    if(titulo) document.getElementById('web-image-query').value = titulo + ' ' + autor + ' livro capa';
+    document.getElementById('web-image-query').focus();
+  }
+}
+
+function searchWebImages() {
+  var query = document.getElementById('web-image-query').value.trim();
+  if(!query) return;
+  var results = document.getElementById('web-image-results');
+  results.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:8px;grid-column:1/-1">🔍 Buscando imagens... <br><span style="font-size:10px">Dica: Cole a URL de uma imagem diretamente no campo abaixo.</span></div>';
+  // Since we can't do real image search in GitHub Pages (no backend),
+  // show URL input fallback
+  results.innerHTML = '<div style="grid-column:1/-1">'
+    + '<p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Cole a URL da imagem da capa:</p>'
+    + '<div style="display:flex;gap:8px">'
+    + '<input id="cover-url-input" class="form-input" placeholder="https://..." style="flex:1;font-size:12px">'
+    + '<button class="btn btn-primary btn-sm" onclick="applyCoverUrl()">Usar</button>'
+    + '</div>'
+    + '<p style="font-size:10px;color:var(--text-muted);margin-top:6px">Dica: Busque no Google Imagens, clique com botão direito na capa → "Copiar endereço da imagem"</p>'
+    + '</div>';
+}
+
+function applyCoverUrl() {
+  var url = document.getElementById('cover-url-input') ? document.getElementById('cover-url-input').value.trim() : '';
+  if(!url) return;
+  _selectedWebImg = url;
+  document.getElementById('livro-cover-img').src = url;
+  document.getElementById('livro-cover-preview').style.display = 'block';
+  document.getElementById('livro-cover-empty').style.display = 'none';
+  document.getElementById('web-image-search-wrap').style.display = 'none';
+  toast('🖼 Capa aplicada!');
+}
+
+function resetLivroForm() {
+  ['livro-titulo','livro-autor','livro-paginas','livro-genero','livro-editora','livro-ano','livro-vezes'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  clearLivroCover();
+  _selectedWebImg = null;
+  _jaLeuSim = false;
+  _lendoAgoraOn = false;
+  document.getElementById('jaleu-sim').classList.remove('active');
+  document.getElementById('jaleu-nao').classList.add('active');
+  document.getElementById('jaleu-vezes-wrap').style.display = 'none';
+  document.getElementById('lendo-agora-toggle').className = 'toggle-switch';
+  document.getElementById('web-image-search-wrap').style.display = 'none';
+  document.getElementById('livro-edit-id').value = '';
+  document.getElementById('livro-modal-title').textContent = 'Adicionar livro';
+}
+
+function openEditLivro(id) {
+  var l = (state.livros||[]).find(function(x){ return x.id === id; });
+  if(!l) return;
+  resetLivroForm();
+  document.getElementById('livro-modal-title').textContent = 'Editar livro';
+  document.getElementById('livro-edit-id').value = l.id;
+  document.getElementById('livro-titulo').value = l.titulo || '';
+  document.getElementById('livro-autor').value = l.autor || '';
+  document.getElementById('livro-paginas').value = l.paginas || '';
+  document.getElementById('livro-genero').value = l.genero || '';
+  document.getElementById('livro-editora').value = l.editora || '';
+  document.getElementById('livro-ano').value = l.ano || '';
+  if(l.cover) {
+    _selectedWebImg = l.cover;
+    document.getElementById('livro-cover-img').src = l.cover;
+    document.getElementById('livro-cover-preview').style.display = 'block';
+    document.getElementById('livro-cover-empty').style.display = 'none';
+  }
+  if(l.jaLeu) setJaLeu(true);
+  if(l.vezes) document.getElementById('livro-vezes').value = l.vezes;
+  _lendoAgoraOn = !!l.lendoAgora;
+  document.getElementById('lendo-agora-toggle').className = 'toggle-switch' + (_lendoAgoraOn ? ' on' : '');
+  openModal('modal-add-livro');
+}
+
+function saveLivro() {
+  var titulo = document.getElementById('livro-titulo').value.trim();
+  if(!titulo) { toast('⚠️ Informe o título do livro.'); return; }
+  var paginas = parseInt(document.getElementById('livro-paginas').value) || 0;
+  if(!paginas) { toast('⚠️ Informe a quantidade de páginas.'); return; }
+
+  if(!state.livros) state.livros = [];
+
+  var editId = document.getElementById('livro-edit-id').value;
+
+  // If setting as lendo agora, unset others
+  if(_lendoAgoraOn) {
+    state.livros.forEach(function(l){ l.lendoAgora = false; });
+  }
+
+  if(editId) {
+    var l = state.livros.find(function(x){ return x.id === editId; });
+    if(l) {
+      l.titulo = titulo;
+      l.autor = document.getElementById('livro-autor').value.trim();
+      l.paginas = paginas;
+      l.genero = document.getElementById('livro-genero').value.trim();
+      l.editora = document.getElementById('livro-editora').value.trim();
+      l.ano = document.getElementById('livro-ano').value.trim();
+      l.cover = _selectedWebImg || l.cover || null;
+      l.jaLeu = _jaLeuSim;
+      l.vezes = _jaLeuSim ? (parseInt(document.getElementById('livro-vezes').value)||1) : 0;
+      l.lendoAgora = _lendoAgoraOn;
+    }
+    toast('✏️ Livro atualizado!');
+  } else {
+    var livro = {
+      id: uid(), titulo: titulo,
+      autor: document.getElementById('livro-autor').value.trim(),
+      paginas: paginas,
+      genero: document.getElementById('livro-genero').value.trim(),
+      editora: document.getElementById('livro-editora').value.trim(),
+      ano: document.getElementById('livro-ano').value.trim(),
+      cover: _selectedWebImg || null,
+      jaLeu: _jaLeuSim,
+      vezes: _jaLeuSim ? (parseInt(document.getElementById('livro-vezes').value)||1) : 0,
+      lendoAgora: _lendoAgoraOn,
+      paginasLidas: 0,
+      logLeitura: [],
+      abandonado: false,
+      createdAt: new Date().toISOString(),
+    };
+    state.livros.push(livro);
+    toast('📚 Livro adicionado!');
+  }
+
+  saveState();
+  closeModal('modal-add-livro');
+  resetLivroForm();
+  renderLeitura();
+}
+
+// ── REGISTRAR LEITURA ──
+function openModal_registrarLeitura() {
+  var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
+  if(!active) { toast('⚠️ Nenhum livro em leitura ativa.'); return; }
+  document.getElementById('registrar-paginas').value = '';
+  document.getElementById('registrar-preview').textContent = '';
+  openModal('modal-registrar-leitura');
+}
+
+document.addEventListener('input', function(e) {
+  if(e.target.id === 'registrar-paginas') {
+    var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
+    if(!active) return;
+    var novas = parseInt(e.target.value) || 0;
+    var total = active.paginas || 1;
+    var depois = Math.min(total, (active.paginasLidas||0) + novas);
+    var pct = Math.round((depois/total)*100);
+    document.getElementById('registrar-preview').textContent = depois + ' / ' + total + ' páginas (' + pct + '%)';
+  }
+});
+
+function registrarLeitura() {
+  var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
+  if(!active) return;
+  var novas = parseInt(document.getElementById('registrar-paginas').value) || 0;
+  if(novas <= 0) { toast('⚠️ Informe quantas páginas você leu.'); return; }
+
+  active.paginasLidas = Math.min(active.paginas, (active.paginasLidas||0) + novas);
+  active.logLeitura = active.logLeitura || [];
+  active.logLeitura.push({ data: new Date().toISOString(), paginas: novas });
+
+  if(active.paginasLidas >= active.paginas) {
+    active.lendoAgora = false;
+    active.concluido = true;
+    active.concluidoEm = new Date().toISOString();
+    toast('🎉 Parabéns! Você terminou "' + active.titulo + '"!');
+  } else {
+    toast('📖 +' + novas + ' páginas registradas!');
+  }
+
+  saveState();
+  closeModal('modal-registrar-leitura');
+  renderLeitura();
+}
+
+// ── ABANDONAR ──
+function openAbandonarLeitura() { openModal('modal-abandonar-leitura'); }
+
+function abandonarLeitura() {
+  var active = (state.livros||[]).find(function(l){ return l.lendoAgora; });
+  if(active) { active.lendoAgora = false; active.abandonado = true; }
+  saveState();
+  closeModal('modal-abandonar-leitura');
+  renderLeitura();
+  toast('📖 Leitura abandonada. Até a próxima!');
+}
+
+// ── RESUMO ──
+function updateResumoBar() {
+  var el = document.getElementById('resumo-livros-count');
+  if(el) {
+    var total = (state.livros||[]).length;
+    var concluidos = (state.livros||[]).filter(function(l){ return l.concluido; }).length;
+    el.textContent = total + ' livros · ' + concluidos + ' concluídos';
+  }
+}
+
+function openResumoLeitura() {
+  document.getElementById('resumo-period-select').style.display = 'block';
+  document.getElementById('resumo-loading').style.display = 'none';
+  document.getElementById('resumo-result').style.display = 'none';
+  openModal('modal-resumo-leitura');
+}
+
+function gerarResumo(periodo) {
+  document.getElementById('resumo-period-select').style.display = 'none';
+  document.getElementById('resumo-loading').style.display = 'block';
+  document.getElementById('resumo-result').style.display = 'none';
+
+  setTimeout(function() {
+    document.getElementById('resumo-loading').style.display = 'none';
+    document.getElementById('resumo-result').style.display = 'block';
+
+    var livros = state.livros || [];
+    var now = new Date();
+    var logs = [];
+
+    livros.forEach(function(l) {
+      (l.logLeitura||[]).forEach(function(entry) {
+        var d = new Date(entry.data);
+        var include = false;
+        if(periodo === 'hoje') include = d.toDateString() === now.toDateString();
+        else if(periodo === 'semana') include = (now - d) <= 7*86400000;
+        else if(periodo === 'mes') include = d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+        else if(periodo === 'ano') include = d.getFullYear()===now.getFullYear();
+        if(include) logs.push({ livro: l, paginas: entry.paginas, data: d });
+      });
+    });
+
+    var totalPaginas = logs.reduce(function(s,e){ return s+e.paginas; }, 0);
+    var livrosAtivos = [...new Set(logs.map(function(e){ return e.livro.titulo; }))];
+
+    var generos = {};
+    var editoras = {};
+    logs.forEach(function(e) {
+      if(e.livro.genero) generos[e.livro.genero] = (generos[e.livro.genero]||0)+e.paginas;
+      if(e.livro.editora) editoras[e.livro.editora] = (editoras[e.livro.editora]||0)+e.paginas;
+    });
+    var topGenero = Object.keys(generos).sort(function(a,b){ return generos[b]-generos[a]; })[0] || '—';
+    var topEditora = Object.keys(editoras).sort(function(a,b){ return editoras[b]-editoras[a]; })[0] || '—';
+
+    var periodoLabel = {hoje:'hoje',semana:'esta semana',mes:'este mês',ano:'este ano'}[periodo];
+    var nomesPeriodo = {hoje:'Hoje',semana:'Esta semana',mes:'Este mês',ano:'Este ano'}[periodo];
+
+    document.getElementById('resumo-result').innerHTML =
+      '<div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">' + nomesPeriodo + '</div>'
+      + '<div class="resumo-stat-grid">'
+        + '<div class="resumo-stat-card"><div class="resumo-stat-value">' + totalPaginas + '</div><div class="resumo-stat-label">Páginas lidas</div></div>'
+        + '<div class="resumo-stat-card"><div class="resumo-stat-value">' + livrosAtivos.length + '</div><div class="resumo-stat-label">Livros lidos</div></div>'
+        + '<div class="resumo-stat-card"><div class="resumo-stat-value" style="font-size:16px">' + esc(topGenero) + '</div><div class="resumo-stat-label">Gênero favorito</div></div>'
+        + '<div class="resumo-stat-card"><div class="resumo-stat-value" style="font-size:16px">' + esc(topEditora) + '</div><div class="resumo-stat-label">Editora favorita</div></div>'
+      + '</div>'
+      + (livrosAtivos.length ? '<div class="section-title" style="margin-top:0">Livros lidos</div><div style="display:flex;flex-direction:column;gap:6px">'
+        + livrosAtivos.map(function(t){ return '<div style="font-size:13px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">📖 ' + esc(t) + '</div>'; }).join('')
+        + '</div>' : '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Nenhuma leitura registrada ' + periodoLabel + '.</div>');
+  }, 1800);
+}
+
+
+// Event delegation for shelf books
+document.addEventListener('mouseenter', function(e) {
+  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
+  if(book && book.dataset.id) showShelfPopup(e, book.dataset.id);
+}, true);
+
+document.addEventListener('mouseleave', function(e) {
+  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
+  if(book) hideShelfPopupDelayed();
+}, true);
+
+document.addEventListener('click', function(e) {
+  // Star/favorite
+  var star = e.target.closest ? e.target.closest('.shelf-book-star') : null;
+  if(star && star.dataset.favid) {
+    e.stopPropagation();
+    toggleFavorito(star.dataset.favid);
+    return;
+  }
+  // Add book button
+  var addBook = e.target.closest ? e.target.closest('[data-addbook]') : null;
+  if(addBook) { openModal('modal-add-livro'); return; }
+  // Book click (mobile)
+  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
+  if(book && book.dataset.id) {
+    showShelfPopup(e, book.dataset.id);
+    return;
+  }
+  // Close shelf popup on outside click
+  var popup = document.getElementById('shelf-book-popup');
+  if(popup && popup.style.display !== 'none') {
+    if(!popup.contains(e.target)) {
+      popup.style.display = 'none';
+    }
+  }
+});
+
 // SEED
 function seedDemo(){
   // Only runs once for brand new users — data is immediately saved to Supabase
@@ -3112,5 +4004,191 @@ document.addEventListener('click', function(e) {
     <button class="trophy-popup-btn" onclick="closeTrophyPopup()">Ver meu troféu 🎉</button>
   </div>
 </div>
+
+    <!-- ADD/EDIT LIVRO MODAL -->
+    <div class="modal-overlay" id="modal-add-livro">
+      <div class="modal" style="max-width:500px">
+        <div class="modal-close" onclick="closeModal('modal-add-livro')">✕</div>
+        <div class="modal-title" id="livro-modal-title">Adicionar livro</div>
+        <input type="hidden" id="livro-edit-id">
+
+        <!-- COVER -->
+        <div class="form-group">
+          <label class="form-label">Capa do livro</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('livro-cover-input').click()">📁 Do dispositivo</button>
+            <button class="btn btn-ghost btn-sm" onclick="openWebImageSearch()">🔍 Buscar na web</button>
+          </div>
+          <input type="file" id="livro-cover-input" accept="image/*" style="display:none" onchange="previewLivroCover(event)">
+          <div id="livro-cover-preview" style="display:none;width:100%;height:160px;border-radius:10px;overflow:hidden;position:relative">
+            <img id="livro-cover-img" style="width:100%;height:100%;object-fit:cover">
+            <button onclick="clearLivroCover()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px">✕</button>
+          </div>
+          <div id="livro-cover-empty" class="upload-area" onclick="document.getElementById('livro-cover-input').click()" style="margin-top:4px">
+            <div style="font-size:32px">📚</div>
+            <p>Clique para adicionar a capa</p>
+          </div>
+        </div>
+
+        <!-- WEB SEARCH -->
+        <div id="web-image-search-wrap" style="display:none;margin-bottom:16px">
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="form-input" id="web-image-query" placeholder="Ex: A Metamorfose Kafka capa livro" style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="searchWebImages()">Buscar</button>
+          </div>
+          <div id="web-image-results" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:160px;overflow-y:auto"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Título da obra</label>
+          <input class="form-input" id="livro-titulo" placeholder="Ex: O Senhor dos Anéis">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Autor</label>
+          <input class="form-input" id="livro-autor" placeholder="Ex: J.R.R. Tolkien">
+        </div>
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Quantidade de páginas</label>
+            <input class="form-input" id="livro-paginas" type="number" min="1" placeholder="Ex: 432">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gênero</label>
+            <input class="form-input" id="livro-genero" placeholder="Ex: Fantasia">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Editora</label>
+            <input class="form-input" id="livro-editora" placeholder="Ex: HarperCollins">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ano</label>
+            <input class="form-input" id="livro-ano" type="number" placeholder="Ex: 1954">
+          </div>
+        </div>
+
+        <!-- JA LEU? -->
+        <div class="form-group">
+          <label class="form-label">Já leu este livro antes?</label>
+          <div style="display:flex;gap:10px">
+            <button class="livro-yesno-btn active" id="jaleu-nao" onclick="setJaLeu(false)">Não</button>
+            <button class="livro-yesno-btn" id="jaleu-sim" onclick="setJaLeu(true)">Sim</button>
+          </div>
+          <div id="jaleu-vezes-wrap" style="display:none;margin-top:10px">
+            <label class="form-label">Quantas vezes?</label>
+            <input class="form-input" id="livro-vezes" type="number" min="1" value="1">
+          </div>
+        </div>
+
+        <!-- LENDO AGORA? -->
+        <div class="installment-toggle" onclick="toggleLendoAgora()" style="margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="toggle-switch" id="lendo-agora-toggle"></div>
+            <span style="font-size:14px;font-weight:500">Estou lendo agora</span>
+          </div>
+          <span style="font-size:12px;color:var(--text-muted)">Define como leitura ativa</span>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="saveLivro()">Salvar</button>
+          <button class="btn btn-ghost" onclick="closeModal('modal-add-livro')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR LEITURA MODAL -->
+    <div class="modal-overlay" id="modal-registrar-leitura">
+      <div class="modal" style="max-width:380px">
+        <div class="modal-close" onclick="closeModal('modal-registrar-leitura')">✕</div>
+        <div class="modal-title">Registrar leitura</div>
+        <div class="form-group">
+          <label class="form-label">Páginas lidas hoje</label>
+          <input class="form-input" id="registrar-paginas" type="number" min="1" placeholder="Ex: 30">
+        </div>
+        <div id="registrar-preview" style="font-size:13px;color:var(--text-muted);margin-bottom:8px"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="registrarLeitura()">Salvar</button>
+          <button class="btn btn-ghost" onclick="closeModal('modal-registrar-leitura')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABANDONAR LEITURA MODAL -->
+    <div class="modal-overlay" id="modal-abandonar-leitura">
+      <div class="modal" style="max-width:360px;text-align:center">
+        <div class="modal-close" onclick="closeModal('modal-abandonar-leitura')">✕</div>
+        <div style="font-size:64px;margin:16px 0 8px">😢</div>
+        <div class="modal-title" style="text-align:center">Quer realmente abandonar essa história?</div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">O livro ficará na sua estante marcado como abandonado. Você poderá retomá-lo quando quiser.</p>
+        <div class="modal-actions" style="justify-content:center">
+          <button class="btn btn-danger" onclick="abandonarLeitura()">Abandonar</button>
+          <button class="btn btn-ghost" onclick="closeModal('modal-abandonar-leitura')">Continuar lendo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMO LEITURA MODAL -->
+    <div class="modal-overlay" id="modal-resumo-leitura">
+      <div class="modal modal-wide">
+        <div class="modal-close" onclick="closeModal('modal-resumo-leitura')">✕</div>
+        <div class="modal-title">Resumo de leitura</div>
+
+        <!-- PERIOD SELECTOR -->
+        <div id="resumo-period-select" style="display:block">
+          <p style="font-size:14px;color:var(--text-dim);margin-bottom:20px">De qual período você deseja seu resumo?</p>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <button class="btn btn-ghost" onclick="gerarResumo('hoje')">📅 Hoje</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('semana')">📆 Esta semana</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('mes')">🗓 Este mês</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('ano')">📊 Este ano</button>
+          </div>
+        </div>
+
+        <!-- LOADING ANIMATION -->
+        <div id="resumo-loading" style="display:none;text-align:center;padding:40px 20px">
+          <div style="font-size:14px;color:var(--text-muted);margin-bottom:24px">Gerando seu resumo...</div>
+          <div class="resumo-pencil-wrap">
+            <svg class="resumo-pencil" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+              <rect x="24" y="4" width="12" height="40" rx="3" fill="url(#pencilGrad)" opacity="0.9"/>
+              <polygon points="24,44 36,44 30,56" fill="#f59e0b" opacity="0.9"/>
+              <rect x="24" y="4" width="12" height="8" rx="2" fill="#ef4444" opacity="0.8"/>
+              <rect x="25" y="12" width="10" height="3" rx="1" fill="rgba(255,255,255,0.2)"/>
+              <defs><linearGradient id="pencilGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7a45d4"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+            </svg>
+            <svg class="resumo-wave" viewBox="0 0 120 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="120" height="20">
+              <path class="wave-path" d="M0 10 Q15 2 30 10 Q45 18 60 10 Q75 2 90 10 Q105 18 120 10" stroke="#7a45d4" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div id="resumo-result" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- BOOK SHELF POPUP (hover) -->
+    <div id="shelf-book-popup" style="position:fixed;display:none;z-index:700;pointer-events:auto">
+      <div style="background:rgba(10,6,20,0.95);border:1px solid rgba(122,69,212,0.35);border-radius:14px;padding:14px;width:180px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+        <img id="shelf-popup-cover" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+        <div id="shelf-popup-title" style="font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.3"></div>
+        <div id="shelf-popup-author" style="font-size:11px;color:var(--text-muted);margin-bottom:6px"></div>
+        <div id="shelf-popup-progress" style="display:none;margin-bottom:8px">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px" id="shelf-popup-pct"></div>
+          <div class="progress-bar-track" style="height:4px"><div class="progress-bar-fill" id="shelf-popup-pct-bar" style="width:0%"></div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="shelf-popup-btn edit" onclick="editLivroFromPopup()" title="Editar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="shelf-popup-btn delete" onclick="deleteLivroFromPopup()" title="Excluir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
 </body>
 </html>
