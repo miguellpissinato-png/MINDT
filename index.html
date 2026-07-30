@@ -750,73 +750,135 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
 
 /* BOOKSHELF 3D */
 .bookshelf-3d{
-  background:linear-gradient(180deg,rgba(30,10,60,0.3) 0%,rgba(10,4,20,0.2) 100%);
-  border:1px solid rgba(122,69,212,0.15);
-  border-radius:16px;padding:24px 24px 8px;
-  backdrop-filter:blur(8px);
-  box-shadow:0 8px 40px rgba(0,0,0,0.3) inset;
+  position:relative;
+  background:linear-gradient(160deg,rgba(40,12,80,0.6) 0%,rgba(20,6,40,0.8) 100%);
+  border:1px solid rgba(122,69,212,0.2);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(122,69,212,0.15);
 }
-.bookshelf-shelves{display:flex;flex-direction:column;gap:0}
+/* Side walls of the bookcase */
+.bookshelf-3d::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:20px;
+  background:linear-gradient(90deg,rgba(60,20,110,0.9),rgba(40,10,80,0.4));
+  z-index:1;pointer-events:none;
+}
+.bookshelf-3d::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:20px;
+  background:linear-gradient(270deg,rgba(60,20,110,0.9),rgba(40,10,80,0.4));
+  z-index:1;pointer-events:none;
+}
+.bookshelf-shelves{
+  display:flex;flex-direction:column;
+  padding:12px 24px 0;
+  gap:0;
+}
 .shelf-row{
-  display:flex;align-items:flex-end;gap:0;
-  padding:16px 8px 0;
-  position:relative;min-height:140px;
-  border-bottom:none;
+  display:flex;align-items:flex-end;
+  gap:3px;
+  padding:12px 0 0;
+  position:relative;
+  min-height:130px;
 }
+/* THE SHELF PLANK — thick, 3D-looking */
 .shelf-plank{
-  position:absolute;bottom:0;left:0;right:0;height:12px;
-  background:linear-gradient(180deg,rgba(122,69,212,0.25) 0%,rgba(60,20,120,0.4) 100%);
-  border-radius:4px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4),0 -1px 0 rgba(122,69,212,0.2);
+  position:absolute;bottom:0;left:-24px;right:-24px;
+  height:14px;
+  background:linear-gradient(180deg,
+    rgba(140,80,220,0.6) 0%,
+    rgba(80,30,160,0.9) 40%,
+    rgba(50,10,110,0.95) 100%);
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.6),
+    0 2px 4px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(180,120,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.3);
+  z-index:2;
 }
-.shelf-support{
-  position:absolute;bottom:0;width:8px;height:24px;
-  background:rgba(83,34,162,0.3);border-radius:4px 4px 0 0;
+/* Shelf plank front edge highlight */
+.shelf-plank::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(180,120,255,0.4),rgba(200,150,255,0.6),rgba(180,120,255,0.4),transparent);
 }
-.shelf-support.left{left:16px}
-.shelf-support.right{right:16px}
-
-/* BOOK SPINE (on shelf) */
+/* Shelf bottom shadow */
+.shelf-plank::after{
+  content:'';position:absolute;top:14px;left:4px;right:4px;height:8px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.4),transparent);
+  border-radius:0 0 4px 4px;
+}
+/* BOOK SPINE */
 .shelf-book{
   position:relative;
-  width:32px;height:110px;
+  width:36px;
+  height:110px;
   cursor:pointer;
   flex-shrink:0;
-  transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
   transform-origin:bottom center;
+  z-index:3;
 }
-.shelf-book:hover{transform:translateY(-12px) scale(1.08)}
+.shelf-book:hover{transform:translateY(-16px) scale(1.06)}
 .shelf-book-spine-inner{
   width:100%;height:100%;
-  border-radius:3px 6px 6px 3px;
+  border-radius:2px 5px 5px 2px;
   display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
-  box-shadow:-2px 3px 10px rgba(0,0,0,0.5),inset -3px 0 6px rgba(0,0,0,0.2);
+  box-shadow:
+    -3px 4px 12px rgba(0,0,0,0.6),
+    inset -4px 0 8px rgba(0,0,0,0.25),
+    inset 1px 0 3px rgba(255,255,255,0.1);
 }
 .shelf-book-spine-inner img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.7;
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;opacity:0.65;
+  mix-blend-mode:luminosity;
 }
 .shelf-book-title-spine{
-  writing-mode:vertical-rl;text-orientation:mixed;
-  font-size:9px;font-weight:700;color:rgba(255,255,255,0.9);
-  letter-spacing:0.5px;padding:4px 2px;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  font-size:9px;font-weight:700;
+  color:rgba(255,255,255,0.92);
+  letter-spacing:0.8px;
+  padding:6px 2px;
   position:relative;z-index:1;
-  text-shadow:0 1px 3px rgba(0,0,0,0.8);
-  max-height:90px;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 4px rgba(0,0,0,0.9);
+  max-height:96px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-family:'Space Grotesk',sans-serif;
+}
+/* Shine on book spine */
+.shelf-book-spine-inner::after{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.18),transparent);
+  pointer-events:none;
 }
 .shelf-book-star{
-  position:absolute;top:4px;right:3px;z-index:2;
-  width:14px;height:14px;cursor:pointer;
-  color:rgba(255,255,255,0.3);font-size:12px;line-height:1;
-  transition:all 0.2s;
+  position:absolute;top:3px;right:3px;z-index:4;
+  width:14px;height:14px;
+  color:rgba(255,255,255,0.25);font-size:12px;line-height:1;
+  cursor:pointer;transition:all 0.2s;
+  text-shadow:0 1px 3px rgba(0,0,0,0.5);
 }
-.shelf-book-star.favorited{color:#fbbf24;text-shadow:0 0 6px rgba(251,191,36,0.6)}
+.shelf-book-star:hover{color:rgba(251,191,36,0.8);transform:scale(1.2)}
+.shelf-book-star.favorited{color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.7)}
+/* STATUS INDICATOR */
+.shelf-book[data-status="reading"] .shelf-book-spine-inner{
+  box-shadow:-3px 4px 12px rgba(0,0,0,0.6),inset -4px 0 8px rgba(0,0,0,0.25),inset 1px 0 3px rgba(255,255,255,0.1),0 0 12px rgba(122,69,212,0.5);
+}
+.shelf-book[data-status="abandoned"] .shelf-book-spine-inner{
+  opacity:0.55;filter:saturate(0.4);
+}
+/* ADD BUTTON */
 .shelf-book-add{
-  width:32px;height:110px;flex-shrink:0;
-  border:1.5px dashed rgba(122,69,212,0.3);border-radius:6px;
+  width:36px;height:110px;flex-shrink:0;
+  border:1.5px dashed rgba(122,69,212,0.35);border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:rgba(122,69,212,0.4);font-size:18px;
-  transition:all 0.2s;margin-left:6px;
+  cursor:pointer;color:rgba(122,69,212,0.5);font-size:20px;
+  transition:all 0.2s;margin-left:4px;
+  background:rgba(83,34,162,0.05);
+  z-index:3;
 }
 .shelf-book-add:hover{border-color:rgba(122,69,212,0.7);color:var(--purple-light);background:rgba(83,34,162,0.1)}
 
@@ -866,6 +928,15 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
   .resumo-stat-grid{grid-template-columns:1fr}
   .shelf-book{width:26px;height:90px}
 }
+
+/* ═══ BOOKSHELF EXTRA FIXES ═══ */
+.bookshelf-3d{padding-bottom:0}
+.shelf-row{padding-bottom:14px} /* room for plank */
+/* Leitura hero better centering */
+#leitura-empty-state{width:100%;display:flex;align-items:center;justify-content:center;min-height:200px}
+#leitura-active-book{width:100%}
+/* Make shelf fill width */
+.shelf-row{flex-wrap:wrap;min-height:144px}
 </style>
 </head>
 <body>
@@ -1374,6 +1445,8 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
         <!-- BOOKSHELF VISUAL -->
         <div class="bookshelf-3d" id="bookshelf-3d">
           <div class="bookshelf-shelves" id="bookshelf-shelves"></div>
+          <!-- Bottom base of bookcase -->
+          <div style="height:14px;background:linear-gradient(180deg,rgba(80,30,160,0.6),rgba(40,10,100,0.9));margin:0 -24px;box-shadow:0 4px 20px rgba(0,0,0,0.5)"></div>
         </div>
       </div>
 
@@ -3201,29 +3274,30 @@ function renderBookshelf(filterFn) {
   while(shelves.length < 3) shelves.push([]);
 
   container.innerHTML = shelves.map(function(shelf, si) {
+    var heights = [110,125,108,118,105,130,112,120,100,115,122,107];
     var books = shelf.map(function(livro, bi) {
-      var colorPair = SPINE_COLORS[(livro.titulo||'').length % SPINE_COLORS.length];
-      var pct = livro.paginas ? Math.round(((livro.paginasLidas||0)/livro.paginas)*100) : 0;
-      var statusClass = livro.lendoAgora ? 'border-top:3px solid #7a45d4' : (livro.abandonado ? 'border-top:3px solid #ef4444' : '');
-      return '<div class="shelf-book" data-id="' + livro.id + '">';
-        + '<div class="shelf-book-spine-inner" style="background:linear-gradient(135deg,' + colorPair[0] + ',' + colorPair[1] + ');' + statusClass + '">'
+      var colorPair = SPINE_COLORS[(livro.titulo ? livro.titulo.charCodeAt(0) % SPINE_COLORS.length : bi % SPINE_COLORS.length)];
+      var h = heights[bi % heights.length];
+      var w = 28 + (bi % 3) * 5;
+      var status = livro.lendoAgora ? 'reading' : (livro.abandonado ? 'abandoned' : '');
+      return '<div class="shelf-book" data-id="' + livro.id + '" data-status="' + status + '" style="height:' + h + 'px;width:' + w + 'px">'
+        + '<div class="shelf-book-spine-inner" style="background:linear-gradient(160deg,' + colorPair[0] + ' 0%,' + colorPair[1] + ' 100%)">'
         + (livro.cover ? '<img src="' + livro.cover + '">' : '')
         + '<span class="shelf-book-title-spine">' + esc(livro.titulo||'') + '</span>'
         + '</div>'
-        + '<div class="shelf-book-star ' + (livro.favorito ? 'favorited' : '') + '" data-favid="' + livro.id + '" title="Favoritar">★</div>'
+        + '<div class="shelf-book-star ' + (livro.favorito ? 'favorited' : '') + '" data-favid="' + livro.id + '" title="Favoritar">&#9733;</div>'
         + '</div>';
     }).join('');
+    var addBtn = si === shelves.length - 1
+      ? '<div class="shelf-book-add" data-addbook="1" title="Adicionar livro">+</div>'
+      : '';
+    return '<div class="shelf-row">' + books + addBtn + '<div class="shelf-plank"></div></div>';
+  }).join('');;
 
     // Add "+" button at end of last shelf
     var addBtn = si === shelves.length - 1 ? '<div class="shelf-book-add" data-addbook="1">+</div>' : '';
 
-    return '<div class="shelf-row">'
-      + books + addBtn
-      + '<div class="shelf-plank"></div>'
-      + '<div class="shelf-support left"></div>'
-      + '<div class="shelf-support right"></div>'
-      + '</div>';
-  }).join('');
+
 }
 
 // ── SHELF POPUP ──
