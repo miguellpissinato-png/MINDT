@@ -957,6 +957,203 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
   .leitura-shelf-section{gap:10px}
   .leitura-resumo-bar{padding:10px 14px;border-radius:0 0 12px 12px}
 }
+
+/* ═══ AGENDA ═══ */
+.agenda-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:20px;flex-wrap:wrap;
+}
+.agenda-toolbar-left{display:flex;gap:8px;flex-wrap:wrap}
+.agenda-toolbar-right{display:flex;gap:8px;align-items:center}
+.agenda-tool-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 16px;border-radius:10px;
+  background:rgba(83,34,162,0.18);
+  border:1px solid rgba(122,69,212,0.3);
+  color:var(--text);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;
+}
+.agenda-tool-btn:hover{background:rgba(83,34,162,0.35);border-color:rgba(122,69,212,0.6);transform:translateY(-1px)}
+
+.agenda-view-toggle{display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden}
+.agenda-view-btn{padding:7px 14px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.18s;font-family:'Inter',sans-serif}
+.agenda-view-btn.active{background:rgba(83,34,162,0.45);color:#fff}
+
+/* CALENDAR HEADER */
+.agenda-cal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:16px;flex-wrap:wrap;
+}
+.agenda-current-label{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700}
+.agenda-nav-btns{display:flex;gap:6px;align-items:center}
+.agenda-nav-btn{
+  padding:7px 12px;border-radius:9px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text-dim);cursor:pointer;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:4px;transition:all 0.18s;
+  font-family:'Inter',sans-serif;
+}
+.agenda-nav-btn:hover{background:rgba(83,34,162,0.25);border-color:rgba(122,69,212,0.4);color:#fff}
+.agenda-month-sel{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:9px;padding:7px 10px;color:var(--text);font-size:12px;
+  outline:none;cursor:pointer;font-family:'Inter',sans-serif;
+}
+.agenda-year-inp{
+  width:72px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:9px;padding:7px 10px;color:var(--text);font-size:12px;
+  outline:none;text-align:center;font-family:'Space Grotesk',sans-serif;
+}
+
+/* GLASS CARD */
+.agenda-glass-card{
+  background:rgba(60,20,100,0.18);
+  border:1px solid rgba(122,69,212,0.2);
+  border-radius:18px;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  box-shadow:0 8px 40px rgba(0,0,0,0.3),inset 0 1px 0 rgba(150,100,255,0.12);
+  overflow:hidden;
+  margin-bottom:20px;
+}
+
+/* DOW ROW */
+.agenda-dow-row{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  background:rgba(83,34,162,0.12);
+  border-bottom:1px solid rgba(122,69,212,0.15);
+  padding:0;
+}
+.agenda-dow{
+  text-align:center;padding:10px 4px;
+  font-size:11px;font-weight:700;letter-spacing:0.8px;
+  text-transform:uppercase;color:var(--text-muted);
+}
+
+/* CALENDAR GRID */
+.agenda-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.agenda-cell{
+  min-height:88px;padding:8px 6px 4px;
+  border-right:1px solid rgba(122,69,212,0.08);
+  border-bottom:1px solid rgba(122,69,212,0.08);
+  cursor:pointer;position:relative;
+  transition:background 0.18s,box-shadow 0.18s;
+}
+.agenda-cell:nth-child(7n){border-right:none}
+.agenda-cell:hover{background:rgba(122,69,212,0.12);box-shadow:inset 0 0 0 1px rgba(122,69,212,0.3)}
+.agenda-cell.other-month .agenda-day-num{color:rgba(255,255,255,0.15)}
+.agenda-cell.today{background:rgba(83,34,162,0.18)}
+.agenda-cell.today .agenda-day-num{
+  background:linear-gradient(135deg,#5322a2,#7a45d4);
+  color:#fff;border-radius:50%;
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;box-shadow:0 0 12px rgba(122,69,212,0.6);
+}
+.agenda-cell.selected{background:rgba(122,69,212,0.2);box-shadow:inset 0 0 0 2px rgba(122,69,212,0.5)}
+.agenda-day-num{
+  font-size:13px;font-weight:600;color:var(--text-dim);
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;margin-bottom:4px;transition:all 0.18s;
+}
+
+/* EVENT CHIPS on calendar */
+.agenda-event-chip{
+  font-size:9px;font-weight:600;
+  padding:2px 5px;border-radius:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;margin-bottom:2px;
+  display:flex;align-items:center;gap:3px;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.agenda-event-chip:hover{opacity:0.8}
+.agenda-event-chip.importancia-padrao{background:rgba(99,102,241,0.25);color:#a5b4fc;border-left:2px solid #6366f1}
+.agenda-event-chip.importancia-media{background:rgba(234,179,8,0.18);color:#fde047;border-left:2px solid #eab308}
+.agenda-event-chip.importancia-alta{background:rgba(239,68,68,0.18);color:#fca5a5;border-left:2px solid #ef4444}
+.agenda-more-chip{font-size:9px;color:var(--text-muted);padding:1px 4px;cursor:pointer}
+
+/* UPCOMING SIDEBAR */
+.agenda-upcoming{
+  background:rgba(60,20,100,0.14);
+  border:1px solid rgba(122,69,212,0.18);
+  border-radius:16px;padding:20px;
+}
+.agenda-upcoming-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+  transition:background 0.15s;
+}
+.agenda-upcoming-item:last-child{border-bottom:none}
+.agenda-upcoming-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;
+}
+.agenda-upcoming-info{flex:1;min-width:0}
+.agenda-upcoming-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.agenda-upcoming-meta{font-size:11px;color:var(--text-muted)}
+.agenda-upcoming-icon{font-size:18px;flex-shrink:0}
+
+/* ICON GRID */
+.evento-icon-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));
+  gap:6px;
+}
+.evento-icon-btn{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.18s;
+  color:var(--text-muted);
+}
+.evento-icon-btn:hover,.evento-icon-btn.active{
+  background:rgba(83,34,162,0.35);
+  border-color:rgba(122,69,212,0.6);
+  color:var(--purple-light);
+}
+.evento-icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+/* HORARIO SUGESTOES */
+.horario-sugestoes{
+  position:absolute;top:100%;left:0;right:0;z-index:100;
+  background:rgba(10,6,22,0.98);border:1px solid rgba(122,69,212,0.3);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+}
+.horario-sug-item{
+  padding:9px 14px;font-size:13px;cursor:pointer;
+  transition:background 0.15s;color:var(--text-dim);
+}
+.horario-sug-item:hover{background:rgba(83,34,162,0.25);color:#fff}
+
+/* GERENCIAR LISTA */
+.gerenciar-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.gerenciar-item:last-child{border-bottom:none}
+.gerenciar-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--purple-light);flex-shrink:0;cursor:pointer}
+.gerenciar-item-icon{font-size:18px;flex-shrink:0}
+.gerenciar-item-info{flex:1;min-width:0}
+.gerenciar-item-name{font-size:13px;font-weight:600}
+.gerenciar-item-meta{font-size:11px;color:var(--text-muted)}
+.gerenciar-imp-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0}
+.gerenciar-imp-badge.padrao{background:rgba(99,102,241,0.2);color:#a5b4fc}
+.gerenciar-imp-badge.media{background:rgba(234,179,8,0.18);color:#fde047}
+.gerenciar-imp-badge.alta{background:rgba(239,68,68,0.18);color:#fca5a5}
+
+/* PARTICIPANTES */
+.evento-participantes-wrap{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px}
+.participante-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(83,34,162,0.2);border:1px solid rgba(122,69,212,0.3);border-radius:99px;padding:3px 10px;font-size:11px;margin:3px}
+.participante-chip button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0 0 0 2px;line-height:1}
+
+@media(max-width:768px){
+  .agenda-cell{min-height:56px;padding:4px 2px 2px}
+  .agenda-event-chip{font-size:8px;padding:1px 3px}
+  .agenda-cal-header{gap:8px}
+  .agenda-current-label{font-size:16px}
+  .agenda-dow{font-size:9px;padding:7px 2px}
+  .agenda-toolbar{gap:8px}
+  .agenda-tool-btn{padding:7px 11px;font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -989,6 +1186,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
     <div class="nav-item" data-page="metas"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><span class="nav-label">Metas</span></div>
     <div class="nav-item" data-page="tarefas"><div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="nav-label">Tarefas</span></div>
     <div class="nav-item" data-page="gastos"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="nav-label">Gastos</span></div>
+    <div class="nav-item" data-page="agenda"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="nav-label">Agenda</span></div>
     <div class="nav-item" data-page="resumo"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="nav-label">Resumo</span></div>
     <div class="nav-item" data-page="estudos"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span class="nav-label">Estudos</span></div>
     <div class="nav-item" data-page="leitura"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><span class="nav-label">Leitura</span></div>
@@ -1002,6 +1200,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
     <div class="mobile-nav-item" data-page="metas" onclick="mobileNav(this,'metas')"><div class="m-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="m-label">Metas</div></div>
     <div class="mobile-nav-item" data-page="tarefas" onclick="mobileNav(this,'tarefas')"><div class="m-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="m-label">Tarefas</div></div>
     <div class="mobile-nav-item" data-page="gastos" onclick="mobileNav(this,'gastos')"><div class="m-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="m-label">Gastos</div></div>
+    <div class="mobile-nav-item" data-page="agenda" onclick="mobileNav(this,'agenda')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="m-label">Agenda</div></div>
     <div class="mobile-nav-item" data-page="estudos" onclick="mobileNav(this,'estudos')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="m-label">Estudos</div></div>
     <div class="mobile-nav-item" data-page="leitura" onclick="mobileNav(this,'leitura')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="m-label">Leitura</div></div>
     <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="m-label">Notas</div></div>
@@ -1380,6 +1579,76 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0a0612;color:va
     </section>
 
 
+
+    <!-- ─────── AGENDA ─────── -->
+    <section class="page" id="page-agenda">
+
+      <!-- TOOLBAR -->
+      <div class="agenda-toolbar">
+        <div class="agenda-toolbar-left">
+          <button class="agenda-tool-btn" onclick="openModal('modal-criar-evento')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Criar evento
+          </button>
+          <button class="agenda-tool-btn" onclick="openGerenciarEventos()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Gerenciar eventos
+          </button>
+        </div>
+        <div class="agenda-toolbar-right">
+          <div class="agenda-view-toggle">
+            <button class="agenda-view-btn active" id="view-mes" onclick="setAgendaView('mes',this)">Mês</button>
+            <button class="agenda-view-btn" id="view-semana" onclick="setAgendaView('semana',this)">Semana</button>
+            <button class="agenda-view-btn" id="view-dia" onclick="setAgendaView('dia',this)">Dia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR HEADER -->
+      <div class="agenda-cal-header">
+        <div class="agenda-nav-btns">
+          <button class="agenda-nav-btn" onclick="moveAgenda(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="agenda-nav-btn" onclick="goToToday()">Hoje</button>
+          <button class="agenda-nav-btn" onclick="moveAgenda(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="agenda-current-label" id="agenda-current-label">Janeiro 2026</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="agenda-month-sel" id="agenda-month-sel" onchange="jumpAgendaMonth()">
+            <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+            <option value="2">Março</option><option value="3">Abril</option>
+            <option value="4">Maio</option><option value="5">Junho</option>
+            <option value="6">Julho</option><option value="7">Agosto</option>
+            <option value="8">Setembro</option><option value="9">Outubro</option>
+            <option value="10">Novembro</option><option value="11">Dezembro</option>
+          </select>
+          <input class="agenda-year-inp" id="agenda-year-inp" type="number" value="2026" onchange="jumpAgendaMonth()">
+        </div>
+      </div>
+
+      <!-- CALENDAR GRID -->
+      <div class="agenda-glass-card" id="agenda-calendar-wrap">
+        <!-- DOW headers -->
+        <div class="agenda-dow-row">
+          <div class="agenda-dow">Dom</div><div class="agenda-dow">Seg</div>
+          <div class="agenda-dow">Ter</div><div class="agenda-dow">Qua</div>
+          <div class="agenda-dow">Qui</div><div class="agenda-dow">Sex</div>
+          <div class="agenda-dow">Sáb</div>
+        </div>
+        <div class="agenda-grid" id="agenda-grid"></div>
+      </div>
+
+      <!-- UPCOMING EVENTS SIDEBAR -->
+      <div class="agenda-upcoming" id="agenda-upcoming">
+        <div class="section-title" style="margin:0 0 12px 0">Próximos eventos</div>
+        <div id="agenda-upcoming-list"></div>
+      </div>
+
+    </section>
+
     <!-- ─────── LEITURA ─────── -->
     <section class="page" id="page-leitura">
 
@@ -1629,7 +1898,7 @@ var SUPA_URL='https://eyhttiumvnhksbbjhhzt.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5aHR0aXVtdm5oa3NiYmpoaHp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MTA2MzUsImV4cCI6MjA5OTI4NjYzNX0.KVGNxihHSBA2aU-iv4kCC3wBy-abNxzdOLN4UhX6AjM';
 var sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 var currentUser=null,saveTimer=null,authMode='login';
-var state={metas:[],tasks:[],notas:[],grupos:[],perfil:{name:'',avatar:null}};
+var state={metas:[],tasks:[],notas:[],grupos:[],perfil:{name:'',avatar:null},gastos:[],categorias:[],livros:[],eventos:[],contatos:[]};
 var currentDetailType=null,currentDetailId=null,currentNotaId=null;
 var deleteMode={type:null,selected:[]},editMode={type:null};
 
@@ -1808,6 +2077,7 @@ function goToPage(name){
   else if(name==='estudos')renderEstudos();
   else if(name==='notas')renderNotas();
   else if(name==='resumo')renderResumo();
+  else if(name==='agenda')renderAgenda();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
 }
@@ -2773,6 +3043,9 @@ function openModal(id){
   updateCategoriaSelect();
   document.getElementById(id).classList.add('open');
   if(id==='modal-add-categoria') renderCategoriasList();
+  if(id==='modal-criar-evento'){ renderIconGrid(); updateParticipanteSelect(); }
+  if(id==='modal-contatos') renderContatosLista();
+  if(id==='modal-gerenciar-eventos') renderGerenciarLista();
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(function(overlay){overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal(overlay.id);});});
@@ -3785,6 +4058,517 @@ document.addEventListener('click', function(e) {
   }
 });
 
+
+// ─── AGENDA ──────────────────────────────────────────────
+
+var agendaView = 'mes';
+var agendaYear = new Date().getFullYear();
+var agendaMonth = new Date().getMonth();
+var agendaSelectedDay = null;
+var _repetirOn = false;
+var _lembreteOn = false;
+var _eventoIconeSel = 'calendar';
+var _eventoParticipantes = [];
+var _editQueue = [];
+
+// 20 outline SVG icons for events
+var EVENTO_ICONS = {
+  'calendar':  '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  'car':       '<svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+  'flower':    '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  'heart':     '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  'sun':       '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  'moon':      '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  'book':      '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  'dumbbell':  '<svg viewBox="0 0 24 24"><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="7" x2="6" y2="17"/><line x1="18" y1="7" x2="18" y2="17"/><line x1="4" y1="9" x2="4" y2="15"/><line x1="20" y1="9" x2="20" y2="15"/></svg>',
+  'leaf':      '<svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.62L3 21l1.5-1.5C6.5 17 10 16 14 16c4 0 7.2-3.2 7.2-7.2C21.2 5.6 18.4 3 15 3S8.8 5.6 8.8 9c0 1.2.4 2.4 1 3.4"/></svg>',
+  'hospital':  '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+  'plane':     '<svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>',
+  'tennis':    '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1 4-10 15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1 4-10"/></svg>',
+  'utensils':  '<svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="2" x2="7" y2="11"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h2zm0 0v7"/></svg>',
+  'film':      '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>',
+  'dog':       '<svg viewBox="0 0 24 24"><path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2 .336-3.5 2.114-3.5 4.5 0 4.814 3.211 6.317 3.211 6.317L5 22h14l-1.211-8.183S21 12.314 21 7.5c0-2.386-1.5-4.164-3.5-4.5-1.923-.321-3.5.782-3.5 2.172"/><path d="M7 22c0-2 2-3 5-3s5 1 5 3"/></svg>',
+  'cat':       '<svg viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>',
+  'users':     '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  'cake':      '<svg viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><line x1="2" y1="21" x2="22" y2="21"/><path d="M7 8v2"/><path d="M12 8v2"/><path d="M17 8v2"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>',
+  'shoes':     '<svg viewBox="0 0 24 24"><path d="M2 12h1.5a2.5 2.5 0 0 1 2.5 2.5A3.5 3.5 0 0 0 9.5 18H20a2 2 0 0 0 0-4h-2.5A4.5 4.5 0 0 1 13 9.5V8a2 2 0 0 0-2-2H8.06a2 2 0 0 0-1.94 1.52L5.5 10.5"/><path d="M2 12v5a2 2 0 0 0 2 2"/></svg>',
+  'star':      '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+};
+
+// ── RENDER ──
+function renderAgenda() {
+  if(!document.getElementById('page-agenda')) return;
+  if(!state.eventos) state.eventos = [];
+  if(!state.contatos) state.contatos = [];
+  renderIconGrid();
+  renderCalendar();
+  renderUpcoming();
+  updateAgendaHeader();
+  // Sync selects
+  var ms = document.getElementById('agenda-month-sel');
+  var yi = document.getElementById('agenda-year-inp');
+  if(ms) ms.value = agendaMonth;
+  if(yi) yi.value = agendaYear;
+}
+
+function updateAgendaHeader() {
+  var months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var el = document.getElementById('agenda-current-label');
+  if(el) el.textContent = months[agendaMonth] + ' ' + agendaYear;
+}
+
+function setAgendaView(view, btn) {
+  agendaView = view;
+  document.querySelectorAll('.agenda-view-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderCalendar();
+}
+
+function moveAgenda(dir) {
+  agendaMonth += dir;
+  if(agendaMonth > 11){ agendaMonth = 0; agendaYear++; }
+  if(agendaMonth < 0){ agendaMonth = 11; agendaYear--; }
+  updateAgendaHeader();
+  var ms = document.getElementById('agenda-month-sel');
+  var yi = document.getElementById('agenda-year-inp');
+  if(ms) ms.value = agendaMonth;
+  if(yi) yi.value = agendaYear;
+  renderCalendar();
+}
+
+function goToToday() {
+  var now = new Date();
+  agendaMonth = now.getMonth();
+  agendaYear = now.getFullYear();
+  updateAgendaHeader();
+  renderCalendar();
+}
+
+function jumpAgendaMonth() {
+  var ms = document.getElementById('agenda-month-sel');
+  var yi = document.getElementById('agenda-year-inp');
+  if(ms) agendaMonth = parseInt(ms.value);
+  if(yi) agendaYear = parseInt(yi.value) || new Date().getFullYear();
+  updateAgendaHeader();
+  renderCalendar();
+}
+
+// ── CALENDAR RENDER ──
+function renderCalendar() {
+  var grid = document.getElementById('agenda-grid');
+  if(!grid) return;
+  var now = new Date();
+  var firstDay = new Date(agendaYear, agendaMonth, 1).getDay();
+  var daysInMonth = new Date(agendaYear, agendaMonth + 1, 0).getDate();
+  var daysInPrev = new Date(agendaYear, agendaMonth, 0).getDate();
+
+  var cells = [];
+  // Prev month filler
+  for(var i = firstDay - 1; i >= 0; i--) {
+    cells.push({ day: daysInPrev - i, month: agendaMonth - 1, year: agendaMonth === 0 ? agendaYear - 1 : agendaYear, other: true });
+  }
+  // Current month
+  for(var d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, month: agendaMonth, year: agendaYear, other: false });
+  }
+  // Next month filler
+  var remaining = 42 - cells.length;
+  for(var n = 1; n <= remaining; n++) {
+    cells.push({ day: n, month: agendaMonth + 1, year: agendaMonth === 11 ? agendaYear + 1 : agendaYear, other: true });
+  }
+
+  grid.innerHTML = cells.map(function(c) {
+    var dateStr = c.year + '-' + pad(c.month + 1) + '-' + pad(c.day);
+    var isToday = !c.other && c.day === now.getDate() && c.month === now.getMonth() && c.year === now.getFullYear();
+    var isSel = dateStr === agendaSelectedDay;
+    var dayEvents = (state.eventos || []).filter(function(e){ return e.data === dateStr; });
+
+    var chipsHtml = dayEvents.slice(0,2).map(function(ev) {
+      var icon = EVENTO_ICONS[ev.icone] ? '<span style="width:10px;height:10px;display:inline-flex">' + EVENTO_ICONS[ev.icone].replace('viewBox', 'width="10" height="10" viewBox') + '</span>' : '';
+      return '<div class="agenda-event-chip importancia-' + (ev.importancia||'padrao') + '" data-eid="' + ev.id + '">' + icon + esc(ev.nome||'') + '</div>';
+    }).join('');
+    if(dayEvents.length > 2) chipsHtml += '<div class="agenda-more-chip">+' + (dayEvents.length-2) + ' mais</div>';
+
+    return '<div class="agenda-cell' + (c.other?' other-month':'') + (isToday?' today':'') + (isSel?' selected':'') + '" data-date="' + dateStr + '">'
+      + '<div class="agenda-day-num">' + c.day + '</div>'
+      + chipsHtml
+      + '</div>';
+  }).join('');
+
+  // Event delegation for cells
+  grid.onclick = function(e) {
+    var chip = e.target.closest('.agenda-event-chip');
+    if(chip) { e.stopPropagation(); openEventoDetalhe(chip.dataset.eid); return; }
+    var cell = e.target.closest('.agenda-cell');
+    if(cell) {
+      agendaSelectedDay = cell.dataset.date;
+      document.querySelectorAll('.agenda-cell').forEach(function(c){ c.classList.remove('selected'); });
+      cell.classList.add('selected');
+      openDiaDetalhe(cell.dataset.date);
+    }
+  };
+}
+
+function openEventoDetalhe(id) {
+  var ev = (state.eventos||[]).find(function(e){ return e.id === id; });
+  if(!ev) return;
+  openEditarEvento(ev);
+}
+
+function openDiaDetalhe(dateStr) {
+  var parts = dateStr.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  document.getElementById('dia-detalhe-titulo').textContent = d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear();
+
+  var dayEvents = (state.eventos||[]).filter(function(e){ return e.data === dateStr; });
+  var listEl = document.getElementById('dia-detalhe-eventos');
+  if(!dayEvents.length) {
+    listEl.innerHTML = '<div class="empty-state" style="padding:16px 0"><p>Nenhum evento neste dia.</p></div>';
+  } else {
+    listEl.innerHTML = dayEvents.map(function(ev) {
+      var icon = EVENTO_ICONS[ev.icone] ? '<span style="display:inline-flex;width:16px;height:16px;margin-right:6px">' + EVENTO_ICONS[ev.icone].replace('viewBox','width="16" height="16" viewBox') + '</span>' : '';
+      var hora = ev.horaInicio ? ev.horaInicio + (ev.horaFim ? ' – ' + ev.horaFim : '') : '';
+      return '<div class="gerenciar-item">'
+        + '<div style="flex:1"><div class="gerenciar-item-name">' + icon + esc(ev.nome||'') + '</div>'
+        + '<div class="gerenciar-item-meta">' + hora + (ev.obs ? ' · ' + esc(ev.obs) : '') + '</div></div>'
+        + '<div style="display:flex;gap:6px">'
+        + '<div class="icon-btn" onclick="openEditarEvento(state.eventos.find(function(x){return x.id===\'' + ev.id + '\'}))" title="Editar">✏️</div>'
+        + '<div class="icon-btn danger" onclick="deleteEvento(\'' + ev.id + '\')" title="Excluir">🗑</div>'
+        + '</div></div>';
+    }).join('');
+  }
+  agendaSelectedDay = dateStr;
+  openModal('modal-dia-detalhe');
+}
+
+function criarEventoDia() {
+  closeModal('modal-dia-detalhe');
+  resetEventoForm();
+  if(agendaSelectedDay) document.getElementById('evento-data').value = agendaSelectedDay;
+  openModal('modal-criar-evento');
+}
+
+// ── UPCOMING ──
+function renderUpcoming() {
+  var el = document.getElementById('agenda-upcoming-list');
+  if(!el) return;
+  var now = new Date(); now.setHours(0,0,0,0);
+  var upcoming = (state.eventos||[])
+    .filter(function(e){ return new Date(e.data + 'T00:00:00') >= now; })
+    .sort(function(a,b){ return new Date(a.data) - new Date(b.data); })
+    .slice(0,8);
+
+  if(!upcoming.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Nenhum evento próximo.</div>';
+    return;
+  }
+
+  var impColors = { padrao:'#6366f1', media:'#eab308', alta:'#ef4444' };
+  el.innerHTML = upcoming.map(function(ev) {
+    var d = new Date(ev.data + 'T00:00:00');
+    var dStr = d.toLocaleDateString('pt-BR', {day:'2-digit',month:'short'});
+    var icon = EVENTO_ICONS[ev.icone] ? '<span style="display:inline-flex;width:18px;height:18px">' + EVENTO_ICONS[ev.icone].replace('viewBox','width="18" height="18" viewBox') + '</span>' : '📅';
+    return '<div class="agenda-upcoming-item">'
+      + '<div class="agenda-upcoming-dot" style="background:' + (impColors[ev.importancia]||impColors.padrao) + '"></div>'
+      + '<div class="agenda-upcoming-icon">' + icon + '</div>'
+      + '<div class="agenda-upcoming-info">'
+        + '<div class="agenda-upcoming-name">' + esc(ev.nome||'') + '</div>'
+        + '<div class="agenda-upcoming-meta">' + dStr + (ev.horaInicio ? ' · ' + ev.horaInicio : '') + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── ICON GRID ──
+function renderIconGrid() {
+  var grid = document.getElementById('evento-icon-grid');
+  if(!grid) return;
+  grid.innerHTML = Object.keys(EVENTO_ICONS).map(function(key) {
+    return '<div class="evento-icon-btn' + (key === _eventoIconeSel ? ' active' : '') + '" data-icon="' + key + '" title="' + key + '">'
+      + EVENTO_ICONS[key].replace('viewBox', 'width="18" height="18" viewBox')
+      + '</div>';
+  }).join('');
+  grid.onclick = function(e) {
+    var btn = e.target.closest('.evento-icon-btn');
+    if(!btn) return;
+    _eventoIconeSel = btn.dataset.icon;
+    grid.querySelectorAll('.evento-icon-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  };
+}
+
+// ── HORARIO SUGESTÕES ──
+function updateHorarioSugestoes() {
+  var inp = document.getElementById('evento-hora');
+  var sug = document.getElementById('horario-sugestoes');
+  if(!inp || !sug) return;
+  var val = inp.value;
+  if(!val) { sug.style.display = 'none'; return; }
+  var parts = val.split(':');
+  var h = parseInt(parts[0]);
+  var m = parseInt(parts[1]);
+  var slots = [];
+  var base = h * 60 + m;
+  [0,30,60,90].forEach(function(offset) {
+    var start = base + offset;
+    var end = start + 30;
+    if(end > 24*60) return;
+    var sh = Math.floor(start/60), sm = start%60;
+    var eh = Math.floor(end/60), em = end%60;
+    slots.push(pad(sh)+':'+pad(sm)+' – '+pad(eh)+':'+pad(em));
+  });
+  if(!slots.length) { sug.style.display='none'; return; }
+  sug.style.display = 'block';
+  sug.innerHTML = slots.map(function(s,i) {
+    var startTime = s.split(' – ')[0];
+    var endTime = s.split(' – ')[1];
+    return '<div class="horario-sug-item" onclick="applyHorarioSug(\'' + startTime + '\',\'' + endTime + '\')">' + s + '</div>';
+  }).join('');
+}
+
+function applyHorarioSug(start, end) {
+  document.getElementById('evento-hora').value = start;
+  document.getElementById('evento-hora-fim').value = end;
+  document.getElementById('horario-sugestoes').style.display = 'none';
+}
+
+// ── TOGGLES ──
+function toggleRepetirEvento() {
+  _repetirOn = !_repetirOn;
+  document.getElementById('repetir-toggle').className = 'toggle-switch' + (_repetirOn?' on':'');
+  document.getElementById('repetir-wrap').style.display = _repetirOn ? 'block' : 'none';
+}
+
+function toggleLembrete() {
+  _lembreteOn = !_lembreteOn;
+  document.getElementById('lembrete-toggle').className = 'toggle-switch' + (_lembreteOn?' on':'');
+  document.getElementById('lembrete-wrap').style.display = _lembreteOn ? 'block' : 'none';
+}
+
+// ── PARTICIPANTES ──
+function updateParticipanteSelect() {
+  var sel = document.getElementById('evento-participante-sel');
+  if(!sel) return;
+  var contatos = state.contatos || [];
+  sel.innerHTML = '<option value="">Selecionar da lista...</option>'
+    + contatos.map(function(c){ return '<option value="' + c.id + '">' + esc(c.nome) + ' (' + esc(c.email||'') + ')</option>'; }).join('');
+}
+
+function addParticipanteEvento() {
+  var sel = document.getElementById('evento-participante-sel');
+  if(!sel || !sel.value) return;
+  var c = (state.contatos||[]).find(function(x){ return x.id === sel.value; });
+  if(!c) return;
+  if(_eventoParticipantes.find(function(p){ return p.id === c.id; })) return;
+  _eventoParticipantes.push(c);
+  renderParticipantesChips();
+  sel.value = '';
+}
+
+function removeParticipante(id) {
+  _eventoParticipantes = _eventoParticipantes.filter(function(p){ return p.id !== id; });
+  renderParticipantesChips();
+}
+
+function renderParticipantesChips() {
+  var el = document.getElementById('evento-participantes-chips');
+  if(!el) return;
+  el.innerHTML = _eventoParticipantes.map(function(p) {
+    return '<span class="participante-chip">' + esc(p.nome)
+      + '<button onclick="removeParticipante(\'' + p.id + '\')">✕</button>'
+      + '</span>';
+  }).join('');
+}
+
+// ── CONTATOS ──
+function salvarContato() {
+  var nome = document.getElementById('contato-nome').value.trim();
+  var email = document.getElementById('contato-email').value.trim();
+  if(!nome) { toast('⚠️ Informe o nome do contato.'); return; }
+  if(!state.contatos) state.contatos = [];
+  state.contatos.push({ id: uid(), nome: nome, email: email });
+  saveState();
+  document.getElementById('contato-nome').value = '';
+  document.getElementById('contato-email').value = '';
+  renderContatosLista();
+  updateParticipanteSelect();
+  toast('👥 Contato adicionado!');
+}
+
+function renderContatosLista() {
+  var el = document.getElementById('contatos-lista');
+  if(!el) return;
+  var contatos = state.contatos || [];
+  if(!contatos.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Nenhum contato ainda.</div>'; return; }
+  el.innerHTML = contatos.map(function(c) {
+    return '<div class="gerenciar-item">'
+      + '<div class="gerenciar-item-info"><div class="gerenciar-item-name">' + esc(c.nome) + '</div>'
+      + '<div class="gerenciar-item-meta">' + esc(c.email||'') + '</div></div>'
+      + '<div class="icon-btn danger" onclick="deleteContato(\'' + c.id + '\')">🗑</div>'
+      + '</div>';
+  }).join('');
+}
+
+function deleteContato(id) {
+  state.contatos = (state.contatos||[]).filter(function(c){ return c.id !== id; });
+  saveState(); renderContatosLista(); updateParticipanteSelect();
+  toast('🗑 Contato removido!');
+}
+
+// ── SALVAR EVENTO ──
+function resetEventoForm() {
+  ['evento-nome','evento-data','evento-hora','evento-hora-fim','evento-obs'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('evento-importancia').value='padrao';
+  _repetirOn=false; _lembreteOn=false;
+  _eventoIconeSel='calendar'; _eventoParticipantes=[];
+  document.getElementById('repetir-toggle').className='toggle-switch';
+  document.getElementById('lembrete-toggle').className='toggle-switch';
+  document.getElementById('repetir-wrap').style.display='none';
+  document.getElementById('lembrete-wrap').style.display='none';
+  document.getElementById('horario-sugestoes').style.display='none';
+  document.getElementById('evento-edit-id').value='';
+  document.getElementById('evento-modal-title').textContent='Novo evento';
+  document.getElementById('evento-participantes-chips').innerHTML='';
+  renderIconGrid();
+  updateParticipanteSelect();
+}
+
+function openEditarEvento(ev) {
+  if(!ev) return;
+  resetEventoForm();
+  document.getElementById('evento-modal-title').textContent='Editar evento';
+  document.getElementById('evento-edit-id').value=ev.id;
+  document.getElementById('evento-nome').value=ev.nome||'';
+  document.getElementById('evento-data').value=ev.data||'';
+  document.getElementById('evento-hora').value=ev.horaInicio||'';
+  document.getElementById('evento-hora-fim').value=ev.horaFim||'';
+  document.getElementById('evento-obs').value=ev.obs||'';
+  document.getElementById('evento-importancia').value=ev.importancia||'padrao';
+  _eventoIconeSel=ev.icone||'calendar';
+  _eventoParticipantes=(ev.participantes||[]).slice();
+  renderIconGrid(); renderParticipantesChips();
+  if(ev.repeticao){ _repetirOn=true; document.getElementById('repetir-toggle').className='toggle-switch on'; document.getElementById('repetir-wrap').style.display='block'; document.getElementById('evento-repeticao').value=ev.repeticao; }
+  if(ev.lembrete){ _lembreteOn=true; document.getElementById('lembrete-toggle').className='toggle-switch on'; document.getElementById('lembrete-wrap').style.display='block'; document.getElementById('evento-lembrete').value=ev.lembrete; }
+  closeModal('modal-dia-detalhe');
+  openModal('modal-criar-evento');
+}
+
+function salvarEvento() {
+  var nome = document.getElementById('evento-nome').value.trim();
+  var data = document.getElementById('evento-data').value;
+  if(!nome){ toast('⚠️ Informe o nome do evento.'); return; }
+  if(!data){ toast('⚠️ Informe a data do evento.'); return; }
+
+  if(!state.eventos) state.eventos=[];
+  var editId=document.getElementById('evento-edit-id').value;
+  var evData = {
+    nome:nome, data:data,
+    horaInicio:document.getElementById('evento-hora').value,
+    horaFim:document.getElementById('evento-hora-fim').value,
+    importancia:document.getElementById('evento-importancia').value,
+    obs:document.getElementById('evento-obs').value.trim(),
+    icone:_eventoIconeSel,
+    participantes:_eventoParticipantes.slice(),
+    repeticao:_repetirOn?document.getElementById('evento-repeticao').value:null,
+    lembrete:_lembreteOn?document.getElementById('evento-lembrete').value:null,
+  };
+
+  if(editId) {
+    var idx=state.eventos.findIndex(function(e){return e.id===editId;});
+    if(idx>=0) state.eventos[idx]=Object.assign({},state.eventos[idx],evData);
+    toast('✏️ Evento atualizado!');
+  } else {
+    evData.id=uid(); evData.createdAt=new Date().toISOString();
+    state.eventos.push(evData);
+    // Handle recurrence: create copies for future dates
+    if(evData.repeticao) {
+      var baseDate=new Date(data+'T12:00:00');
+      var intervals={semanal:7,quinzenal:14,mensal:30,anual:365};
+      var days=intervals[evData.repeticao]||7;
+      for(var r=1;r<=12;r++){
+        var nd=new Date(baseDate.getTime()+r*days*86400000);
+        var nEv=Object.assign({},evData,{id:uid(),data:nd.toISOString().slice(0,10),createdAt:new Date().toISOString()});
+        state.eventos.push(nEv);
+      }
+    }
+    toast('📅 Evento criado!');
+  }
+
+  saveState();
+  closeModal('modal-criar-evento');
+  resetEventoForm();
+  renderCalendar();
+  renderUpcoming();
+}
+
+function deleteEvento(id) {
+  document.getElementById('confirm-icon').textContent='📅';
+  document.getElementById('confirm-title').textContent='Excluir evento';
+  document.getElementById('confirm-body').textContent='Excluir este evento permanentemente?';
+  document.getElementById('confirm-ok-btn').textContent='Excluir';
+  document.getElementById('confirm-ok-btn').onclick=function(){
+    state.eventos=(state.eventos||[]).filter(function(e){return e.id!==id;});
+    saveState(); closeModal('modal-confirm'); closeModal('modal-dia-detalhe');
+    renderCalendar(); renderUpcoming(); toast('🗑 Evento excluído!'); resetConfirmBtn();
+  };
+  openModal('modal-confirm');
+}
+
+// ── GERENCIAR ──
+function openGerenciarEventos() {
+  renderGerenciarLista();
+  openModal('modal-gerenciar-eventos');
+}
+
+function renderGerenciarLista() {
+  var el=document.getElementById('gerenciar-lista');
+  if(!el) return;
+  var eventos=state.eventos||[];
+  if(!eventos.length){ el.innerHTML='<div style="color:var(--text-muted);font-size:13px">Nenhum evento criado ainda.</div>'; return; }
+  eventos=eventos.slice().sort(function(a,b){return new Date(a.data)-new Date(b.data);});
+  el.innerHTML=eventos.map(function(ev){
+    var icon=EVENTO_ICONS[ev.icone]?'<span style="display:inline-flex;width:16px;height:16px">'+EVENTO_ICONS[ev.icone].replace('viewBox','width="16" height="16" viewBox')+'</span>':'📅';
+    var d=new Date(ev.data+'T00:00:00').toLocaleDateString('pt-BR');
+    return '<div class="gerenciar-item">'
+      +'<input type="checkbox" class="gerenciar-cb" data-id="'+ev.id+'">'
+      +'<div class="gerenciar-item-icon">'+icon+'</div>'
+      +'<div class="gerenciar-item-info"><div class="gerenciar-item-name">'+esc(ev.nome||'')+'</div>'
+      +'<div class="gerenciar-item-meta">'+d+(ev.horaInicio?' · '+ev.horaInicio:'')+'</div></div>'
+      +'<div class="gerenciar-imp-badge '+ev.importancia+'">'+(ev.importancia==='alta'?'Alta':ev.importancia==='media'?'Média':'Padrão')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function getSelectedEventos() {
+  return Array.from(document.querySelectorAll('.gerenciar-cb:checked')).map(function(cb){ return cb.dataset.id; });
+}
+
+function toggleSelecionarTodos() {
+  var cbs=document.querySelectorAll('.gerenciar-cb');
+  var allChecked=Array.from(cbs).every(function(c){return c.checked;});
+  cbs.forEach(function(c){c.checked=!allChecked;});
+}
+
+function excluirEventosSelecionados() {
+  var ids=getSelectedEventos();
+  if(!ids.length){toast('⚠️ Selecione ao menos um evento.');return;}
+  state.eventos=(state.eventos||[]).filter(function(e){return ids.indexOf(e.id)===-1;});
+  saveState(); renderGerenciarLista(); renderCalendar(); renderUpcoming();
+  toast('🗑 '+ids.length+' evento(s) excluído(s)!');
+}
+
+function editarProximoSelecionado() {
+  var ids=getSelectedEventos();
+  if(!ids.length){toast('⚠️ Selecione ao menos um evento.');return;}
+  _editQueue=ids.slice(1);
+  var ev=(state.eventos||[]).find(function(e){return e.id===ids[0];});
+  closeModal('modal-gerenciar-eventos');
+  if(ev) openEditarEvento(ev);
+}
+
 // SEED
 function seedDemo(){
   // Only runs once for brand new users — data is immediately saved to Supabase
@@ -4281,6 +5065,161 @@ document.addEventListener('click', function(e) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
             Excluir
           </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- CRIAR/EDITAR EVENTO -->
+    <div class="modal-overlay" id="modal-criar-evento">
+      <div class="modal modal-wide" style="max-width:600px">
+        <div class="modal-close" onclick="closeModal('modal-criar-evento')">✕</div>
+        <div class="modal-title" id="evento-modal-title">Novo evento</div>
+        <input type="hidden" id="evento-edit-id">
+
+        <!-- ICON PICKER -->
+        <div class="form-group">
+          <label class="form-label">Ícone do evento</label>
+          <div class="evento-icon-grid" id="evento-icon-grid"></div>
+        </div>
+
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Nome do evento</label>
+            <input class="form-input" id="evento-nome" placeholder="Ex: Reunião de equipe">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Importância</label>
+            <select class="form-select" id="evento-importancia">
+              <option value="padrao">🔵 Padrão</option>
+              <option value="media">🟡 Média</option>
+              <option value="alta">🔴 Alta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Data</label>
+            <input class="form-input" id="evento-data" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horário</label>
+            <div style="position:relative">
+              <input class="form-input" id="evento-hora" type="time" oninput="updateHorarioSugestoes()">
+              <div id="horario-sugestoes" class="horario-sugestoes" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Duração</label>
+          <input class="form-input" id="evento-hora-fim" type="time" placeholder="Horário de término">
+        </div>
+
+        <!-- PARTICIPANTES -->
+        <div class="form-group">
+          <label class="form-label">Participantes</label>
+          <div class="evento-participantes-wrap">
+            <div id="evento-participantes-chips"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <select class="form-select" id="evento-participante-sel" style="flex:1">
+                <option value="">Selecionar da lista...</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="addParticipanteEvento()">+ Adicionar</button>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px;font-size:11px" onclick="openModal('modal-contatos')">👥 Adicionar pessoas na sua lista</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Observações</label>
+          <textarea class="form-textarea" id="evento-obs" placeholder="Detalhes adicionais..." style="min-height:70px"></textarea>
+        </div>
+
+        <!-- REPETIR -->
+        <div class="installment-toggle" onclick="toggleRepetirEvento()" style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="toggle-switch" id="repetir-toggle"></div>
+            <span style="font-size:14px;font-weight:500">Repetir evento</span>
+          </div>
+          <span style="font-size:12px;color:var(--text-muted)">Recorrência automática</span>
+        </div>
+        <div id="repetir-wrap" style="display:none;margin-bottom:16px">
+          <select class="form-select" id="evento-repeticao">
+            <option value="semanal">Toda semana</option>
+            <option value="quinzenal">A cada 2 semanas</option>
+            <option value="mensal">Todo mês</option>
+            <option value="anual">Todo ano</option>
+          </select>
+        </div>
+
+        <!-- LEMBRETE -->
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="form-label" style="margin:0">Lembrete por email</span>
+            </div>
+            <div class="toggle-switch" id="lembrete-toggle" onclick="toggleLembrete()"></div>
+          </div>
+          <div id="lembrete-wrap" style="display:none">
+            <select class="form-select" id="evento-lembrete">
+              <option value="no_dia">No dia do evento</option>
+              <option value="1_dia">1 dia antes</option>
+              <option value="1_semana">1 semana antes</option>
+              <option value="1_mes">1 mês antes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="salvarEvento()">Salvar evento</button>
+          <button class="btn btn-ghost" onclick="closeModal('modal-criar-evento')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GERENCIAR EVENTOS -->
+    <div class="modal-overlay" id="modal-gerenciar-eventos">
+      <div class="modal modal-wide">
+        <div class="modal-close" onclick="closeModal('modal-gerenciar-eventos')">✕</div>
+        <div class="modal-title">Gerenciar eventos</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="btn btn-danger btn-sm" onclick="excluirEventosSelecionados()">🗑 Excluir selecionados</button>
+          <button class="btn btn-ghost btn-sm" onclick="editarProximoSelecionado()">✏️ Editar selecionados</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleSelecionarTodos()">☑ Selecionar todos</button>
+        </div>
+        <div id="gerenciar-lista"></div>
+      </div>
+    </div>
+
+    <!-- CONTATOS -->
+    <div class="modal-overlay" id="modal-contatos">
+      <div class="modal modal-sm">
+        <div class="modal-close" onclick="closeModal('modal-contatos')">✕</div>
+        <div class="modal-title">Minha lista de contatos</div>
+        <div class="form-group">
+          <label class="form-label">Adicionar contato</label>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" id="contato-nome" placeholder="Nome" style="flex:1">
+            <input class="form-input" id="contato-email" placeholder="Email" style="flex:1">
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="salvarContato()">+ Adicionar</button>
+        </div>
+        <div class="section-title" style="margin-top:0">Contatos salvos</div>
+        <div id="contatos-lista"></div>
+      </div>
+    </div>
+
+    <!-- DIA DETAIL -->
+    <div class="modal-overlay" id="modal-dia-detalhe">
+      <div class="modal modal-sm">
+        <div class="modal-close" onclick="closeModal('modal-dia-detalhe')">✕</div>
+        <div class="modal-title" id="dia-detalhe-titulo"></div>
+        <div id="dia-detalhe-eventos"></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary btn-sm" onclick="criarEventoDia()">+ Criar evento neste dia</button>
         </div>
       </div>
     </div>
