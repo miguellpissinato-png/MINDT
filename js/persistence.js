@@ -82,3 +82,18 @@ function seedDemo(){
   state.perfil={name:'',avatar:null};
   saveState();
 }
+
+
+// Init music list on page load
+// Force save before page unload
+window.addEventListener('beforeunload', function() {
+  if(currentUser && state){
+    try{localStorage.setItem('mindt-local',JSON.stringify(state));}catch(e){}
+    // Use sendBeacon for reliable save on page close
+    var payload=JSON.stringify({user_id:currentUser.id,data:state,updated_at:new Date().toISOString()});
+    navigator.sendBeacon&&navigator.sendBeacon(
+      SUPA_URL+'/rest/v1/user_data',
+      new Blob([payload],{type:'application/json'})
+    );
+  }
+});

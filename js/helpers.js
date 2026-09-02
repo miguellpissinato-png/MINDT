@@ -132,3 +132,97 @@ function toast(msg){var el=document.getElementById('toast');el.textContent=msg;e
     ctx.restore();t++;requestAnimationFrame(draw);
   }draw();
 })();
+
+
+// DETAIL
+function openDetail(type,id){
+  currentDetailType=type;currentDetailId=id;
+  var item=type==='meta'?state.metas.find(function(m){return m.id===id;}):state.tasks.find(function(t){return t.id===id;});
+  if(!item)return;
+  document.getElementById('detail-title').textContent=item.name;
+  document.getElementById('detail-body').textContent=item.desc||'Sem descrição.';
+  var iw=document.getElementById('detail-img-wrap');
+  iw.innerHTML=item.img?'<img src="'+item.img+'" style="width:100%;height:100%;object-fit:cover">':(type==='meta'?'🎯':'✅');
+  var gc=document.getElementById('detail-group-chip');gc.textContent=item.group?'📁 '+item.group:'';gc.style.display=item.group?'':'none';
+  document.getElementById('detail-date-created').textContent='📅 '+formatDate(item.createdAt);
+  var dc=document.getElementById('detail-deadline-chip');dc.textContent=item.deadline?'⏰ '+item.deadline:'';dc.style.display=item.deadline?'':'none';
+  var bc=document.getElementById('detail-budget-chip');bc.textContent=item.budget?'💰 R$ '+parseFloat(item.budget).toFixed(2):'';bc.style.display=item.budget?'':'none';
+  var cw=document.getElementById('detail-checklist-wrap');
+  if(type==='meta'&&item.checklist&&item.checklist.length>0){
+    cw.style.display='';
+    document.getElementById('detail-checklist').innerHTML=item.checklist.map(function(ci,idx){
+      return '<li class="checklist-item"><input type="checkbox" id="dci-'+idx+'" '+(ci.done?'checked':'')+' onchange="toggleDetailCheck('+idx+',this)"><label for="dci-'+idx+'">'+esc(ci.text)+'</label></li>';
+    }).join('');
+    updateDetailProgress(item);
+  }else{cw.style.display='none';}
+  var cb2=document.getElementById('detail-complete-btn');
+  cb2.textContent=item.done?'↩ Reabrir':'✓ Concluir';
+  cb2.className=item.done?'btn btn-ghost':'btn btn-success';
+  document.getElementById('detail-page-btn').onclick=function(){goToPage(type==='meta'?'metas':'tarefas');closeModal('modal-detail');};
+  openModal('modal-detail');
+}
+function toggleDetailCheck(idx,cb){
+  var item=currentDetailType==='meta'?state.metas.find(function(m){return m.id===currentDetailId;}):state.tasks.find(function(t){return t.id===currentDetailId;});
+  if(!item||!item.checklist)return;item.checklist[idx].done=cb.checked;updateDetailProgress(item);saveState();
+}
+function updateDetailProgress(item){
+  if(!item.checklist||!item.checklist.length)return;
+  var done=item.checklist.filter(function(c){return c.done;}).length;
+  var pct=Math.round((done/item.checklist.length)*100);
+  document.getElementById('detail-progress-fill').style.width=pct+'%';
+  document.getElementById('detail-progress-label').textContent=pct+'%';
+  item.progress=pct;saveState();
+}
+function completeDetail(){
+  var arr=currentDetailType==='meta'?state.metas:state.tasks;
+  var item=arr.find(function(i){return i.id===currentDetailId;});if(!item)return;
+  item.done=!item.done;item.completedAt=item.done?new Date().toISOString():null;
+  saveState();closeModal('modal-detail');toast(item.done?'✅ Concluído!':'↩ Reaberto!');
+  currentDetailType==='meta'?renderMetas():renderTasks();renderHome();
+}
+function requestDeleteDetail(){
+  document.getElementById('confirm-icon').textContent='🗑';
+  document.getElementById('confirm-title').textContent='Excluir item';
+  document.getElementById('confirm-body').textContent='Excluir permanentemente?';
+  document.getElementById('confirm-ok-btn').textContent='Excluir';
+  document.getElementById('confirm-ok-btn').onclick=function(){
+    if(currentDetailType==='meta')state.metas=state.metas.filter(function(m){return m.id!==currentDetailId;});
+    else state.tasks=state.tasks.filter(function(t){return t.id!==currentDetailId;});
+    saveState();closeModal('modal-confirm');closeModal('modal-detail');toast('🗑 Excluído!');
+    currentDetailType==='meta'?renderMetas():renderTasks();renderHome();resetConfirmBtn();
+  };openModal('modal-confirm');
+}
+function editCurrentDetail(){
+  var item=currentDetailType==='meta'?state.metas.find(function(m){return m.id===currentDetailId;}):state.tasks.find(function(t){return t.id===currentDetailId;});
+  if(!item)return;closeModal('modal-detail');
+  if(currentDetailType==='meta'){populateMetaForm(item);openModal('modal-add-meta');}
+  else{populateTaskForm(item);openModal('modal-add-task');}
+}
+
+// Event delegation for inline card checkboxes
+document.addEventListener('change', function(e) {
+  if(e.target.classList.contains('task-cl-cb')) {
+    var tid = e.target.dataset.tid;
+    var idx = parseInt(e.target.dataset.idx);
+    var t = state.tasks.find(function(x){return x.id===tid;});
+    if(t&&t.checklist&&t.checklist[idx]!==undefined) {
+      t.checklist[idx].done = e.target.checked;
+      saveState();
+    }
+  }
+  if(e.target.classList.contains('meta-cl-cb')) {
+    var mid = e.target.dataset.mid;
+    var idx2 = parseInt(e.target.dataset.idx);
+    var m = state.metas.find(function(x){return x.id===mid;});
+    if(m&&m.checklist&&m.checklist[idx2]!==undefined) {
+      m.checklist[idx2].done = e.target.checked;
+      m.progress = calcProgress(m);
+      saveState();
+      // Update progress bar in card without full re-render
+      var card = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-bar-fill');
+      if(card) card.style.width = m.progress+'%';
+      var label = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-label');
+      if(label) label.textContent = m.progress+'%';
+    }
+  }
+});
