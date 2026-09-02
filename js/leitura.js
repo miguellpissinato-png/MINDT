@@ -118,12 +118,7 @@ function renderBookshelf(filterFn) {
       ? '<div class="shelf-book-add" data-addbook="1" title="Adicionar livro">+</div>'
       : '';
     return '<div class="shelf-row">' + books + addBtn + '<div class="shelf-plank"></div></div>';
-  }).join('');;
-
-    // Add "+" button at end of last shelf
-    var addBtn = si === shelves.length - 1 ? '<div class="shelf-book-add" data-addbook="1">+</div>' : '';
-
-
+  }).join('');
 }
 
 // ── SHELF POPUP ──
