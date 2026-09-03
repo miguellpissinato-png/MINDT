@@ -72,9 +72,9 @@ function setupScrollEffect() {
 // ── BOOKSHELF ──
 var BOOKS_PER_SHELF = 12;
 var SPINE_COLORS = [
-  ['#5322a2','#7a45d4'],['#3a1870','#5322a2'],['#7c3aed','#a78bfa'],
-  ['#6d28d9','#8b5cf6'],['#4c1d95','#6d28d9'],['#2e1065','#4c1d95'],
-  ['#581c87','#7c3aed'],['#3b0764','#581c87'],
+  ['#8CA9FF','#AAC4F5'],['#FFD166','#F1C596'],['#F6A9A4','#F6C7A0'],
+  ['#AAC4F5','#8CA9FF'],['#A7DDA0','#8CD6C8'],['#F1C596','#D9A05B'],
+  ['#1C2547','#8CA9FF'],['#FFF2C6','#FFD166'],
 ];
 
 function renderBookshelf(filterFn) {

@@ -232,7 +232,7 @@ function renderUpcoming() {
     return;
   }
 
-  var impColors = { padrao:'#6366f1', media:'#eab308', alta:'#ef4444' };
+  var impColors = { padrao:'#6366f1', media:'#eab308', alta:'#E05A55' };
   el.innerHTML = upcoming.map(function(ev) {
     var d = new Date(ev.data + 'T00:00:00');
     var dStr = d.toLocaleDateString('pt-BR', {day:'2-digit',month:'short'});
