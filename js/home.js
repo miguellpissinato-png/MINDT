@@ -2,6 +2,13 @@
 // (onAuthStateChange), que vive aqui por chamar renderHome().
 
 sb.auth.onAuthStateChange(function(event,session){
+  // O link de recuperacao enviado por email tambem cria uma sessao valida.
+  // Sem este desvio, o usuario entraria direto no app em vez de trocar a senha.
+  if(event==='PASSWORD_RECOVERY'){
+    currentUser=session?session.user:null;
+    abrirNovaSenha();
+    return;
+  }
   if(session&&session.user){
     currentUser=session.user;
     loadUserData().then(function(){
@@ -19,6 +26,7 @@ sb.auth.onAuthStateChange(function(event,session){
     currentUser=null;
     document.getElementById('auth-screen').style.display='flex';
     document.getElementById('app').style.visibility='hidden';
+    if(typeof mostrarEtapaAuth==='function') mostrarEtapaAuth('auth-form-wrap');
     setAuthLoading(false);
   }
 });

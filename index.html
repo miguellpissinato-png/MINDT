@@ -144,10 +144,43 @@
       <label class="auth-label">Email</label>
       <input class="auth-input" id="auth-email" type="email" placeholder="seu@email.com">
       <label class="auth-label">Senha</label>
-      <input class="auth-input" id="auth-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')authSubmit()">
+      <div class="auth-pass-wrap">
+        <input class="auth-input" id="auth-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')authSubmit()">
+        <button type="button" class="auth-eye" id="auth-eye" onclick="alternarVerSenha('auth-password','auth-eye')" aria-label="Mostrar senha"></button>
+      </div>
       <div class="auth-error" id="auth-error"></div>
       <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Entrar</button>
+      <button type="button" class="auth-link" id="auth-forgot" onclick="abrirRecuperar()">Esqueci minha senha</button>
       <div class="auth-loading" id="auth-loading">⏳ Aguarde...</div>
+    </div>
+
+    <!-- RECUPERAR SENHA — pede o email e envia o link -->
+    <div id="auth-reset-wrap" style="display:none">
+      <div class="auth-step-title">Recuperar senha</div>
+      <div class="auth-step-text">Digite seu email. Enviaremos um link para você criar uma senha nova.</div>
+      <label class="auth-label">Email</label>
+      <input class="auth-input" id="reset-email" type="email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')enviarLinkRecuperacao()">
+      <div class="auth-error" id="reset-error"></div>
+      <button class="auth-btn" id="reset-btn" onclick="enviarLinkRecuperacao()">Enviar link</button>
+      <button type="button" class="auth-link" onclick="voltarAoLogin()">Voltar para o login</button>
+    </div>
+
+    <!-- NOVA SENHA — depois de clicar no link do email -->
+    <div id="auth-newpass-wrap" style="display:none">
+      <div class="auth-step-title">Criar nova senha</div>
+      <div class="auth-step-text">Escolha uma senha nova para sua conta.</div>
+      <label class="auth-label">Nova senha</label>
+      <div class="auth-pass-wrap">
+        <input class="auth-input" id="new-password" type="password" placeholder="••••••••">
+        <button type="button" class="auth-eye" id="new-eye" onclick="alternarVerSenha('new-password','new-eye')" aria-label="Mostrar senha"></button>
+      </div>
+      <label class="auth-label">Repita a nova senha</label>
+      <div class="auth-pass-wrap">
+        <input class="auth-input" id="new-password2" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')salvarNovaSenha()">
+        <button type="button" class="auth-eye" id="new-eye2" onclick="alternarVerSenha('new-password2','new-eye2')" aria-label="Mostrar senha"></button>
+      </div>
+      <div class="auth-error" id="newpass-error"></div>
+      <button class="auth-btn" onclick="salvarNovaSenha()">Salvar senha</button>
     </div>
   </div>
 </div>

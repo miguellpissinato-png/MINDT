@@ -1405,3 +1405,23 @@ html,body{background:var(--cream)}
   box-shadow:var(--shadow-soft);padding:14px}
 .trophy-card.locked-card .trophy-name{color:var(--ink);opacity:.75}
 .trophy-lock-text{font-size:10px;letter-spacing:.08em}
+
+/* ═══ Login: olhinho da senha e recuperacao ═══ */
+.auth-pass-wrap{position:relative;display:block}
+.auth-pass-wrap .auth-input{padding-right:52px;margin-bottom:16px}
+.auth-eye{position:absolute;right:10px;top:0;height:48px;width:36px;display:flex;
+  align-items:center;justify-content:center;background:transparent;border:none;
+  color:var(--ink);opacity:.45;cursor:pointer;padding:0;transition:opacity .15s}
+.auth-eye:hover{opacity:.9}
+.auth-eye svg{width:21px;height:21px;display:block}
+
+.auth-link{display:block;width:100%;margin-top:12px;background:none;border:none;
+  color:var(--ink);opacity:.6;font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:13px;text-decoration:underline;cursor:pointer;padding:6px}
+.auth-link:hover{opacity:1}
+
+.auth-step-title{font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;font-size:24px;
+  color:var(--ink);text-align:center;margin-bottom:6px}
+.auth-step-text{font-size:13px;font-weight:600;line-height:1.5;color:var(--ink);opacity:.6;
+  text-align:center;margin-bottom:22px}
+#reset-error.ok{background:#C9E7C4;border-color:var(--ink)}
