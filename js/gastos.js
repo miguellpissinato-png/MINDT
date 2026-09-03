@@ -8,7 +8,7 @@ function getCat(id) {
 }
 
 // ─── PIZZA CHART ─────────────────────────────────────────
-var PIZZA_FALLBACK_COLORS = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
+var PIZZA_FALLBACK_COLORS = ['#AAC4F5','#F6A9A4','#FFD166','#A7DDA0','#8CA9FF','#E05A55','#8CD6C8','#F1C596','#AAC4F5','#AAC4F5'];
 var pizzaSlices = [];
 
 function renderPizzaChart(lista) {
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(!canvas) return;
   var tooltip = document.createElement('div');
   tooltip.id = 'pizza-tooltip';
-  tooltip.style.cssText = 'position:fixed;display:none;background:rgba(12,7,22,0.95);border:1px solid rgba(122,69,212,0.4);backdrop-filter:blur(16px);border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
+  tooltip.style.cssText = 'position:fixed;display:none;background:#FFF8DE;border:2px solid #1C2547;border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(28,37,71,.18)';
   document.body.appendChild(tooltip);
 
   canvas.addEventListener('mousemove', function(e){
@@ -227,7 +227,7 @@ function renderGastos(){
       bycat[key].push(g);
     });
 
-    var FALLBACK = ['#7a45d4','#e05a9a','#f59e0b','#22c55e','#3b82f6','#ef4444','#14b8a6','#f97316'];
+    var FALLBACK = ['#AAC4F5','#F6A9A4','#FFD166','#A7DDA0','#8CA9FF','#E05A55','#8CD6C8','#F1C596'];
     var fallbackIdx = 0;
     var html = '';
 

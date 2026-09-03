@@ -9,7 +9,7 @@ function toggleSelect(id,cb){if(cb.checked){if(deleteMode.selected.indexOf(id)==
 function showSelBar(type,isEdit){
   var ex=document.getElementById('sel-bar');if(ex)ex.remove();
   var bar=document.createElement('div');bar.id='sel-bar';
-  bar.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(12,7,22,0.95);border:1px solid rgba(122,69,212,0.35);backdrop-filter:blur(20px);border-radius:14px;padding:14px 24px;display:flex;gap:12px;align-items:center;z-index:400;';
+  bar.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#FFF8DE;border:2px solid #1C2547;border-radius:14px;padding:14px 24px;display:flex;gap:12px;align-items:center;z-index:400;';
   bar.innerHTML='<span style="font-size:13px;color:var(--text-dim)" id="sel-count">0 selecionados</span>';
   var ab=document.createElement('button');ab.className='btn btn-sm '+(isEdit?'btn-primary':'btn-danger');ab.textContent=isEdit?'✏️ Editar':'🗑 Excluir';ab.onclick=function(){confirmSel(type,isEdit);};
   var cb=document.createElement('button');cb.className='btn btn-ghost btn-sm';cb.textContent='Cancelar';cb.onclick=function(){cancelSel(type);};
@@ -125,10 +125,10 @@ function toast(msg){var el=document.getElementById('toast');el.textContent=msg;e
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   resize();window.addEventListener('resize',resize);
   function draw(){
-    ctx.clearRect(0,0,W,H);var bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#090412');bg.addColorStop(1,'#0d0820');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-    [{x:0.15,y:0.85,r:0.45,c:'#5322a2',a:0.18},{x:0.85,y:0.1,r:0.35,c:'#3a1870',a:0.14}].forEach(function(o){var grd=ctx.createRadialGradient(o.x*W,o.y*H,0,o.x*W,o.y*H,o.r*Math.max(W,H));grd.addColorStop(0,o.c+'44');grd.addColorStop(1,'transparent');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);});
+    ctx.clearRect(0,0,W,H);var bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#FFF8DE');bg.addColorStop(1,'#F6E8C8');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    [{x:0.15,y:0.85,r:0.45,c:'#AAC4F5',a:0.18},{x:0.85,y:0.1,r:0.35,c:'#FFD166',a:0.14}].forEach(function(o){var grd=ctx.createRadialGradient(o.x*W,o.y*H,0,o.x*W,o.y*H,o.r*Math.max(W,H));grd.addColorStop(0,o.c+'44');grd.addColorStop(1,'transparent');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);});
     var phase=t*0.0006;ctx.save();
-    for(var i=0;i<3;i++){var offset=i*0.12,amp=60+i*20;ctx.beginPath();for(var x=0;x<=W;x+=4){var prog=x/W,y=H*(0.82-prog*0.78)+Math.sin(prog*2.5+phase+offset)*amp+Math.cos(prog*1.2+phase*0.7)*(amp*0.5);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.strokeStyle='rgba('+(122-i*10)+','+(69-i*5)+','+(212-i*20)+','+(0.06-i*0.015+Math.sin(phase+i)*0.015)+')';ctx.lineWidth=40-i*8;ctx.lineCap='round';ctx.stroke();ctx.strokeStyle='rgba(255,255,255,'+(0.025-i*0.007)+')';ctx.lineWidth=3;ctx.stroke();}
+    for(var i=0;i<3;i++){var offset=i*0.12,amp=60+i*20;ctx.beginPath();for(var x=0;x<=W;x+=4){var prog=x/W,y=H*(0.82-prog*0.78)+Math.sin(prog*2.5+phase+offset)*amp+Math.cos(prog*1.2+phase*0.7)*(amp*0.5);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.strokeStyle='rgba('+(140-i*8)+','+(169-i*6)+','+(255-i*14)+','+(0.16-i*0.03+Math.sin(phase+i)*0.03)+')';ctx.lineWidth=40-i*8;ctx.lineCap='round';ctx.stroke();ctx.strokeStyle='rgba(255,251,242,'+(0.5-i*0.12)+')';ctx.lineWidth=3;ctx.stroke();}
     ctx.restore();t++;requestAnimationFrame(draw);
   }draw();
 })();
@@ -226,3 +226,41 @@ document.addEventListener('change', function(e) {
     }
   }
 });
+
+// ─── TICOLINO — o mascote ───────────────────────────────
+// O mascote e montado por peças: corpo + olhos + boca + objeto.
+// Cada humor e uma combinaçao, conforme a folha de poses do design.
+var TICO_MOODS = {
+  feliz:      ['#tico-eyes-open',   '#tico-mouth-smile', '#tico-paws',   ''],
+  animado:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-paws',   '#tico-spark'],
+  lendo:      ['#tico-eyes-arc',    '#tico-mouth-smile', '#tico-book',   ''],
+  focado:     ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-pencil', '#tico-brows'],
+  rico:       ['#tico-eyes-star',   '#tico-mouth-open',  '#tico-coin',   ''],
+  orgulhoso:  ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-trophy', '#tico-spark'],
+  sonolento:  ['#tico-eyes-sleepy', '#tico-mouth-flat',  '#tico-none',   '#tico-zzz'],
+  preguicoso: ['#tico-eyes-sleepy', '#tico-mouth-flat',  '#tico-paws',   ''],
+  comendo:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-seed',   '']
+};
+
+// Devolve o SVG do Ticolino no humor pedido.
+// tamanho em px (largura); 'rosto' recorta so a cabeça, para avatares.
+function ticolino(humor, tamanho, rosto){
+  var m = TICO_MOODS[humor] || TICO_MOODS.feliz;
+  var vb = rosto ? '20 30 160 110' : '0 0 200 206';
+  var alt = rosto ? '' : ';height:' + Math.round((tamanho||100) * 1.03) + 'px';
+  var pecas = '<use href="#tico-core"></use><use href="' + m[0] + '"></use><use href="' + m[1] + '"></use>';
+  if (!rosto) {
+    pecas += '<use href="' + m[2] + '"></use>';
+    if (m[3]) pecas += '<use href="' + m[3] + '"></use>';
+  }
+  return '<svg viewBox="' + vb + '" style="width:' + (tamanho||100) + 'px' + alt +
+         ';display:block;flex:none" aria-hidden="true">' + pecas + '</svg>';
+}
+
+// Escolhe o humor a partir do estado do app (usado na Home).
+function ticoHumorDoDia(){
+  var feitos = tarefasDoDiaFeitas();
+  if (feitos === 0) return 'sonolento';
+  if (feitos >= 3) return 'orgulhoso';
+  return 'feliz';
+}

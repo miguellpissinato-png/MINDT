@@ -33,7 +33,7 @@ function authSubmit(){
         var w=document.getElementById('auth-form-wrap');w.innerHTML='';
         var d=document.createElement('div');d.className='auth-confirm';
         d.innerHTML='<div class="auth-confirm-icon">📧</div><div class="auth-confirm-title">Confirme seu email</div>'
-          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:#7a45d4">'+email+'</strong>.<br>Após confirmar, volte e faça login.</div>';
+          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:#AAC4F5">'+email+'</strong>.<br>Após confirmar, volte e faça login.</div>';
         var b=document.createElement('button');b.className='auth-confirm-btn';b.textContent='Ir para login';
         b.onclick=function(){location.reload();};d.appendChild(b);w.appendChild(d);
       }
@@ -59,3 +59,27 @@ function confirmLogout(){
   document.getElementById('confirm-ok-btn').onclick=function(){closeModal('modal-confirm');sb.auth.signOut();resetConfirmBtn();};
   openModal('modal-confirm');
 }
+
+// ─── ONBOARDING — tela de boas-vindas na primeira visita ───
+function jaViuOnboarding(){
+  try { return localStorage.getItem('mindt-onboarded') === '1'; } catch(e){ return true; }
+}
+function fecharOnboarding(){
+  try { localStorage.setItem('mindt-onboarded','1'); } catch(e){}
+  var el = document.getElementById('onboarding');
+  if (el) { el.style.opacity = '0'; setTimeout(function(){ el.style.display = 'none'; }, 280); }
+}
+function montarOnboarding(){
+  var el = document.getElementById('onboarding');
+  if (!el) return;
+  if (jaViuOnboarding()) { el.style.display = 'none'; return; }
+  document.getElementById('onb-mascote').innerHTML = ticolino('animado', 250);
+  document.getElementById('onb-title').textContent = T('onbTitle');
+  document.getElementById('onb-sub').textContent   = T('onbSub');
+  document.getElementById('onb-cta').textContent   = T('onbCta');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  definirIdioma(idiomaAtual());
+  montarOnboarding();
+});

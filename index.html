@@ -9,7 +9,128 @@
 <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
+<!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <g id="tico-core">
+      <g stroke="#7A5240" stroke-width="3" stroke-linejoin="round">
+        <ellipse cx="76" cy="196" rx="12" ry="7" fill="#F6B0AB"></ellipse>
+        <ellipse cx="124" cy="196" rx="12" ry="7" fill="#F6B0AB"></ellipse>
+        <path d="M168 168 c14 2 18 12 10 18 c-8 6 -18 1 -19 -7" fill="#F1C596"></path>
+        <circle cx="48" cy="50" r="17" fill="#F1C596"></circle>
+        <circle cx="152" cy="50" r="17" fill="#F1C596"></circle>
+      </g>
+      <circle cx="42" cy="44" r="8.6" fill="#B4805A"></circle>
+      <circle cx="158" cy="44" r="8.6" fill="#B4805A"></circle>
+      <path d="M100 36 C133 36 155 54 160 78 C176 92 184 108 174 124 C170 142 174 158 166 172 C154 190 128 196 100 196 C72 196 46 190 34 172 C26 158 30 142 26 124 C16 108 24 92 40 78 C45 54 67 36 100 36 Z" fill="#F1C596" stroke="#7A5240" stroke-width="3.4" stroke-linejoin="round"></path>
+      <path d="M166 172 C150 160 148 132 158 112" fill="none" stroke="#DFAE7E" stroke-width="3" stroke-linecap="round"></path>
+      <ellipse cx="100" cy="150" rx="47" ry="44" fill="#FFFBF2"></ellipse>
+      <ellipse cx="100" cy="119" rx="25" ry="18" fill="#FFFBF2"></ellipse>
+      <g fill="#FFFBF2">
+        <rect x="85" y="42" width="6.4" height="16" rx="3.2"></rect>
+        <rect x="96.8" y="39" width="6.4" height="18" rx="3.2"></rect>
+        <rect x="108.6" y="42" width="6.4" height="16" rx="3.2"></rect>
+      </g>
+      <ellipse cx="47" cy="116" rx="11" ry="7" fill="#F6A9A4" opacity="0.5"></ellipse>
+      <ellipse cx="153" cy="116" rx="11" ry="7" fill="#F6A9A4" opacity="0.5"></ellipse>
+      <g stroke="#7A5240" stroke-width="2.2" stroke-linecap="round" opacity="0.45">
+        <path d="M64 114 L34 106"></path><path d="M64 121 L33 124"></path>
+        <path d="M136 114 L166 106"></path><path d="M136 121 L167 124"></path>
+      </g>
+      <path d="M100 106 c5.4 0 8 2.8 8 5.2 c0 2.6 -3.4 4.6 -8 4.6 c-4.6 0 -8 -2 -8 -4.6 c0 -2.4 2.6 -5.2 8 -5.2 z" fill="#F0959B" stroke="#7A5240" stroke-width="2.2" stroke-linejoin="round"></path>
+    </g>
+    <g id="tico-none"></g>
+    <g id="tico-eyes-open">
+      <ellipse cx="72" cy="100" rx="8" ry="10" fill="#3A2A20"></ellipse>
+      <ellipse cx="128" cy="100" rx="8" ry="10" fill="#3A2A20"></ellipse>
+      <circle cx="69" cy="96" r="2.6" fill="#FFFFFF"></circle>
+      <circle cx="125" cy="96" r="2.6" fill="#FFFFFF"></circle>
+    </g>
+    <g id="tico-eyes-arc" stroke="#3A2A20" stroke-width="3.4" stroke-linecap="round" fill="none">
+      <path d="M64 103 q8 -12 17 0"></path><path d="M119 103 q8 -12 17 0"></path>
+    </g>
+    <g id="tico-eyes-sleepy">
+      <path d="M64 100 a8 10 0 0 0 16 0 z" fill="#3A2A20"></path>
+      <path d="M120 100 a8 10 0 0 0 16 0 z" fill="#3A2A20"></path>
+      <g stroke="#7A5240" stroke-width="2.8" stroke-linecap="round" fill="none">
+        <path d="M63 97 L81 97"></path><path d="M119 97 L137 97"></path>
+      </g>
+    </g>
+    <g id="tico-eyes-star" fill="#3A2A20">
+      <path d="M72 87 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z"></path>
+      <path d="M128 87 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z"></path>
+    </g>
+    <g id="tico-brows" stroke="#7A5240" stroke-width="2.8" stroke-linecap="round" fill="none">
+      <path d="M62 82 q9 -4 18 0"></path><path d="M120 82 q9 4 18 0"></path>
+    </g>
+    <g id="tico-mouth-smile" stroke="#7A5240" stroke-width="2.8" fill="none" stroke-linecap="round">
+      <path d="M100 116 q-7 10 -13 2"></path><path d="M100 116 q7 10 13 2"></path>
+    </g>
+    <path id="tico-mouth-open" d="M100 116 q-12 3 -7 12 q7 8 14 0 q5 -9 -7 -12 z" fill="#E98C93" stroke="#7A5240" stroke-width="2.4" stroke-linejoin="round"></path>
+    <path id="tico-mouth-flat" d="M91 119 q9 5 18 0" stroke="#7A5240" stroke-width="2.8" fill="none" stroke-linecap="round"></path>
+    <g id="tico-paws">
+      <ellipse cx="80" cy="140" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6" transform="rotate(-16 80 140)"></ellipse>
+      <ellipse cx="120" cy="140" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6" transform="rotate(16 120 140)"></ellipse>
+    </g>
+    <g id="tico-book">
+      <path d="M64 146 L100 139 L136 146 L136 174 L100 167 L64 174 Z" fill="#8CA9FF" stroke="#7A5240" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M100 139 L100 167" stroke="#7A5240" stroke-width="2.6"></path>
+      <path d="M73 152 L91 149 M73 160 L91 157 M109 149 L127 152 M109 157 L127 160" stroke="#FFFBF2" stroke-width="2.4" stroke-linecap="round"></path>
+      <ellipse cx="62" cy="152" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+      <ellipse cx="138" cy="152" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+    </g>
+    <g id="tico-seed">
+      <ellipse cx="100" cy="152" rx="16" ry="21" fill="#D9A05B" stroke="#7A5240" stroke-width="3"></ellipse>
+      <path d="M100 134 v36 M84 144 h32 M83 158 h34" stroke="#7A5240" stroke-width="1.8" opacity="0.5" fill="none"></path>
+      <ellipse cx="82" cy="152" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+      <ellipse cx="118" cy="152" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+    </g>
+    <g id="tico-coin">
+      <circle cx="100" cy="152" r="19" fill="#FFD166" stroke="#7A5240" stroke-width="3"></circle>
+      <path d="M100 142 L100 162 M95 147 h10 a4 4 0 0 1 0 7 h-10 h10 a4 4 0 0 1 0 7 h-10" stroke="#7A5240" stroke-width="2.8" fill="none" stroke-linecap="round"></path>
+      <ellipse cx="80" cy="154" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+      <ellipse cx="120" cy="154" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+    </g>
+    <g id="tico-trophy">
+      <path d="M86 140 h28 v13 a14 14 0 0 1 -28 0 z" fill="#FFD166" stroke="#7A5240" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M100 167 v-6 M89 171 h22" stroke="#7A5240" stroke-width="3" stroke-linecap="round" fill="none"></path>
+      <path d="M86 143 h-8 a7 7 0 0 0 8 8 M114 143 h8 a7 7 0 0 1 -8 8" stroke="#7A5240" stroke-width="2.6" fill="none"></path>
+      <ellipse cx="78" cy="156" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+      <ellipse cx="122" cy="156" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6"></ellipse>
+    </g>
+    <g id="tico-trophy-icon">
+      <path d="M86 140 h28 v13 a14 14 0 0 1 -28 0 z" fill="#FFD166" stroke="#1C2547" stroke-width="4" stroke-linejoin="round"></path>
+      <path d="M100 167 v-6 M89 171 h22" stroke="#1C2547" stroke-width="4" stroke-linecap="round" fill="none"></path>
+      <path d="M86 143 h-8 a7 7 0 0 0 8 8 M114 143 h8 a7 7 0 0 1 -8 8" stroke="#1C2547" stroke-width="3.4" fill="none"></path>
+    </g>
+    <g id="tico-pencil">
+      <path d="M126 178 L160 122 L173 130 L139 186 L124 190 Z" fill="#FFD166" stroke="#7A5240" stroke-width="3" stroke-linejoin="round"></path>
+      <path d="M130 172 L143 180 M124 190 L132 185" stroke="#7A5240" stroke-width="2.6" fill="none"></path>
+      <ellipse cx="126" cy="160" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6" transform="rotate(30 126 160)"></ellipse>
+      <ellipse cx="80" cy="142" rx="9" ry="6.6" fill="#F6C7A0" stroke="#7A5240" stroke-width="2.6" transform="rotate(-16 80 142)"></ellipse>
+    </g>
+    <g id="tico-zzz" fill="#8CA9FF" stroke="#7A5240" stroke-width="2" font-family="Baloo 2, system-ui" font-weight="800">
+      <text x="164" y="46" font-size="26">z</text>
+      <text x="180" y="24" font-size="18">z</text>
+    </g>
+    <g id="tico-spark" fill="#FFD166" stroke="#7A5240" stroke-width="2.2" stroke-linejoin="round">
+      <path d="M22 40 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4 z"></path>
+      <path d="M176 32 l3.4 9 9 3.4 -9 3.4 -3.4 9 -3.4 -9 -9 -3.4 9 -3.4 z"></path>
+    </g>
+  </defs>
+</svg>
 <canvas id="bg-canvas"></canvas>
+<!-- ONBOARDING — primeira visita -->
+<div id="onboarding">
+  <div class="onb-top">
+    <button class="onb-lang" id="lang-btn" onclick="alternarIdioma()">EN</button>
+  </div>
+  <div class="onb-mascote" id="onb-mascote"></div>
+  <div class="onb-title" id="onb-title"></div>
+  <div class="onb-sub" id="onb-sub"></div>
+  <div class="onb-dots"><i class="on"></i><i></i><i></i></div>
+  <button class="onb-cta" id="onb-cta" onclick="fecharOnboarding()"></button>
+</div>
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo-icon">M</div>
@@ -61,21 +182,62 @@
 
   <main id="main">
     <section class="page active" id="page-home">
-      <h1 class="home-title">Mindt</h1>
-      <p class="home-quote" id="daily-quote"></p>
-      <div class="stats-row">
-        <div class="stat-card glass"><div class="stat-label">Tarefas ativas</div><div class="stat-value" id="home-stat-tasks">0</div><div class="stat-sub">em andamento</div></div>
-        <div class="stat-card glass"><div class="stat-label">Metas</div><div class="stat-value" id="home-stat-metas">0</div><div class="stat-sub">criadas</div></div>
-        <div class="stat-card glass"><div class="stat-label">Gastos previstos</div><div class="stat-value" id="home-stat-gastos">R$0</div><div class="stat-sub">total estimado</div></div>
+      <div class="tico-home-head">
+        <div>
+          <div class="tico-greeting" id="home-greeting">Olá</div>
+          <div class="tico-date" id="home-date"></div>
+        </div>
+        <button class="tico-avatar-btn" onclick="goToPage('perfil')" id="home-avatar" aria-label="Perfil"></button>
       </div>
+
+      <div class="tico-card tico-card-blue" id="home-streak-card">
+        <div class="tico-streak-row">
+          <div>
+            <div class="tico-streak-num" id="home-streak">0</div>
+            <div class="tico-streak-label" data-i18n="streak">dias seguidos</div>
+          </div>
+          <div style="text-align:right">
+            <div class="tico-level" id="home-level">Nível 1</div>
+            <div class="tico-xp-text" id="home-xp">0/100 XP</div>
+          </div>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="home-xp-bar" style="width:0%"></div></div>
+      </div>
+
+      <div class="tico-card tico-card-cream tico-msg-card">
+        <div id="home-tico"></div>
+        <div>
+          <div class="tico-msg" id="home-tico-msg"></div>
+          <div class="home-quote" id="daily-quote"></div>
+        </div>
+      </div>
+
+      <div class="tico-section-head">
+        <div class="section-title" data-i18n="today">Hoje</div>
+        <div class="tico-count" id="home-today-count">0/3</div>
+      </div>
+      <div class="tico-today-list" id="home-today-list"></div>
+
+      <div class="tico-quick-row">
+        <button class="tico-card tico-quick" onclick="goToPage('gastos')">
+          <div class="tico-quick-label" data-i18n="balance">Saldo do mês</div>
+          <div class="tico-quick-value" id="home-stat-gastos">R$0</div>
+        </button>
+        <button class="tico-card tico-quick" onclick="goToPage('metas')">
+          <div class="tico-quick-label" data-i18n="goals">Metas</div>
+          <div class="tico-quick-value" id="home-stat-metas">0</div>
+        </button>
+      </div>
+
       <div class="floating-island">
-        <div class="island-header"><span class="island-title">⚡ Em andamento</span><span id="home-task-count">0 itens</span></div>
+        <div class="island-header"><span class="island-title" data-i18n="inProgress">Em andamento</span><span id="home-task-count">0 itens</span></div>
         <div class="tasks-scroll-wrap">
           <button class="scroll-arrow left" onclick="scrollTasks(-1)">&#8249;</button>
           <div class="tasks-scroll" id="home-tasks-scroll"></div>
           <button class="scroll-arrow right" onclick="scrollTasks(1)">&#8250;</button>
         </div>
       </div>
+      <div style="display:none"><span id="home-stat-tasks">0</span></div>
     </section>
 
     <section class="page" id="page-metas">
@@ -607,6 +769,14 @@
 
     <section class="page" id="page-perfil">
       <div class="page-header"><h2 class="page-title">Perfil</h2></div>
+      <div class="tico-lang-block">
+        <div class="form-label" data-i18n="language">Idioma</div>
+        <div class="tico-lang-switch">
+          <button data-lang-opt="pt" class="on" onclick="definirIdioma('pt')">Português</button>
+          <button data-lang-opt="en" onclick="definirIdioma('en')">English</button>
+        </div>
+      </div>
+
       <div class="perfil-hero glass">
         <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           <span id="avatar-emoji">👤</span><img id="avatar-img" style="display:none">
@@ -747,6 +917,7 @@
 <div id="toast"></div>
 <script src="js/config.js"></script>
 <script src="js/helpers.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/persistence.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>

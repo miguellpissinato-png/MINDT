@@ -59,19 +59,19 @@ var TROPHIES = [
     name: 'Viajante do Tempo',
     desc: 'Primeiros passos na jornada do conhecimento',
     xpRequired: 50,
-    color: '#a78bfa',
+    color: '#AAC4F5',
     svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#c084fc"/>
-          <stop offset="100%" style="stop-color:#5322a2"/>
+          <stop offset="0%" style="stop-color:#AAC4F5"/>
+          <stop offset="100%" style="stop-color:#8CA9FF"/>
         </linearGradient>
         <filter id="glow1"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       <!-- Hourglass body -->
       <path d="M30 15 L70 15 L55 50 L70 85 L30 85 L45 50 Z" fill="url(#g1)" opacity="0.9" filter="url(#glow1)" rx="4"/>
-      <rect x="26" y="12" width="48" height="8" rx="4" fill="#c084fc" opacity="0.8"/>
-      <rect x="26" y="80" width="48" height="8" rx="4" fill="#7a45d4" opacity="0.8"/>
+      <rect x="26" y="12" width="48" height="8" rx="4" fill="#AAC4F5" opacity="0.8"/>
+      <rect x="26" y="80" width="48" height="8" rx="4" fill="#AAC4F5" opacity="0.8"/>
       <ellipse cx="50" cy="50" rx="8" ry="8" fill="white" opacity="0.6"/>
       <circle cx="50" cy="50" r="4" fill="#fff" opacity="0.9"/>
       <!-- Glass shine -->
@@ -87,8 +87,8 @@ var TROPHIES = [
     svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#a78bfa"/>
-          <stop offset="100%" style="stop-color:#3a1870"/>
+          <stop offset="0%" style="stop-color:#AAC4F5"/>
+          <stop offset="100%" style="stop-color:#1C2547"/>
         </linearGradient>
         <filter id="glow2"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
@@ -100,9 +100,9 @@ var TROPHIES = [
       <path d="M34 48 Q40 44 46 48 Q52 44 58 48 Q64 44 68 48" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <path d="M36 58 Q44 54 52 58 Q60 54 66 58" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <!-- Stem -->
-      <rect x="46" y="68" width="8" height="10" rx="4" fill="#7a45d4" opacity="0.8"/>
+      <rect x="46" y="68" width="8" height="10" rx="4" fill="#AAC4F5" opacity="0.8"/>
       <!-- Base -->
-      <ellipse cx="50" cy="80" rx="16" ry="5" fill="#5322a2" opacity="0.7"/>
+      <ellipse cx="50" cy="80" rx="16" ry="5" fill="#8CA9FF" opacity="0.7"/>
       <!-- Shine -->
       <ellipse cx="42" cy="40" rx="6" ry="4" fill="white" opacity="0.2" transform="rotate(-20 42 40)"/>
     </svg>`
@@ -116,8 +116,8 @@ var TROPHIES = [
     svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#e879f9"/>
-          <stop offset="100%" style="stop-color:#5322a2"/>
+          <stop offset="0%" style="stop-color:#F6A9A4"/>
+          <stop offset="100%" style="stop-color:#8CA9FF"/>
         </linearGradient>
         <filter id="glow3"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
@@ -127,15 +127,15 @@ var TROPHIES = [
       <path d="M42 58 Q46 50 50 54 Q54 50 58 58" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
       <line x1="50" y1="54" x2="50" y2="46" stroke="white" stroke-width="1.5" opacity="0.7"/>
       <!-- Screw base -->
-      <rect x="38" y="72" width="24" height="5" rx="2" fill="#7a45d4" opacity="0.9"/>
+      <rect x="38" y="72" width="24" height="5" rx="2" fill="#AAC4F5" opacity="0.9"/>
       <rect x="40" y="77" width="20" height="4" rx="2" fill="#6d28d9" opacity="0.9"/>
       <rect x="42" y="81" width="16" height="4" rx="2" fill="#5b21b6" opacity="0.9"/>
       <!-- Shine -->
       <ellipse cx="40" cy="32" rx="7" ry="5" fill="white" opacity="0.25" transform="rotate(-20 40 32)"/>
       <!-- Stars -->
       <circle cx="20" cy="28" r="2" fill="#f0abfc" opacity="0.8"/>
-      <circle cx="80" cy="25" r="2.5" fill="#c084fc" opacity="0.7"/>
-      <circle cx="15" cy="48" r="1.5" fill="#a78bfa" opacity="0.6"/>
+      <circle cx="80" cy="25" r="2.5" fill="#AAC4F5" opacity="0.7"/>
+      <circle cx="15" cy="48" r="1.5" fill="#AAC4F5" opacity="0.6"/>
     </svg>`
   },
   {
@@ -147,16 +147,16 @@ var TROPHIES = [
     svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#6ee7b7"/>
-          <stop offset="100%" style="stop-color:#3a1870"/>
+          <stop offset="0%" style="stop-color:#A7DDA0"/>
+          <stop offset="100%" style="stop-color:#1C2547"/>
         </linearGradient>
         <filter id="glow4"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       <!-- Book stack -->
       <rect x="22" y="62" width="56" height="12" rx="4" fill="url(#g4)" opacity="0.95" filter="url(#glow4)"/>
-      <rect x="25" y="48" width="50" height="14" rx="4" fill="#7a45d4" opacity="0.9"/>
+      <rect x="25" y="48" width="50" height="14" rx="4" fill="#AAC4F5" opacity="0.9"/>
       <rect x="28" y="35" width="44" height="14" rx="4" fill="#9d5cf0" opacity="0.85"/>
-      <rect x="31" y="23" width="38" height="13" rx="4" fill="#c084fc" opacity="0.8"/>
+      <rect x="31" y="23" width="38" height="13" rx="4" fill="#AAC4F5" opacity="0.8"/>
       <!-- Spine lines -->
       <line x1="30" y1="62" x2="30" y2="74" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
       <line x1="33" y1="48" x2="33" y2="62" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
@@ -180,9 +180,9 @@ var TROPHIES = [
     svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#fde68a"/>
-          <stop offset="50%" style="stop-color:#c084fc"/>
-          <stop offset="100%" style="stop-color:#5322a2"/>
+          <stop offset="0%" style="stop-color:#FFD166"/>
+          <stop offset="50%" style="stop-color:#AAC4F5"/>
+          <stop offset="100%" style="stop-color:#8CA9FF"/>
         </linearGradient>
         <filter id="glow5"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
@@ -192,17 +192,17 @@ var TROPHIES = [
       <path d="M35 25 Q20 28 22 40 Q24 50 35 48" stroke="url(#g5)" stroke-width="5" fill="none" stroke-linecap="round"/>
       <path d="M65 25 Q80 28 78 40 Q76 50 65 48" stroke="url(#g5)" stroke-width="5" fill="none" stroke-linecap="round"/>
       <!-- Stem -->
-      <rect x="44" y="67" width="12" height="10" rx="4" fill="#7a45d4" opacity="0.9"/>
+      <rect x="44" y="67" width="12" height="10" rx="4" fill="#AAC4F5" opacity="0.9"/>
       <!-- Base -->
-      <rect x="32" y="77" width="36" height="8" rx="4" fill="#5322a2" opacity="0.9"/>
+      <rect x="32" y="77" width="36" height="8" rx="4" fill="#8CA9FF" opacity="0.9"/>
       <!-- Star inside cup -->
       <polygon points="50,28 52.5,34 59,34 54,38 56,45 50,41 44,45 46,38 41,34 47.5,34" fill="white" opacity="0.4"/>
       <!-- Stars around -->
-      <circle cx="22" cy="20" r="2.5" fill="#fde68a" opacity="0.9"/>
-      <circle cx="78" cy="18" r="2" fill="#fde68a" opacity="0.8"/>
-      <circle cx="18" cy="38" r="1.5" fill="#c084fc" opacity="0.7"/>
-      <circle cx="82" cy="38" r="2" fill="#c084fc" opacity="0.7"/>
-      <circle cx="50" cy="12" r="3" fill="#fde68a" opacity="0.9"/>
+      <circle cx="22" cy="20" r="2.5" fill="#FFD166" opacity="0.9"/>
+      <circle cx="78" cy="18" r="2" fill="#FFD166" opacity="0.8"/>
+      <circle cx="18" cy="38" r="1.5" fill="#AAC4F5" opacity="0.7"/>
+      <circle cx="82" cy="38" r="2" fill="#AAC4F5" opacity="0.7"/>
+      <circle cx="50" cy="12" r="3" fill="#FFD166" opacity="0.9"/>
       <!-- Shine -->
       <ellipse cx="44" cy="30" rx="5" ry="7" fill="white" opacity="0.2" transform="rotate(-15 44 30)"/>
     </svg>`
@@ -308,7 +308,7 @@ function launchConfetti() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   var ctx = canvas.getContext('2d');
-  var colors = ['#7a45d4','#c084fc','#f0abfc','#818cf8','#fbbf24','#34d399','#fb7185'];
+  var colors = ['#AAC4F5','#AAC4F5','#f0abfc','#818cf8','#fbbf24','#34d399','#fb7185'];
   confettiParticles = [];
   for(var i = 0; i < 120; i++) {
     confettiParticles.push({
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var svg = document.querySelector('.timer-ring');
   if (svg) {
     var defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-    defs.innerHTML = '<linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#5322a2"/><stop offset="100%" style="stop-color:#7a45d4"/></linearGradient>';
+    defs.innerHTML = '<linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#8CA9FF"/><stop offset="100%" style="stop-color:#AAC4F5"/></linearGradient>';
     svg.insertBefore(defs, svg.firstChild);
   }
 });
