@@ -5,28 +5,23 @@
 // permanece no index.html e vai para auth.js na proxima etapa.
 
 // SAVE/LOAD
+// saveState() e chamado em 41 pontos do app. A logica de verdade vive em
+// sync.js: guarda de versao, marcacao do que mudou e mesclagem no conflito.
+// Aqui ficou so a porta de entrada, para nao mexer nos 41 pontos.
 async function saveState(){
-  // 1. Save to localStorage immediately (instant backup)
-  try{localStorage.setItem('mindt-local',JSON.stringify(state));}catch(e){}
-  // 2. Save to Supabase immediately (no debounce, no setTimeout)
-  if(!currentUser)return;
-  try{
-    var res=await sb.from('user_data').upsert(
-      {user_id:currentUser.id,data:state,updated_at:new Date().toISOString()},
-      {onConflict:'user_id'}
-    );
-    if(res.error){console.error('Supabase save error:',res.error);}
-  }catch(e){console.error('saveState exception:',e);}
+  return gravar();
 }
 
 async function loadUserData(){
   try{
-    var res=await sb.from('user_data').select('data').eq('user_id',currentUser.id).single();
+    var res=await sb.from('user_data').select('data,updated_at').eq('user_id',currentUser.id).single();
     if(res.data&&res.data.data){
       var p=res.data.data;
       if(p.metas)p.metas.forEach(function(m){m._type='meta';});
       if(p.tasks)p.tasks.forEach(function(t){t._type='task';});
       state=Object.assign({},state,p);
+      // Guarda a versao vista e a sombra: base para detectar conflito depois.
+      revLocal=res.data.updated_at||null; guardarRev(); fixarSombra();
     }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
       // Brand new user
       try{
@@ -84,16 +79,16 @@ function seedDemo(){
 }
 
 
-// Init music list on page load
-// Force save before page unload
-window.addEventListener('beforeunload', function() {
-  if(currentUser && state){
-    try{localStorage.setItem('mindt-local',JSON.stringify(state));}catch(e){}
-    // Use sendBeacon for reliable save on page close
-    var payload=JSON.stringify({user_id:currentUser.id,data:state,updated_at:new Date().toISOString()});
-    navigator.sendBeacon&&navigator.sendBeacon(
-      SUPA_URL+'/rest/v1/user_data',
-      new Blob([payload],{type:'application/json'})
-    );
+// Ao fechar a pagina, guarda o backup local.
+//
+// Aqui havia um navigator.sendBeacon para o Supabase, que nunca funcionou:
+// sendBeacon nao permite enviar cabecalhos, e sem a chave de API o Supabase
+// recusa a requisicao. Era um salvamento que so parecia existir. O backup em
+// localStorage abaixo funciona de verdade, e a sincronizacao acontece na
+// proxima abertura ou quando a conexao voltar.
+window.addEventListener('beforeunload', function(){
+  if (currentUser && state) {
+    try { marcarMudancas(); } catch(e){}
+    guardarLocal();
   }
 });
