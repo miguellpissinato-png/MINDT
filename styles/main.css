@@ -92,8 +92,8 @@ html,body{height:100%;font-family:'Nunito',sans-serif;background:#FFF8DE;color:v
 .tasks-scroll::-webkit-scrollbar{display:none}
 .scroll-arrow{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;background:rgba(140,169,255,0.5);border:2px solid #1C2547;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;color:var(--text);font-size:14px;transition:background 0.2s}
 .scroll-arrow:hover{background:rgba(140,169,255,0.7)}
-.scroll-arrow.left{left:-16px}
-.scroll-arrow.right{right:-16px}
+.scroll-arrow.left{left:0}
+.scroll-arrow.right{right:0}
 .task-mini{flex-shrink:0;width:180px;background:#FFFFFF;border:2px solid #1C2547;border-radius:16px;padding:16px;cursor:pointer;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s,border-color 0.3s}
 .task-mini:hover{transform:scale(1.06) translateY(-4px);box-shadow:0 3px 0 rgba(28,37,71,.14);border-color:#1C2547}
 .task-mini-img{width:100%;height:90px;border-radius:10px;background:rgba(140,169,255,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden}
@@ -1384,7 +1384,9 @@ html,body{background:var(--cream)}
 /* Impede que o conteudo estoure a largura no celular:
    item flex nao encolhe abaixo do conteudo sem min-width:0. */
 #main{min-width:0}
-.tico-msg-card>div{min-width:0}
+.tico-msg-card>#home-tico{flex:none;line-height:0}
+.tico-msg-card>#home-tico svg{display:block}
+.tico-msg-card>div:not(#home-tico){flex:1 1 auto;min-width:0}
 .tico-quick{min-width:0}
 @media(max-width:768px){
   .tico-card,.floating-island,.tico-today-item{max-width:100%}
@@ -1405,3 +1407,54 @@ html,body{background:var(--cream)}
   box-shadow:var(--shadow-soft);padding:14px}
 .trophy-card.locked-card .trophy-name{color:var(--ink);opacity:.75}
 .trophy-lock-text{font-size:10px;letter-spacing:.08em}
+
+/* ═══ Login: olhinho da senha e recuperacao ═══ */
+.auth-pass-wrap{position:relative;display:block}
+.auth-pass-wrap .auth-input{padding-right:52px;margin-bottom:16px}
+.auth-eye{position:absolute;right:10px;top:0;height:48px;width:36px;display:flex;
+  align-items:center;justify-content:center;background:transparent;border:none;
+  color:var(--ink);opacity:.45;cursor:pointer;padding:0;transition:opacity .15s}
+.auth-eye:hover{opacity:.9}
+.auth-eye svg{width:21px;height:21px;display:block}
+
+.auth-link{display:block;width:100%;margin-top:12px;background:none;border:none;
+  color:var(--ink);opacity:.6;font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:13px;text-decoration:underline;cursor:pointer;padding:6px}
+.auth-link:hover{opacity:1}
+
+.auth-step-title{font-family:'Baloo 2',system-ui,sans-serif;font-weight:800;font-size:24px;
+  color:var(--ink);text-align:center;margin-bottom:6px}
+.auth-step-text{font-size:13px;font-weight:600;line-height:1.5;color:var(--ink);opacity:.6;
+  text-align:center;margin-bottom:22px}
+#reset-error.ok{background:#C9E7C4;border-color:var(--ink)}
+
+/* ═══ Correcoes de enquadramento ═══ */
+
+/* Cartao de fala: mascote com largura propria, texto ocupando o resto.
+   Sem isso a caixa do mascote encolhe a zero e o desenho vaza sobre o texto. */
+.tico-msg-card{align-items:center;gap:14px}
+#home-tico{flex:0 0 auto;width:84px;height:87px;overflow:visible}
+#home-tico svg{display:block;width:84px;height:87px}
+
+/* Setas do carrossel: ficam dentro do cartao, com fundo solido para nunca
+   deixarem texto aparecendo por baixo, e somem quando nao ha o que rolar. */
+.tasks-scroll-wrap{position:relative;padding:0 4px}
+.scroll-arrow{background:var(--card);border:2.5px solid var(--ink);color:var(--ink);
+  box-shadow:var(--shadow-soft);opacity:1}
+.scroll-arrow:hover{background:var(--blue)}
+.scroll-arrow[hidden]{display:none}
+.tasks-scroll{padding:0 2px}
+
+/* Estado vazio ocupa a linha inteira, sem disputar espaco com as setas */
+.tasks-scroll .empty-inline{width:100%;text-align:center;padding:22px 0;
+  color:var(--text-muted);font-size:13px;font-weight:700}
+
+/* Setas do carrossel no cabecalho do cartao: navegam sem cobrir nenhum card. */
+.island-header-right{display:flex;align-items:center;gap:12px}
+.scroll-arrows{display:flex;gap:6px}
+.scroll-arrows .scroll-arrow{position:static;transform:none;width:30px;height:30px;
+  background:var(--card);border:2.5px solid var(--ink);color:var(--ink);
+  box-shadow:var(--shadow-soft);border-radius:999px;font-size:15px;line-height:1;flex:none}
+.scroll-arrows .scroll-arrow:hover{background:var(--blue)}
+.scroll-arrows .scroll-arrow[hidden]{display:none}
+.tasks-scroll-wrap{position:relative;padding:0}

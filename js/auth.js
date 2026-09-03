@@ -14,6 +14,8 @@ function switchAuthTab(mode){
   var btn=document.getElementById('auth-btn'),sub=document.getElementById('auth-subtitle');
   if(mode==='login'){tl.className='auth-tab active';ts.className='auth-tab inactive';btn.textContent='Entrar';sub.textContent='Organize sua vida';}
   else{ts.className='auth-tab active';tl.className='auth-tab inactive';btn.textContent='Criar conta';sub.textContent='Crie sua conta gratuita';}
+  var f=document.getElementById('auth-forgot');
+  if(f) f.style.display = (mode==='login') ? '' : 'none';
   setAuthError('');
 }
 function setAuthError(msg){var el=document.getElementById('auth-error');el.textContent=msg;el.style.display=msg?'block':'none';}
@@ -82,4 +84,98 @@ function montarOnboarding(){
 document.addEventListener('DOMContentLoaded', function(){
   definirIdioma(idiomaAtual());
   montarOnboarding();
+  montarOlhos();
 });
+
+// ─── VER SENHA — o olhinho ao lado do campo ───────────────
+var OLHO_ABERTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+var OLHO_FECHADO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>';
+
+function alternarVerSenha(idCampo, idBotao){
+  var campo = document.getElementById(idCampo), botao = document.getElementById(idBotao);
+  if (!campo || !botao) return;
+  var mostrando = campo.type === 'text';
+  campo.type = mostrando ? 'password' : 'text';
+  botao.innerHTML = mostrando ? OLHO_ABERTO : OLHO_FECHADO;
+  botao.setAttribute('aria-label', mostrando ? 'Mostrar senha' : 'Ocultar senha');
+  campo.focus();
+}
+// Desenha os olhinhos no estado inicial (senha oculta).
+function montarOlhos(){
+  ['auth-eye','new-eye','new-eye2'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) b.innerHTML = OLHO_ABERTO;
+  });
+}
+
+// ─── RECUPERAÇÃO DE SENHA ─────────────────────────────────
+// Alterna entre as tres telas do cartao de login.
+function mostrarEtapaAuth(qual){
+  ['auth-form-wrap','auth-reset-wrap','auth-newpass-wrap'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = (id === qual) ? '' : 'none';
+  });
+  var abas = document.querySelector('.auth-tabs');
+  if (abas) abas.style.display = (qual === 'auth-form-wrap') ? '' : 'none';
+}
+function abrirRecuperar(){
+  setAuthError('');
+  document.getElementById('reset-email').value = document.getElementById('auth-email').value.trim();
+  document.getElementById('reset-error').style.display = 'none';
+  mostrarEtapaAuth('auth-reset-wrap');
+}
+function voltarAoLogin(){ mostrarEtapaAuth('auth-form-wrap'); }
+
+function setResetError(msg, ok){
+  var el = document.getElementById('reset-error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+  el.classList.toggle('ok', !!ok);
+}
+
+// Envia o email com o link de recuperação.
+// O link volta para esta mesma pagina, onde o Supabase dispara PASSWORD_RECOVERY.
+function enviarLinkRecuperacao(){
+  var email = document.getElementById('reset-email').value.trim();
+  setResetError('');
+  if (!email) { setResetError('Digite seu email.'); return; }
+  var btn = document.getElementById('reset-btn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  var destino = location.origin + location.pathname;
+  sb.auth.resetPasswordForEmail(email, { redirectTo: destino }).then(function(res){
+    btn.disabled = false; btn.textContent = 'Enviar link';
+    if (res.error) { setResetError(authErr(res.error.message)); return; }
+    // Resposta sempre positiva: nao revelamos se o email existe ou nao.
+    setResetError('Se existir uma conta com esse email, o link acabou de ser enviado. Confira sua caixa de entrada e o spam.', true);
+  });
+}
+
+// ─── NOVA SENHA (apos clicar no link do email) ────────────
+function abrirNovaSenha(){
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.visibility = 'hidden';
+  var onb = document.getElementById('onboarding');
+  if (onb) onb.style.display = 'none';
+  mostrarEtapaAuth('auth-newpass-wrap');
+}
+function setNewPassError(msg){
+  var el = document.getElementById('newpass-error');
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+}
+function salvarNovaSenha(){
+  var a = document.getElementById('new-password').value;
+  var b = document.getElementById('new-password2').value;
+  setNewPassError('');
+  if (a.length < 6) { setNewPassError('Senha com no mínimo 6 caracteres.'); return; }
+  if (a !== b)      { setNewPassError('As duas senhas não são iguais.'); return; }
+  sb.auth.updateUser({ password: a }).then(function(res){
+    if (res.error) { setNewPassError(authErr(res.error.message)); return; }
+    // Limpa o token da URL para o link nao ser reutilizado ao recarregar.
+    try { history.replaceState(null, '', location.pathname); } catch(e){}
+    toast('Senha alterada! Entrando...');
+    mostrarEtapaAuth('auth-form-wrap');
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.visibility = 'visible';
+    if (typeof renderHome === 'function') renderHome();
+  });
+}

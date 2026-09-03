@@ -32,6 +32,11 @@ var TEXTOS = {
 
 // Textos que estao escritos no HTML (português -> ingles)
 var DIC = {
+"Esqueci minha senha":"Forgot my password","Recuperar senha":"Reset password",
+"Digite seu email. Enviaremos um link para você criar uma senha nova.":"Enter your email. We'll send you a link to create a new password.",
+"Enviar link":"Send link","Voltar para o login":"Back to sign in","Criar nova senha":"Create a new password",
+"Escolha uma senha nova para sua conta.":"Choose a new password for your account.",
+"Nova senha":"New password","Repita a nova senha":"Repeat the new password","Salvar senha":"Save password",
 "Home":"Home","Metas":"Goals","Tarefas":"Tasks","Gastos":"Money","Agenda":"Agenda","Resumo":"Summary",
 "Estudos":"Study","Leitura":"Reading","Notas":"Notes","Perfil":"Profile","Mindt":"Mindt",
 "Organize sua vida":"Organize your life","Entrar":"Sign in","Criar conta":"Sign up","Email":"Email","Senha":"Password",
