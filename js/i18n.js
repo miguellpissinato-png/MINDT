@@ -35,7 +35,15 @@ var TEXTOS = {
   subLogin:{pt:'Organize sua vida',en:'Organize your life'},
   subSignup:{pt:'Crie sua conta gratuita',en:'Create your free account'},
   btnLogin:{pt:'Entrar',en:'Sign in'},
-  btnSignup:{pt:'Criar conta',en:'Sign up'}
+  btnSignup:{pt:'Criar conta',en:'Sign up'},
+  novaVersao:{pt:'Nova versão disponível',en:'New version available'},
+  atualizar:{pt:'Atualizar',en:'Update'},
+  instalar:{pt:'Instalar app',en:'Install app'},
+  sincronizando:{pt:'Sincronizando...',en:'Syncing...'},
+  salvo:{pt:'Salvo',en:'Saved'},
+  offline:{pt:'Sem conexão — salvo no aparelho',en:'Offline — saved on device'},
+  erroSalvar:{pt:'Não deu para salvar no servidor',en:"Couldn't save to the server"},
+  mesclado:{pt:'Dados de outro aparelho foram juntados',en:'Data from another device was merged'}
 };
 
 // Textos que estao escritos no HTML (português -> ingles)

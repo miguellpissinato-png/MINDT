@@ -15,6 +15,7 @@ sb.auth.onAuthStateChange(function(event,session){
       document.getElementById('auth-screen').style.display='none';
       document.getElementById('app').style.visibility='visible';
       updateGroupSelects();updateGroupFilters();renderHome();
+      sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
     }).catch(function(err){
       // Even if loadUserData fails, show the app with empty state
       console.error('loadUserData error:', err);
