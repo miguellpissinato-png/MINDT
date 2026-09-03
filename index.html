@@ -263,11 +263,18 @@
       </div>
 
       <div class="floating-island">
-        <div class="island-header"><span class="island-title" data-i18n="inProgress">Em andamento</span><span id="home-task-count">0 itens</span></div>
+        <div class="island-header">
+          <span class="island-title" data-i18n="inProgress">Em andamento</span>
+          <div class="island-header-right">
+            <span id="home-task-count">0 itens</span>
+            <div class="scroll-arrows">
+              <button class="scroll-arrow left" onclick="scrollTasks(-1)" aria-label="Anterior">&#8249;</button>
+              <button class="scroll-arrow right" onclick="scrollTasks(1)" aria-label="Próximo">&#8250;</button>
+            </div>
+          </div>
+        </div>
         <div class="tasks-scroll-wrap">
-          <button class="scroll-arrow left" onclick="scrollTasks(-1)">&#8249;</button>
           <div class="tasks-scroll" id="home-tasks-scroll"></div>
-          <button class="scroll-arrow right" onclick="scrollTasks(1)">&#8250;</button>
         </div>
       </div>
       <div style="display:none"><span id="home-stat-tasks">0</span></div>

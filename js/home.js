@@ -135,7 +135,11 @@ function renderHome(){
   document.getElementById('home-stat-tasks').textContent=state.tasks.filter(function(t){return !t.done;}).length;
   document.getElementById('home-task-count').textContent=all.length+' '+(all.length!==1?T('items'):T('item'));
   var scroll=document.getElementById('home-tasks-scroll');
-  if(all.length===0){scroll.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:20px 0">'+T('nothingRunning')+'</div>';return;}
+  if(all.length===0){
+    scroll.innerHTML='<div class="empty-inline">'+T('nothingRunning')+'</div>';
+    ajustarSetasCarrossel();
+    return;
+  }
   scroll.innerHTML=all.map(function(item){
     return '<div class="task-mini" onclick="openDetail(\''+item._type+'\',\''+item.id+'\')">'+
       '<div class="task-mini-img">'+(item.img?'<img src="'+item.img+'">':'<div class="default-icon">✓</div>')+'</div>'+
@@ -143,5 +147,17 @@ function renderHome(){
       '<div class="task-mini-title">'+esc(item.name)+'</div>'+
       '<div class="task-mini-desc">'+esc(item.desc||'')+'</div></div>';
   }).join('');
+  ajustarSetasCarrossel();
 }
+
+// As setas do carrossel so aparecem quando ha conteudo alem da largura visivel.
+function ajustarSetasCarrossel(){
+  var scroll=document.getElementById('home-tasks-scroll');
+  if(!scroll) return;
+  var precisa = scroll.scrollWidth > scroll.clientWidth + 4;
+  document.querySelectorAll('.scroll-arrows .scroll-arrow').forEach(function(b){
+    b.hidden = !precisa;
+  });
+}
+window.addEventListener('resize', ajustarSetasCarrossel);
 function scrollTasks(dir){document.getElementById('home-tasks-scroll').scrollBy({left:dir*200,behavior:'smooth'});}
