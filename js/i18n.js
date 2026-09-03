@@ -27,11 +27,21 @@ var TEXTOS = {
   msgDone:{pt:'Dia fechado! Agora sim pode deitar.',en:'Day closed! Now you may lie down.'},
   onbTitle:{pt:'O Ticolino cuida do seu dia.',en:'Ticolino looks after your day.'},
   onbSub:{pt:'Leitura, estudos, grana e metas em um só lugar. Ele lembra, você vive.',en:'Reading, study, money and goals in one place. He remembers, you live.'},
-  onbCta:{pt:'Começar',en:'Get started'}
+  onbCta:{pt:'Começar',en:'Get started'},
+  errInvalid:{pt:'Email ou senha incorretos.',en:'Wrong email or password.'},
+  errUnconfirmed:{pt:'Confirme seu email primeiro.',en:'Confirm your email first.'},
+  errRegistered:{pt:'Email já cadastrado. Faça login.',en:'Email already registered. Sign in instead.'},
+  errShort:{pt:'Senha muito curta (mín. 6 caracteres).',en:'Password too short (min. 6 characters).'},
+  subLogin:{pt:'Organize sua vida',en:'Organize your life'},
+  subSignup:{pt:'Crie sua conta gratuita',en:'Create your free account'},
+  btnLogin:{pt:'Entrar',en:'Sign in'},
+  btnSignup:{pt:'Criar conta',en:'Sign up'}
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
 var DIC = {
+"Confirme seu email":"Confirm your email","Ir para login":"Go to sign in",
+"Crie sua conta gratuita":"Create your free account",
 "Esqueci minha senha":"Forgot my password","Recuperar senha":"Reset password",
 "Digite seu email. Enviaremos um link para você criar uma senha nova.":"Enter your email. We'll send you a link to create a new password.",
 "Enviar link":"Send link","Voltar para o login":"Back to sign in","Criar nova senha":"Create a new password",
@@ -117,7 +127,10 @@ function traduzirDOM(){
     var el = alvos[i];
     // so elementos cujo conteudo e um unico texto
     if (el.children.length === 0 && el.textContent && el.textContent.trim()){
-      if (el.dataset.pt === undefined) el.dataset.pt = el.textContent.trim();
+      var atual = el.textContent.trim();
+      // Se o texto mudou para outra frase conhecida, o original guardado
+      // esta desatualizado — corrige, senao a traducao volta o texto errado.
+      if (el.dataset.pt === undefined || (DIC[atual] && el.dataset.pt !== atual)) el.dataset.pt = atual;
       var orig = el.dataset.pt;
       if (DIC[orig]) el.textContent = en ? DIC[orig] : orig;
     }
@@ -129,6 +142,14 @@ function traduzirDOM(){
   }
 }
 
+// Escreve num elemento um texto do dicionario, ja no idioma atual, e guarda
+// o original. Use isto sempre que o JavaScript trocar um texto do HTML.
+function setTextoDic(el, pt){
+  if (!el) return;
+  el.dataset.pt = pt;
+  el.textContent = (idiomaAtual() === 'en' && DIC[pt]) ? DIC[pt] : pt;
+}
+
 function definirIdioma(lang){
   try { localStorage.setItem('mindt-lang', lang); } catch(e){}
   traduzirDOM();
@@ -137,6 +158,9 @@ function definirIdioma(lang){
   document.querySelectorAll('[data-lang-opt]').forEach(function(el){
     el.classList.toggle('on', el.getAttribute('data-lang-opt') === lang);
   });
+  // Textos escritos por T() nao passam pelo dicionario do HTML, entao
+  // precisam ser reescritos por quem os gerou.
+  if (typeof textosOnboarding === 'function') textosOnboarding();
   if (typeof renderHome === 'function' && document.getElementById('home-today-list')) renderHome();
 }
 function alternarIdioma(){ definirIdioma(idiomaAtual() === 'pt' ? 'en' : 'pt'); }
