@@ -12,8 +12,13 @@ function switchAuthTab(mode){
   authMode=mode;
   var tl=document.getElementById('tab-login'),ts=document.getElementById('tab-signup');
   var btn=document.getElementById('auth-btn'),sub=document.getElementById('auth-subtitle');
-  if(mode==='login'){tl.className='auth-tab active';ts.className='auth-tab inactive';btn.textContent='Entrar';sub.textContent='Organize sua vida';}
-  else{ts.className='auth-tab active';tl.className='auth-tab inactive';btn.textContent='Criar conta';sub.textContent='Crie sua conta gratuita';}
+  if(mode==='login'){
+    tl.className='auth-tab active';ts.className='auth-tab inactive';
+    btn.textContent=T('btnLogin'); sub.textContent=T('subLogin');
+  }else{
+    ts.className='auth-tab active';tl.className='auth-tab inactive';
+    btn.textContent=T('btnSignup'); sub.textContent=T('subSignup');
+  }
   var f=document.getElementById('auth-forgot');
   if(f) f.style.display = (mode==='login') ? '' : 'none';
   setAuthError('');
@@ -47,10 +52,10 @@ function authSubmit(){
   }
 }
 function authErr(m){
-  if(m.indexOf('Invalid login')!==-1)return 'Email ou senha incorretos.';
-  if(m.indexOf('Email not confirmed')!==-1)return 'Confirme seu email primeiro.';
-  if(m.indexOf('User already registered')!==-1)return 'Email já cadastrado. Faça login.';
-  if(m.indexOf('Password should be')!==-1)return 'Senha muito curta (mín. 6 caracteres).';
+  if(m.indexOf('Invalid login')!==-1)return T('errInvalid');
+  if(m.indexOf('Email not confirmed')!==-1)return T('errUnconfirmed');
+  if(m.indexOf('User already registered')!==-1)return T('errRegistered');
+  if(m.indexOf('Password should be')!==-1)return T('errShort');
   return m;
 }
 function confirmLogout(){
@@ -71,14 +76,21 @@ function fecharOnboarding(){
   var el = document.getElementById('onboarding');
   if (el) { el.style.opacity = '0'; setTimeout(function(){ el.style.display = 'none'; }, 280); }
 }
+// Escreve (ou reescreve) os textos do onboarding no idioma atual.
+// Chamado tambem por definirIdioma, para a troca valer na hora.
+function textosOnboarding(){
+  var t = document.getElementById('onb-title');
+  if (!t) return;
+  document.getElementById('onb-mascote').innerHTML = ticolino('animado', 250);
+  t.textContent = T('onbTitle');
+  document.getElementById('onb-sub').textContent = T('onbSub');
+  document.getElementById('onb-cta').textContent = T('onbCta');
+}
 function montarOnboarding(){
   var el = document.getElementById('onboarding');
   if (!el) return;
   if (jaViuOnboarding()) { el.style.display = 'none'; return; }
-  document.getElementById('onb-mascote').innerHTML = ticolino('animado', 250);
-  document.getElementById('onb-title').textContent = T('onbTitle');
-  document.getElementById('onb-sub').textContent   = T('onbSub');
-  document.getElementById('onb-cta').textContent   = T('onbCta');
+  textosOnboarding();
 }
 
 document.addEventListener('DOMContentLoaded', function(){
