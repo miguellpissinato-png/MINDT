@@ -15,6 +15,7 @@ sb.auth.onAuthStateChange(function(event,session){
       document.getElementById('auth-screen').style.display='none';
       document.getElementById('app').style.visibility='visible';
       updateGroupSelects();updateGroupFilters();renderHome();
+      if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
     }).catch(function(err){
       // Even if loadUserData fails, show the app with empty state
@@ -111,7 +112,7 @@ function renderHome(){
   document.getElementById('home-xp-bar').style.width=noNivel+'%';
 
   // Ticolino e sua fala
-  document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),84);
+  document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),56);
   document.getElementById('home-tico-msg').textContent =
     feitos===0 ? T('msgStart') : (feitos>=3 ? T('msgDone') : T('msgMid'));
 

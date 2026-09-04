@@ -84,7 +84,7 @@ function openModal(id){
   updateGroupSelects();
   updateCategoriaSelect();
   document.getElementById(id).classList.add('open');
-  if(id==='modal-add-categoria') renderCategoriasList();
+  if(id==='modal-add-categoria'){ renderCategoriasList(); sugerirCorCategoria(); }
   if(id==='modal-criar-evento'){ renderIconGrid(); updateParticipanteSelect(); }
   if(id==='modal-contatos') renderContatosLista();
   if(id==='modal-gerenciar-eventos') renderGerenciarLista();

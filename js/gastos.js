@@ -8,7 +8,67 @@ function getCat(id) {
 }
 
 // ─── PIZZA CHART ─────────────────────────────────────────
-var PIZZA_FALLBACK_COLORS = ['#AAC4F5','#F6A9A4','#FFD166','#A7DDA0','#8CA9FF','#E05A55','#8CD6C8','#F1C596','#AAC4F5','#AAC4F5'];
+
+// Paleta categorica das categorias de gasto.
+//
+// Cores de identidade (creme, azul claro, amarelo) sao claras e parecidas
+// demais entre si: num grafico viram manchas indistinguiveis. Estes sao tons
+// mais profundos, validados nos criterios de leitura — faixa de luminosidade,
+// saturacao minima, separacao para daltonismo e contraste com o fundo — sobre
+// o cartao branco e sobre o creme.
+//
+// A ordem e fixa e nunca e embaralhada: a cor acompanha a categoria, nao a
+// posicao dela no ranking, entao filtrar por periodo nao repinta o grafico.
+var PALETA_CATEGORIAS = [
+  '#7A9E2E', // verde-oliva
+  '#C25A56', // vermelho
+  '#0FA093', // turquesa
+  '#8A6BC4', // roxo
+  '#B8862B', // mostarda
+  '#2E9E6B', // verde
+  '#4C7BD9', // azul
+  '#C4703A'  // terracota
+];
+var COR_OUTROS = '#6E8A84';   // neutro do tema, para "Sem categoria"
+
+// A fresta entre as fatias usa a cor do cartao, entao acompanha o tema.
+function corDoCartao(){
+  var v = getComputedStyle(document.documentElement).getPropertyValue('--surface');
+  return (v && v.trim()) || '#07333A';
+}
+
+// Cor de uma categoria: a escolhida pelo usuario, senao a da paleta pela
+// ordem de criacao (estavel, nao muda quando se filtra o periodo).
+function corDaCategoria(cat){
+  if (cat && cat.cor) return cat.cor;
+  var i = (cat && state.categorias) ? state.categorias.findIndex(function(c){ return c.id === cat.id; }) : -1;
+  if (i < 0) return COR_OUTROS;
+  return PALETA_CATEGORIAS[i % PALETA_CATEGORIAS.length];
+}
+
+// Proxima cor livre, para uma categoria nova nascer com cor propria.
+function proximaCorCategoria(){
+  var usadas = (state.categorias || []).map(function(c){ return (c.cor || '').toUpperCase(); });
+  for (var i = 0; i < PALETA_CATEGORIAS.length; i++) {
+    if (usadas.indexOf(PALETA_CATEGORIAS[i]) === -1) return PALETA_CATEGORIAS[i];
+  }
+  return PALETA_CATEGORIAS[(state.categorias || []).length % PALETA_CATEGORIAS.length];
+}
+
+// As categorias criadas antes desta mudanca nasceram todas com o roxo que era
+// o padrao do seletor de cor. Esta migracao roda uma vez e da a cada uma a sua
+// cor da paleta. Escolhas feitas depois disso sao respeitadas.
+var VERSAO_PALETA = 2;   // suba este numero sempre que a paleta mudar
+function migrarCoresCategorias(){
+  if (!state.categorias) return false;
+  if (state._paletaCategorias === VERSAO_PALETA) return false;
+  state.categorias.forEach(function(c, i){
+    c.cor = PALETA_CATEGORIAS[i % PALETA_CATEGORIAS.length];
+  });
+  state._paletaCategorias = VERSAO_PALETA;
+  return true;
+}
+
 var pizzaSlices = [];
 
 function renderPizzaChart(lista) {
@@ -43,11 +103,10 @@ function renderPizzaChart(lista) {
   var startAngle = -Math.PI/2;
   var GAP = 0.03;
   var legend = [];
-  var fallbackIdx = 0;
 
   keys.forEach(function(key) {
     var cat = getCat(key);
-    var cor = (cat && cat.cor) ? cat.cor : PIZZA_FALLBACK_COLORS[fallbackIdx++ % PIZZA_FALLBACK_COLORS.length];
+    var cor = cat ? corDaCategoria(cat) : COR_OUTROS;
     var nome = cat ? cat.nome : 'Sem categoria';
     var val = bycat[key];
     var sliceAngle = (val/total)*Math.PI*2;
@@ -59,10 +118,12 @@ function renderPizzaChart(lista) {
     ctx.arc(cx, cy, r, endAngle-GAP, startAngle+GAP, true);
     ctx.closePath();
     ctx.fillStyle = cor;
-    ctx.shadowColor = cor;
-    ctx.shadowBlur = 6;
     ctx.fill();
-    ctx.shadowBlur = 0;
+    // Fresta na cor do fundo separando as fatias: ajuda a distinguir vizinhas
+    // mesmo para quem nao diferencia bem as duas cores.
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = corDoCartao();
+    ctx.stroke();
 
     pizzaSlices.push({
       startAngle: startAngle+GAP, endAngle: endAngle-GAP,
@@ -79,7 +140,7 @@ function renderPizzaChart(lista) {
     leg2.innerHTML = legend.map(function(l){
       return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
         +'<div style="display:flex;align-items:center;gap:8px">'
-          +'<div style="width:10px;height:10px;border-radius:50%;background:'+l.cor+';flex-shrink:0;box-shadow:0 0 6px '+l.cor+'88"></div>'
+          +'<div style="width:12px;height:12px;border-radius:50%;background:'+l.cor+';flex-shrink:0;border:2px solid var(--ink)"></div>'
           +'<span style="font-size:13px">'+esc(l.nome)+'</span>'
         +'</div>'
         +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">R$ '+l.val.toFixed(2).replace('.',',')+'</span></div>'
@@ -227,13 +288,11 @@ function renderGastos(){
       bycat[key].push(g);
     });
 
-    var FALLBACK = ['#AAC4F5','#F6A9A4','#FFD166','#A7DDA0','#8CA9FF','#E05A55','#8CD6C8','#F1C596'];
-    var fallbackIdx = 0;
     var html = '';
 
     Object.keys(bycat).forEach(function(key, gi) {
       var cat = getCat(key);
-      var cor = (cat && cat.cor) ? cat.cor : FALLBACK[fallbackIdx++ % FALLBACK.length];
+      var cor = cat ? corDaCategoria(cat) : COR_OUTROS;
       var nome = cat ? cat.nome : 'Sem categoria';
       var items = bycat[key];
       var subtotal = items.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
@@ -518,6 +577,12 @@ function saveCategoria() {
   renderCategoriasList();
   updateCategoriaSelect();
   toast('🏷️ Categoria criada!');
+}
+
+// Sugere a proxima cor da paleta ao abrir o formulario de categoria nova.
+function sugerirCorCategoria(){
+  var el = document.getElementById('cat-cor');
+  if (el) el.value = proximaCorCategoria();
 }
 
 function renderCategoriasList() {
