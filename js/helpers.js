@@ -292,3 +292,79 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!im.getAttribute('src')) im.src = IMG_VAZIA;
   });
 });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// ACESSIBILIDADE POR TECLADO
+//
+// O app usa <div onclick="..."> em ~50 lugares (cartoes, filtros, itens do
+// menu). <div> nao recebe foco e nao responde a Enter, entao esses controles
+// eram invisiveis para quem navega por teclado ou usa leitor de tela: 27 dos
+// 80 controles visiveis, mais o menu lateral e a barra do celular inteiros.
+//
+// Trocar todos por <button> quebraria o CSS que depende de display:block,
+// grid e do reset proprio dos cartoes. A solucao equivalente e padrao e
+// declarar o papel (role="button") e a ordem de tabulacao (tabindex="0"),
+// e traduzir Enter/Espaco em clique.
+//
+// Como as listas sao redesenhadas por innerHTML a cada render, um
+// MutationObserver reaplica isso no conteudo novo — sem precisar tocar em
+// cada funcao de render.
+// ═══════════════════════════════════════════════════════════════════════
+
+// Elementos que ja sao focaveis por natureza: nao mexer neles.
+var JA_FOCAVEL = 'a[href],button,input,select,textarea,summary,[tabindex]';
+
+function tornarAcessivel(raiz){
+  var alvos = (raiz || document).querySelectorAll(
+    '[onclick]:not(' + JA_FOCAVEL + '), .nav-item, .mobile-nav-item'
+  );
+  alvos.forEach(function(el){
+    if (el.matches(JA_FOCAVEL)) return;          // ja alcancavel
+    if (el.dataset.a11y === '1') return;         // ja tratado
+    // Involucros que so barram o clique do cartao-pai nao sao controles:
+    // dar foco a eles criaria uma parada morta na tabulacao.
+    var acao = el.getAttribute('onclick') || '';
+    if (acao.replace(/\s/g, '') === 'event.stopPropagation()') return;
+    el.dataset.a11y = '1';
+    el.setAttribute('tabindex', '0');
+    if (!el.getAttribute('role')) el.setAttribute('role', 'button');
+  });
+}
+
+// Enter e Espaco ativam o elemento, como fariam num <button> de verdade.
+// Espaco tambem rola a pagina por padrao, entao precisa de preventDefault.
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+  var el = e.target;
+  if (!el || el.dataset.a11y !== '1') return;
+  // Se o foco estiver dentro de um campo de texto, nao sequestrar a tecla.
+  if (el.matches('input,textarea,select')) return;
+  e.preventDefault();
+  el.click();
+});
+
+// Esc fecha o modal aberto — esperado em qualquer dialogo.
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  var aberto = document.querySelector('.modal-overlay.open');
+  if (aberto && aberto.id) closeModal(aberto.id);
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+  tornarAcessivel(document);
+  // Conteudo redesenhado depois (cartoes, filtros, listas) entra por aqui.
+  if (typeof MutationObserver === 'function') {
+    // Uma render troca dezenas de nos de uma vez. Em vez de varrer a cada no,
+    // agenda UMA passada para o proximo quadro e junta tudo.
+    var agendado = false;
+    new MutationObserver(function(){
+      if (agendado) return;
+      agendado = true;
+      requestAnimationFrame(function(){
+        agendado = false;
+        tornarAcessivel(document);
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+});

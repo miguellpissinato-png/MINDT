@@ -7,7 +7,7 @@ function renderResumo(){
   document.getElementById('res-done-tasks').textContent=state.tasks.filter(function(t){return t.done;}).length;
   document.getElementById('res-total-metas').textContent=state.metas.length;
   var totalGastos=(state.gastos||[]).reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
-  document.getElementById('res-gastos').textContent='R$'+totalGastos.toFixed(0);
+  document.getElementById('res-gastos').textContent=moeda(totalGastos);
   var mp=document.getElementById('res-metas-progress');
   mp.innerHTML=state.metas.length?state.metas.map(function(m){var pct=calcProgress(m);return '<div class="group-bar-item"><div class="group-bar-header"><span>'+esc(m.name)+'</span><span>'+pct+'%</span></div><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div></div>';}).join(''):'<div style="color:var(--text-muted);font-size:13px">Nenhuma meta ainda.</div>';
   var np=document.getElementById('res-notas-preview');
