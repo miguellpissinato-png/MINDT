@@ -43,11 +43,18 @@ var TEXTOS = {
   salvo:{pt:'Salvo',en:'Saved'},
   offline:{pt:'Sem conexão — salvo no aparelho',en:'Offline — saved on device'},
   erroSalvar:{pt:'Não deu para salvar no servidor',en:"Couldn't save to the server"},
-  mesclado:{pt:'Dados de outro aparelho foram juntados',en:'Data from another device was merged'}
+  mesclado:{pt:'Dados de outro aparelho foram juntados',en:'Data from another device was merged'},
+  tentarDeNovo:{pt:'Tentar de novo',en:'Try again'},
+  tentando:{pt:'Tentando...',en:'Trying...'},
+  reenviar:{pt:'Reenviar',en:'Retry'}
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
 var DIC = {
+"Não conseguimos carregar seus dados":"We couldn't load your data",
+"Seus dados estão salvos — só não chegaram até aqui agora. Isso costuma ser conexão. Não entramos no app para não gravar nada por cima.":"Your data is safe — it just didn't reach us right now. This is usually the connection. We did not open the app, so nothing gets written over it.",
+"Tentar de novo":"Try again","Sair e entrar de novo":"Sign out and back in",
+"Gasto no mês":"Spent this month",
 "Confirme seu email":"Confirm your email","Ir para login":"Go to sign in",
 "Crie sua conta gratuita":"Create your free account",
 "Esqueci minha senha":"Forgot my password","Recuperar senha":"Reset password",

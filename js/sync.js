@@ -240,6 +240,16 @@ function statusSync(estado){
   var m = mapa[estado] || mapa.salvo;
   el.className = 'sync-status ' + m[0];
   el.textContent = m[1];
+  // No erro, oferecer saida: informar a falha sem dar o que fazer deixa o
+  // usuario sem acao a nao ser recarregar e torcer.
+  if (estado === 'erro') {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sync-retry';
+    b.textContent = T('reenviar');
+    b.onclick = function(){ statusSync('salvando'); sincronizar(); };
+    el.appendChild(b);
+  }
   el.style.display = (estado === 'salvo') ? 'none' : 'flex';
 }
 

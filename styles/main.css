@@ -43,22 +43,22 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
 .auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:40px 36px;box-shadow:var(--shadow-sm)}
 .auth-logo-icon{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:linear-gradient(135deg,var(--surface-2),var(--line));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--line);box-shadow:var(--shadow-sm)}
 .auth-logo-text{text-align:center;font-family:'Manrope',sans-serif;font-size:32px;font-weight:700;color:var(--line);letter-spacing:-1px}
-.auth-subtitle{text-align:center;font-size:13px;color:rgba(2,30,35,0.4);margin-top:4px;margin-bottom:28px}
+.auth-subtitle{text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px;margin-bottom:28px}
 .auth-tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:28px}
 .auth-tab{flex:1;padding:9px;border:none;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s}
 .auth-tab.active{background:linear-gradient(135deg,var(--accent),var(--surface-2));color:var(--line);box-shadow:var(--shadow-sm)}
-.auth-tab.inactive{background:transparent;color:rgba(2,30,35,0.5)}
-.auth-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(2,30,35,0.4);margin-bottom:8px}
+.auth-tab.inactive{background:transparent;color:var(--text-muted)}
+.auth-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
 .auth-input{width:100%;padding:13px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--line);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:16px}
 .auth-input:focus{border-color:var(--line)}
 .auth-error{display:none;margin-bottom:16px;padding:10px 14px;border-radius:9px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:var(--danger);font-size:13px}
 .auth-btn{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:12px;cursor:pointer;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;color:var(--line);box-shadow:var(--shadow-sm);transition:all 0.2s}
 .auth-btn:hover{transform:translateY(-2px)}
-.auth-loading{display:none;text-align:center;margin-top:14px;color:rgba(2,30,35,0.4);font-size:13px}
+.auth-loading{display:none;text-align:center;margin-top:14px;color:var(--text-muted);font-size:13px}
 .auth-confirm{text-align:center;padding:20px 0}
 .auth-confirm-icon{font-size:48px;margin-bottom:16px}
 .auth-confirm-title{font-size:15px;font-weight:600;margin-bottom:8px}
-.auth-confirm-text{font-size:13px;color:rgba(2,30,35,0.5);line-height:1.6;margin-bottom:24px}
+.auth-confirm-text{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .auth-confirm-btn{padding:12px 28px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--line)}
 
 /* APP */
@@ -488,7 +488,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
   text-transform: uppercase; color: var(--text-muted);
 }
 .trophy-total-counter {
-  font-size: 12px; color: rgba(2,30,35,0.25);
+  font-size: 12px; color:var(--text-muted);
   font-weight: 500; letter-spacing: 0.5px;
 }
 
@@ -572,7 +572,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
 }
 .trophy-lock-text {
   font-size: 10px; font-weight: 600; letter-spacing: 1px;
-  text-transform: uppercase; color: rgba(2,30,35,0.35);
+  text-transform: uppercase; color:var(--text-muted);
 }
 
 /* ═══ TROPHY UNLOCK POPUP ═══ */
@@ -663,7 +663,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
 
 /* estudos header trophy counter */
 .estudos-trophy-counter {
-  font-size: 12px; color: rgba(2,30,35,0.2);
+  font-size: 12px; color:var(--text-muted);
   font-weight: 500; letter-spacing: 0.5px;
   display: flex; align-items: center; gap: 6px;
 }
@@ -1698,3 +1698,45 @@ html,body{background:var(--bg);color:var(--text)}
   text-decoration-color:var(--line-strong);width:auto;display:inline-block;margin:12px auto 0}
 #auth-form-wrap,#auth-reset-wrap{text-align:left}
 #auth-form-wrap .auth-link,#auth-reset-wrap .auth-link{display:block;text-align:center}
+
+/* Botao de reenviar dentro do indicador de sincronizacao */
+.sync-retry{margin-left:4px;background:var(--accent);border:none;border-radius:6px;
+  color:#04231C;font-family:'Inter',system-ui,sans-serif;font-weight:600;font-size:12px;
+  padding:4px 10px;cursor:pointer}
+.sync-retry:hover{background:var(--accent-strong)}
+
+/* Texto longo nao pode estourar o cartao que o contem */
+.meta-card-title,.task-card-title,.nota-title,.task-mini-title,.leitura-book-title,
+.gasto-name,.gasto-item-desc,.trophy-name,.tico-today-label,.perfil-name,
+.agenda-upcoming-name,.gasto-group-name,.music-item-title{
+  overflow-wrap:anywhere;word-break:break-word;hyphens:auto
+}
+/* Numeros grandes encolhem em vez de vazar */
+.tico-quick-value,.stat-value,.big-metric .value,.gasto-group-total,.total-banner-value{
+  overflow-wrap:anywhere
+}
+
+/* ═══ Piso de contraste nos botoes ═══
+   O par "texto #04231C sobre --accent" dava 3,6:1 — abaixo do minimo de
+   4,5:1 — em todos os botoes primarios e chips ativos do app. Subir o verde
+   de acao um degrau resolve os 17 casos de uma vez e mantem a identidade
+   (texto escuro sobre verde), em vez de trocar para texto branco.
+   Medidos: acao 4,84:1 · hover 6,18:1 · sucesso 5,68:1 · perigo 4,68:1. */
+.btn-primary,.auth-btn,.onb-cta,#btn-instalar,.sync-retry,
+.chip.active,.filter-chip.active,.tab-btn.active,.agenda-view-btn.active,
+.auth-tab.active,.tico-lang-switch button.on,.logo-icon,.auth-logo-icon,
+#aviso-versao button{
+  background:var(--accent-strong);border-color:var(--accent-strong);color:#04231C
+}
+.btn-primary:hover,.auth-btn:hover,.onb-cta:hover,#btn-instalar:hover,
+.sync-retry:hover{background:#3BB183;border-color:#3BB183;color:#04231C}
+.btn-success{background:var(--success);border-color:var(--success);color:#04231C}
+.btn-success:hover{background:#4CBB8A;border-color:#4CBB8A;color:#04231C}
+.btn-danger{background:var(--danger);border-color:var(--danger);color:#04231C}
+.btn-danger:hover{background:#DE7A6B;border-color:#DE7A6B;color:#04231C}
+
+/* Defeito de especificidade: `.btn:hover` (0,2,0) vencia `.btn-danger`
+   (0,1,0), entao os botoes de perigo e sucesso perdiam a propria cor ao
+   passar o mouse e ficavam com texto quase preto sobre o cartao. As regras
+   acima devolvem a cor a cada variante no hover. */
+.btn.btn-primary:hover,.btn.btn-success:hover,.btn.btn-danger:hover{color:#04231C}

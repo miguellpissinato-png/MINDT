@@ -13,6 +13,10 @@ async function saveState(){
 }
 
 async function loadUserData(){
+  // Marca se realmente conseguimos dados de alguma origem. Sem isso a funcao
+  // terminava igual quando carregava e quando falhava, e quem chamava nao
+  // tinha como saber a diferenca — o app abria vazio como se estivesse certo.
+  var recuperado = false;
   try{
     var res=await sb.from('user_data').select('data,updated_at').eq('user_id',currentUser.id).single();
     if(res.data&&res.data.data){
@@ -22,6 +26,7 @@ async function loadUserData(){
       state=Object.assign({},state,p);
       // Guarda a versao vista e a sombra: base para detectar conflito depois.
       revLocal=res.data.updated_at||null; guardarRev(); fixarSombra();
+      recuperado = true;
     }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
       // Brand new user
       try{
@@ -33,11 +38,12 @@ async function loadUserData(){
             if(lp.tasks)lp.tasks.forEach(function(t){t._type='task';});
             state=Object.assign({},state,lp);
             await saveState();
-            return;
+            return;   // conta nova com backup local: recuperado
           }
         }
       }catch(e){}
-      seedDemo();
+      seedDemo();          // conta nova de verdade: vazia por direito
+      recuperado = true;
     }else{
       // Network error — fall back to localStorage
       try{
@@ -47,6 +53,7 @@ async function loadUserData(){
           if(lp2.metas)lp2.metas.forEach(function(m){m._type='meta';});
           if(lp2.tasks)lp2.tasks.forEach(function(t){t._type='task';});
           state=Object.assign({},state,lp2);
+          recuperado = true;   // servidor falhou, mas o backup local serviu
         }
       }catch(e2){}
     }
@@ -60,8 +67,18 @@ async function loadUserData(){
         if(lp3.metas)lp3.metas.forEach(function(m){m._type='meta';});
         if(lp3.tasks)lp3.tasks.forEach(function(t){t._type='task';});
         state=Object.assign({},state,lp3);
+        recuperado = true;
       }
     }catch(e3){}
+  }
+
+  // Servidor fora do ar E sem backup local: nao ha o que mostrar. Avisar quem
+  // chamou, para nunca abrir o app vazio — o usuario concluiria que perdeu
+  // tudo, e a primeira alteracao gravaria por cima dos dados de verdade.
+  if(!recuperado){
+    var e = new Error('sem-dados');
+    e.semDados = true;
+    throw e;
   }
   if(!state.perfil)state.perfil={name:'',avatar:null};
   if(!state.perfil.name)state.perfil.name=currentUser.email.split('@')[0];
