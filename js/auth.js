@@ -123,7 +123,7 @@ function montarOlhos(){
 // ─── RECUPERAÇÃO DE SENHA ─────────────────────────────────
 // Alterna entre as tres telas do cartao de login.
 function mostrarEtapaAuth(qual){
-  ['auth-form-wrap','auth-reset-wrap','auth-newpass-wrap'].forEach(function(id){
+  ['auth-form-wrap','auth-reset-wrap','auth-newpass-wrap','auth-falha'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.style.display = (id === qual) ? '' : 'none';
   });
@@ -189,5 +189,37 @@ function salvarNovaSenha(){
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.visibility = 'visible';
     if (typeof renderHome === 'function') renderHome();
+  });
+}
+
+
+// ─── FALHA AO CARREGAR OS DADOS ──────────────────────────
+// Antes, uma falha aqui abria o app vazio em silencio: o usuario concluiria
+// que perdeu tudo, e a primeira alteracao gravaria por cima dos dados reais.
+function mostrarFalhaDeCarga(err){
+  var tela = document.getElementById('auth-screen');
+  var caixa = document.getElementById('auth-falha');
+  if (!tela || !caixa) return;
+  document.getElementById('app').style.visibility = 'hidden';
+  tela.style.display = 'flex';
+  mostrarEtapaAuth('auth-falha');
+  var det = document.getElementById('auth-falha-detalhe');
+  if (det) det.textContent = (err && err.message) ? err.message : '';
+}
+function tentarCarregarDeNovo(){
+  var btn = document.getElementById('auth-falha-btn');
+  if (btn) { btn.disabled = true; btn.textContent = T('tentando'); }
+  loadUserData().then(function(){
+    if (typeof loadStudyXP === 'function') loadStudyXP();
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.visibility = 'visible';
+    updateGroupSelects(); updateGroupFilters(); renderHome();
+    mostrarEtapaAuth('auth-form-wrap');
+  }).catch(function(e){
+    console.error('nova tentativa falhou:', e);
+    var det = document.getElementById('auth-falha-detalhe');
+    if (det) det.textContent = (e && e.message) ? e.message : '';
+  }).then(function(){
+    if (btn) { btn.disabled = false; btn.textContent = T('tentarDeNovo'); }
   });
 }

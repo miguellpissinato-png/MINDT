@@ -14,14 +14,18 @@ sb.auth.onAuthStateChange(function(event,session){
     loadUserData().then(function(){
       document.getElementById('auth-screen').style.display='none';
       document.getElementById('app').style.visibility='visible';
+      // O XP vinha zerado na Home ate o usuario visitar a pagina Estudos,
+      // porque loadStudyXP() so era chamado de dentro de renderEstudos().
+      // Todo dado compartilhado precisa ser hidratado aqui, no carregamento.
+      if (typeof loadStudyXP === 'function') loadStudyXP();
       updateGroupSelects();updateGroupFilters();renderHome();
+      if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
     }).catch(function(err){
-      // Even if loadUserData fails, show the app with empty state
+      // Nao entrar no app com o estado vazio: o usuario acharia que perdeu
+      // tudo, e a primeira gravacao sobrescreveria os dados de verdade.
       console.error('loadUserData error:', err);
-      document.getElementById('auth-screen').style.display='none';
-      document.getElementById('app').style.visibility='visible';
-      updateGroupSelects();updateGroupFilters();renderHome();
+      mostrarFalhaDeCarga(err);
     });
   }else{
     currentUser=null;
@@ -111,7 +115,7 @@ function renderHome(){
   document.getElementById('home-xp-bar').style.width=noNivel+'%';
 
   // Ticolino e sua fala
-  document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),84);
+  document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),56);
   document.getElementById('home-tico-msg').textContent =
     feitos===0 ? T('msgStart') : (feitos>=3 ? T('msgDone') : T('msgMid'));
 
@@ -126,9 +130,16 @@ function renderHome(){
       '<span class="tico-today-xp">+10 XP</span></button>';
   }).join('');
 
-  // Cartoes rapidos
-  var saldo=[].concat(state.metas,state.tasks).filter(function(i){return i.budget;}).reduce(function(s,i){return s+parseFloat(i.budget||0);},0);
-  document.getElementById('home-stat-gastos').textContent='R$'+saldo.toFixed(0);
+  // Cartoes rapidos.
+  // Este cartao somava o campo 'budget' de metas e tarefas e nunca lia
+  // state.gastos — mostrava R$0 para quem tinha lancamentos. Agora soma os
+  // gastos do mes corrente, que e o que o rotulo promete.
+  var hoje=new Date(), mes=hoje.getMonth(), ano=hoje.getFullYear();
+  var gastoMes=(state.gastos||[]).filter(function(g){
+    var d=new Date(g.data+'T12:00:00');
+    return d.getMonth()===mes && d.getFullYear()===ano;
+  }).reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0);
+  document.getElementById('home-stat-gastos').textContent=moeda(gastoMes);
   document.getElementById('home-stat-metas').textContent=state.metas.length;
 
   // Em andamento (mantido do app original)

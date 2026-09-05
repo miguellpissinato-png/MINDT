@@ -104,4 +104,4 @@
       <path d="M22 40 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4 z"></path>
       <path d="M176 32 l3.4 9 9 3.4 -9 3.4 -3.4 9 -3.4 -9 -9 -3.4 9 -3.4 z"></path>
     </g>
-  </defs><clipPath id="corte"><circle cx="32.0" cy="32.0" r="28.58"/></clipPath><rect width="64" height="64" rx="10" fill="#FFF2C6"/><circle cx="32.0" cy="32.0" r="30.08" fill="#F1C596"/><g clip-path="url(#corte)"><svg x="1.9200000000000017" y="4.326400000000001" width="60.16" height="60.16" viewBox="14 24 172 172"><use href="#tico-core"/><use href="#tico-eyes-open"/><use href="#tico-mouth-smile"/></svg></g><circle cx="32.0" cy="32.0" r="30.08" fill="none" stroke="#1C2547" stroke-width="3"/></svg>
+  </defs><clipPath id="corte"><circle cx="32.0" cy="32.0" r="28.58"/></clipPath><rect width="64" height="64" rx="10" fill="#021E23"/><circle cx="32.0" cy="32.0" r="30.08" fill="#8CBC93"/><g clip-path="url(#corte)"><svg x="1.9200000000000017" y="7.936000000000002" width="60.16" height="60.16" viewBox="30 34 140 140"><use href="#tico-core"/><use href="#tico-eyes-open"/><use href="#tico-mouth-smile"/></svg></g><circle cx="32.0" cy="32.0" r="30.08" fill="none" stroke="#0A534E" stroke-width="3"/></svg>

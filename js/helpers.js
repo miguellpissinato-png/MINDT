@@ -84,7 +84,7 @@ function openModal(id){
   updateGroupSelects();
   updateCategoriaSelect();
   document.getElementById(id).classList.add('open');
-  if(id==='modal-add-categoria') renderCategoriasList();
+  if(id==='modal-add-categoria'){ renderCategoriasList(); sugerirCorCategoria(); }
   if(id==='modal-criar-evento'){ renderIconGrid(); updateParticipanteSelect(); }
   if(id==='modal-contatos') renderContatosLista();
   if(id==='modal-gerenciar-eventos') renderGerenciarLista();
@@ -264,3 +264,31 @@ function ticoHumorDoDia(){
   if (feitos >= 3) return 'orgulhoso';
   return 'feliz';
 }
+
+
+// Dinheiro formatado no idioma atual, com separador de milhar.
+// Antes: R$ 1948,00 para mil novecentos e quarenta e oito reais — sem os
+// pontos, valores grandes viram uma fileira de digitos ilegivel.
+function moeda(v){
+  var n = parseFloat(v);
+  if (!isFinite(n)) n = 0;
+  var en = (typeof idiomaAtual === 'function') && idiomaAtual() === 'en';
+  var opts = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+  return en ? '$' + n.toLocaleString('en-US', opts)
+            : 'R$ ' + n.toLocaleString('pt-BR', opts);
+}
+
+// Pixel transparente. Usado como origem inicial das <img> que so recebem
+// imagem depois: <img src=""> resolve para a propria pagina e dispara uma
+// requisicao falhada a cada carregamento.
+var IMG_VAZIA = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+
+// Da um pixel transparente as <img> que so recebem imagem depois.
+// Sem isso o navegador tenta buscar a propria pagina como imagem e registra
+// uma requisicao falhada por <img> a cada carregamento.
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('img[data-vazia]').forEach(function(im){
+    if (!im.getAttribute('src')) im.src = IMG_VAZIA;
+  });
+});
