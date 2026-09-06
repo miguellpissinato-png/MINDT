@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v3';
+var VERSAO = 'mindt-v5';
 
 var ARQUIVOS = [
   './',
@@ -88,7 +88,10 @@ self.addEventListener('fetch', function(e){
   // Arquivos do app: responde do cache (rapido) e atualiza por tras.
   e.respondWith(
     caches.match(req).then(function(cacheado){
-      var rede = fetch(req).then(function(r){
+      // 'no-cache' obriga a revalidar com o servidor. Sem isso a atualizacao
+      // em segundo plano podia devolver a copia velha do cache HTTP do
+      // navegador e regravar o arquivo antigo por cima.
+      var rede = fetch(new Request(req, {cache:'no-cache'})).then(function(r){
         if (r && r.status === 200) {
           var copia = r.clone();
           caches.open(VERSAO).then(function(c){ c.put(req, copia); });

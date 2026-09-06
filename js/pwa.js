@@ -16,6 +16,21 @@ function registrarServiceWorker(){
         if (novo.state === 'installed' && navigator.serviceWorker.controller) avisarNovaVersao();
       });
     });
+    // O navegador so reconfere o sw.js por conta propria de tempos em tempos.
+    // Sem pedir explicitamente, uma versao nova podia demorar horas para ser
+    // notada: a navegacao ja trazia o index.html novo da rede, mas o CSS e o
+    // JS continuavam vindo do cache antigo — o app parecia nao ter mudado.
+    reg.update().catch(function(){});
+
+    // E reconfere sempre que a aba volta ao primeiro plano, no maximo uma vez
+    // a cada 30s para nao pesar.
+    var ultimaChecagem = Date.now();
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - ultimaChecagem < 30000) return;
+      ultimaChecagem = Date.now();
+      reg.update().catch(function(){});
+    });
   }).catch(function(e){ console.warn('service worker nao registrou:', e); });
 
   // Quando o worker novo assume, recarrega uma vez para o app ficar consistente.

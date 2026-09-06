@@ -63,6 +63,18 @@ var EVENTO_ICONS = {
   'star':      '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
 };
 
+// Os SVGs acima sao desenhos de contorno, mas nao declaravam fill nem stroke.
+// Sem isso o navegador aplica o padrao (preenchimento preto), e formas com
+// area — o retangulo do 'calendar', o circulo do 'tennis' — apareciam como
+// um quadrado preto no chip do evento. Normaliza uma vez, aqui, em vez de
+// repetir os atributos nos cinco lugares que desenham esses icones.
+Object.keys(EVENTO_ICONS).forEach(function(k){
+  EVENTO_ICONS[k] = EVENTO_ICONS[k].replace('<svg ',
+    '<svg fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" ');
+});
+
+
 // ── RENDER ──
 function renderAgenda() {
   if(!document.getElementById('page-agenda')) return;
