@@ -472,7 +472,12 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .timer-ring-fill{fill:none;stroke:url(#timerGrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:553;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear}
 .timer-display-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .timer-time{font-family:'Poppins',system-ui,sans-serif;font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1}
-.timer-label{font-size:11px;color:var(--text-muted);margin-top:4px;text-align:center}
+.timer-label{font-size:11px;color:var(--text-muted);margin-top:4px;text-align:center;
+  /* O rotulo tinha a largura do anel inteiro (155px num anel de 160px), mas
+     fica abaixo do centro, onde a corda do circulo mede ~140px — por isso o
+     texto cruzava o traco. 62% cabe na corda em qualquer um dos dois tamanhos
+     de anel (200px no desktop, 160px no celular). */
+  max-width:62%;margin-left:auto;margin-right:auto;line-height:1.3}
 .timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .timer-sessions{display:flex;flex-direction:column;gap:8px}
 .timer-sessions-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px}
@@ -1171,7 +1176,13 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 }
 
 /* CALENDAR GRID */
-.agenda-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.agenda-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+/* `1fr` tem minimo `auto`: um evento de titulo longo alargava a coluna dele e
+   empurrava sabado para fora do cartao, que tem overflow:hidden e o recortava.
+   `minmax(0,1fr)` prende as sete colunas ao mesmo tamanho; o `min-width:0`
+   deixa o chip encolher e usar as reticencias que ele ja tem. */
+.agenda-cell{min-width:0}
+.agenda-cell>*{min-width:0;max-width:100%}
 .agenda-cell{
   min-height:88px;padding:8px 6px 4px;
   border-right:2px solid var(--ink);
