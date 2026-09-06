@@ -40,7 +40,7 @@ function authSubmit(){
         var w=document.getElementById('auth-form-wrap');w.innerHTML='';
         var d=document.createElement('div');d.className='auth-confirm';
         d.innerHTML='<div class="auth-confirm-icon">📧</div><div class="auth-confirm-title">Confirme seu email</div>'
-          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:#AAC4F5">'+email+'</strong>.<br>Após confirmar, volte e faça login.</div>';
+          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:var(--accent-text)">'+email+'</strong>.<br>Após confirmar, volte e faça login.</div>';
         var b=document.createElement('button');b.className='auth-confirm-btn';b.textContent='Ir para login';
         b.onclick=function(){location.reload();};d.appendChild(b);w.appendChild(d);
       }

@@ -20,16 +20,22 @@ function getCat(id) {
 // A ordem e fixa e nunca e embaralhada: a cor acompanha a categoria, nao a
 // posicao dela no ranking, entao filtrar por periodo nao repinta o grafico.
 var PALETA_CATEGORIAS = [
-  '#7A9E2E', // verde-oliva
-  '#C25A56', // vermelho
-  '#0FA093', // turquesa
-  '#8A6BC4', // roxo
-  '#B8862B', // mostarda
-  '#2E9E6B', // verde
-  '#4C7BD9', // azul
-  '#C4703A'  // terracota
+  // Paleta de dado do tema floresta. Escolhida por busca sobre os matizes da
+  // mata, maximizando a separacao minima em OKLab na visao normal E em
+  // deuteranopia e protanopia: dE 0,103 (o conjunto de 6 do design system
+  // sozinho dava 0,041 — laranja e amarelo colavam para quem tem daltonismo).
+  // Todas tem 3:1 ou mais contra o cartao. O laranja do acento fica de fora
+  // de proposito: no sistema ele e reservado a acao, nao a dado.
+  '#8EEBCC', // menta
+  '#E3CA96', // trigo
+  '#6CB2E5', // ceu
+  '#54AB7A', // copa
+  '#D28756', // terracota
+  '#3691C9', // lago
+  '#936B1A', // ocre
+  '#2F757F'  // agua funda
 ];
-var COR_OUTROS = '#6E8A84';   // neutro do tema, para "Sem categoria"
+var COR_OUTROS = '#7C8A72';   // neutro do tema, para "Sem categoria"
 
 // A fresta entre as fatias usa a cor do cartao, entao acompanha o tema.
 function corDoCartao(){
@@ -58,7 +64,7 @@ function proximaCorCategoria(){
 // As categorias criadas antes desta mudanca nasceram todas com o roxo que era
 // o padrao do seletor de cor. Esta migracao roda uma vez e da a cada uma a sua
 // cor da paleta. Escolhas feitas depois disso sao respeitadas.
-var VERSAO_PALETA = 2;   // suba este numero sempre que a paleta mudar
+var VERSAO_PALETA = 3;   // suba este numero sempre que a paleta mudar
 function migrarCoresCategorias(){
   if (!state.categorias) return false;
   if (state._paletaCategorias === VERSAO_PALETA) return false;
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function(){
   if(!canvas) return;
   var tooltip = document.createElement('div');
   tooltip.id = 'pizza-tooltip';
-  tooltip.style.cssText = 'position:fixed;display:none;background:#FFF8DE;border:2px solid #1C2547;border-radius:12px;padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:0 8px 24px rgba(28,37,71,.18)';
+  tooltip.style.cssText = 'position:fixed;display:none;background:var(--surface-2);color:var(--text);border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:var(--shadow-lg)';
   document.body.appendChild(tooltip);
 
   canvas.addEventListener('mousemove', function(e){
