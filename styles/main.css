@@ -2345,6 +2345,43 @@ input[type="checkbox"]{accent-color:var(--accent)}
 #sidebar:hover .nav-nivel{opacity:1;transition:opacity var(--dur) var(--ease-standard)}
 @media (max-width:768px){ .nav-nivel{display:none} }
 
+/* ── Estrutura do menu lateral ────────────────────────────────────────
+   O menu tem altura fixa de 100vh e overflow:hidden. Sem uma secao
+   flexivel no meio, qualquer item novo empurra o ultimo para fora — foi o
+   que aconteceu com o Perfil quando o cartao de nivel entrou: ele sumiu e
+   ficou inacessivel. A lista de paginas passa a rolar e o rodape (tema,
+   nivel e perfil) fica ancorado embaixo. */
+.nav-lista{
+  flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:none;
+}
+.nav-lista::-webkit-scrollbar{display:none}
+.nav-rodape{flex:0 0 auto;margin-top:auto}
+
+/* ── Home no layout do design system ──────────────────────────────────
+   O conteudo tem largura maxima de 780px. Nao e economia de espaco: e o
+   que deixa a floresta respirar a direita em vez de ficar so atras dos
+   cartoes. */
+#page-home>*:not(#floresta){max-width:780px}
+/* Sequencia e fala do Ticolino lado a lado. */
+.home-dupla{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:780px;
+  align-items:stretch;
+}
+.home-dupla>*{margin-bottom:0;height:100%}
+.home-dupla .tico-msg-card{align-items:flex-start}
+/* Data acima da saudacao, como no kit. */
+.tico-home-head .tico-date{margin:0 0 5px;font-size:12px;font-weight:400;color:var(--text-3)}
+.tico-home-head .tico-greeting{margin:0}
+/* Valor e sub-rotulo do atalho na mesma linha de base. */
+.tico-quick-linha{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:4px}
+.tico-quick-delta{font-size:12px;font-weight:400;color:var(--text-3)}
+.tico-quick-value{margin-top:0}
+@media (max-width:900px){
+  .home-dupla{grid-template-columns:1fr}
+  .home-dupla>*+*{margin-top:0}
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.

@@ -120,7 +120,7 @@ function renderHome(){
     feitos===0 ? T('msgStart') : (feitos>=3 ? T('msgDone') : T('msgMid'));
 
   // Lista do dia
-  document.getElementById('home-today-count').textContent=feitos+'/3';
+  document.getElementById('home-today-count').textContent=feitos+' '+T('deTresConcluidos');
   document.getElementById('home-today-list').innerHTML=TAREFAS_DIA.map(function(t){
     var on=d[t.chave];
     return '<button class="tico-today-item" onclick="toggleTarefaDia(\''+t.chave+'\')">'+
@@ -141,6 +141,23 @@ function renderHome(){
   }).reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0);
   document.getElementById('home-stat-gastos').textContent=moeda(gastoMes);
   document.getElementById('home-stat-metas').textContent=state.metas.length;
+
+  // Sub-rotulos dos dois atalhos (design system): quantos lancamentos no mes
+  // e quantas metas vencem neste mes.
+  var doMes=(state.gastos||[]).filter(function(g){
+    var d=new Date(g.data+'T12:00:00');
+    return d.getMonth()===mes && d.getFullYear()===ano;
+  }).length;
+  var sg=document.getElementById('home-stat-gastos-sub');
+  if(sg) sg.textContent=doMes+' '+T(doMes===1?'lancamento':'lancamentos');
+
+  var vencem=(state.metas||[]).filter(function(m){
+    if(m.done||!m.deadline) return false;
+    var d=new Date(m.deadline+'T12:00:00');
+    return d.getMonth()===mes && d.getFullYear()===ano;
+  }).length;
+  var sm=document.getElementById('home-stat-metas-sub');
+  if(sm) sm.textContent = vencem ? vencem+' '+T(vencem===1?'venceEsteMes':'vencemEsteMes') : '';
 
   // Em andamento (mantido do app original)
   var all=[].concat(state.tasks,state.metas).filter(function(i){return !i.done;});
