@@ -9,7 +9,11 @@ function renderTasks(filter){
   if(filter==='pending')list=list.filter(function(t){return !t.done;});
   if(filter==='done')list=list.filter(function(t){return t.done;});
   if(filter==='recent')list.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
-  if(list.length===0){grid.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><p>Nenhuma tarefa ainda.</p></div>';return;}
+  if(list.length===0){
+    grid.innerHTML = estadoVazio('preguicoso', T('semTarefas'),
+      '<button class="btn btn-primary btn-sm" onclick="openModal(\'modal-add-task\')">+ ' + T('novaTarefa') + '</button>');
+    return;
+  }
   grid.innerHTML=list.map(function(t){
     var chkSvg='<svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>';
     var inlineChecklist='';
