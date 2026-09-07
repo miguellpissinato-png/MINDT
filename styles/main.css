@@ -1421,7 +1421,7 @@ html,body{background:var(--cream)}
 .btn-sm{border-width:2px;border-radius:14px;box-shadow:var(--shadow-sm);font-size:13px}
 
 /* Chips e abas */
-.chip,.filter-chip,.tab-btn,.period-chip,.parcela-badge,.task-status-badge,
+.chip,.filter-chip,.tab-btn,.parcela-badge,.task-status-badge,
 .leitura-book-genre-badge,.participante-chip,.agenda-view-btn{
   border:1px solid var(--line);border-radius:999px;background:var(--card);
   color:var(--ink);font-weight:800;box-shadow:var(--shadow-soft)
@@ -2038,7 +2038,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Poppins',system-ui
 .btn.btn-danger:hover{background:var(--danger-soft);color:var(--danger-text)}
 
 /* ── Pilulas: filtro, aba, tag ──────────────────────────────────────── */
-.chip,.filter-chip,.tab-btn,.agenda-view-btn,.auth-tab,.music-tab,.period-chip,
+.chip,.filter-chip,.tab-btn,.agenda-view-btn,.auth-tab,.music-tab,
 .gastos-filter-btn,.shelf-filter-btn{
   font-family:'Poppins',system-ui,sans-serif;font-weight:500;font-size:13px;
   padding:6px 13px;border-radius:var(--radius-pill);
@@ -2051,7 +2051,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Poppins',system-ui
 .chip:hover,.filter-chip:hover,.tab-btn:hover,.agenda-view-btn:hover,
 .auth-tab:hover,.music-tab:hover{background:var(--surface-2);color:var(--text)}
 .chip.active,.filter-chip.active,.tab-btn.active,.agenda-view-btn.active,
-.auth-tab.active,.music-tab.active,.period-chip.active,
+.auth-tab.active,.music-tab.active,
 .gastos-filter-btn.active,.shelf-filter-btn.active,.timer-preset-btn.active{
   background:var(--accent-tint);color:var(--text);
   border-color:var(--accent-line);box-shadow:none
@@ -2435,6 +2435,35 @@ input[type="checkbox"]{accent-color:var(--accent)}
 /* Quem pediu menos movimento nao ganha o deslize. */
 @media (prefers-reduced-motion:reduce){
   #sidebar,#menu-fundo{transition:none}
+}
+
+/* ── Contadores por periodo (Tarefas e Metas) ─────────────────────────
+   Se chamam "chip" mas sao cartoes de estatistica: rotulo em cima, numero
+   grande embaixo. Tinham sido varridos para a lista de pilulas do tema pelo
+   nome e herdaram raio de 999px com 13px de folga lateral — num bloco de
+   60px de altura a curva comia o texto pela esquerda. */
+.period-chip{
+  padding:14px 18px;border-radius:var(--radius-lg);
+  background:var(--surface-1);border:1px solid var(--line);
+  box-shadow:var(--shadow-sm);
+  display:flex;flex-direction:column;gap:4px;align-items:flex-start;
+  text-align:left;font-size:inherit;font-weight:400;
+}
+.period-chip-label{
+  font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--text-3);
+}
+.period-chip-value{
+  font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:28px;
+  line-height:1.05;letter-spacing:-0.03em;color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+.period-chip.active{
+  border-color:var(--accent-line);background:var(--surface-2);box-shadow:none;
+}
+@media (max-width:768px){
+  .period-chip{padding:12px 14px}
+  .period-chip-value{font-size:24px}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
