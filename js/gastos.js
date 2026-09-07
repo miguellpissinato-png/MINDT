@@ -147,10 +147,20 @@ function renderPizzaChart(lista) {
     var sliceAngle = (val/total)*Math.PI*2;
     var endAngle = startAngle + sliceAngle;
 
+    // A fresta e fixa em radianos, mas a fatia nao: numa fatia menor que
+    // 2*GAP (cerca de 1% do total) o inicio passava do fim, e ctx.arc com o
+    // fim antes do inicio desenha o arco pelo CAMINHO LONGO — quase o anel
+    // inteiro na cor daquela categoria, cobrindo todas as anteriores. Era o
+    // que deixava o grafico de uma cor so no filtro "Todos", onde o total
+    // maior faz categorias pequenas caberem abaixo desse limiar.
+    // Limitar a fresta a um terco da fatia mantem a separacao visivel e
+    // garante que o arco nunca se inverta.
+    var gap = Math.min(GAP, sliceAngle/3);
+
     ctx.beginPath();
-    ctx.moveTo(cx + r*Math.cos(startAngle+GAP), cy + r*Math.sin(startAngle+GAP));
-    ctx.arc(cx, cy, R, startAngle+GAP, endAngle-GAP);
-    ctx.arc(cx, cy, r, endAngle-GAP, startAngle+GAP, true);
+    ctx.moveTo(cx + r*Math.cos(startAngle+gap), cy + r*Math.sin(startAngle+gap));
+    ctx.arc(cx, cy, R, startAngle+gap, endAngle-gap);
+    ctx.arc(cx, cy, r, endAngle-gap, startAngle+gap, true);
     ctx.closePath();
     ctx.fillStyle = cor;
     ctx.fill();
@@ -161,7 +171,7 @@ function renderPizzaChart(lista) {
     ctx.stroke();
 
     pizzaSlices.push({
-      startAngle: startAngle+GAP, endAngle: endAngle-GAP,
+      startAngle: startAngle+gap, endAngle: endAngle-gap,
       cor: cor, nome: nome, val: val,
       pct: ((val/total)*100).toFixed(1)
     });
