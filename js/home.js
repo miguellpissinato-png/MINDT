@@ -243,12 +243,10 @@ var FLORESTA_BANDO = [
 var FLORESTA_PALETAS = {
   dark:  {longe1:'#26332A',longe2:'#1B241D',meio1:'#1C271F',meio2:'#141C16',
           arvLonge:'#212D24',arvMeio:'#141D17',colina:'#0D120E',arvPerto:'#080B08',
-          passaro:'#EBE3A7',passaroOp:0.34,vale:0.2,
-          veu:'rgba(18,20,14,0.30)',veu2:'rgba(18,20,14,0.06)',veu3:'rgba(18,20,14,0.34)'},
+          passaro:'#EBE3A7',passaroOp:0.34,vale:0.2},
   light: {longe1:'#AFC0A8',longe2:'#9EB198',meio1:'#88A085',meio2:'#75906F',
           arvLonge:'#8CA487',arvMeio:'#5E7C5B',colina:'#4A6547',arvPerto:'#37502F',
-          passaro:'#2E2910',passaroOp:0.6,vale:0.08,
-          veu:'rgba(242,238,218,0.28)',veu2:'rgba(242,238,218,0.06)',veu3:'rgba(242,238,218,0.62)'}
+          passaro:'#2E2910',passaroOp:0.6,vale:0.08}
 };
 
 function montarFloresta(){
@@ -310,10 +308,9 @@ function montarFloresta(){
       '<g data-plano="1.35">' + caminhos(FLORESTA_ARVORES_PERTO, P.arvPerto) + '</g>' +
       passaros +
     '</svg>' +
-    // Dissolve o cenario no fundo do app. Leve de proposito: um veu mais
-    // forte apagava justamente as arvores da frente.
-    '<div class="floresta-veu" style="background:linear-gradient(180deg,' + P.veu + ' 0%,' + P.veu2 +
-      (claro ? ' 30%,' + P.veu3 + ' 62%,var(--bg) 88%)' : ' 38%,' + P.veu3 + ' 82%,var(--bg) 100%)') + '"></div>';
+    // Dissolve o TOPO da paisagem no ceu, para nao haver linha dura onde o
+    // SVG comeca. O degrade vive no CSS (.floresta-veu), que sabe a altura.
+    '<div class="floresta-veu"></div>';
 
   ligarParallaxFloresta(host);
 }
