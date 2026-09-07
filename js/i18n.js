@@ -9,6 +9,10 @@ var IDIOMA_PADRAO = 'pt';
 
 // Textos usados pelo codigo (chave -> {pt, en})
 var TEXTOS = {
+  deTresConcluidos:{pt:'de 3 concluídos',en:'of 3 done'},
+  venceEsteMes:{pt:'vence este mês',en:'due this month'},
+  vencemEsteMes:{pt:'vencem este mês',en:'due this month'},
+  metasAtivas:{pt:'Metas ativas',en:'Active goals'},
   voce:{pt:'Você',en:'You'},
   semTarefas:{pt:'Nenhuma tarefa por aqui. O Ticolino aprova a folga.',en:'No tasks here. Ticolino approves the break.'},
   novaTarefa:{pt:'Nova tarefa',en:'New task'},
@@ -67,7 +71,7 @@ var TEXTOS = {
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
-var DIC = {"Pendências":"Pending","Total gasto":"Total spent","Maior categoria":"Biggest category","Média por lançamento":"Average per entry","Tema":"Theme","Claro":"Light","Escuro":"Dark",
+var DIC = {"Gastos do mês":"Monthly spend","Metas ativas":"Active goals","Pendências":"Pending","Total gasto":"Total spent","Maior categoria":"Biggest category","Média por lançamento":"Average per entry","Tema":"Theme","Claro":"Light","Escuro":"Dark",
 "Não conseguimos carregar seus dados":"We couldn't load your data",
 "Seus dados estão salvos — só não chegaram até aqui agora. Isso costuma ser conexão. Não entramos no app para não gravar nada por cima.":"Your data is safe — it just didn't reach us right now. This is usually the connection. We did not open the app, so nothing gets written over it.",
 "Tentar de novo":"Try again","Sair e entrar de novo":"Sign out and back in",
