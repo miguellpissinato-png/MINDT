@@ -375,10 +375,22 @@
         </div>
       </div>
 
-      <!-- BANNER TOTAL -->
-      <div class="total-banner glass" style="margin-bottom:20px">
-        <div><div class="total-banner-label">Total gasto</div><div class="total-banner-value" id="gastos-total">R$ 0,00</div></div>
-        <div style="text-align:right"><div class="total-banner-label">Transações</div><div style="font-size:24px;font-weight:700" id="gastos-count">0</div></div>
+      <!-- TRES METRICAS (design system: total em destaque + duas de apoio) -->
+      <div class="gastos-metricas">
+        <div class="big-metric metrica-destaque">
+          <div class="label" data-i18n="totalSpent">Total gasto</div>
+          <div class="value" id="gastos-total">R$ 0,00</div>
+          <div class="delta" id="gastos-count-txt">0 lançamentos</div>
+        </div>
+        <div class="big-metric">
+          <div class="label" data-i18n="biggestCategory">Maior categoria</div>
+          <div class="value value-sm" id="gastos-maior-cat">—</div>
+          <div class="delta" id="gastos-maior-val"></div>
+        </div>
+        <div class="big-metric">
+          <div class="label" data-i18n="avgPerEntry">Média por lançamento</div>
+          <div class="value value-sm" id="gastos-media">R$ 0,00</div>
+        </div>
       </div>
 
       <!-- CARD PRINCIPAL: filtros + lançamentos -->
@@ -724,7 +736,8 @@
         </div>
       </div>
 
-      <!-- CALENDAR GRID -->
+      <!-- GRADE + PAINEL DO DIA, lado a lado no desktop -->
+      <div class="agenda-layout">
       <div class="agenda-glass-card" id="agenda-calendar-wrap">
         <!-- DOW headers -->
         <div class="agenda-dow-row">
@@ -738,8 +751,9 @@
 
       <!-- UPCOMING EVENTS SIDEBAR -->
       <div class="agenda-upcoming" id="agenda-upcoming">
-        <div class="section-title" style="margin:0 0 12px 0">Próximos eventos</div>
+        <div class="section-title" style="margin:0 0 12px 0" id="agenda-painel-titulo">Próximos eventos</div>
         <div id="agenda-upcoming-list"></div>
+      </div>
       </div>
 
     </section>

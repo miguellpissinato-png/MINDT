@@ -1274,13 +1274,15 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 
 /* UPCOMING SIDEBAR */
 .agenda-upcoming{
-  background:rgba(60,20,100,0.14);
+  background:var(--surface-1);
   border:1px solid var(--line);
-  border-radius:16px;padding:20px;
+  border-radius:var(--radius-lg);padding:20px;
+  box-shadow:var(--shadow-sm);
+  align-self:start;
 }
 .agenda-upcoming-item{
   display:flex;align-items:flex-start;gap:12px;
-  padding:12px 0;border-bottom:2px solid var(--ink);
+  padding:12px 0;border-bottom:1px solid var(--line);
   transition:background 0.15s;
 }
 .agenda-upcoming-item:last-child{border-bottom:none}
@@ -2199,6 +2201,74 @@ input[type="checkbox"]{accent-color:var(--accent)}
 /* No celular o cenario encurta: a lista "Hoje" sobe e as arvores da frente
    nao podem competir com ela. */
 @media (max-width:768px){ #floresta{height:260px} }
+
+/* ── Gastos: as tres metricas do design system ────────────────────────
+   Total em destaque (cartao verde) + maior categoria + media. */
+.gastos-metricas{
+  display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:20px;
+}
+.gastos-metricas .big-metric{
+  background:var(--surface-1);border:1px solid var(--line);
+  border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:20px;
+}
+.gastos-metricas .metrica-destaque{
+  background:var(--grad-hero);border-color:var(--forest-line);box-shadow:var(--glow-forest);
+}
+.gastos-metricas .label{font-size:12px;font-weight:400;color:var(--text-3)}
+.gastos-metricas .metrica-destaque .label,
+.gastos-metricas .metrica-destaque .delta{color:var(--text-on-forest-2)}
+.gastos-metricas .metrica-destaque .value{color:var(--text-on-forest)}
+.gastos-metricas .value{
+  font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:40px;
+  line-height:1.05;letter-spacing:-0.03em;margin-top:8px;color:var(--text);
+  font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+/* Nome de categoria nao e numero: cabe mais texto em corpo menor. */
+.gastos-metricas .value-sm{font-size:26px;letter-spacing:-0.02em}
+.gastos-metricas .delta{font-size:12px;font-weight:400;color:var(--text-3);margin-top:6px}
+@media (max-width:900px){
+  .gastos-metricas{grid-template-columns:1fr 1fr}
+  .gastos-metricas .metrica-destaque{grid-column:1/-1}
+}
+@media (max-width:560px){
+  .gastos-metricas{grid-template-columns:1fr}
+  .gastos-metricas .value{font-size:32px}
+  .gastos-metricas .value-sm{font-size:22px}
+}
+
+/* ── Agenda: linha de evento na celula e painel do dia ────────────────
+   O chip preenchido comia a largura da celula; vira ponto + nome, como no
+   design system. A cor do ponto e a importancia do evento. */
+.agenda-event-linha{
+  display:flex;align-items:center;gap:5px;margin-bottom:3px;
+  font-size:10px;color:var(--text-2);cursor:pointer;min-width:0;
+}
+.agenda-event-linha:hover{color:var(--text)}
+.agenda-event-ponto{width:4px;height:4px;border-radius:50%;flex:none;background:var(--importance-default)}
+.agenda-event-linha.importancia-media .agenda-event-ponto{background:var(--importance-medium)}
+.agenda-event-linha.importancia-alta .agenda-event-ponto{background:var(--importance-high)}
+.agenda-event-nome{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+.agenda-painel-sub{font-size:12px;color:var(--text-3);margin-bottom:14px}
+.agenda-dia-item{
+  display:flex;align-items:stretch;gap:10px;padding:11px 12px;margin-bottom:8px;
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--radius);cursor:pointer;
+  transition:border-color var(--dur-fast) var(--ease-standard);
+}
+.agenda-dia-item:hover{border-color:var(--line-strong)}
+.agenda-dia-barra{width:3px;border-radius:2px;flex:none;background:var(--importance-default)}
+.agenda-dia-item.importancia-media .agenda-dia-barra{background:var(--importance-medium)}
+.agenda-dia-item.importancia-alta .agenda-dia-barra{background:var(--importance-high)}
+.agenda-dia-info{flex:1;min-width:0}
+.agenda-dia-nome{font-size:13px;color:var(--text);overflow-wrap:anywhere}
+.agenda-dia-meta{font-size:11px;color:var(--text-3);margin-top:3px}
+.agenda-dia-add{width:100%;margin-top:4px;justify-content:center}
+
+/* Grade do mes e painel do dia lado a lado, como no design system. Abaixo
+   de 1000px o painel desce para baixo da grade. */
+.agenda-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:1000px){ .agenda-layout{grid-template-columns:minmax(0,1fr)} }
 
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque

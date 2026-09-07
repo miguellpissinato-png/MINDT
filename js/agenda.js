@@ -163,9 +163,13 @@ function renderCalendar() {
     var isSel = dateStr === agendaSelectedDay;
     var dayEvents = (state.eventos || []).filter(function(e){ return e.data === dateStr; });
 
+    // Ponto de importancia + nome, como no design system. O chip preenchido
+    // anterior comia a largura da celula e nao cabia no celular.
     var chipsHtml = dayEvents.slice(0,2).map(function(ev) {
-      var icon = EVENTO_ICONS[ev.icone] ? '<span style="width:10px;height:10px;display:inline-flex">' + EVENTO_ICONS[ev.icone].replace('viewBox', 'width="10" height="10" viewBox') + '</span>' : '';
-      return '<div class="agenda-event-chip importancia-' + (ev.importancia||'padrao') + '" data-eid="' + ev.id + '">' + icon + esc(ev.nome||'') + '</div>';
+      return '<div class="agenda-event-linha importancia-' + (ev.importancia||'padrao') + '" data-eid="' + ev.id + '">'
+        + '<span class="agenda-event-ponto"></span>'
+        + '<span class="agenda-event-nome">' + esc(ev.nome||'') + '</span>'
+        + '</div>';
     }).join('');
     if(dayEvents.length > 2) chipsHtml += '<div class="agenda-more-chip">+' + (dayEvents.length-2) + ' mais</div>';
 
@@ -177,14 +181,14 @@ function renderCalendar() {
 
   // Event delegation for cells
   grid.onclick = function(e) {
-    var chip = e.target.closest('.agenda-event-chip');
+    var chip = e.target.closest('.agenda-event-linha');
     if(chip) { e.stopPropagation(); openEventoDetalhe(chip.dataset.eid); return; }
     var cell = e.target.closest('.agenda-cell');
     if(cell) {
       agendaSelectedDay = cell.dataset.date;
       document.querySelectorAll('.agenda-cell').forEach(function(c){ c.classList.remove('selected'); });
       cell.classList.add('selected');
-      openDiaDetalhe(cell.dataset.date);
+      renderPainelDia(cell.dataset.date);
     }
   };
 }
@@ -229,8 +233,54 @@ function criarEventoDia() {
   openModal('modal-criar-evento');
 }
 
+// ── PAINEL DO DIA SELECIONADO ──
+// O design system troca o modal do dia por um painel sempre visivel ao lado
+// da grade. O modal continua existindo para editar um evento (clique nele).
+var MESES_PT = ['janeiro','fevereiro','marco','abril','maio','junho','julho',
+                'agosto','setembro','outubro','novembro','dezembro'];
+
+function renderPainelDia(dateStr){
+  var el = document.getElementById('agenda-upcoming-list');
+  var tit = document.getElementById('agenda-painel-titulo');
+  if(!el) return;
+  if(!dateStr){ renderUpcoming(); return; }
+
+  var p = dateStr.split('-');
+  var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  var doDia = (state.eventos||[]).filter(function(e){ return e.data === dateStr; })
+    .sort(function(a,b){ return (a.horaInicio||'').localeCompare(b.horaInicio||''); });
+
+  if (tit) tit.textContent = d.getDate() + ' de ' + MESES_PT[d.getMonth()];
+
+  var cabeca = '<div class="agenda-painel-sub">' +
+    (doDia.length ? doDia.length + ' ' + T(doDia.length > 1 ? 'eventos' : 'evento')
+                  : T('nenhumEvento')) + '</div>';
+
+  var corpo = doDia.map(function(ev){
+    var hora = ev.horaInicio ? ev.horaInicio + (ev.horaFim ? ' – ' + ev.horaFim : '') : '';
+    return '<div class="agenda-dia-item importancia-' + (ev.importancia||'padrao') + '" data-eid="' + ev.id + '">'
+      + '<span class="agenda-dia-barra"></span>'
+      + '<div class="agenda-dia-info">'
+        + '<div class="agenda-dia-nome">' + esc(ev.nome||'') + '</div>'
+        + (hora ? '<div class="agenda-dia-meta">' + hora + '</div>' : '')
+      + '</div></div>';
+  }).join('');
+
+  // criarEventoDia() ja usa agendaSelectedDay, que acabou de ser definido.
+  var acao = '<button class="btn btn-ghost btn-sm agenda-dia-add" onclick="criarEventoDia()">+ '
+    + T('novoEvento') + '</button>';
+
+  el.innerHTML = cabeca + corpo + acao;
+  el.onclick = function(e){
+    var it = e.target.closest('.agenda-dia-item');
+    if (it) openEventoDetalhe(it.dataset.eid);
+  };
+}
+
 // ── UPCOMING ──
 function renderUpcoming() {
+  var tit = document.getElementById('agenda-painel-titulo');
+  if (tit) tit.textContent = T('proximosEventos');
   var el = document.getElementById('agenda-upcoming-list');
   if(!el) return;
   var now = new Date(); now.setHours(0,0,0,0);

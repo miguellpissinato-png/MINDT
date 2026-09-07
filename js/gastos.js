@@ -40,16 +40,45 @@ var COR_OUTROS = '#7C8A72';   // neutro do tema, para "Sem categoria"
 // A fresta entre as fatias usa a cor do cartao, entao acompanha o tema.
 function corDoCartao(){
   var v = getComputedStyle(document.documentElement).getPropertyValue('--surface');
-  return (v && v.trim()) || '#07333A';
+  return (v && v.trim()) || '#1B2118';
+}
+
+// ─── Cor de categoria e o tema claro ────────────────────────────────────
+// A cor fica salva em cada categoria (a paleta so define a inicial), entao
+// nao da para trocar por token sem descartar a escolha de quem usa o app.
+// Em vez disso, no tema claro a cor e escurecida ate atingir 3:1 contra o
+// cartao — mesmo matiz, mesma identidade, legivel sobre papel.
+function _lumRel(r,g,b){
+  function c(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);}
+  return 0.2126*c(r)+0.7152*c(g)+0.0722*c(b);
+}
+function _hexRGB(h){
+  h=String(h||'').replace('#','');
+  if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  return isNaN(n)?[124,138,114]:[(n>>16)&255,(n>>8)&255,n&255];
+}
+function corParaTema(hex){
+  if (document.documentElement.getAttribute('data-theme') !== 'light') return hex;
+  var rgb=_hexRGB(hex), fundo=_hexRGB('FBF8EC'), lf=_lumRel(fundo[0],fundo[1],fundo[2]);
+  for (var k=1; k>=0.2; k-=0.05){
+    var r=rgb[0]*k, g=rgb[1]*k, b=rgb[2]*k;
+    var lc=_lumRel(r,g,b);
+    var razao=(Math.max(lc,lf)+0.05)/(Math.min(lc,lf)+0.05);
+    if (razao>=3){
+      return '#'+[r,g,b].map(function(v){return ('0'+Math.round(v).toString(16)).slice(-2);}).join('');
+    }
+  }
+  return '#2E2910';
 }
 
 // Cor de uma categoria: a escolhida pelo usuario, senao a da paleta pela
 // ordem de criacao (estavel, nao muda quando se filtra o periodo).
 function corDaCategoria(cat){
-  if (cat && cat.cor) return cat.cor;
+  if (cat && cat.cor) return corParaTema(cat.cor);
   var i = (cat && state.categorias) ? state.categorias.findIndex(function(c){ return c.id === cat.id; }) : -1;
-  if (i < 0) return COR_OUTROS;
-  return PALETA_CATEGORIAS[i % PALETA_CATEGORIAS.length];
+  if (i < 0) return corParaTema(COR_OUTROS);
+  return corParaTema(PALETA_CATEGORIAS[i % PALETA_CATEGORIAS.length]);
 }
 
 // Proxima cor livre, para uma categoria nova nascer com cor propria.
@@ -112,7 +141,7 @@ function renderPizzaChart(lista) {
 
   keys.forEach(function(key) {
     var cat = getCat(key);
-    var cor = cat ? corDaCategoria(cat) : COR_OUTROS;
+    var cor = cat ? corDaCategoria(cat) : corParaTema(COR_OUTROS);
     var nome = cat ? cat.nome : 'Sem categoria';
     var val = bycat[key];
     var sliceAngle = (val/total)*Math.PI*2;
@@ -272,9 +301,30 @@ function renderGastos(){
   var lista = getGastosFiltrados();
   var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
   document.getElementById('gastos-total').textContent = moeda(total);
-  document.getElementById('gastos-count').textContent = lista.length;
+  var ct = document.getElementById('gastos-count-txt');
+  if (ct) ct.textContent = lista.length + ' ' + T(lista.length === 1 ? 'lancamento' : 'lancamentos');
+
+  // Maior categoria do periodo e media por lancamento (design system).
+  var porCat = {};
+  lista.forEach(function(g){
+    var k = g.categoriaId || '_sem';
+    porCat[k] = (porCat[k] || 0) + (parseFloat(g.valor) || 0);
+  });
+  var maiorId = null, maiorVal = 0;
+  Object.keys(porCat).forEach(function(k){ if (porCat[k] > maiorVal) { maiorVal = porCat[k]; maiorId = k; } });
+  var elCat = document.getElementById('gastos-maior-cat');
+  var elVal = document.getElementById('gastos-maior-val');
+  if (elCat) {
+    var c = (maiorId && maiorId !== '_sem')
+      ? (state.categorias || []).find(function(x){ return x.id === maiorId; }) : null;
+    elCat.textContent = maiorId ? (c ? c.nome : T('semCategoria')) : '—';
+    if (elVal) elVal.textContent = maiorId ? moeda(maiorVal) : '';
+  }
+  var elMed = document.getElementById('gastos-media');
+  if (elMed) elMed.textContent = moeda(lista.length ? total / lista.length : 0);
+
   var ptl = document.getElementById('pizza-total-label');
-  if(ptl) ptl.textContent = 'R$ '+total.toFixed(0);
+  if(ptl) ptl.textContent = moeda(total);
 
   // ── Render pizza chart ──
   renderPizzaChart(lista);
@@ -298,7 +348,7 @@ function renderGastos(){
 
     Object.keys(bycat).forEach(function(key, gi) {
       var cat = getCat(key);
-      var cor = cat ? corDaCategoria(cat) : COR_OUTROS;
+      var cor = cat ? corDaCategoria(cat) : corParaTema(COR_OUTROS);
       var nome = cat ? cat.nome : 'Sem categoria';
       var items = bycat[key];
       var subtotal = items.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
