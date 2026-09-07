@@ -561,6 +561,18 @@ function updateXPDisplay() {
   if (lv) lv.textContent = studyLevel;
   var nx = document.getElementById('xp-next');
   if (nx) nx.textContent = xpPerLevel - xpInLevel;
+
+  // Cartao de nivel no pe do menu lateral (design system).
+  var nn = document.getElementById('nav-nivel-nome');
+  if (nn) {
+    nn.textContent = (state.perfil && state.perfil.name) || T('voce');
+    var nx2 = document.getElementById('nav-nivel-xp');
+    if (nx2) nx2.textContent = T('level') + ' ' + studyLevel + ' · ' + studyXP + ' XP';
+    var nf = document.getElementById('nav-nivel-fill');
+    if (nf) nf.style.width = pct + '%';
+    var nr = document.getElementById('nav-nivel-rosto');
+    if (nr && !nr.innerHTML) nr.innerHTML = ticolino('feliz', 34, true);
+  }
 }
 
 function updateSessionDots() {

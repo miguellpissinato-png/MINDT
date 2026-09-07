@@ -9,6 +9,10 @@ var IDIOMA_PADRAO = 'pt';
 
 // Textos usados pelo codigo (chave -> {pt, en})
 var TEXTOS = {
+  voce:{pt:'Você',en:'You'},
+  semTarefas:{pt:'Nenhuma tarefa por aqui. O Ticolino aprova a folga.',en:'No tasks here. Ticolino approves the break.'},
+  novaTarefa:{pt:'Nova tarefa',en:'New task'},
+  semPendencias:{pt:'Nada em aberto. Dia limpo.',en:'Nothing open. Clear day.'},
   evento:{pt:'evento',en:'event'},
   eventos:{pt:'eventos',en:'events'},
   nenhumEvento:{pt:'Nenhum evento neste dia',en:'No events on this day'},
@@ -63,7 +67,7 @@ var TEXTOS = {
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
-var DIC = {"Total gasto":"Total spent","Maior categoria":"Biggest category","Média por lançamento":"Average per entry","Tema":"Theme","Claro":"Light","Escuro":"Dark",
+var DIC = {"Pendências":"Pending","Total gasto":"Total spent","Maior categoria":"Biggest category","Média por lançamento":"Average per entry","Tema":"Theme","Claro":"Light","Escuro":"Dark",
 "Não conseguimos carregar seus dados":"We couldn't load your data",
 "Seus dados estão salvos — só não chegaram até aqui agora. Isso costuma ser conexão. Não entramos no app para não gravar nada por cima.":"Your data is safe — it just didn't reach us right now. This is usually the connection. We did not open the app, so nothing gets written over it.",
 "Tentar de novo":"Try again","Sair e entrar de novo":"Sign out and back in",

@@ -235,6 +235,16 @@
       </div>
       <span class="nav-label" data-i18n="tema">Tema</span>
     </button>
+    <div class="nav-nivel" id="nav-nivel">
+      <div class="nav-nivel-topo">
+        <span class="nav-nivel-rosto" id="nav-nivel-rosto"></span>
+        <span class="nav-nivel-txt">
+          <span class="nav-nivel-nome" id="nav-nivel-nome">—</span>
+          <span class="nav-nivel-xp" id="nav-nivel-xp">Nível 1 · 0 XP</span>
+        </span>
+      </div>
+      <div class="progress-bar-track nav-nivel-barra"><div class="progress-bar-fill" id="nav-nivel-fill" style="width:0%"></div></div>
+    </div>
     <div class="nav-item" data-page="perfil"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Perfil</span></div>
   </nav>
 
@@ -591,6 +601,8 @@
       </div>
       <div class="section-title">Progresso das metas</div>
       <div id="res-metas-progress" style="margin-bottom:28px"></div>
+      <div class="section-title" data-i18n="pendencias">Pendências</div>
+      <div id="res-pendencias" class="res-pendencias"></div>
       <div class="section-title">Notas recentes</div>
       <div id="res-notas-preview" style="display:flex;gap:12px;flex-wrap:wrap"></div>
     </section>

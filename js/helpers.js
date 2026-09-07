@@ -380,3 +380,14 @@ document.addEventListener('DOMContentLoaded', function(){
     }).observe(document.body, { childList: true, subtree: true });
   }
 });
+
+
+// Estado vazio do design system: mascote sobre um brilho suave, frase curta
+// e uma acao opcional. Um lugar so, para as telas nao divergirem.
+function estadoVazio(humor, frase, acaoHtml){
+  return '<div class="estado-vazio">'
+    + '<div class="estado-vazio-mascote">' + ticolino(humor || 'preguicoso', 120) + '</div>'
+    + '<p>' + frase + '</p>'
+    + (acaoHtml || '')
+    + '</div>';
+}
