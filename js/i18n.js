@@ -9,6 +9,8 @@ var IDIOMA_PADRAO = 'pt';
 
 // Textos usados pelo codigo (chave -> {pt, en})
 var TEXTOS = {
+  abrirMenu:{pt:'Abrir menu',en:'Open menu'},
+  fecharMenu:{pt:'Fechar menu',en:'Close menu'},
   deTresConcluidos:{pt:'de 3 concluídos',en:'of 3 done'},
   venceEsteMes:{pt:'vence este mês',en:'due this month'},
   vencemEsteMes:{pt:'vencem este mês',en:'due this month'},
