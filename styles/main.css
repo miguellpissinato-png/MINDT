@@ -2197,11 +2197,14 @@ input[type="checkbox"]{accent-color:var(--accent)}
   position:absolute;left:0;right:0;bottom:0;
   width:100%;height:min(520px,62vh);display:block;
 }
-/* Dissolve o TOPO da paisagem no ceu, para nao existir uma linha dura onde
-   o SVG comeca. */
-.floresta-veu{
-  position:absolute;left:0;right:0;bottom:0;height:min(520px,62vh);
-  background:linear-gradient(180deg,var(--bg) 0%,transparent 34%);
+/* O topo da paisagem se dissolve por MASCARA, nao por uma camada de cor.
+   Antes havia um veu que comecava opaco em var(--bg): onde ele comecava, o
+   brilho do ceu era cortado de uma vez e aparecia uma linha horizontal na
+   tela, nos dois temas. A mascara apaga o proprio desenho, entao nao ha
+   cor nova e nao ha borda. */
+.floresta-svg{
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 32%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 32%);
 }
 /* No tema claro o cenario entra discreto: o texto e olivo escuro e a
    paisagem sage nao deixa margem de contraste como o fundo escuro deixa.
@@ -2220,7 +2223,7 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .floresta-passaro *{animation:none!important}
 }
 @media (max-width:768px){
-  .floresta-svg,.floresta-veu{height:min(380px,46vh)}
+  .floresta-svg{height:min(380px,46vh)}
 }
 
 /* ── Gastos: as tres metricas do design system ────────────────────────

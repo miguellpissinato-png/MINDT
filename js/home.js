@@ -325,9 +325,7 @@ function montarFloresta(){
       '<g data-plano="1.35">' + caminhos(FLORESTA_ARVORES_PERTO, P.arvPerto) + '</g>' +
       passaros +
     '</svg>' +
-    // Dissolve o TOPO da paisagem no ceu, para nao haver linha dura onde o
-    // SVG comeca. O degrade vive no CSS (.floresta-veu), que sabe a altura.
-    '<div class="floresta-veu"></div>';
+    '';   // o topo da paisagem se dissolve por mascara no CSS (.floresta-svg)
 
   ligarParallaxFloresta(host);
 }
