@@ -216,6 +216,16 @@
 </div>
 
 <div id="app" style="visibility:hidden">
+  <!-- Gaveta do menu no celular: o botao abre a barra lateral, que no
+       desktop fica sempre visivel. -->
+  <button id="btn-menu" onclick="alternarMenu()" aria-label="Abrir menu"
+          aria-controls="sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M3 6h18M3 12h18M3 18h18"/>
+    </svg>
+  </button>
+  <div id="menu-fundo" onclick="fecharMenu()" aria-hidden="true"></div>
+
   <nav id="sidebar">
     <div class="sidebar-logo"><div class="logo-icon">M</div><span class="logo-text">Mindt</span></div>
     <div class="nav-lista">

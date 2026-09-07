@@ -2346,7 +2346,8 @@ input[type="checkbox"]{accent-color:var(--accent)}
 .nav-nivel-barra{height:3px}
 #sidebar:not(:hover) .nav-nivel{opacity:0;pointer-events:none}
 #sidebar:hover .nav-nivel{opacity:1;transition:opacity var(--dur) var(--ease-standard)}
-@media (max-width:768px){ .nav-nivel{display:none} }
+/* Escondido no celular enquanto a barra lateral nao tinha como ser aberta.
+   Agora que existe a gaveta, o cartao aparece nela. */
 
 /* ── Estrutura do menu lateral ────────────────────────────────────────
    O menu tem altura fixa de 100vh e overflow:hidden. Sem uma secao
@@ -2383,6 +2384,57 @@ input[type="checkbox"]{accent-color:var(--accent)}
 @media (max-width:900px){
   .home-dupla{grid-template-columns:1fr}
   .home-dupla>*+*{margin-top:0}
+}
+
+/* ── Gaveta do menu no celular ────────────────────────────────────────
+   No desktop nada muda: a barra lateral continua sempre visivel e abrindo
+   no hover. O botao e o fundo escurecido so existem no celular. */
+#btn-menu{display:none}
+#menu-fundo{display:none}
+
+@media (max-width:768px){
+  #btn-menu{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:220;
+    width:44px;height:44px;padding:0;
+    background:var(--surface-2);color:var(--text);
+    border:1px solid var(--line-strong);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-sm);cursor:pointer;
+  }
+  #btn-menu svg{width:20px;height:20px}
+
+  /* A barra volta a existir, mas fora da tela ate ser chamada. */
+  #sidebar{
+    display:flex;position:fixed;top:0;bottom:0;left:0;
+    width:var(--sidebar-w);min-width:var(--sidebar-w);height:100%;
+    z-index:240;transform:translateX(-100%);
+    transition:transform var(--dur-page) var(--ease-out);
+    box-shadow:none;
+  }
+  /* No celular nao ha hover: os rotulos ficam sempre visiveis na gaveta. */
+  #sidebar .nav-label,#sidebar .logo-text{opacity:1}
+  /* Especificidade: a regra de desktop e `#sidebar:not(:hover) .nav-nivel`
+     (0,1,2,0). Precisa de peso igual ou maior para valer na gaveta. */
+  #sidebar:not(:hover) .nav-nivel,#sidebar .nav-nivel{opacity:1;pointer-events:auto}
+
+  #menu-fundo{
+    display:block;position:fixed;inset:0;z-index:230;
+    background:var(--overlay);opacity:0;pointer-events:none;
+    transition:opacity var(--dur) var(--ease-standard);
+  }
+
+  body.menu-aberto #sidebar{transform:translateX(0);box-shadow:var(--shadow-lg)}
+  body.menu-aberto #menu-fundo{opacity:1;pointer-events:auto}
+
+  /* Espaco para o botao nao cobrir o inicio do conteudo. */
+  #main{padding-top:68px}
+  /* Na Home o cabecalho ja tem margem propria; so o avatar precisa descer. */
+  #page-home .tico-home-head{padding-top:4px}
+}
+
+/* Quem pediu menos movimento nao ganha o deslize. */
+@media (prefers-reduced-motion:reduce){
+  #sidebar,#menu-fundo{transition:none}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
