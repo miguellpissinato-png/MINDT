@@ -6,72 +6,68 @@
 
   /* ═══════════════════════════════════════════════════════════════════
      MINDT — TEMA FLORESTA DO TICOLINO
+     Tokens do design system (Claude Design), 2a entrega.
      Paleta: 2e2910 solo · 2c5745 copa · ebe3a7 trigo · eb7d00 luz.
-     O trigo e o texto, o verde/olivo sao as superficies, o laranja e
-     reservado a acao. Vindo do design system (Claude Design).
 
-     Desvio deliberado do pacote original: os tons de texto secundario
-     vinham como trigo com opacidade (0,68 e 0,45). Com alpha o contraste
-     depende do que esta atras e o --text-3 reprovava nas SETE superficies
-     (2,56 a 3,74:1, sendo 4,5:1 o minimo). Aqui eles sao cores solidas
-     equivalentes: mesma familia, mesma leitura, contraste garantido.
+     Cinco valores diferem do pacote: medi os pares e estes nao batiam o
+     minimo WCAG. Cada um esta marcado com >>> e o numero medido.
      ═══════════════════════════════════════════════════════════════════ */
 
   /* ── Acento: a luz que entra na mata. So acao, progresso e XP. ── */
   --accent:#EB7D00;
-  --accent-bright:#FF9420;         /* hover */
-  --accent-deep:#B85F00;           /* fim do gradiente, pressionado */
-  --accent-tint:rgba(235,125,0,0.15);   /* fundo de chip ativo */
+  --accent-bright:#FF9420;
+  --accent-deep:#B85F00;
+  --accent-soft:rgba(235,125,0,0.15);
+  --accent-tint:rgba(235,125,0,0.15);
   --accent-line:rgba(235,125,0,0.45);
-  --accent-text:#F5A03D;           /* acento como texto: 5,68:1 */
+  --accent-text:#F5A03D;
 
-  /* ── Verde da copa: superficie de apoio e cartao hero ── */
+  /* ── Verde da copa ── */
   --forest:#2C5745;
   --forest-bright:#3A7059;
   --forest-deep:#1D3A2E;
   --forest-soft:rgba(44,87,69,0.35);
   --forest-line:rgba(90,140,116,0.4);
 
-  /* ── Superficies: escada a partir do solo ── */
-  --bg:#12140E;                    /* fundo — solo da mata */
-  --surface-1:#1B2118;             /* cartao padrao */
-  --surface-2:#232C21;             /* cartao elevado, input, hover */
-  --surface-3:#2E3A2B;             /* trilho, divisoria cheia */
-  --soil:#2E2910;                  /* olivo — capas, prateleira, faixas */
-  --panel:#161A12;                 /* menu lateral e barra do celular */
-  --overlay:rgba(9,11,7,0.82);     /* fundo do modal */
+  /* ── Superficies ── */
+  --bg:#12140E;
+  --surface-1:#1B2118;
+  --surface-2:#232C21;
+  --surface-3:#2E3A2B;
+  --soil:#2E2910;
+  --panel:#161A12;
+  --overlay:rgba(9,11,7,0.82);
 
-  /* ── Linhas: trigo em baixa opacidade, nunca cinza puro ── */
+  /* ── Linhas ── */
   --line:rgba(235,227,167,0.10);
   --line-strong:rgba(235,227,167,0.18);
   --line-faint:rgba(235,227,167,0.055);
 
-  /* ── Texto: trigo, solido. Contraste no pior fundo escuro entre () ── */
-  --text:#EBE3A7;                  /* (9,15:1) */
-  --text-2:#BCB988;                /* (5,94:1) corpo, descricao */
-  --text-3:#A9A87C;                /* (4,88:1) metadado, rotulo, data */
-  --text-on-accent:#211C08;        /* sobre o laranja: 6,05:1 */
-  --text-on-forest:#EBE3A7;        /* sobre o cartao verde: 6,29:1 */
-  --text-on-forest-2:#C5C793;      /* idem, secundario: 4,68:1 */
+  /* ── Texto ── */
+  --text:#EBE3A7;
+  --text-2:rgba(235,227,167,0.68);
+  --text-3:rgba(235,227,167,0.62);   /* >>> pacote: 0.58 = 4,22:1 sobre --surface-3. 0.62 da 4,59 */
+  --text-4:rgba(235,227,167,0.43);   /* >>> pacote: 0.40 = 2,81:1. 0.43 da 3,02 (piso de 3:1) */
+  --text-on-accent:#211C08;
+  --text-on-forest:#EBE3A7;
+  --text-on-forest-2:#C5C793;        /* secundario sobre o cartao verde: 4,68:1 */
 
-  /* ── Semanticos. As variantes -text passam como texto; as outras
-        sao para preenchimento, borda e barra. ── */
+  /* ── Semanticos ── */
   --success:#6FB58C;
-  --success-text:#6FB58C;          /* (4,93:1) */
+  --success-text:#6FB58C;
   --success-soft:rgba(111,181,140,0.16);
   --warning:#E3B341;
-  --warning-text:#E3B341;          /* (6,14:1) */
+  --warning-text:#E3B341;
   --warning-soft:rgba(227,179,65,0.16);
   --danger:#D9694A;
-  --danger-text:#E28E77;           /* (4,79:1) — o #D9694A dava 3,46 */
+  --danger-text:#E28E77;             /* o #D9694A da 3,46:1 como texto */
   --danger-soft:rgba(217,105,74,0.16);
 
-  /* Importancia de eventos na Agenda */
   --importance-default:#6FB58C;
   --importance-medium:#E3B341;
   --importance-high:#D9694A;
 
-  /* Categorias de gasto e lombadas de livro — tons de mata */
+  /* Cores de dado — ver PALETA_CATEGORIAS em js/gastos.js para o grafico */
   --data-1:#EB7D00; --data-2:#6FB58C; --data-3:#E3B341;
   --data-4:#D9694A; --data-5:#8C9E5E; --data-6:#4E8FA0;
 
@@ -83,70 +79,45 @@
   --grad-sheen:linear-gradient(90deg,rgba(235,227,167,0) 0%,rgba(235,227,167,0.09) 50%,rgba(235,227,167,0) 100%);
 
   /* ── Forma ── */
-  --radius-xs:6px;
-  --radius-sm:10px;
-  --radius:12px;
-  --radius-lg:14px;
-  --radius-modal:16px;
-  --radius-pill:999px;
+  --radius-xs:6px; --radius-sm:10px; --radius:12px;
+  --radius-lg:14px; --radius-modal:16px; --radius-pill:999px;
 
-  /* ── Sombras: fundo marrom-esverdeado, nao preto puro ── */
+  /* ── Sombras ── */
   --shadow-sm:0 1px 2px rgba(6,8,4,0.55);
   --shadow:0 6px 20px -6px rgba(6,8,4,0.66);
   --shadow-lg:0 16px 40px -12px rgba(6,8,4,0.74);
   --shadow-modal:0 32px 80px -20px rgba(6,8,4,0.84);
+  --shadow-tabbar:0 -6px 18px rgba(6,8,4,0.5);
   --glow:0 0 0 1px var(--accent-line),0 6px 24px -6px rgba(235,125,0,0.5);
   --glow-soft:0 4px 18px -6px rgba(235,125,0,0.38);
   --glow-forest:0 6px 24px -8px rgba(44,87,69,0.7);
-
-  /* ── Foco: token proprio. NAO usar --accent-soft aqui: no sistema novo
-        esse nome e um fundo translucido, e o anel sumiria. ── */
   --focus-ring:#F5A03D;
 
-  /* ── Espaco e layout ── */
-  --sidebar-w:232px;
-  --sidebar-collapsed:68px;
-  --mobile-nav-h:68px;
-
-  /* ── Movimento ── */
+  /* ── Espaco e movimento ── */
+  --sidebar-w:232px; --sidebar-collapsed:68px; --mobile-nav-h:68px;
   --ease-standard:cubic-bezier(0.2,0,0.2,1);
   --ease-out:cubic-bezier(0.16,1,0.3,1);
   --dur-press:0.09s; --dur-fast:0.14s; --dur:0.2s;
   --dur-card:0.24s; --dur-page:0.32s; --dur-progress:0.7s;
 
-  /* ═══ Apelidos de compatibilidade ═══
-     Nomes que o CSS de producao ainda referencia, das identidades
-     anterior (roxo) e intermediaria (verde/creme). Mapeados para a
-     paleta nova para que o app inteiro se repinte de uma vez. Nao
-     acrescentar novos usos: preferir os nomes de cima. */
-  --surface:#1B2118;
-  --text-dim:#BCB988;
-  --text-muted:#A9A87C;
-  --accent-strong:#FF9420;
-  --accent-soft:#F5A03D;       /* aqui continua sendo COR (texto/anel) */
-  --ink:#EBE3A7;
-  --card:#1B2118;
-  --paper:#12140E;
-  --glass:#1B2118;
-  --glass-hover:#232C21;
+  /* ═══ Apelidos de migracao ═══
+     Nomes das identidades anteriores (roxa e creme) que o CSS de producao
+     ainda referencia, apontando para a floresta. Nao usar em codigo novo. */
+  --surface:#1B2118; --card:#1B2118; --glass:#1B2118; --paper:#12140E;
+  --wash:#232C21; --glass-hover:#232C21; --card-cream:#232C21;
+  --card-blue:#2C5745; --cream:#12140E; --cream-deep:#0E1009;
+  --sidebar-cream:#161A12; --panel-cream:#161A12;
   --glass-border:rgba(235,227,167,0.18);
-  --cream:#12140E;
-  --card-cream:#1B2118;
-  --card-blue:#232C21;
-  --yellow:#E3B341;
-  --blue:#EB7D00;
-  --green:#6FB58C;
-  --red:#D9694A;
-  --salmon:#D9694A;
-  --purple:#EB7D00;
-  --purple-light:#F5A03D;
-  --purple-dark:#B85F00;
-  /* Halo da era roxa: usado em 7 box-shadows das camadas antigas. Traduzido
-     para laranja ele viraria auréola em toda parte, e o sistema quer o brilho
-     so na acao (via --glow-soft, aplicado na camada floresta). Transparente
-     apaga esses 7 sem precisar caçar cada regra. */
-  --purple-glow:transparent;
-  --fur:#F1C596;
+  --ink:#EBE3A7; --border-strong:#EBE3A7;
+  --text-dim:rgba(235,227,167,0.68); --text-muted:rgba(235,227,167,0.62);
+  --action:#EB7D00; --action-hover:#FF9420; --accent-strong:#FF9420;
+  --blue:#EB7D00; --purple:#EB7D00; --purple-light:#F5A03D;
+  --purple-dark:#12140E; --purple-glow:transparent;
+  --yellow:#E3B341; --highlight:#E3B341; --pale:#E3B341;
+  --green:#6FB58C; --red:#D9694A; --salmon:#D9694A;
+  --xp:#F5A03D; --xp-blue:#F5A03D;
+  --fur:#F1C596; --fur-legacy:#F1C596;
+  --text-on-action:#211C08; --text-on-blue:#EBE3A7;
   --shadow-hard:0 6px 20px -6px rgba(6,8,4,0.66);
   --shadow-soft:0 1px 2px rgba(6,8,4,0.55);
   --stroke-w:1px;
@@ -157,6 +128,85 @@
   --tico-blush:#F6A9A4; --tico-nose:#F0959B; --tico-mouth:#E98C93;
   --tico-eye:#3A2A20; --tico-seed:#D9A05B; --tico-fur-shade:#DFAE7E;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TEMA CLARO — a mesma paleta, em derivacoes claras.
+   O trigo vira o papel, o olivo vira o texto. Nenhum matiz novo.
+   Liga com data-theme="light" no <html>.
+   ═══════════════════════════════════════════════════════════════════════ */
+[data-theme="light"]{
+  color-scheme:light;
+
+  --accent:#AD5900;        /* >>> pacote: #C56800 dava 3,85:1 com texto branco. #AD5900 da 4,90 */
+  --accent-bright:#C56800;
+  --accent-deep:#8F4B00;
+  --accent-soft:rgba(235,125,0,0.12);
+  --accent-tint:rgba(235,125,0,0.12);
+  --accent-line:rgba(197,104,0,0.38);
+  --accent-text:#9B5200;
+
+  --forest:#2C5745; --forest-bright:#3A7059; --forest-deep:#1D3A2E;
+  --forest-soft:rgba(44,87,69,0.10); --forest-line:rgba(44,87,69,0.28);
+
+  --bg:#F2EEDA; --surface-1:#FBF8EC; --surface-2:#F5F1DF; --surface-3:#E6E0C6;
+  --soil:#2E2910; --panel:#FBF8EC; --overlay:rgba(30,26,10,0.52);
+
+  --line:rgba(46,41,16,0.13);
+  --line-strong:rgba(46,41,16,0.22);
+  --line-faint:rgba(46,41,16,0.07);
+
+  --text:#2E2910;
+  --text-2:rgba(46,41,16,0.76);
+  --text-3:rgba(46,41,16,0.68);   /* >>> pacote: 0.62 = 3,84:1 sobre --surface-3. 0.68 da 4,52 */
+  --text-4:rgba(46,41,16,0.45);
+  --text-on-accent:#FFFDF4;
+  --text-on-forest:#EBE3A7;
+  --text-on-forest-2:#C5C793;
+
+  --success:#2C6B4C; --success-text:#2C6B4C; --success-soft:rgba(44,107,76,0.12);
+  --warning:#7E5D12;              /* >>> pacote: #8A6714 dava 4,47:1 sobre papel. #7E5D12 da 5,21 */
+  --warning-text:#7E5D12; --warning-soft:rgba(138,103,20,0.13);
+  --danger:#A8412A; --danger-text:#A8412A; --danger-soft:rgba(168,65,42,0.11);
+
+  --importance-default:#2C6B4C; --importance-medium:#7E5D12; --importance-high:#A8412A;
+  --data-1:#C56800; --data-2:#2C6B4C; --data-3:#8A6714;
+  --data-4:#A8412A; --data-5:#5E6B33; --data-6:#2F6376;
+
+  --grad-accent:linear-gradient(135deg,#C56800 0%,#8F4B00 100%);
+  --grad-hero:linear-gradient(150deg,#3A7059 0%,#2C5745 48%,#204036 100%);
+  --grad-card:linear-gradient(158deg,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0) 62%);
+  --grad-canopy:linear-gradient(180deg,rgba(44,87,69,0.09) 0%,rgba(44,87,69,0) 100%);
+  --grad-sheen:linear-gradient(90deg,rgba(46,41,16,0) 0%,rgba(46,41,16,0.06) 50%,rgba(46,41,16,0) 100%);
+
+  /* Sombras sobre papel sao olivo translucido, nunca preto. */
+  --shadow-sm:0 1px 2px rgba(46,41,16,0.10);
+  --shadow:0 6px 20px -6px rgba(46,41,16,0.16);
+  --shadow-lg:0 16px 40px -12px rgba(46,41,16,0.20);
+  --shadow-modal:0 32px 80px -20px rgba(46,41,16,0.26);
+  --shadow-tabbar:0 -6px 18px rgba(46,41,16,0.12);
+  --glow:0 0 0 1px var(--accent-line),0 6px 24px -6px rgba(197,104,0,0.32);
+  --glow-soft:0 4px 18px -6px rgba(197,104,0,0.26);
+  --glow-forest:0 6px 24px -8px rgba(44,87,69,0.28);
+  --focus-ring:#AD5900;
+
+  /* Apelidos de migracao, no claro */
+  --surface:#FBF8EC; --card:#FBF8EC; --glass:#FBF8EC; --paper:#F2EEDA;
+  --wash:#F5F1DF; --glass-hover:#F5F1DF; --card-cream:#F5F1DF;
+  --card-blue:#2C5745; --cream:#F2EEDA; --cream-deep:#E6E0C6;
+  --sidebar-cream:#FBF8EC; --panel-cream:#FBF8EC;
+  --glass-border:rgba(46,41,16,0.22);
+  --ink:#2E2910; --border-strong:#2E2910;
+  --text-dim:rgba(46,41,16,0.76); --text-muted:rgba(46,41,16,0.68);
+  --action:#AD5900; --action-hover:#C56800; --accent-strong:#C56800;
+  --blue:#AD5900; --purple:#AD5900; --purple-light:#9B5200;  /* usado como texto em 22 regras: 5,00:1 */
+  --purple-dark:#2E2910; --purple-glow:transparent;
+  --yellow:#7E5D12; --highlight:#7E5D12; --pale:#7E5D12;
+  --green:#2C6B4C; --red:#A8412A; --salmon:#A8412A;
+  --xp:#9B5200; --xp-blue:#9B5200;
+  --text-on-action:#FFFDF4; --text-on-blue:#EBE3A7;
+  --shadow-hard:0 6px 20px -6px rgba(46,41,16,0.16);
+  --shadow-soft:0 1px 2px rgba(46,41,16,0.10);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -164,25 +214,25 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 /* AUTH */
 #auth-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,var(--bg) 0%,var(--bg) 100%)}
 .auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:40px 36px;box-shadow:var(--shadow-sm)}
-.auth-logo-icon{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:linear-gradient(135deg,var(--surface-2),var(--line));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#04231C;box-shadow:var(--shadow-sm)}
+.auth-logo-icon{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;background:linear-gradient(135deg,var(--surface-2),var(--line));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--text-on-accent);box-shadow:var(--shadow-sm)}
 .auth-logo-text{text-align:center;font-family:'Poppins',system-ui,sans-serif;font-size:32px;font-weight:700;color:var(--text);letter-spacing:-1px}
 .auth-subtitle{text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px;margin-bottom:28px}
 .auth-tabs{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:28px}
 .auth-tab{flex:1;padding:9px;border:none;border-radius:9px;cursor:pointer;font-family:'Poppins',system-ui,sans-serif;font-size:13px;font-weight:600;transition:all 0.2s}
-.auth-tab.active{background:linear-gradient(135deg,var(--accent),var(--surface-2));color:#04231C;box-shadow:var(--shadow-sm)}
+.auth-tab.active{background:linear-gradient(135deg,var(--accent),var(--surface-2));color:var(--text-on-accent);box-shadow:var(--shadow-sm)}
 .auth-tab.inactive{background:transparent;color:var(--text-muted)}
 .auth-label{display:block;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
 .auth-input{width:100%;padding:13px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--text);font-family:'Poppins',system-ui,sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:16px}
 .auth-input:focus{border-color:var(--line)}
 .auth-error{display:none;margin-bottom:16px;padding:10px 14px;border-radius:9px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:var(--danger);font-size:13px}
-.auth-btn{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:12px;cursor:pointer;font-family:'Poppins',system-ui,sans-serif;font-size:15px;font-weight:700;color:#04231C;box-shadow:var(--shadow-sm);transition:all 0.2s}
+.auth-btn{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:12px;cursor:pointer;font-family:'Poppins',system-ui,sans-serif;font-size:15px;font-weight:700;color:var(--text-on-accent);box-shadow:var(--shadow-sm);transition:all 0.2s}
 .auth-btn:hover{transform:translateY(-2px)}
 .auth-loading{display:none;text-align:center;margin-top:14px;color:var(--text-muted);font-size:13px}
 .auth-confirm{text-align:center;padding:20px 0}
 .auth-confirm-icon{font-size:48px;margin-bottom:16px}
 .auth-confirm-title{font-size:15px;font-weight:600;margin-bottom:8px}
 .auth-confirm-text{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:24px}
-.auth-confirm-btn{padding:12px 28px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:#04231C}
+.auth-confirm-btn{padding:12px 28px;background:linear-gradient(135deg,var(--accent),var(--surface-2));border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-on-accent)}
 
 /* APP */
 #app{display:flex;height:100vh;position:relative;z-index:1}
@@ -191,7 +241,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 #sidebar{width:var(--sidebar-collapsed);min-width:var(--sidebar-collapsed);height:100vh;background:var(--surface);border-right:2px solid var(--ink);display:flex;flex-direction:column;padding:24px 0;transition:width 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;z-index:100;flex-shrink:0}
 #sidebar:hover{width:var(--sidebar-w)}
 .sidebar-logo{display:flex;align-items:center;gap:12px;padding:0 18px;margin-bottom:32px;white-space:nowrap}
-.logo-icon{width:28px;height:28px;flex-shrink:0;background:linear-gradient(135deg,var(--purple-light),var(--purple-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#04231C;box-shadow:0 0 16px var(--purple-glow)}
+.logo-icon{width:28px;height:28px;flex-shrink:0;background:linear-gradient(135deg,var(--purple-light),var(--purple-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text-on-accent);box-shadow:0 0 16px var(--purple-glow)}
 .logo-text{font-family:'Poppins',system-ui,sans-serif;font-weight:700;font-size:20px;color:var(--text);opacity:0;transition:opacity 0.2s 0.1s}
 #sidebar:hover .logo-text{opacity:1}
 .nav-item{display:flex;align-items:center;gap:14px;padding:12px 18px;cursor:pointer;transition:background 0.2s;white-space:nowrap;position:relative}
@@ -247,7 +297,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .page-title{font-family:'Poppins',system-ui,sans-serif;font-size:28px;font-weight:700;color:var(--text)}
 .tab-bar{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:24px;width:fit-content}
 .tab-btn{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text-dim);transition:all 0.2s;white-space:nowrap}
-.tab-btn.active{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:#04231C;box-shadow:0 4px 16px var(--purple-glow)}
+.tab-btn.active{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:var(--text-on-accent);box-shadow:0 4px 16px var(--purple-glow)}
 .tab-btn:hover:not(.active){background:var(--glass-hover);color:var(--text)}
 .cards-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
 .meta-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.25s var(--ease-out),box-shadow 0.25s,border-color 0.25s,background 0.25s;position:relative;display:flex;flex-direction:row;align-items:stretch;width:100%}
@@ -295,7 +345,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .period-chip-label{font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .period-chip-value{font-family:'Poppins',system-ui,sans-serif;font-size:28px;font-weight:700;color:var(--text)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;cursor:pointer;border-radius:10px;font-size:13px;font-weight:600;font-family:'Poppins',system-ui,sans-serif;transition:all 0.2s;white-space:nowrap}
-.btn-primary{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:#04231C;box-shadow:0 4px 20px var(--purple-glow)}
+.btn-primary{background:linear-gradient(135deg,var(--purple),var(--purple-light));color:var(--text-on-accent);box-shadow:0 4px 20px var(--purple-glow)}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--purple-glow)}
 .btn-ghost{background:var(--surface);border:1px solid var(--line);color:var(--text-dim)}
 .btn-ghost:hover{background:var(--surface-2);color:var(--text)}
@@ -380,7 +430,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .cal-day{text-align:center;padding:6px 4px;border-radius:7px;font-size:13px;cursor:pointer;transition:all 0.15s}
 .cal-day:hover{background:rgba(37,132,95,0.3)}
 .cal-day.today{color:var(--purple-light);font-weight:700}
-.cal-day.selected{background:var(--accent-strong);color:#04231C;font-weight:700}
+.cal-day.selected{background:var(--accent-strong);color:var(--text-on-accent);font-weight:700}
 .cal-day.other-month{color:var(--text-muted);opacity:0.4}
 .confirm-icon{font-size:40px;text-align:center;margin-bottom:16px}
 .confirm-text{text-align:center;color:var(--text-dim);font-size:14px;line-height:1.6}
@@ -439,7 +489,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .estudos-card-title{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted)}
 .music-genre-tabs{display:flex;gap:6px}
 .music-tab{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--text-dim);cursor:pointer;transition:all 0.2s}
-.music-tab.active{background:var(--accent-strong);color:#04231C;border-color:transparent}
+.music-tab.active{background:var(--accent-strong);color:var(--text-on-accent);border-color:transparent}
 .music-tab:hover:not(.active){background:var(--surface);color:var(--text)}
 .music-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--purple-dark) transparent}
 .music-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background 0.2s;border:1px solid transparent}
@@ -1020,12 +1070,12 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   width:36px;height:110px;flex-shrink:0;
   border:1.5px dashed var(--line);border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--accent-soft);font-size:20px;
+  cursor:pointer;color:var(--accent-text);font-size:20px;
   transition:all 0.2s;margin-left:4px;
   background:rgba(37,132,95,0.05);
   z-index:3;
 }
-.shelf-book-add:hover{border-color:var(--accent-soft);color:var(--text-dim);background:rgba(37,132,95,0.1)}
+.shelf-book-add:hover{border-color:var(--accent-line);color:var(--text);background:var(--accent-soft)}
 
 /* SHELF POPUP BUTTONS */
 .shelf-popup-btn{
@@ -1122,7 +1172,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 
 .agenda-view-toggle{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .agenda-view-btn{padding:7px 14px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.18s;font-family:'Poppins',system-ui,sans-serif}
-.agenda-view-btn.active{background:rgba(37,132,95,0.45);color:#04231C}
+.agenda-view-btn.active{background:rgba(37,132,95,0.45);color:var(--text-on-accent)}
 
 /* CALENDAR HEADER */
 .agenda-cal-header{
@@ -1196,7 +1246,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .agenda-cell.today{background:rgba(37,132,95,0.18)}
 .agenda-cell.today .agenda-day-num{
   background:var(--accent-strong);
-  color:#04231C;border-radius:50%;
+  color:var(--text-on-accent);border-radius:50%;
   width:26px;height:26px;display:flex;align-items:center;justify-content:center;
   font-weight:700;box-shadow:var(--shadow-sm);
 }
@@ -1485,7 +1535,7 @@ html,body{background:var(--cream)}
 .tico-today-info{flex:1;display:flex;flex-direction:column}
 .tico-today-tag{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--ink);opacity:.5}
 .tico-today-label{font-size:15px;font-weight:700;color:var(--ink);margin-top:1px}
-.tico-today-xp{font-size:12px;font-weight:800;color:var(--accent-soft)}
+.tico-today-xp{font-size:12px;font-weight:800;color:var(--accent-text)}
 
 .tico-quick-row{display:flex;gap:12px;margin-bottom:22px}
 .tico-quick{flex:1;text-align:left;cursor:pointer;font-family:inherit;margin:0;border-radius:24px}
@@ -1692,10 +1742,10 @@ html,body{background:var(--bg);color:var(--text)}
   transform:none;box-shadow:none;background:var(--surface-2)
 }
 .btn:hover,.auth-btn:hover{transform:none;background:var(--surface-2)}
-.btn-primary,.auth-btn,.onb-cta,#btn-instalar{background:var(--accent);border-color:var(--accent);color:#04231C}
+.btn-primary,.auth-btn,.onb-cta,#btn-instalar{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent)}
 .btn-primary:hover,.auth-btn:hover,.onb-cta:hover{background:var(--accent-strong);border-color:var(--accent-strong)}
 .btn-ghost{background:transparent}
-.btn-success{background:var(--success);border-color:var(--success);color:#04231C}
+.btn-success{background:var(--success);border-color:var(--success);color:var(--text-on-accent)}
 .btn-danger{background:var(--danger);border-color:var(--danger);color:#2A0F0A}
 .btn-sm{font-size:13px;padding:7px 12px;border-radius:8px}
 
@@ -1706,7 +1756,7 @@ html,body{background:var(--bg);color:var(--text)}
   color:var(--text-dim);font-weight:600;font-size:13px;box-shadow:none
 }
 .chip.active,.filter-chip.active,.tab-btn.active,.agenda-view-btn.active{
-  background:var(--accent);border-color:var(--accent);color:#04231C
+  background:var(--accent);border-color:var(--accent);color:var(--text-on-accent)
 }
 
 /* ── Formularios ── */
@@ -1719,7 +1769,7 @@ html,body{background:var(--bg);color:var(--text)}
   /* O anel antigo era verde a 25% de opacidade: ~1,3:1 contra o campo, ou seja,
      invisivel. WCAG pede 3:1 para indicador de foco. --accent-soft da 4,1:1 no
      pior fundo do tema. */
-  border-color:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft);outline:none
+  border-color:var(--focus-ring);box-shadow:0 0 0 3px var(--focus-ring);outline:none
 }
 .form-label,.auth-label{color:var(--text-muted);font-weight:600;letter-spacing:.04em}
 ::placeholder{color:var(--text-muted)}
@@ -1738,7 +1788,7 @@ html,body{background:var(--bg);color:var(--text)}
 
 /* ── Navegacao ── */
 #sidebar{background:var(--bg);border-right:1px solid var(--line)}
-.logo-icon{background:var(--accent);border:none;color:#04231C;border-radius:8px}
+.logo-icon{background:var(--accent);border:none;color:var(--text-on-accent);border-radius:8px}
 .nav-item{border-radius:8px;margin:0 8px}
 .nav-item:hover{background:var(--surface)}
 .nav-item.active{background:var(--surface-2)}
@@ -1750,16 +1800,16 @@ html,body{background:var(--bg);color:var(--text)}
 #mobile-nav{background:var(--bg);border-top:1px solid var(--line);
   border-radius:0;box-shadow:none;height:64px;padding:6px 4px 10px}
 .mobile-nav-item{color:var(--text-muted);font-weight:600;border-radius:8px}
-.mobile-nav-item.active{background:transparent;border:none;color:var(--accent-soft)}
+.mobile-nav-item.active{background:transparent;border:none;color:var(--accent-text)}
 
 /* ── Home ── */
 .tico-avatar-btn{border:1px solid var(--line-strong);background:var(--surface-2)}
 .tico-greeting{font-size:22px}
 .tico-streak-num{font-size:28px}
-.tico-today-xp{color:var(--accent-soft);font-weight:600}
+.tico-today-xp{color:var(--accent-text);font-weight:600}
 .tico-check{border:1.5px solid var(--line-strong);background:transparent}
 .tico-check.on{background:var(--accent);border-color:var(--accent)}
-.tico-check.on::after{border-color:#04231C}
+.tico-check.on::after{border-color:var(--text-on-accent)}
 /* O Ticolino fica, mas menor e sem roubar a cena */
 #home-tico{width:56px;height:58px}
 #home-tico svg{width:56px;height:58px}
@@ -1772,16 +1822,16 @@ html,body{background:var(--bg);color:var(--text)}
 .sync-status{background:var(--surface-2);border:1px solid var(--line-strong);
   color:var(--text);box-shadow:var(--shadow);border-radius:999px;font-weight:600}
 #aviso-versao{background:var(--surface-2);border-bottom:1px solid var(--line-strong);color:var(--text)}
-#aviso-versao button{background:var(--accent);border:none;color:#04231C;box-shadow:none}
+#aviso-versao button{background:var(--accent);border:none;color:var(--text-on-accent);box-shadow:none}
 
 /* ── Autenticacao e boas-vindas ── */
 #auth-screen,#onboarding{background:var(--bg)}
 .auth-card{background:var(--surface);border:1px solid var(--line);
   border-radius:var(--radius);box-shadow:var(--shadow)}
 .auth-tabs{border:1px solid var(--line);border-radius:var(--radius-sm);background:transparent}
-.auth-tab.active{background:var(--accent);color:#04231C}
+.auth-tab.active{background:var(--accent);color:var(--text-on-accent)}
 .auth-tab.inactive{background:transparent;color:var(--text-dim)}
-.auth-logo-icon{background:var(--accent);border:none;color:#04231C;border-radius:10px}
+.auth-logo-icon{background:var(--accent);border:none;color:var(--text-on-accent);border-radius:10px}
 .auth-error{background:rgba(210,105,90,.14);border:1px solid var(--danger);
   border-radius:var(--radius-sm);color:var(--danger);font-weight:500}
 #reset-error.ok{background:rgba(63,169,122,.14);border-color:var(--success);color:var(--success-text)}
@@ -1790,7 +1840,8 @@ html,body{background:var(--bg);color:var(--text)}
 .onb-title{font-size:32px;font-weight:700}
 .onb-sub{color:var(--text-dim);font-weight:400}
 .onb-lang{background:transparent;border:1px solid var(--line);color:var(--text-dim);font-weight:600}
-.onb-dots i{background:var(--accent-soft)}
+.onb-dots i{background:var(--text-3);opacity:1}
+.onb-dots i.on{background:var(--accent)}
 
 /* ── Estante e trofeus ── */
 .shelf-plank{border:1px solid rgba(20,18,8,0.5)}
@@ -1805,7 +1856,7 @@ html,body{background:var(--bg);color:var(--text)}
 .tico-lang-switch{border:1px solid var(--line);border-radius:var(--radius-sm)}
 .tico-lang-switch button{background:transparent;color:var(--text-dim);font-weight:600}
 .tico-lang-switch button+button{border-left:1px solid var(--line)}
-.tico-lang-switch button.on{background:var(--accent);color:#04231C}
+.tico-lang-switch button.on{background:var(--accent);color:var(--text-on-accent)}
 
 /* Caixas de selecao */
 .checklist-item input[type=checkbox],.select-checkbox{
@@ -1814,7 +1865,7 @@ html,body{background:var(--bg);color:var(--text)}
 .checklist-item input[type=checkbox]:checked,.select-checkbox:checked{
   background:var(--accent);border-color:var(--accent)
 }
-.checklist-item input[type=checkbox]:checked::after,.select-checkbox:checked::after{border-color:#04231C}
+.checklist-item input[type=checkbox]:checked::after,.select-checkbox:checked::after{border-color:var(--text-on-accent)}
 
 /* Setas do carrossel */
 .scroll-arrows .scroll-arrow{background:transparent;border:1px solid var(--line);
@@ -1838,7 +1889,7 @@ html,body{background:var(--bg);color:var(--text)}
 
 /* Botao de reenviar dentro do indicador de sincronizacao */
 .sync-retry{margin-left:4px;background:var(--accent);border:none;border-radius:6px;
-  color:#04231C;font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:12px;
+  color:var(--text-on-accent);font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:12px;
   padding:4px 10px;cursor:pointer}
 .sync-retry:hover{background:var(--accent-strong)}
 
@@ -1863,20 +1914,20 @@ html,body{background:var(--bg);color:var(--text)}
 .chip.active,.filter-chip.active,.tab-btn.active,.agenda-view-btn.active,
 .auth-tab.active,.tico-lang-switch button.on,.logo-icon,.auth-logo-icon,
 #aviso-versao button{
-  background:var(--accent-strong);border-color:var(--accent-strong);color:#04231C
+  background:var(--accent);border-color:var(--accent);color:var(--text-on-accent)
 }
 .btn-primary:hover,.auth-btn:hover,.onb-cta:hover,#btn-instalar:hover,
-.sync-retry:hover{background:#3BB183;border-color:#3BB183;color:#04231C}
-.btn-success{background:var(--success);border-color:var(--success);color:#04231C}
-.btn-success:hover{background:#4CBB8A;border-color:#4CBB8A;color:#04231C}
-.btn-danger{background:var(--danger);border-color:var(--danger);color:#04231C}
-.btn-danger:hover{background:#DE7A6B;border-color:#DE7A6B;color:#04231C}
+.sync-retry:hover{background:var(--accent-bright);border-color:var(--accent-bright);color:var(--text-on-accent)}
+.btn-success{background:var(--success);border-color:var(--success);color:var(--text-on-accent)}
+.btn-success:hover{background:var(--success);border-color:var(--success);color:var(--text-on-accent)}
+.btn-danger{background:var(--danger);border-color:var(--danger);color:var(--text-on-accent)}
+.btn-danger:hover{background:var(--danger);border-color:var(--danger);color:var(--text-on-accent)}
 
 /* Defeito de especificidade: `.btn:hover` (0,2,0) vencia `.btn-danger`
    (0,1,0), entao os botoes de perigo e sucesso perdiam a propria cor ao
    passar o mouse e ficavam com texto quase preto sobre o cartao. As regras
    acima devolvem a cor a cada variante no hover. */
-.btn.btn-primary:hover,.btn.btn-success:hover,.btn.btn-danger:hover{color:#04231C}
+.btn.btn-primary:hover,.btn.btn-success:hover,.btn.btn-danger:hover{color:var(--text-on-accent)}
 
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -2102,6 +2153,22 @@ input[type="checkbox"]{accent-color:var(--accent)}
   color:var(--text-on-accent)
 }
 
+/* ── Botao de tema no menu lateral ────────────────────────────────────
+   Reaproveita a linha do .nav-item; so precisa perder o estilo proprio de
+   <button> e trocar o icone conforme o tema em vigor. */
+.nav-tema{
+  width:100%;background:transparent;border:none;padding:0;
+  font-family:'Poppins',system-ui,sans-serif;text-align:left;cursor:pointer;
+}
+.nav-tema .ico-lua{display:none}
+[data-theme="light"] .nav-tema .ico-sol{display:none}
+[data-theme="light"] .nav-tema .ico-lua{display:block}
+.nav-tema .nav-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;
+  stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+/* No claro, o fundo animado atras do app fica fora de lugar. */
+[data-theme="light"] #bg-canvas{opacity:0.5}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.
@@ -2129,7 +2196,7 @@ input[type="checkbox"]{accent-color:var(--accent)}
 :focus-visible{position:relative;z-index:5}
 
 /* Superficies do navegador que nao desenhamos, mas que sao parte do tema. */
-::selection{background:var(--accent-strong);color:#04231C}
+::selection{background:var(--accent-strong);color:var(--text-on-accent)}
 :root{scrollbar-color:var(--surface-2) transparent}
 
 /* ── 2. Alvos de toque ────────────────────────────────────────────────

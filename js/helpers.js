@@ -122,15 +122,27 @@ function toast(msg){var el=document.getElementById('toast');el.textContent=msg;e
 // BACKGROUND
 (function(){
   var canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d'),W,H,t=0;
+  // O canvas pinta com valores fixos (nao le tokens), entao guarda as duas
+  // paletas e escolhe pelo atributo data-theme no <html>.
+  var PALETAS={
+    dark:  {de:'#12140E',ate:'#1B2118',brilho1:'#2C5745',brilho2:'#EB7D00'},
+    light: {de:'#F2EEDA',ate:'#FBF8EC',brilho1:'#2C5745',brilho2:'#C56800'}
+  };
+  function paleta(){
+    return PALETAS[document.documentElement.getAttribute('data-theme')==='light'?'light':'dark'];
+  }
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
   resize();window.addEventListener('resize',resize);
   function draw(){
-    ctx.clearRect(0,0,W,H);var bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#12140E');bg.addColorStop(1,'#1B2118');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-    [{x:0.15,y:0.85,r:0.45,c:'#2C5745',a:0.18},{x:0.85,y:0.1,r:0.35,c:'#EB7D00',a:0.14}].forEach(function(o){var grd=ctx.createRadialGradient(o.x*W,o.y*H,0,o.x*W,o.y*H,o.r*Math.max(W,H));grd.addColorStop(0,o.c+'44');grd.addColorStop(1,'transparent');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);});
+    ctx.clearRect(0,0,W,H);var P=paleta();var bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,P.de);bg.addColorStop(1,P.ate);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    [{x:0.15,y:0.85,r:0.45,c:P.brilho1,a:0.18},{x:0.85,y:0.1,r:0.35,c:P.brilho2,a:0.14}].forEach(function(o){var grd=ctx.createRadialGradient(o.x*W,o.y*H,0,o.x*W,o.y*H,o.r*Math.max(W,H));grd.addColorStop(0,o.c+'44');grd.addColorStop(1,'transparent');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);});
     var phase=t*0.0006;ctx.save();
     for(var i=0;i<3;i++){var offset=i*0.12,amp=60+i*20;ctx.beginPath();for(var x=0;x<=W;x+=4){var prog=x/W,y=H*(0.82-prog*0.78)+Math.sin(prog*2.5+phase+offset)*amp+Math.cos(prog*1.2+phase*0.7)*(amp*0.5);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.strokeStyle='rgba('+(140-i*8)+','+(169-i*6)+','+(255-i*14)+','+(0.16-i*0.03+Math.sin(phase+i)*0.03)+')';ctx.lineWidth=40-i*8;ctx.lineCap='round';ctx.stroke();ctx.strokeStyle='rgba(255,251,242,'+(0.5-i*0.12)+')';ctx.lineWidth=3;ctx.stroke();}
     ctx.restore();t++;requestAnimationFrame(draw);
   }draw();
+  // definirTema() chama isto; o laco ja repinta a cada quadro, entao aqui
+  // basta garantir que a proxima pintura pegue o tamanho certo da janela.
+  window.redesenharFundo=resize;
 })();
 
 

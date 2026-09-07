@@ -9,6 +9,11 @@ var IDIOMA_PADRAO = 'pt';
 
 // Textos usados pelo codigo (chave -> {pt, en})
 var TEXTOS = {
+  tema:{pt:'Tema',en:'Theme'},
+  temaClaro:{pt:'Tema claro',en:'Light theme'},
+  temaEscuro:{pt:'Tema escuro',en:'Dark theme'},
+  claro:{pt:'Claro',en:'Light'},
+  escuro:{pt:'Escuro',en:'Dark'},
   goodMorning:{pt:'Bom dia',en:'Good morning'},
   goodAfternoon:{pt:'Boa tarde',en:'Good afternoon'},
   goodEvening:{pt:'Boa noite',en:'Good evening'},
@@ -50,7 +55,7 @@ var TEXTOS = {
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
-var DIC = {
+var DIC = {"Tema":"Theme","Claro":"Light","Escuro":"Dark",
 "Não conseguimos carregar seus dados":"We couldn't load your data",
 "Seus dados estão salvos — só não chegaram até aqui agora. Isso costuma ser conexão. Não entramos no app para não gravar nada por cima.":"Your data is safe — it just didn't reach us right now. This is usually the connection. We did not open the app, so nothing gets written over it.",
 "Tentar de novo":"Try again","Sair e entrar de novo":"Sign out and back in",
@@ -179,3 +184,44 @@ function definirIdioma(lang){
   if (typeof renderHome === 'function' && document.getElementById('home-today-list')) renderHome();
 }
 function alternarIdioma(){ definirIdioma(idiomaAtual() === 'pt' ? 'en' : 'pt'); }
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TEMA CLARO / ESCURO
+//
+// O escuro e o padrao e a estetica definitiva; o claro e alternativo.
+// Toda a troca acontece nos tokens de cor (styles/main.css): os
+// componentes leem so nomes semanticos, entao basta o atributo no <html>.
+//
+// A leitura inicial acontece no <head>, antes da primeira pintura, para
+// nao piscar branco. Aqui ficam so a troca e a persistencia.
+// ═══════════════════════════════════════════════════════════════════════
+
+function temaAtual(){
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function definirTema(tema){
+  var claro = tema === 'light';
+  if (claro) document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  try { localStorage.setItem('mindt-tema', claro ? 'light' : 'dark'); } catch(e){}
+
+  // A barra do navegador no celular acompanha o fundo do app.
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', claro ? '#F2EEDA' : '#12140E');
+
+  // Estado visual dos dois controles (menu lateral e Perfil).
+  document.querySelectorAll('[data-tema-opt]').forEach(function(el){
+    el.classList.toggle('on', el.getAttribute('data-tema-opt') === (claro ? 'light' : 'dark'));
+  });
+  var b = document.getElementById('tema-btn');
+  if (b) b.setAttribute('aria-label', T(claro ? 'temaEscuro' : 'temaClaro'));
+
+  // O canvas de fundo pinta com valores fixos; precisa ser redesenhado.
+  if (typeof redesenharFundo === 'function') redesenharFundo();
+}
+
+function alternarTema(){
+  definirTema(temaAtual() === 'light' ? 'dark' : 'light');
+}
