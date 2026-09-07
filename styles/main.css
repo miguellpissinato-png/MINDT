@@ -2169,6 +2169,37 @@ input[type="checkbox"]{accent-color:var(--accent)}
 /* No claro, o fundo animado atras do app fica fora de lugar. */
 [data-theme="light"] #bg-canvas{opacity:0.5}
 
+/* ── A floresta do Ticolino (fundo da Home) ───────────────────────────
+   Fica atras do conteudo, sem receber clique. A pagina precisa de
+   position:relative para conter o cenario, e o conteudo precisa do proprio
+   contexto de empilhamento para ficar por cima. */
+#page-home{position:relative}
+#page-home>*:not(#floresta){position:relative;z-index:1}
+#floresta{
+  position:absolute;top:0;left:0;right:0;height:380px;
+  overflow:hidden;pointer-events:none;user-select:none;z-index:0;
+}
+/* 380px e nao os 470px do kit: a nossa Home tem o cartao de fala do Ticolino
+   a mais no topo, e com 470 o horizonte caia atras da lista "Hoje" — virava
+   uma faixa de paisagem fatiada pelos cartoes. Em 380 a crista fica atras do
+   cartao de sequencia, que e onde ela deve estar. */
+.floresta-ceu,.floresta-veu{position:absolute;inset:0}
+.floresta-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.floresta-passaro{will-change:transform}
+[data-plano]{will-change:transform}
+@keyframes floresta-voo{
+  0%{transform:translate3d(0,0,0)}
+  100%{transform:translate3d(1180px,var(--deriva,-30px),0)}
+}
+@keyframes floresta-asa{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.34)}}
+@media (prefers-reduced-motion:reduce){
+  .floresta-passaro{animation:none!important;opacity:.5}
+  .floresta-passaro *{animation:none!important}
+}
+/* No celular o cenario encurta: a lista "Hoje" sobe e as arvores da frente
+   nao podem competir com ela. */
+@media (max-width:768px){ #floresta{height:260px} }
+
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.
