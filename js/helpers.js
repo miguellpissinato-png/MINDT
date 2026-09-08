@@ -251,7 +251,17 @@ var TICO_MOODS = {
   orgulhoso:  ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-trophy', '#tico-spark'],
   sonolento:  ['#tico-eyes-sleepy', '#tico-mouth-flat',  '#tico-none',   '#tico-zzz'],
   preguicoso: ['#tico-eyes-sleepy', '#tico-mouth-flat',  '#tico-paws',   ''],
-  comendo:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-seed',   '']
+  comendo:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-seed',   ''],
+
+  // Poses de exercicio. Mesmas pecas do sprite original mais as #tico-fit-*.
+  // Sao as unicas que usam o quinto slot (um segundo extra).
+  pulando:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-fit-corda',    '#tico-fit-faixa'],
+  levantando: ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-fit-halter',   '#tico-brows'],
+  correndo:   ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-fit-correndo', '#tico-fit-faixa'],
+  boxe:       ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-fit-luvas',    '#tico-brows'],
+  cansado:    ['#tico-eyes-sleepy', '#tico-mouth-open',  '#tico-paws',         '#tico-fit-suor'],
+  pausa:      ['#tico-eyes-arc',    '#tico-mouth-smile', '#tico-fit-agua',     ''],
+  forte:      ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-fit-forte',    '#tico-fit-faixa', '#tico-spark']
 };
 
 // Devolve o SVG do Ticolino no humor pedido.
@@ -264,6 +274,8 @@ function ticolino(humor, tamanho, rosto){
   if (!rosto) {
     pecas += '<use href="' + m[2] + '"></use>';
     if (m[3]) pecas += '<use href="' + m[3] + '"></use>';
+    // Quinto slot: usado so pelas poses de exercicio (ex: 'forte' com brilho).
+    if (m[4]) pecas += '<use href="' + m[4] + '"></use>';
   }
   return '<svg viewBox="' + vb + '" style="width:' + (tamanho||100) + 'px' + alt +
          ';display:block;flex:none" aria-hidden="true">' + pecas + '</svg>';
@@ -273,7 +285,7 @@ function ticolino(humor, tamanho, rosto){
 function ticoHumorDoDia(){
   var feitos = tarefasDoDiaFeitas();
   if (feitos === 0) return 'sonolento';
-  if (feitos >= 3) return 'orgulhoso';
+  if (feitos >= 4) return 'orgulhoso';
   return 'feliz';
 }
 
