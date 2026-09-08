@@ -2466,6 +2466,187 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .period-chip-value{font-size:24px}
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   EXERCÍCIOS
+   ════════════════════════════════════════════════════════════════════════ */
+
+#page-exercicios{max-width:900px}
+.ex-header{align-items:flex-end}
+.ex-eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:6px}
+.ex-sub{font-size:13px;color:var(--text-3);margin-top:5px}
+.ex-rotulo{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.ex-nota{font-size:12px;color:var(--text-3);margin-top:6px}
+.ex-link{background:none;border:none;padding:0;color:var(--accent-text);font-family:inherit;
+  font-size:12px;font-weight:500;cursor:pointer}
+
+/* Cartoes de cima ---------------------------------------------------- */
+.ex-topo{display:grid;grid-template-columns:1.12fr 1fr;gap:14px;margin-bottom:14px}
+.ex-card{padding:20px;border-radius:var(--radius-lg)}
+.ex-card-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin-bottom:14px}
+.ex-numero-linha{display:flex;align-items:baseline;gap:9px}
+.ex-numero{font-family:'Poppins',system-ui,sans-serif;font-weight:700;font-size:40px;line-height:1.05;
+  letter-spacing:-.03em;color:var(--text);font-variant-numeric:tabular-nums}
+.ex-numero-nota{font-size:13px;color:var(--text-3)}
+.ex-destaque{font-family:'Poppins',system-ui,sans-serif;font-weight:700;font-size:26px;line-height:1.15;
+  letter-spacing:-.025em;color:var(--text);margin-top:6px;font-variant-numeric:tabular-nums}
+
+/* Barrinhas de dias treinados */
+.ex-strip{display:flex;gap:5px;margin-top:16px;align-items:flex-end}
+.ex-strip-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.ex-strip-barra{width:100%;height:30px;border-radius:6px;background:var(--surface-3)}
+.ex-strip-barra.on{background:var(--grad-accent);box-shadow:0 0 14px -4px rgba(235,125,0,.55)}
+.ex-strip-label{font-size:10px;font-weight:500;color:var(--text-3)}
+
+/* Distribuicao por modalidade */
+.ex-distrib{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.ex-distrib-linha{display:flex;align-items:center;gap:10px}
+.ex-distrib-nome{width:78px;flex:none;font-size:11px;color:var(--text-2);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.ex-distrib-trilho{flex:1;height:6px;border-radius:99px;background:var(--surface-3);
+  overflow:hidden;display:block}
+.ex-distrib-fill{display:block;height:100%;border-radius:99px}
+.ex-distrib-pct{width:26px;flex:none;text-align:right;font-size:11px;font-weight:500;
+  color:var(--text-2);font-variant-numeric:tabular-nums}
+
+/* Cronometro --------------------------------------------------------- */
+.ex-cron{padding:26px 28px;border-radius:var(--radius-lg);margin-bottom:8px}
+.ex-cron-corpo{display:grid;grid-template-columns:216px minmax(0,1fr);gap:32px;align-items:center}
+.ex-anel-wrap{position:relative;width:216px;height:216px;display:flex;align-items:center;justify-content:center}
+.ex-anel{width:216px;height:216px}
+.ex-anel .timer-ring-fill,.ex-anel-fill{stroke:url(#exGrad)}
+/* O rotulo fica dentro do anel; a largura limitada evita que uma frase longa
+   encoste no traco (foi exatamente o defeito visto no pomodoro no celular). */
+.ex-anel-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;pointer-events:none;padding:0 34px}
+.ex-cron-tempo{font-family:'Poppins',system-ui,sans-serif;font-weight:700;font-size:34px;
+  color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
+.ex-cron-label{font-size:11px;color:var(--text-3);margin-top:4px;line-height:1.3}
+.ex-cron-lado{display:flex;gap:22px;align-items:center;min-width:0}
+.ex-tico{flex:none;line-height:0;border-radius:999px;padding:8px;
+  background:radial-gradient(circle at 50% 58%,rgba(44,87,69,.7) 0%,rgba(44,87,69,0) 70%)}
+.ex-tico.pulando{animation:exBob 1.5s ease-in-out infinite}
+@keyframes exBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.ex-cron-texto{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.ex-fala{font-size:15px;line-height:1.5;color:var(--text)}
+.ex-cron-botoes{display:flex;gap:8px;flex-wrap:wrap}
+.ex-resumo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 15px;
+  background:var(--surface-2);border:1px solid var(--accent-line);border-radius:12px;
+  font-size:13px;font-weight:500;color:var(--text)}
+.ex-resumo-xp{font-size:12px;font-weight:600;color:var(--accent-text);font-variant-numeric:tabular-nums}
+
+/* Selo (modalidade ativa, "concluido") */
+.ex-badge{display:inline-flex;align-items:center;padding:3px 10px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:999px;font-size:11px;font-weight:500;color:var(--text-2)}
+.ex-badge-ok{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-text)}
+
+/* Fila de modalidades ------------------------------------------------ */
+.ex-mods-linha{display:flex;align-items:center;gap:12px;margin:28px 0 22px;flex-wrap:wrap}
+.ex-risco{flex:1;min-width:20px;height:1px;background:var(--line)}
+.ex-mods-linha .filter-row{flex:0 1 auto;gap:6px;margin:0}
+.ex-nova{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:transparent;
+  border:1px dashed var(--line-strong);border-radius:9px;color:var(--text-2);font-family:inherit;
+  font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.ex-nova:hover{border-color:var(--accent-line);color:var(--accent-text)}
+
+.ex-secao-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ex-secao-acao{display:flex;justify-content:flex-end;margin-bottom:26px}
+.ex-lista{padding:6px 18px 8px;border-radius:var(--radius-lg);margin-bottom:26px}
+
+/* Academia: rotina --------------------------------------------------- */
+.ex-rotina-linha{display:flex;align-items:center;gap:14px;padding:11px 0;
+  border-bottom:1px solid var(--line-faint)}
+.ex-rotina-linha:last-child{border-bottom:none}
+.ex-rotina-dia{width:38px;flex:none;font-size:12px;font-weight:500;color:var(--text-2)}
+.ex-rotina-grupos{flex:1;min-width:0;display:flex;gap:6px;flex-wrap:wrap}
+.ex-rotina-dur{flex:none;font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.ex-grupo-chip{display:inline-flex;align-items:center;padding:3px 10px;background:var(--accent-soft);
+  border:1px solid var(--accent-line);border-radius:999px;font-size:11px;font-weight:500;color:var(--accent-text)}
+.ex-descanso{font-size:12px;color:var(--text-3)}   /* >>> pacote: --text-4 dava 2,63:1 no tema claro */
+.ex-grupo-opt{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:999px;cursor:pointer;font-family:inherit;font-size:12px;
+  color:var(--text-2)}
+.ex-grupo-opt.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text);font-weight:500}
+.ex-grupo-box{width:14px;height:14px;flex:none;border-radius:5px;border:1px solid var(--line-strong);
+  background:var(--surface-1)}
+.ex-grupo-opt.on .ex-grupo-box{border-color:transparent;background:var(--grad-accent)}
+
+/* Corrida ------------------------------------------------------------ */
+.ex-dupla{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ex-card-hero{background:var(--grad-hero);border-color:var(--forest-line,var(--line))}
+.ex-card-hero .ex-rotulo,.ex-card-hero .ex-nota{color:rgba(255,251,242,.88)}   /* >>> 4,75:1 na ponta clara do --grad-hero */
+.ex-card-hero .ex-numero{color:#FFFBF2}
+.ex-card-acao{display:flex;flex-direction:column;justify-content:space-between;gap:14px}
+.ex-corridas{display:flex;flex-direction:column;gap:8px;margin-bottom:26px}
+.ex-corrida-item{display:flex;align-items:center;gap:14px;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+.ex-corrida-icone{width:34px;height:34px;flex:none;border-radius:9px;background:var(--grad-hero);
+  display:flex;align-items:center;justify-content:center;color:#FFFBF2}
+.ex-corrida-icone svg{width:16px;height:16px}
+.ex-corrida-info{flex:1;min-width:0}
+.ex-corrida-dist{font-weight:500;font-size:14px;color:var(--text);font-variant-numeric:tabular-nums}
+.ex-corrida-meta{font-size:12px;color:var(--text-3);margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* Caminhada: passos -------------------------------------------------- */
+.ex-passos{display:flex;gap:6px;align-items:flex-end;height:96px;margin-top:4px}
+.ex-passo-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:7px;height:100%;min-width:0}
+.ex-passo-num,.ex-passo-dia{font-size:10px;font-weight:500;color:var(--text-3);
+  font-variant-numeric:tabular-nums}
+.ex-passo-barra{width:100%;border-radius:6px 6px 0 0;background:var(--surface-3);min-height:2px}
+.ex-passo-barra.on{background:var(--grad-accent)}
+
+/* Calistenia: circuito ----------------------------------------------- */
+.ex-circuito-linha{display:flex;align-items:center;gap:14px;padding:12px 0;
+  border-bottom:1px solid var(--line-faint)}
+.ex-circuito-linha:last-child{border-bottom:none}
+.ex-circuito-nome{flex:1;min-width:0;font-size:14px;color:var(--text)}
+.ex-circuito-serie{flex:none;font-size:13px;font-weight:500;color:var(--text-2);
+  font-variant-numeric:tabular-nums}
+
+/* Modais ------------------------------------------------------------- */
+.ex-modal-sub{font-size:13px;color:var(--text-3);margin:-6px 0 18px;line-height:1.5}
+.ex-tipos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ex-tipo-opt{text-align:left;padding:11px 13px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:12px;cursor:pointer;font-family:inherit}
+.ex-tipo-opt.on{border-color:var(--accent-line)}
+.ex-tipo-nome{display:block;font-size:13px;font-weight:500;color:var(--text)}
+.ex-tipo-campo{display:block;font-size:11px;color:var(--text-3);margin-top:2px}
+.ex-tipo-opt.on .ex-tipo-campo{color:var(--accent-text)}
+.ex-aviso{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--surface-2);
+  border:1px solid var(--accent-line);border-radius:12px;font-size:13px;line-height:1.5;color:var(--text);
+  margin-bottom:4px}
+
+/* Vazios genericos usados nesta pagina */
+#page-exercicios .empty-inline{text-align:center;padding:22px 0;font-size:13px;color:var(--text-3)}
+
+/* Celular ------------------------------------------------------------ */
+@media (max-width:900px){
+  .ex-topo{grid-template-columns:minmax(0,1fr)}
+  .ex-cron-corpo{grid-template-columns:minmax(0,1fr);gap:22px;justify-items:center}
+  .ex-cron-lado{flex-direction:column;text-align:center;gap:14px}
+  .ex-cron-botoes{justify-content:center}
+  .ex-fala{text-align:center}
+}
+@media (max-width:768px){
+  #page-exercicios{max-width:none}
+  .ex-header{flex-wrap:wrap;gap:12px;align-items:flex-start}
+  /* No celular a regra geral vira `.page-header>div{display:flex}`, o que
+     jogaria a data, o titulo e o subtitulo lado a lado na mesma linha. */
+  .ex-header>div:first-child{display:block}
+  .ex-dupla{grid-template-columns:minmax(0,1fr)}
+  .ex-anel-wrap,.ex-anel{width:180px;height:180px}
+  .ex-anel-inner{padding:0 28px}
+  .ex-cron-tempo{font-size:28px}
+  .ex-cron{padding:20px 18px}
+  .ex-card{padding:16px}
+  .ex-numero{font-size:32px}
+  .ex-mods-linha .ex-risco{display:none}
+  .ex-mods-linha .filter-row{flex:1 1 100%;overflow-x:auto;scrollbar-width:none}
+  .ex-tipos{grid-template-columns:minmax(0,1fr)}
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.
@@ -2505,7 +2686,8 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .btn,.btn-sm,.filter-chip,.chip,.tab-btn,.gastos-filter-btn,.timer-preset-btn,
   .shelf-filter-btn,.agenda-tool-btn,.agenda-view-btn,.auth-tab,.music-tab,
   .shelf-popup-btn,.scroll-arrow,.agenda-nav-btn,.icon-btn,.modal-close,
-  .mobile-nav-item{
+  .mobile-nav-item,
+  .ex-nova,.ex-link,.ex-grupo-opt,.ex-tipo-opt{
     min-height:44px;
   }
   .scroll-arrow,.agenda-nav-btn,.icon-btn,.modal-close{min-width:44px}

@@ -60,22 +60,29 @@ function ontemStr(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYe
 function garantirDiario(){
   if(!state.streak) state.streak={count:0,lastDay:null};
   if(!state.diario || state.diario.data!==hojeStr()){
-    state.diario={data:hojeStr(),leitura:false,estudo:false,grana:false};
+    state.diario={data:hojeStr(),leitura:false,estudo:false,grana:false,exercicio:false};
   }
   return state.diario;
 }
 function tarefasDoDiaFeitas(){
   var d=garantirDiario();
-  return (d.leitura?1:0)+(d.estudo?1:0)+(d.grana?1:0);
+  return (d.leitura?1:0)+(d.estudo?1:0)+(d.grana?1:0)+(d.exercicio?1:0);
 }
 // Marca/desmarca uma tarefa do dia, atualiza streak e XP.
 function toggleTarefaDia(chave){
   var d=garantirDiario();
   d[chave]=!d[chave];
-  if(d[chave]) addXP(10); else addXP(-10);
+  var xp=xpDaTarefaDia(chave);
+  if(d[chave]) addXP(xp); else addXP(-xp);
   atualizarStreak();
   saveState();
   renderHome();
+  // A aba Exercicios mostra o mesmo check; se estiver aberta, acompanha.
+  if(typeof renderExercicios==='function') renderExercicios();
+}
+function xpDaTarefaDia(chave){
+  for(var i=0;i<TAREFAS_DIA.length;i++) if(TAREFAS_DIA[i].chave===chave) return TAREFAS_DIA[i].xp;
+  return 10;
 }
 // O streak sobe uma vez por dia, no primeiro item marcado.
 function atualizarStreak(){
@@ -87,9 +94,10 @@ function atualizarStreak(){
 }
 
 var TAREFAS_DIA=[
-  {chave:'leitura', tag:'LEITURA', rotulo:'20 minutos de leitura'},
-  {chave:'estudo',  tag:'ESTUDOS', rotulo:'1 pomodoro de estudo'},
-  {chave:'grana',   tag:'GRANA',   rotulo:'Lançar os gastos do dia'}
+  {chave:'leitura',   tag:'LEITURA',   rotulo:'20 minutos de leitura',       xp:10},
+  {chave:'estudo',    tag:'ESTUDOS',   rotulo:'1 pomodoro de estudo',        xp:10},
+  {chave:'grana',     tag:'GRANA',     rotulo:'Lançar os gastos do dia',     xp:10},
+  {chave:'exercicio', tag:'EXERCÍCIO', rotulo:'Exercício do dia concluído',  xp:5}
 ];
 
 function renderHome(){
@@ -117,17 +125,17 @@ function renderHome(){
   // Ticolino e sua fala
   document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),56);
   document.getElementById('home-tico-msg').textContent =
-    feitos===0 ? T('msgStart') : (feitos>=3 ? T('msgDone') : T('msgMid'));
+    feitos===0 ? T('msgStart') : (feitos>=4 ? T('msgDone') : T('msgMid'));
 
   // Lista do dia
-  document.getElementById('home-today-count').textContent=feitos+' '+T('deTresConcluidos');
+  document.getElementById('home-today-count').textContent=feitos+' '+T('deQuatroConcluidos');
   document.getElementById('home-today-list').innerHTML=TAREFAS_DIA.map(function(t){
     var on=d[t.chave];
     return '<button class="tico-today-item" onclick="toggleTarefaDia(\''+t.chave+'\')">'+
       '<span class="tico-check'+(on?' on':'')+'"></span>'+
       '<span class="tico-today-info"><span class="tico-today-tag">'+T('tag_'+t.chave)+'</span>'+
       '<span class="tico-today-label">'+T('day_'+t.chave)+'</span></span>'+
-      '<span class="tico-today-xp">+10 XP</span></button>';
+      '<span class="tico-today-xp">+'+t.xp+' XP</span></button>';
   }).join('');
 
   // Cartoes rapidos.
@@ -140,7 +148,18 @@ function renderHome(){
     return d.getMonth()===mes && d.getFullYear()===ano;
   }).reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0);
   document.getElementById('home-stat-gastos').textContent=moeda(gastoMes);
-  document.getElementById('home-stat-metas').textContent=state.metas.length;
+
+  // Treinos da semana. Le o mesmo historico da aba Exercicios.
+  var seg = (typeof exSegunda==='function') ? exSegunda(new Date()) : null;
+  var treinosSemana = 0, metaSemanal = 5;
+  if(seg && state.exercicios){
+    var fim=new Date(seg.getTime()); fim.setDate(seg.getDate()+6);
+    treinosSemana = exDiasTreinados(seg, fim);
+    metaSemanal = state.exercicios.metaSemanal || 5;
+  }
+  document.getElementById('home-stat-treinos').textContent=treinosSemana;
+  var st=document.getElementById('home-stat-treinos-sub');
+  if(st) st.textContent='Meta: '+metaSemanal+' dias';
 
   // Sub-rotulos dos dois atalhos (design system): quantos lancamentos no mes
   // e quantas metas vencem neste mes.
@@ -151,13 +170,6 @@ function renderHome(){
   var sg=document.getElementById('home-stat-gastos-sub');
   if(sg) sg.textContent=doMes+' '+T(doMes===1?'lancamento':'lancamentos');
 
-  var vencem=(state.metas||[]).filter(function(m){
-    if(m.done||!m.deadline) return false;
-    var d=new Date(m.deadline+'T12:00:00');
-    return d.getMonth()===mes && d.getFullYear()===ano;
-  }).length;
-  var sm=document.getElementById('home-stat-metas-sub');
-  if(sm) sm.textContent = vencem ? vencem+' '+T(vencem===1?'venceEsteMes':'vencemEsteMes') : '';
 
   // Em andamento (mantido do app original)
   var all=[].concat(state.tasks,state.metas).filter(function(i){return !i.done;});

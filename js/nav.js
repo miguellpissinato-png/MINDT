@@ -19,6 +19,7 @@ function goToPage(name){
   else if(name==='notas')renderNotas();
   else if(name==='resumo')renderResumo();
   else if(name==='agenda')renderAgenda();
+  else if(name==='exercicios')renderExercicios();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
 }
