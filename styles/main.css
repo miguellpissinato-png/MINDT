@@ -947,139 +947,94 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   animation:fadeIn 0.2s ease;
 }
 
-/* BOOKSHELF 3D */
-.bookshelf-3d{
+/* ESTANTE — grade de capas (inspiracao: Skoob)
+   A estante 3D de lombadas foi substituida por uma grade de capas: capa,
+   titulo embaixo e a porcentagem lida (ou "Concluido") embaixo do titulo.
+   Lombada de 28px nao cabia titulo nem progresso; a capa e o que o leitor
+   reconhece. */
+.estante-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+  gap:20px 16px;
+}
+.livro-card{
+  display:flex;flex-direction:column;gap:8px;
+  background:none;border:none;padding:0;margin:0;
+  font-family:inherit;text-align:left;cursor:pointer;
+  min-width:0;
+}
+/* A capa guarda a proporcao 2:3 de um livro mesmo sem imagem, para a grade
+   nao pular de altura conforme o usuario vai anexando as capas. */
+.livro-capa{
   position:relative;
-  background:linear-gradient(160deg,#2E2910 0%,#1B1A0C 100%);
+  aspect-ratio:2/3;
+  border-radius:8px;
+  overflow:hidden;
+  background:var(--surface-2);
   border:1px solid var(--line);
-  border-radius:12px;
-  overflow:hidden;
   box-shadow:var(--shadow-sm);
+  transition:transform .18s cubic-bezier(.4,0,.2,1),box-shadow .18s;
 }
-/* Side walls of the bookcase */
-.bookshelf-3d::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:20px;
-  background:linear-gradient(90deg,rgba(20,18,8,0.92),rgba(46,41,16,0.35));
-  z-index:1;pointer-events:none;
-}
-.bookshelf-3d::after{
-  content:'';position:absolute;right:0;top:0;bottom:0;width:20px;
-  background:linear-gradient(270deg,rgba(20,18,8,0.92),rgba(46,41,16,0.35));
-  z-index:1;pointer-events:none;
-}
-.bookshelf-shelves{
-  display:flex;flex-direction:column;
-  padding:12px 24px 0;
-  gap:0;
-}
-.shelf-row{
-  display:flex;align-items:flex-end;
-  gap:3px;
-  padding:12px 0 0;
-  position:relative;
-  min-height:130px;
-}
-/* THE SHELF PLANK — thick, 3D-looking */
-.shelf-plank{
-  position:absolute;bottom:0;left:-24px;right:-24px;
-  height:14px;
-  background:linear-gradient(180deg,
-    #6A5A2A 0%,
-    #4A3F1C 40%,
-    #2E2910 100%);
-  box-shadow:
-    0 4px 16px rgba(2,30,35,0.35),
-    0 2px 4px rgba(2,30,35,0.18),
-    inset 0 1px 0 rgba(235,227,167,0.22),
-    inset 0 -1px 0 rgba(2,30,35,0.14);
-  z-index:2;
-}
-/* Shelf plank front edge highlight */
-.shelf-plank::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(235,227,167,0.25),rgba(235,227,167,0.4),rgba(235,227,167,0.25),transparent);
-}
-/* Shelf bottom shadow */
-.shelf-plank::after{
-  content:'';position:absolute;top:14px;left:4px;right:4px;height:8px;
-  background:linear-gradient(180deg,rgba(2,30,35,0.18),transparent);
-  border-radius:0 0 4px 4px;
-}
-/* BOOK SPINE */
-.shelf-book{
-  position:relative;
-  width:36px;
-  height:110px;
-  cursor:pointer;
-  flex-shrink:0;
-  transition:transform 0.25s var(--ease-out);
-  transform-origin:bottom center;
-  z-index:3;
-}
-.shelf-book:hover{transform:translateY(-16px) scale(1.06)}
-.shelf-book-spine-inner{
-  width:100%;height:100%;
-  border-radius:2px 5px 5px 2px;
+.livro-card:hover .livro-capa{transform:translateY(-4px);box-shadow:0 8px 20px -8px rgba(0,0,0,.45)}
+.livro-capa img{width:100%;height:100%;object-fit:cover;display:block}
+/* Sem capa: as iniciais do titulo, para o cartao nao ficar um buraco cinza. */
+.livro-capa-vazia{
+  position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-  box-shadow:
-    -3px 4px 12px rgba(2,30,35,0.35),
-    inset -4px 0 8px rgba(2,30,35,0.18),
-    inset 1px 0 3px rgba(255,255,255,0.1);
+  font-family:'Poppins',system-ui,sans-serif;font-size:24px;font-weight:700;
+  color:var(--text-3);
 }
-.shelf-book-spine-inner img{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;opacity:0.65;
-  mix-blend-mode:luminosity;
+.livro-capa-vazia span{color:#FFFBF2;opacity:.9}
+/* Faixa de progresso no pe da capa: leitura em andamento se ve de longe. */
+.livro-capa-barra{
+  position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(0,0,0,.35)
 }
-.shelf-book-title-spine{
-  writing-mode:vertical-rl;
-  text-orientation:mixed;
-  font-size:9px;font-weight:700;
-  color:rgba(255,255,255,0.92);
-  letter-spacing:0.8px;
-  padding:6px 2px;
-  position:relative;z-index:1;
-  text-shadow:0 1px 4px rgba(0,0,0,0.9);
-  max-height:96px;
+.livro-capa-barra span{display:block;height:100%;background:var(--grad-accent)}
+.livro-fav{
+  position:absolute;top:0;right:0;
+  width:36px;height:36px;padding:4px;
+  border:none;background:none;cursor:pointer;
+  display:flex;align-items:flex-start;justify-content:flex-end;
+}
+.livro-fav span{
+  width:28px;height:28px;border-radius:8px;
+  background:#141A11;color:rgba(255,251,242,.7);
+  font-size:15px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .18s;
+}
+.livro-fav:hover span{color:#FFD166}
+.livro-fav.on span{color:#FFD166}
+.livro-nome{
+  font-size:13px;font-weight:500;line-height:1.35;color:var(--text);
+  /* Duas linhas e o teto: na terceira, a grade perde o alinhamento. */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
   overflow:hidden;
-  text-overflow:ellipsis;
-  font-family:'Poppins',system-ui,sans-serif;
+  /* Altura fixa de duas linhas para o status ficar na mesma altura em todos
+     os cartoes — com titulos de uma e de duas linhas ele dancava. */
+  min-height:calc(2 * 1.35em);
 }
-/* Shine on book spine */
-.shelf-book-spine-inner::after{
-  content:'';
-  position:absolute;left:0;top:0;bottom:0;width:6px;
-  background:linear-gradient(90deg,rgba(255,255,255,0.18),transparent);
-  pointer-events:none;
+.livro-status{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.livro-status.concluido{color:var(--accent-text);font-weight:500}
+.livro-status.abandonado{color:var(--text-3)}   /* >>> --text-4 dava 2,57:1 no claro */
+/* Cartao de adicionar, no fim da grade */
+.livro-add{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  aspect-ratio:2/3;
+  border:1.5px dashed var(--line-strong);border-radius:8px;
+  background:transparent;color:var(--text-3);
+  font-family:inherit;font-size:12px;cursor:pointer;
+  transition:border-color .18s,color .18s,background .18s;
 }
-.shelf-book-star{
-  position:absolute;top:3px;right:3px;z-index:4;
-  width:14px;height:14px;
-  color:var(--text-muted);font-size:12px;line-height:1;
-  cursor:pointer;transition:all 0.2s;
-  text-shadow:0 1px 3px rgba(0,0,0,0.5);
+.livro-add:hover{border-color:var(--accent-line);color:var(--accent-text);background:var(--accent-soft)}
+.livro-add svg{width:22px;height:22px}
+/* Sem isto o item esticaria na altura da linha e perderia a proporcao 2:3. */
+.livro-add{align-self:start}
+.estante-vazia{
+  grid-column:1/-1;
+  text-align:center;padding:26px 12px;
+  font-size:13px;color:var(--text-3);
 }
-.shelf-book-star:hover{color:rgba(251,191,36,0.8);transform:scale(1.2)}
-.shelf-book-star.favorited{color:var(--warning);text-shadow:0 0 8px rgba(251,191,36,0.7)}
-/* STATUS INDICATOR */
-.shelf-book[data-status="reading"] .shelf-book-spine-inner{
-  box-shadow:var(--shadow-sm);
-}
-.shelf-book[data-status="abandoned"] .shelf-book-spine-inner{
-  opacity:0.55;filter:saturate(0.4);
-}
-/* ADD BUTTON */
-.shelf-book-add{
-  width:36px;height:110px;flex-shrink:0;
-  border:1.5px dashed var(--line);border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--accent-text);font-size:20px;
-  transition:all 0.2s;margin-left:4px;
-  background:rgba(37,132,95,0.05);
-  z-index:3;
-}
-.shelf-book-add:hover{border-color:var(--accent-line);color:var(--text);background:var(--accent-soft)}
 
 /* SHELF POPUP BUTTONS */
 .shelf-popup-btn{
@@ -1087,10 +1042,10 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   font-family:'Poppins',system-ui,sans-serif;font-size:11px;font-weight:600;
   display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s;
 }
-.shelf-popup-btn.edit{background:rgba(59,130,246,0.15);color:var(--accent);border:1px solid rgba(59,130,246,0.3)}
-.shelf-popup-btn.edit:hover{background:rgba(59,130,246,0.25)}
-.shelf-popup-btn.delete{background:rgba(239,68,68,0.12);color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
-.shelf-popup-btn.delete:hover{background:rgba(239,68,68,0.22)}
+.shelf-popup-btn.edit{background:var(--accent-soft);color:var(--accent-text);border:1px solid var(--accent-line)}
+.shelf-popup-btn.edit:hover{background:var(--surface-2)}
+.shelf-popup-btn.delete{background:var(--danger-soft);color:var(--danger-text);border:1px solid var(--danger)}
+.shelf-popup-btn.delete:hover{background:var(--surface-2)}
 
 /* YES/NO BUTTON */
 .livro-yesno-btn{
@@ -1125,17 +1080,11 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 @media(max-width:768px){
   .leitura-hero-card{padding:24px 18px}
   .resumo-stat-grid{grid-template-columns:1fr}
-  .shelf-book{width:26px;height:90px}
 }
 
-/* ═══ BOOKSHELF EXTRA FIXES ═══ */
-.bookshelf-3d{padding-bottom:0}
-.shelf-row{padding-bottom:14px} /* room for plank */
-/* Leitura hero better centering */
+/* ═══ LEITURA — ajustes ═══ */
 #leitura-empty-state{width:100%;display:flex;align-items:center;justify-content:center;min-height:200px}
 #leitura-active-book{width:100%}
-/* Make shelf fill width */
-.shelf-row{flex-wrap:wrap;min-height:144px}
 
 #mobile-nav::-webkit-scrollbar{display:none}
 #mobile-nav .mobile-nav-item .m-label{font-size:8px}
@@ -1144,13 +1093,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   .leitura-hero-card{padding:20px 16px}
   .leitura-add-btn{width:140px;height:140px}
   .leitura-progress-wrap{max-width:100%}
-  .bookshelf-3d{border-radius:10px;padding:12px 12px 0}
-  .bookshelf-shelves{padding:8px 8px 0}
-  .shelf-row{min-height:110px;padding-bottom:12px}
-  .shelf-book{height:90px !important;width:26px !important}
-  .shelf-book-title-spine{font-size:7px;max-height:76px}
-  .shelf-book-add{height:90px;width:26px}
-  .shelf-plank{height:10px}
+  .estante-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:16px 12px}
   .shelf-top-bar{flex-wrap:wrap;gap:8px}
   .shelf-search-wrap{min-width:0}
   .leitura-shelf-section{gap:10px}
@@ -1484,8 +1427,7 @@ html,body{background:var(--cream)}
 .auth-logo-icon{background:var(--fur);border:1px solid var(--line);box-shadow:none}
 .auth-error{background:var(--salmon);border:1px solid var(--line);border-radius:16px;color:var(--ink);font-weight:700}
 
-/* ── Estante e troféus ── */
-.shelf-plank{border:1px solid rgba(20,18,8,0.5)}
+/* ── Troféus ── */
 .trophy-card{background:var(--card)}
 .trophy-card.unlocked{background:var(--yellow)}
 
@@ -1849,8 +1791,7 @@ html,body{background:var(--bg);color:var(--text)}
 .onb-dots i{background:var(--text-3);opacity:1}
 .onb-dots i.on{background:var(--accent)}
 
-/* ── Estante e trofeus ── */
-.shelf-plank{border:1px solid rgba(20,18,8,0.5)}
+/* ── Trofeus ── */
 .trophy-card{background:var(--surface);border:1px solid var(--line)}
 .trophy-card.unlocked{background:var(--surface-2);border-color:var(--accent)}
 .trophy-card.locked-card{background:var(--surface);opacity:.7}
@@ -2122,9 +2063,8 @@ input[type="checkbox"]{accent-color:var(--accent)}
   letter-spacing:-0.03em;font-variant-numeric:tabular-nums
 }
 
-/* ── Superficies de solo: quadro de notas e prateleira ─────────────── */
+/* ── Superficie de solo: quadro de notas ───────────────────────────── */
 .notas-board{background:var(--soil);border:1px solid var(--line);border-radius:var(--radius-lg)}
-.shelf-row{background:transparent}
 
 /* ── Selos ──────────────────────────────────────────────────────────── */
 .task-status-badge,.parcela-badge,.leitura-book-genre-badge,.estudos-xp-badge{
@@ -2667,7 +2607,7 @@ input[type="checkbox"]{accent-color:var(--accent)}
    do proprio cartao em vez de desenhar um retangulo por cima dele. */
 .nav-item:focus-visible,.mobile-nav-item:focus-visible,.meta-card:focus-visible,
 .task-card:focus-visible,.nota-card:focus-visible,.gasto-item:focus-visible,
-.filter-chip:focus-visible,.chip:focus-visible,.shelf-book:focus-visible{
+.filter-chip:focus-visible,.chip:focus-visible,.livro-card:focus-visible{
   outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius)
 }
 /* O anel nunca pode ficar escondido atras do cartao vizinho. */
@@ -2690,6 +2630,9 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .ex-nova,.ex-link,.ex-grupo-opt,.ex-tipo-opt{
     min-height:44px;
   }
+  /* Cresce a area de toque da estrela sem crescer o selo: numa capa de 96px
+     um selo de 44px tomaria metade da largura. */
+  .livro-fav{width:44px;height:44px}
   .scroll-arrow,.agenda-nav-btn,.icon-btn,.modal-close{min-width:44px}
 
   /* Caixas de marcar: o quadrado fica em 20px (visual), mas a area de

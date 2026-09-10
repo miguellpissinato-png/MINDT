@@ -69,62 +69,104 @@ function setupScrollEffect() {
   main.addEventListener('scroll', onScroll);
 }
 
-// ── BOOKSHELF ──
-var BOOKS_PER_SHELF = 12;
-var SPINE_COLORS = [
-  ['#8CA9FF','#AAC4F5'],['#FFD166','#F1C596'],['#F6A9A4','#F6C7A0'],
-  ['#AAC4F5','#8CA9FF'],['#A7DDA0','#8CD6C8'],['#F1C596','#D9A05B'],
-  ['#1C2547','#8CA9FF'],['#FFF2C6','#FFD166'],
-];
+// ── ESTANTE (grade de capas) ──
+
+// Um livro conta como concluido em tres situacoes: registrar leitura chegou
+// ao fim (marca .concluido), o usuario cadastrou o livro dizendo que ja tinha
+// lido (.jaLeu), ou as paginas lidas alcancaram o total — o ultimo caso cobre
+// livros gravados por versoes antigas, antes de .concluido existir.
+function livroConcluido(l){
+  if(l.abandonado) return false;
+  if(l.concluido || l.jaLeu) return true;
+  var total = parseInt(l.paginas) || 0;
+  return total > 0 && (l.paginasLidas||0) >= total;
+}
+function livroPct(l){
+  var total = parseInt(l.paginas) || 0;
+  if(!total) return 0;
+  return Math.min(100, Math.round(((l.paginasLidas||0)/total)*100));
+}
 
 function renderBookshelf(filterFn) {
-  var container = document.getElementById('bookshelf-shelves');
+  var container = document.getElementById('estante-grid');
   if(!container) return;
   var livros = (state.livros||[]).slice();
   if(filterFn) livros = livros.filter(filterFn);
 
-  // Populate filter dropdowns
+  // Alimenta os seletores de filtro
   updateShelfFilters();
 
+  var addBtn = '<button class="livro-add" data-addbook="1">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+    + 'Adicionar livro</button>';
+
   if(!livros.length) {
-    container.innerHTML = '<div class="shelf-row" style="justify-content:center;align-items:center;min-height:120px"><div style="color:var(--text-muted);font-size:13px">Sua estante está vazia. Adicione seu primeiro livro!</div></div>';
+    var vazio = (state.livros||[]).length
+      ? 'Nenhum livro corresponde ao que você buscou.'
+      : 'Sua estante está vazia. Adicione seu primeiro livro!';
+    container.innerHTML = '<div class="estante-vazia">' + vazio + '</div>' +
+      ((state.livros||[]).length ? '' : addBtn);
     return;
   }
 
-  // Split into shelves of BOOKS_PER_SHELF
-  var shelves = [];
-  for(var i = 0; i < livros.length; i += BOOKS_PER_SHELF) {
-    shelves.push(livros.slice(i, i + BOOKS_PER_SHELF));
-  }
-  // Always at least 3 shelves visually, but only render filled ones + 1 empty
-  while(shelves.length < 3) shelves.push([]);
+  container.innerHTML = livros.map(function(l){
+    var concluido = livroConcluido(l);
+    var pct = livroPct(l);
+    var status, classe;
+    if(concluido)          { status = 'Concluído';   classe = ' concluido'; }
+    else if(l.abandonado)  { status = 'Abandonado';  classe = ' abandonado'; }
+    else                   { status = pct + '% lido'; classe = ''; }
 
-  container.innerHTML = shelves.map(function(shelf, si) {
-    var heights = [110,125,108,118,105,130,112,120,100,115,122,107];
-    var books = shelf.map(function(livro, bi) {
-      var colorPair = SPINE_COLORS[(livro.titulo ? livro.titulo.charCodeAt(0) % SPINE_COLORS.length : bi % SPINE_COLORS.length)];
-      var h = heights[bi % heights.length];
-      var w = 28 + (bi % 3) * 5;
-      var status = livro.lendoAgora ? 'reading' : (livro.abandonado ? 'abandoned' : '');
-      return '<div class="shelf-book" data-id="' + livro.id + '" data-status="' + status + '" style="height:' + h + 'px;width:' + w + 'px">'
-        + '<div class="shelf-book-spine-inner" style="background:linear-gradient(160deg,' + colorPair[0] + ' 0%,' + colorPair[1] + ' 100%)">'
-        + (livro.cover ? '<img src="' + livro.cover + '">' : '')
-        + '<span class="shelf-book-title-spine">' + esc(livro.titulo||'') + '</span>'
-        + '</div>'
-        + '<div class="shelf-book-star ' + (livro.favorito ? 'favorited' : '') + '" data-favid="' + livro.id + '" title="Favoritar">&#9733;</div>'
-        + '</div>';
-    }).join('');
-    var addBtn = si === shelves.length - 1
-      ? '<div class="shelf-book-add" data-addbook="1" title="Adicionar livro">+</div>'
+    // A faixa no pe da capa so aparece em leitura em andamento: num livro
+    // concluido ela ficaria sempre cheia, sem informar nada.
+    var barra = (!concluido && !l.abandonado && pct > 0)
+      ? '<span class="livro-capa-barra"><span style="width:' + pct + '%"></span></span>'
       : '';
-    return '<div class="shelf-row">' + books + addBtn + '<div class="shelf-plank"></div></div>';
-  }).join('');
+
+    var capa = l.cover
+      ? '<img src="' + esc(l.cover) + '" alt="">'
+      : '<span class="livro-capa-vazia" style="background:' + corDaCapa(l.titulo) + '">'
+        + '<span>' + esc(iniciaisLivro(l.titulo)) + '</span></span>';
+
+    return '<div class="livro-card" data-id="' + l.id + '" tabindex="0" role="button" data-a11y="1"'
+      + ' aria-label="' + esc(l.titulo||'Livro') + ' — ' + status + '">'
+      + '<div class="livro-capa">' + capa + barra
+        + '<button class="livro-fav' + (l.favorito ? ' on' : '') + '" data-favid="' + l.id + '"'
+        + ' aria-label="' + (l.favorito ? 'Remover dos favoritos' : 'Favoritar') + '">'
+        + '<span>' + (l.favorito ? '&#9733;' : '&#9734;') + '</span></button>'
+      + '</div>'
+      + '<div class="livro-nome">' + esc(l.titulo||'') + '</div>'
+      + '<div class="livro-status' + classe + '">' + status + '</div>'
+      + '</div>';
+  }).join('') + addBtn;
 }
 
-// ── SHELF POPUP ──
-var _hidePopupTimer = null;
+// Fundos para capas sem imagem. Tons escuros da paleta da floresta, todos
+// com contraste de sobra para o creme das iniciais.
+var CORES_CAPA = [
+  'linear-gradient(150deg,#3A7059,#1D3A2E)',
+  'linear-gradient(150deg,#2F5668,#17303B)',
+  'linear-gradient(150deg,#6B4A22,#3A2712)',
+  'linear-gradient(150deg,#5B3A4A,#2E1C26)',
+  'linear-gradient(150deg,#3C4A6B,#1E2438)',
+  'linear-gradient(150deg,#5A5326,#2C2911)'
+];
+function corDaCapa(titulo){
+  var t = String(titulo||''), soma = 0;
+  for(var i=0;i<t.length;i++) soma += t.charCodeAt(i);
+  return CORES_CAPA[soma % CORES_CAPA.length];
+}
+
+// Iniciais para a capa de quem ainda nao anexou imagem.
+function iniciaisLivro(titulo){
+  var palavras = String(titulo||'?').trim().split(/\s+/).filter(Boolean);
+  if(!palavras.length) return '?';
+  if(palavras.length === 1) return palavras[0].slice(0,2).toUpperCase();
+  return (palavras[0][0] + palavras[1][0]).toUpperCase();
+}
+
+// ── PAINEL DE ACOES DO LIVRO ──
 function showShelfPopup(e, id) {
-  clearTimeout(_hidePopupTimer);
   var livro = (state.livros||[]).find(function(l){ return l.id === id; });
   if(!livro) return;
   _shelfPopupBookId = id;
@@ -138,37 +180,49 @@ function showShelfPopup(e, id) {
   document.getElementById('shelf-popup-title').textContent = livro.titulo || '';
   document.getElementById('shelf-popup-author').textContent = livro.autor || '';
 
+  // O painel repete o estado que o cartao mostra, para o texto nao divergir.
   var progEl = document.getElementById('shelf-popup-progress');
-  if(livro.lendoAgora && livro.paginas) {
-    var pct = Math.round(((livro.paginasLidas||0)/livro.paginas)*100);
-    document.getElementById('shelf-popup-pct').textContent = pct + '% lido';
+  var pct = livroPct(livro);
+  if(livroConcluido(livro)) {
+    document.getElementById('shelf-popup-pct').textContent = 'Concluído';
+    document.getElementById('shelf-popup-pct-bar').style.width = '100%';
+    progEl.style.display = 'block';
+  } else if(livro.abandonado) {
+    document.getElementById('shelf-popup-pct').textContent = 'Abandonado · ' + pct + '% lido';
     document.getElementById('shelf-popup-pct-bar').style.width = pct + '%';
     progEl.style.display = 'block';
   } else {
-    progEl.style.display = 'none';
+    document.getElementById('shelf-popup-pct').textContent = pct + '% lido';
+    document.getElementById('shelf-popup-pct-bar').style.width = pct + '%';
+    progEl.style.display = 'block';
   }
 
-  var target = e.currentTarget || e.target;
-  var bookEl = target.closest ? target.closest('.shelf-book') : target;
-  var rect = bookEl ? bookEl.getBoundingClientRect() : {left:e.clientX,top:e.clientY};
+  // O ouvinte esta no document, entao e.currentTarget e o proprio document —
+  // era dai que vinha o erro "getBoundingClientRect is not a function". O
+  // cartao tem que ser procurado a partir de e.target.
+  var bookEl = (e.target && e.target.closest) ? e.target.closest('.livro-card') : null;
+  var rect = bookEl ? bookEl.getBoundingClientRect()
+                    : {left:e.clientX||0, top:e.clientY||0,
+                       bottom:e.clientY||0, width:0, height:0};
   popup.style.display = 'block';
-  popup.style.left = Math.min(rect.left, window.innerWidth - 200) + 'px';
-  popup.style.top = (rect.top - 10) + 'px';
+  var cx = popup.offsetWidth, cy = popup.offsetHeight, m = 12;
+  var x = rect.left + (rect.width||0)/2 - cx/2;
+  var y = rect.bottom + 8;
+  if(y + cy > window.innerHeight - m) y = Math.max(m, rect.top - cy - 8);
+  popup.style.left = Math.max(m, Math.min(x, window.innerWidth - cx - m)) + 'px';
+  popup.style.top = Math.max(m, Math.min(y, window.innerHeight - cy - m)) + 'px';
 }
 
-function hideShelfPopupDelayed() {
-  _hidePopupTimer = setTimeout(function() {
-    var popup = document.getElementById('shelf-book-popup');
-    if(popup) popup.style.display = 'none';
-  }, 300);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
+function fecharPainelLivro() {
   var popup = document.getElementById('shelf-book-popup');
-  if(popup) {
-    popup.addEventListener('mouseenter', function(){ clearTimeout(_hidePopupTimer); });
-    popup.addEventListener('mouseleave', function(){ hideShelfPopupDelayed(); });
-  }
+  if(popup) popup.style.display = 'none';
+  _shelfPopupBookId = null;
+}
+
+document.addEventListener('keydown', function(e) {
+  if(e.key !== 'Escape') return;
+  var popup = document.getElementById('shelf-book-popup');
+  if(popup && popup.style.display !== 'none') fecharPainelLivro();
 });
 
 function editLivroFromPopup() {
@@ -548,30 +602,20 @@ function gerarResumo(periodo) {
 }
 
 
-// Event delegation for shelf books
-document.addEventListener('mouseenter', function(e) {
-  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
-  if(book && book.dataset.id) showShelfPopup(e, book.dataset.id);
-}, true);
-
-document.addEventListener('mouseleave', function(e) {
-  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
-  if(book) hideShelfPopupDelayed();
-}, true);
-
+// Delegacao de eventos dos cartoes da estante
 document.addEventListener('click', function(e) {
-  // Star/favorite
-  var star = e.target.closest ? e.target.closest('.shelf-book-star') : null;
+  // Estrela de favorito
+  var star = e.target.closest ? e.target.closest('.livro-fav') : null;
   if(star && star.dataset.favid) {
     e.stopPropagation();
     toggleFavorito(star.dataset.favid);
     return;
   }
-  // Add book button
+  // Botao de adicionar
   var addBook = e.target.closest ? e.target.closest('[data-addbook]') : null;
   if(addBook) { openModal('modal-add-livro'); return; }
-  // Book click (mobile)
-  var book = e.target.closest ? e.target.closest('.shelf-book') : null;
+  // Toque/clique no cartao
+  var book = e.target.closest ? e.target.closest('.livro-card') : null;
   if(book && book.dataset.id) {
     showShelfPopup(e, book.dataset.id);
     return;
