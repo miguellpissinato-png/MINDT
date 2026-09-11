@@ -7,13 +7,14 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v17';
+var VERSAO = 'mindt-v18';
 
 var ARQUIVOS = [
   './',
   './index.html',
   './manifest.json',
   './styles/main.css',
+  './styles/floresta.css',
   './js/config.js',
   './js/helpers.js',
   './js/i18n.js',
@@ -21,6 +22,7 @@ var ARQUIVOS = [
   './js/persistence.js',
   './js/auth.js',
   './js/nav.js',
+  './js/floresta.js',
   './js/home.js',
   './js/notas.js',
   './js/perfil.js',
@@ -74,13 +76,27 @@ self.addEventListener('fetch', function(e){
 
   // Navegacao: tenta a rede primeiro para pegar atualizacoes; sem rede, usa o cache.
   if (req.mode === 'navigate') {
+    // O escopo do worker cobre /MINDT/ inteiro, inclusive a pagina de
+    // convite em /conheca/. So a raiz e o index.html sao o app: sem esta
+    // conferencia, abrir /conheca/ gravava a landing por cima do
+    // './index.html' guardado, e o app offline abria a landing no lugar dele.
+    var raiz = new URL('./', self.location).pathname;
+    var ehApp = url.pathname === raiz || url.pathname === raiz + 'index.html';
+
     e.respondWith(
       fetch(req).then(function(r){
-        var copia = r.clone();
-        caches.open(VERSAO).then(function(c){ c.put('./index.html', copia); });
+        if (ehApp) {
+          var copia = r.clone();
+          caches.open(VERSAO).then(function(c){ c.put('./index.html', copia); });
+        }
         return r;
       }).catch(function(){
-        return caches.match('./index.html').then(function(r){ return r || caches.match('./'); });
+        if (ehApp) {
+          return caches.match('./index.html').then(function(r){ return r || caches.match('./'); });
+        }
+        // Fora do app (a pagina de convite), sem rede so resta o que ja
+        // tiver passado por aqui antes.
+        return caches.match(req).then(function(r){ return r || Response.error(); });
       })
     );
     return;
