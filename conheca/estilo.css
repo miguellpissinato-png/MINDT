@@ -97,6 +97,9 @@ h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.025em}
 .modulos-intro b{font-size:17px;font-weight:500;letter-spacing:-.02em}
 .modulos-intro span{font-size:13px;line-height:1.6;color:var(--text-2)}
 .modulos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Sao nove: o ultimo ficaria sozinho numa meia-linha. Ocupando a largura
+   inteira ele fecha o bloco em vez de parecer sobra. */
+.modulos li:last-child{grid-column:1/-1}
 .modulos li{display:flex;align-items:center;gap:8px;padding:10px 11px;background:var(--surface-1);
   border:1px solid var(--line);border-radius:12px;font-size:12px;font-weight:500;color:var(--text-2)}
 .modulos svg{flex:none;width:16px;height:16px;color:var(--accent-text)}
