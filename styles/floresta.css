@@ -1,0 +1,49 @@
+/* FLORESTA — cenario de fundo do Ticolino.
+   Compartilhado pela Home do app e pela pagina de convite (conheca/).
+   Cinco planos de silhueta com parallax, o brilho do sol baixo e o
+   bando de passaros. O desenho e montado por js/floresta.js. */
+#floresta{
+  /* Fixo na janela, nao na pagina: o cenario e o FUNDO da Home inteira, e
+     nao rola junto com o conteudo. O parallax e que da o movimento. Como
+     esta dentro de #page-home, some sozinho nas outras paginas. */
+  position:fixed;inset:0;
+  overflow:hidden;pointer-events:none;user-select:none;z-index:0;
+}
+/* O ceu (brilho do sol) ocupa a tela toda. */
+.floresta-ceu{position:absolute;inset:0}
+/* A paisagem fica ancorada embaixo, na altura natural dela. Esticar a
+   silhueta para a tela inteira deformaria as arvores; ancorar embaixo da o
+   enquadramento certo: ceu em cima, linha de arvores no pe da tela. */
+.floresta-svg{
+  position:absolute;left:0;right:0;bottom:0;
+  width:100%;height:min(520px,62vh);display:block;
+}
+/* O topo da paisagem se dissolve por MASCARA, nao por uma camada de cor.
+   Antes havia um veu que comecava opaco em var(--bg): onde ele comecava, o
+   brilho do ceu era cortado de uma vez e aparecia uma linha horizontal na
+   tela, nos dois temas. A mascara apaga o proprio desenho, entao nao ha
+   cor nova e nao ha borda. */
+.floresta-svg{
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 32%);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 32%);
+}
+/* No tema claro o cenario entra discreto: o texto e olivo escuro e a
+   paisagem sage nao deixa margem de contraste como o fundo escuro deixa.
+   A 28% a floresta ainda se le como floresta e o texto continua legivel. */
+[data-theme="light"] .floresta-svg{opacity:.28}
+
+.floresta-passaro{will-change:transform}
+[data-plano]{will-change:transform}
+@keyframes floresta-voo{
+  0%{transform:translate3d(0,0,0)}
+  100%{transform:translate3d(1180px,var(--deriva,-30px),0)}
+}
+@keyframes floresta-asa{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.34)}}
+@media (prefers-reduced-motion:reduce){
+  .floresta-passaro{animation:none!important;opacity:.5}
+  .floresta-passaro *{animation:none!important}
+}
+@media (max-width:768px){
+  .floresta-svg{height:min(380px,46vh)}
+}
+

@@ -1,0 +1,168 @@
+/* CONHEÇA O MINDT — pagina de convite, o link da bio.
+   Pagina separada do app: nao tem login, nao tem tema claro, nao carrega o
+   styles/main.css (2.700 linhas de interface que aqui nao servem para nada).
+   Os tokens abaixo sao os mesmos do app, so os que esta pagina usa. */
+
+:root{
+  color-scheme:dark;
+  --bg:#12140E;
+  --panel:#161A12;
+  --surface-1:#1B2118;
+  --line:rgba(235,227,167,0.10);
+  --line-strong:rgba(235,227,167,0.18);
+  --text:#EBE3A7;
+  --text-2:rgba(235,227,167,0.68);
+  --text-3:rgba(235,227,167,0.62);
+  --accent:#EB7D00;
+  --accent-bright:#FF9420;
+  --accent-text:#F5A03D;
+  --accent-line:rgba(235,125,0,0.45);
+  --accent-soft:rgba(235,125,0,0.15);
+  --text-on-accent:#211C08;
+  --forest-line:rgba(90,140,116,0.4);
+  --text-on-forest-2:#C5C793;
+  --danger-text:#E28E77;
+  --success-text:#6FB58C;
+  --grad-hero:linear-gradient(150deg,#3A7059 0%,#2C5745 45%,#1D3A2E 100%);
+  --grad-card:linear-gradient(158deg,rgba(235,227,167,0.055) 0%,rgba(235,227,167,0) 62%);
+}
+
+*{box-sizing:border-box}
+/* Um `display` proprio ganha do atributo hidden e o elemento reaparece.
+   Esta linha faz hidden valer, venha de onde vier. */
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  /* A floresta e position:fixed; sem isto ela nao tem onde se apoiar. */
+  position:relative;min-height:100vh;
+}
+body>*:not(#floresta){position:relative;z-index:1}
+img{max-width:100%}
+a{color:var(--accent-text);text-decoration:none}
+a:hover{color:var(--text)}
+
+.faixa{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* ── Topo ───────────────────────────────────────────────────────────── */
+.topo{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:28px 20px 0;
+  max-width:1000px;margin:0 auto 56px}
+.marca{display:flex;align-items:center;gap:10px}
+.marca-selo{width:32px;height:32px;border-radius:9px;background:var(--accent);
+  display:grid;place-items:center;font-size:17px;font-weight:700;color:var(--text-on-accent)}
+.marca-nome{font-size:20px;font-weight:600;letter-spacing:-.03em}
+.topo-nota{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+
+/* ── Abertura ───────────────────────────────────────────────────────── */
+.abertura{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:40px;align-items:center;padding-bottom:80px}
+.abertura-texto{display:flex;flex-direction:column;gap:22px;min-width:0}
+.selo{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:6px 12px;
+  border:1px solid var(--accent-line);border-radius:999px;background:var(--accent-soft)}
+.selo-ponto{width:6px;height:6px;border-radius:999px;background:var(--accent);
+  box-shadow:0 0 10px 2px rgba(235,125,0,.6)}
+.selo span{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  white-space:nowrap;color:var(--accent-text)}
+/* Atalho para o formulario. Mesmo desenho do selo, mas com 44px de altura:
+   e um alvo de toque, nao um enfeite. */
+.pular{padding:0 18px;min-height:44px;border-color:var(--line-strong);background:transparent}
+.pular span{color:var(--text);letter-spacing:.06em}
+.pular:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.pular:hover span{color:var(--accent-text)}
+h1{margin:0;font-size:clamp(31px,6.4vw,46px);line-height:1.08;font-weight:600;
+  letter-spacing:-.03em;text-wrap:pretty}
+.linha-fina{margin:0;font-size:16px;line-height:1.6;color:var(--text-2);max-width:44ch;text-wrap:pretty}
+.abertura-tico{position:relative;display:flex;align-items:center;justify-content:center;min-width:0}
+.abertura-tico::before{content:"";position:absolute;width:340px;height:340px;max-width:100%;border-radius:999px;
+  background:radial-gradient(circle,rgba(44,87,69,.85) 0%,rgba(44,87,69,.25) 45%,rgba(44,87,69,0) 72%)}
+.abertura-tico img{position:relative;width:100%;max-width:260px;height:auto;display:block;
+  filter:drop-shadow(0 24px 34px rgba(6,8,4,.55))}
+
+/* ── Secoes ─────────────────────────────────────────────────────────── */
+section{padding-bottom:96px}
+.rotulo{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-text)}
+h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.025em}
+.cabecalho-secao{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+
+/* ── O app hoje ─────────────────────────────────────────────────────── */
+.dentro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:40px;align-items:center}
+/* A imagem vem com uma margem larga em volta dos celulares. Recortada ao
+   centro, as telas ocupam o espaco em vez de virar duas miniaturas ilegiveis
+   no celular. O corte de 150px por lado nao encosta nos aparelhos. */
+.telas{margin:0;border-radius:16px;overflow:hidden;aspect-ratio:13/11}
+.telas img{display:block;width:100%;height:100%;object-fit:cover}
+.modulos-intro{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.modulos-intro b{font-size:17px;font-weight:500;letter-spacing:-.02em}
+.modulos-intro span{font-size:13px;line-height:1.6;color:var(--text-2)}
+.modulos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modulos li{display:flex;align-items:center;gap:8px;padding:10px 11px;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:12px;font-size:12px;font-weight:500;color:var(--text-2)}
+.modulos svg{flex:none;width:16px;height:16px;color:var(--accent-text)}
+
+/* ── Quem e o Ticolino ──────────────────────────────────────────────── */
+.tico-cartao{display:flex;align-items:center;gap:26px;flex-wrap:wrap;background:var(--grad-hero);
+  border:1px solid var(--forest-line);border-radius:16px;padding:30px 32px}
+.tico-cartao img{flex:none;width:104px;height:auto;display:block}
+.tico-cartao div{flex:1;min-width:240px;display:flex;flex-direction:column;gap:8px}
+.tico-cartao p{margin:0;font-size:14px;line-height:1.65;color:var(--text);max-width:56ch;text-wrap:pretty}
+
+/* ── Captura ────────────────────────────────────────────────────────── */
+.captura{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.captura .cabecalho-secao{text-align:center;align-items:center;margin-bottom:0}
+.caixa{background:var(--grad-card),var(--surface-1);border:1px solid var(--line-strong);
+  border-radius:14px;padding:22px;box-shadow:0 18px 40px -12px rgba(6,8,4,.7)}
+.caixa-titulo{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.caixa-titulo b{font-size:15px;font-weight:500}
+.caixa-titulo span{font-size:13px;line-height:1.5;color:var(--text-2)}
+form{display:flex;flex-direction:column;gap:10px}
+input[type=email]{width:100%;min-height:48px;padding:12px 14px;font:inherit;font-size:15px;
+  color:var(--text);background:var(--bg);border:1px solid var(--line-strong);border-radius:12px}
+input[type=email]::placeholder{color:rgba(235,227,167,.45)}
+input[type=email]:focus{outline:none;border-color:var(--accent-line)}
+button{min-height:48px;padding:12px 20px;font:inherit;font-size:15px;font-weight:600;
+  color:var(--text-on-accent);background:var(--accent);border:0;border-radius:12px;cursor:pointer}
+button:hover:not(:disabled){background:var(--accent-bright)}
+button:disabled{opacity:.6;cursor:progress}
+.miudo{display:block;margin-top:14px;font-size:11px;line-height:1.5;color:var(--text-3)}
+.recado{margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--danger-text)}
+
+/* Estado de sucesso: o mesmo cartao troca de conteudo. */
+.pronto{display:flex;align-items:center;gap:16px}
+.pronto-tico{position:relative;flex:none;width:76px;height:76px;display:grid;place-items:center}
+.pronto-tico::before{content:"";position:absolute;inset:-14px;border-radius:999px;
+  background:radial-gradient(circle,rgba(44,87,69,.75) 0%,rgba(44,87,69,0) 70%)}
+.pronto-tico img{position:relative;width:76px;height:auto;display:block}
+.pronto-texto{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pronto-texto b{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.pronto-texto span{font-size:13px;line-height:1.55;color:var(--text-2)}
+
+/* ── Rodape ─────────────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--line);padding:26px 20px 40px}
+.rodape{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap}
+.rodape .marca-selo{width:24px;height:24px;font-size:13px;border-radius:7px}
+.rodape .marca-nome{font-size:15px}
+/* Classe propria, e nao `.rodape span`: o selo e o nome da marca tambem sao
+   <span>, e a regra generica apagava a cor dos dois. */
+.rodape-frase{font-size:12px;color:var(--text-3)}
+
+/* ── Foco visivel ───────────────────────────────────────────────────── */
+a:focus-visible,button:focus-visible,input:focus-visible{
+  outline:2px solid var(--accent-bright);outline-offset:2px;border-radius:8px}
+
+@media (max-width:860px){
+  .dentro{grid-template-columns:1fr;gap:28px}
+}
+@media (max-width:520px){
+  .topo{margin-bottom:36px}
+  .topo-nota{display:none}
+  section{padding-bottom:64px}
+  .tico-cartao{padding:24px 20px;gap:18px}
+  .pronto{flex-direction:column;text-align:center}
+}
+/* No toque tudo o que se clica tem 44px. */
+@media (pointer:coarse){
+  button,input[type=email]{min-height:48px}
+}
