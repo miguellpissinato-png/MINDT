@@ -75,6 +75,7 @@ function toggleTarefaDia(chave){
   var xp=xpDaTarefaDia(chave);
   if(d[chave]) addXP(xp); else addXP(-xp);
   atualizarStreak();
+  if(typeof registrarItensDoDia==='function') registrarItensDoDia();
   saveState();
   renderHome();
   // A aba Exercicios mostra o mesmo check; se estiver aberta, acompanha.

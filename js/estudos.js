@@ -484,6 +484,7 @@ function timerFinished() {
   updateTimerRing();
   playAlertSound();
   addXP(5);
+  if (typeof registrarEstudo === 'function') registrarEstudo(Math.round(timerTotal / 60));
   todaySessions++;
   state.studyXP = studyXP;
   state.todaySessions = todaySessions;
@@ -536,6 +537,9 @@ function playAlertSound() {
 function addXP(amount) {
   var previousXP = studyXP;
   studyXP += amount;
+  // Passa tambem pelo historico: o studyXP e so o acumulado da vida toda, e
+  // o Resumo de atividades precisa saber quanto entrou em cada dia.
+  if (typeof registrarXP === 'function') registrarXP(amount);
   updateXPDisplay();
   checkTrophyUnlock(previousXP);
   renderTrophies();
