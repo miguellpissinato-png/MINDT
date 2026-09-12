@@ -698,12 +698,28 @@
     </div>
 
     <section class="page" id="page-resumo">
-      <div class="page-header"><h2 class="page-title">Resumo</h2></div>
+      <div class="page-header res-header">
+        <div>
+          <h2 class="page-title">Resumo</h2>
+          <div class="res-sub" id="res-subtitulo">Tudo que você moveu neste mês, num lugar só</div>
+        </div>
+        <div class="res-acoes">
+          <div class="res-periodos" role="group" aria-label="Período do resumo">
+            <button type="button" class="res-periodo" aria-pressed="false" onclick="resTrocarPeriodo('semana')">Semana</button>
+            <button type="button" class="res-periodo" aria-pressed="true" onclick="resTrocarPeriodo('mes')">Mês</button>
+            <button type="button" class="res-periodo" aria-pressed="false" onclick="resTrocarPeriodo('ano')">Ano</button>
+          </div>
+          <button type="button" class="res-relatorio-btn" onclick="relAbrirModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h10l4 4v12a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h7M8 17h5"/></svg>
+            Resumo de atividades
+          </button>
+        </div>
+      </div>
       <div class="resumo-grid">
-        <div class="big-metric glass"><div class="value" id="res-total-tasks">0</div><div class="label">Tarefas criadas</div></div>
-        <div class="big-metric glass"><div class="value" id="res-done-tasks">0</div><div class="label">Concluídas</div></div>
-        <div class="big-metric glass"><div class="value" id="res-total-metas">0</div><div class="label">Metas criadas</div></div>
-        <div class="big-metric glass"><div class="value" id="res-gastos">R$0</div><div class="label">Total em gastos</div></div>
+        <div class="big-metric glass"><div class="value" id="res-total-tasks">0</div><div class="label">Tarefas criadas</div><div class="res-nota" id="res-nota-tasks"></div></div>
+        <div class="big-metric glass"><div class="value" id="res-done-tasks">0</div><div class="label">Concluídas</div><div class="res-nota" id="res-nota-done"></div></div>
+        <div class="big-metric glass"><div class="value" id="res-total-metas">0</div><div class="label">Metas ativas</div><div class="res-nota" id="res-nota-metas"></div></div>
+        <div class="big-metric glass"><div class="value" id="res-gastos">R$0</div><div class="label">Total em gastos</div><div class="res-nota" id="res-nota-gastos"></div></div>
       </div>
       <div class="section-title">Progresso das metas</div>
       <div id="res-metas-progress" style="margin-bottom:28px"></div>
@@ -1314,6 +1330,24 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-relatorio">
+  <div class="modal modal-sm">
+    <div class="modal-close" onclick="closeModal('modal-relatorio')">✕</div>
+    <div class="rel-modal-topo">
+      <span id="rel-modal-tico" aria-hidden="true"></span>
+      <div>
+        <div class="rel-modal-titulo">Resumo de atividades</div>
+        <div class="rel-modal-desc">Escolha o período. O Ticolino monta o documento com tudo que você fez, e o navegador salva em PDF.</div>
+      </div>
+    </div>
+    <div id="rel-opcoes"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="relGerar()">Gerar PDF</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-relatorio')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-ex-passos">
   <div class="modal modal-sm">
     <div class="modal-close" onclick="closeModal('modal-ex-passos')">✕</div>
@@ -1356,6 +1390,10 @@
 <div id="sync-status" class="sync-status" style="display:none"></div>
 <button id="btn-instalar" onclick="instalarApp()" style="display:none"></button>
 <div id="toast"></div>
+<!-- O Resumo de atividades e montado aqui por js/relatorio.js. Fica fora
+     do #app de proposito: ao imprimir, todo o resto da pagina some. -->
+<div id="relatorio" aria-hidden="true"></div>
+
 <script src="js/config.js"></script>
 <script src="js/helpers.js"></script>
 <script src="js/i18n.js"></script>
@@ -1364,6 +1402,7 @@
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/floresta.js"></script>
+<script src="js/historico.js"></script>
 <script src="js/home.js"></script>
 <script src="js/notas.js"></script>
 <script src="js/perfil.js"></script>
@@ -1371,6 +1410,7 @@
 <script src="js/tarefas.js"></script>
 <script src="js/agenda.js"></script>
 <script src="js/resumo.js"></script>
+<script src="js/relatorio.js"></script>
 <script src="js/gastos.js"></script>
 <script src="js/estudos.js"></script>
 <script src="js/exercicios.js"></script>

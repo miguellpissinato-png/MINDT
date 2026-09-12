@@ -181,6 +181,7 @@ function exMarcarDia(valor){
   d.exercicio=!!valor;
   addXP(valor?EX_XP:-EX_XP);
   if(typeof atualizarStreak==='function') atualizarStreak();
+  if(typeof registrarItensDoDia==='function') registrarItensDoDia();
 }
 // Fecha o check do dia SEM pagar XP. Usado por quem ja paga o seu proprio:
 // terminar um treino vale +5 uma vez so, nao +5 do treino mais +5 do check.
@@ -189,6 +190,7 @@ function exFecharDiaSemXP(){
   if(d.exercicio) return;
   d.exercicio=true;
   if(typeof atualizarStreak==='function') atualizarStreak();
+  if(typeof registrarItensDoDia==='function') registrarItensDoDia();
 }
 function exConcluirDia(){
   exMarcarDia(true); saveState(); renderExercicios();

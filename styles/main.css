@@ -455,6 +455,8 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .big-metric{padding:28px;text-align:center}
 .big-metric .value{font-family:'Poppins',system-ui,sans-serif;font-size:52px;font-weight:700;color:var(--text)}
 .big-metric .label{font-size:12px;color:var(--text-muted);margin-top:6px}
+/* Terceira linha do cartao do Resumo: o recorte do periodo escolhido. */
+.res-nota{font-size:12px;color:var(--text-3);margin-top:3px;min-height:1em}
 .filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .filter-chip{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--line);color:var(--text-dim);cursor:pointer;transition:all 0.2s}
 .filter-chip.active{background:rgba(37,132,95,0.35);border-color:var(--line);color:var(--text)}
@@ -2544,6 +2546,217 @@ input[type="checkbox"]{accent-color:var(--accent)}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   RESUMO DE ATIVIDADES — a barra de periodo, o modal e o documento em PDF
+   Montado por js/relatorio.js.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Cabecalho da aba Resumo ──────────────────────────────────────────
+   O seletor de periodo e o botao que abre o modal. */
+.res-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.res-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.res-periodos{display:inline-flex;padding:3px;gap:2px;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:11px}
+.res-periodo{padding:6px 13px;border:0;border-radius:8px;background:transparent;
+  font:inherit;font-size:13px;font-weight:500;color:var(--text-3);cursor:pointer;
+  transition:background .16s,color .16s}
+.res-periodo:hover{color:var(--text)}
+.res-periodo[aria-pressed="true"]{background:var(--surface-3);color:var(--text)}
+.res-relatorio-btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 15px;
+  border:0;border-radius:10px;background:var(--grad-accent);color:var(--text-on-accent);
+  font:inherit;font-size:13px;font-weight:500;cursor:pointer;
+  box-shadow:0 4px 18px -6px rgba(235,125,0,.38);transition:filter .16s,transform .09s}
+.res-relatorio-btn:hover{filter:brightness(1.14)}
+.res-relatorio-btn:active{transform:scale(.975)}
+.res-relatorio-btn svg{width:15px;height:15px;flex:none}
+.res-sub{font-size:13px;color:var(--text-3);margin-top:5px}
+
+/* ── Modal de escolher o periodo ──────────────────────────────────────── */
+.rel-modal-topo{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.rel-modal-topo svg{width:54px;height:auto;flex:none}
+.rel-modal-titulo{font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.rel-modal-desc{font-size:13px;line-height:1.5;color:var(--text-2);margin-top:4px}
+#rel-opcoes{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.rel-opcao{display:flex;align-items:center;gap:12px;width:100%;padding:13px 15px;
+  border:1px solid var(--line);border-radius:12px;background:var(--surface-2);
+  font:inherit;text-align:left;cursor:pointer;transition:background .16s,border-color .16s}
+.rel-opcao:hover{border-color:var(--line-strong)}
+.rel-opcao.on{background:var(--accent-soft);border-color:var(--accent-line)}
+.rel-anel{width:18px;height:18px;flex:none;border-radius:50%;border:1px solid var(--line-strong);
+  display:grid;place-items:center}
+.rel-opcao.on .rel-anel{border-color:var(--accent)}
+.rel-anel::after{content:"";width:9px;height:9px;border-radius:50%;background:transparent}
+.rel-opcao.on .rel-anel::after{background:var(--accent)}
+.rel-opcao-texto{flex:1;min-width:0;display:flex;flex-direction:column}
+.rel-opcao-titulo{font-size:14px;font-weight:500;letter-spacing:-.01em;color:var(--text)}
+.rel-opcao-desc{font-size:12px;color:var(--text-3);margin-top:2px}
+
+/* ── O documento ──────────────────────────────────────────────────────
+   Fica fora da tela em vez de display:none: assim ele tem layout de
+   verdade e os graficos ja estao medidos quando a impressao comeca.
+   A paleta e fixa (papel claro), nao segue o tema do app: o documento
+   nasce para o papel, e fundo escuro impresso gasta tinta e le pior. */
+#relatorio{position:fixed;left:-10000px;top:0;width:210mm;z-index:-1}
+
+.rel-pagina{
+  width:210mm;min-height:296mm;box-sizing:border-box;
+  background:#F2EEDA;color:#2E2910;
+  font-family:'Poppins',system-ui,-apple-system,sans-serif;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.rel-pagina *{box-sizing:border-box}
+
+/* Capa */
+.rel-capa{padding:0}
+.rel-hero{position:relative;display:flex;align-items:center;gap:26px;
+  padding:40px 44px 36px;min-height:300px;
+  background:linear-gradient(150deg,#3A7059 0%,#2C5745 48%,#204036 100%)}
+.rel-hero-texto{flex:1 1 auto;min-width:0}
+.rel-marca{display:flex;align-items:center;gap:9px;margin-bottom:20px}
+.rel-selo{width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#FF9420 0%,#D06A00 100%);
+  font-weight:700;font-size:13px;letter-spacing:-.03em;color:#211C08}
+.rel-marca-nome{font-weight:600;font-size:16px;letter-spacing:-.03em;color:#EBE3A7}
+.rel-marca-risco{width:1px;height:14px;background:rgba(235,227,167,.28)}
+/* >>> pacote: .72 de opacidade. Medi 3,97:1 contra o verde real atras
+   dela — abaixo do minimo para 10px. Opaca passa. */
+.rel-marca-etiqueta{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:#EBE3A7}
+.rel-hero h1{margin:0;font-weight:600;font-size:38px;line-height:1.12;letter-spacing:-.03em;
+  color:#EBE3A7;max-width:15ch}
+/* >>> pacote: .78 de opacidade. Medi 4,27:1 no ponto mais claro do
+   gradiente. Opaco passa, e o paragrafo continua abaixo do titulo na
+   hierarquia pelo tamanho da letra. */
+.rel-hero p{margin:14px 0 0;font-size:15px;line-height:1.5;color:#EBE3A7}
+.rel-chips{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+/* >>> pacote: fundo creme a .12. Esse veu clareava o verde debaixo dele e
+   derrubava o texto creme para 2,41:1. O fundo agora escurece em vez de
+   clarear: mesma pilula, contraste que passa. */
+.rel-chip{display:inline-flex;align-items:center;height:26px;padding:0 13px;border-radius:999px;
+  background:rgba(6,8,4,.22);border:1px solid rgba(235,227,167,.30);
+  font-size:11px;font-weight:500;color:#EBE3A7}
+.rel-hero-tico{flex:none;line-height:0;padding:16px;border-radius:999px;
+  background:radial-gradient(circle at 50% 55%,rgba(111,181,140,.42) 0%,rgba(44,87,69,0) 70%)}
+.rel-hero-tico svg{width:176px;height:auto;display:block}
+
+.rel-corpo{padding:30px 44px 40px;display:flex;flex-direction:column;gap:16px;flex:1}
+
+.rel-metricas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rel-metrica{background:#FBF8EC;border:1px solid rgba(46,41,16,.13);border-radius:14px;padding:15px 16px}
+/* >>> pacote: gradiente #EB7D00→#B85F00 com texto creme. Medi: o creme dava
+   2,76:1 no valor e 2,46:1 nos rotulos sobre a ponta clara — reprovava nos
+   dois. Aqui o cartao usa o gradiente de acao do app (mais claro) com a
+   tinta escura do proprio token --text-on-accent, que passa em toda a
+   extensao do gradiente: 7,7:1 na ponta clara e 4,79:1 na escura. A
+   hierarquia vem do tamanho da letra, nao de opacidade — baixar a opacidade
+   do rotulo derrubaria o contraste de novo. */
+.rel-metrica.destaque{background:linear-gradient(135deg,#FF9420 0%,#D06A00 100%);
+  border-color:rgba(155,82,0,.5)}
+.rel-metrica-rotulo{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(46,41,16,.66)}
+.rel-metrica-valor{font-weight:600;font-size:34px;line-height:1.05;letter-spacing:-.03em;margin-top:3px}
+.rel-metrica-nota{font-size:11px;color:rgba(46,41,16,.66);margin-top:2px}
+.rel-metrica.destaque .rel-metrica-rotulo,
+.rel-metrica.destaque .rel-metrica-nota,
+.rel-metrica.destaque .rel-metrica-valor{color:#211C08}
+.rel-metrica.destaque .rel-metrica-nota{font-weight:500}
+
+/* Cartoes */
+.rel-cartao{background:#FBF8EC;border:1px solid rgba(46,41,16,.13);border-radius:14px;
+  padding:20px 22px;display:flex;flex-direction:column;min-width:0}
+.rel-cartao-topo{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
+.rel-cartao-titulo{font-weight:600;font-size:15px;letter-spacing:-.015em}
+.rel-cartao-nota{font-size:11px;color:rgba(46,41,16,.66)}
+.rel-cartao-cabeca{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.rel-icone{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;
+  background:rgba(197,104,0,.12);color:#9B5200}
+.rel-icone svg{width:17px;height:17px}
+.rel-cartao-nome{font-weight:600;font-size:16px;letter-spacing:-.02em}
+.rel-numero{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rel-numero b{font-weight:600;font-size:34px;line-height:1;letter-spacing:-.03em}
+.rel-numero span{font-size:13px;color:rgba(46,41,16,.78)}
+.rel-etiquetas{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.rel-etiqueta{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:6px;
+  background:#F5F1DF;font-size:11px;font-weight:500;color:rgba(46,41,16,.78)}
+.rel-cartao-lista{margin-top:14px;padding-top:13px;border-top:1px solid rgba(46,41,16,.13)}
+
+.rel-grafico{width:100%;height:auto;display:block;margin-top:16px}
+/* Na capa o grafico nasce alto (viewBox 700x430) para fechar a folha. A
+   proporcao e mantida: esticar o SVG engrossava o traco na horizontal e
+   achatava as bolas dos pontos. */
+.rel-capa .rel-corpo>.rel-cartao{flex:1;min-height:0;justify-content:center}
+.rel-eixo{display:flex;justify-content:space-between;font-size:10px;color:rgba(46,41,16,.66);margin-top:2px}
+.rel-legenda{font-size:12px;line-height:1.6;color:rgba(46,41,16,.78);margin-top:12px}
+.rel-vazio{margin-top:14px;padding:14px 15px;border-radius:12px;background:#F5F1DF;
+  border:1px dashed rgba(46,41,16,.22);font-size:12px;line-height:1.6;color:rgba(46,41,16,.78)}
+
+.rel-barra{margin-bottom:13px}
+.rel-barra:last-child{margin-bottom:0}
+.rel-barra-topo{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:6px}
+.rel-barra-topo span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:rgba(46,41,16,.78)}
+.rel-barra-topo span:last-child{font-weight:500;flex:none}
+.rel-barra-trilho{height:5px;border-radius:999px;background:rgba(46,41,16,.12);overflow:hidden}
+.rel-barra-fita{height:100%;border-radius:999px;background:linear-gradient(135deg,#EB7D00 0%,#B85F00 100%)}
+
+.rel-lista{list-style:none;margin:0;padding:0}
+.rel-lista li{display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid rgba(46,41,16,.13);font-size:12.5px}
+.rel-lista li:last-child{border-bottom:0;padding-bottom:0}
+.rel-ponto{width:5px;height:5px;flex:none;border-radius:50%;background:#C56800}
+.rel-lista-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rel-lista-data{flex:none;color:rgba(46,41,16,.66)}
+
+/* O recado fecha a capa no pe da folha, nao logo abaixo do grafico. */
+.rel-recado{margin-top:auto;display:flex;gap:16px;align-items:center;padding:16px 20px;border-radius:14px;
+  background:#F5F1DF;border:1px solid rgba(46,41,16,.13)}
+.rel-recado-tico{flex:none;line-height:0}
+.rel-recado-tico svg{width:62px;height:auto;display:block}
+.rel-recado p{margin:0;flex:1;min-width:0;font-size:14px;line-height:1.55}
+
+/* Paginas internas */
+.rel-pagina:not(.rel-capa){padding:44px 44px 34px;gap:18px}
+.rel-cabecalho{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+  padding-bottom:16px;border-bottom:1px solid rgba(46,41,16,.13)}
+.rel-parte{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(46,41,16,.66);margin-bottom:5px}
+.rel-cabecalho h2{margin:0;font-weight:600;font-size:26px;line-height:1.2;letter-spacing:-.025em}
+.rel-cabecalho-data{font-size:11px;color:rgba(46,41,16,.66)}
+/* As linhas esticam para ocupar a folha inteira: sem isso o conteudo se
+   junta no topo e sobra um terco de papel em branco embaixo. */
+.rel-grade{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;
+  grid-auto-rows:minmax(min-content,1fr)}
+.rel-cartao-largo{grid-column:1/-1}
+.rel-rodape{display:flex;justify-content:space-between;gap:16px;padding-top:14px;
+  border-top:1px solid rgba(46,41,16,.13);font-size:10.5px;color:rgba(46,41,16,.66)}
+
+/* ── Impressao ────────────────────────────────────────────────────────
+   Some o app inteiro e deixa so o documento. `print-color-adjust` e o que
+   faz o navegador imprimir os fundos: sem ele o hero verde e o cartao
+   laranja sairiam brancos. */
+/* As regras valem so quando o documento foi gerado (body.imprimindo). Sem
+   esse recorte, um Ctrl+P qualquer no app esconderia a pagina inteira e
+   imprimiria uma folha em branco, porque #relatorio estaria vazio. */
+@media print{
+  @page{size:A4;margin:0}
+  body.imprimindo{background:#fff!important;margin:0!important;padding:0!important;
+    height:auto!important;overflow:visible!important}
+  body.imprimindo>*{display:none!important}
+  body.imprimindo>#relatorio{display:block!important;position:static!important;left:auto!important;
+    width:auto!important;z-index:auto!important}
+  .rel-pagina{break-after:page;page-break-after:always;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rel-pagina:last-child{break-after:auto;page-break-after:auto}
+  .rel-cartao,.rel-metrica,.rel-recado,.rel-hero{break-inside:avoid;page-break-inside:avoid}
+}
+
+@media (max-width:640px){
+  .res-header{align-items:flex-start}
+  .res-acoes{width:100%}
+  .res-periodos{flex:1}
+  .res-periodo{flex:1}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -2583,7 +2796,8 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .shelf-filter-btn,.agenda-tool-btn,.agenda-view-btn,.auth-tab,.music-tab,
   .shelf-popup-btn,.scroll-arrow,.agenda-nav-btn,.icon-btn,.modal-close,
   .mobile-nav-item,
-  .ex-nova,.ex-link,.ex-grupo-opt,.ex-tipo-opt{
+  .ex-nova,.ex-link,.ex-grupo-opt,.ex-tipo-opt,
+  .res-periodo,.res-relatorio-btn,.rel-opcao{
     min-height:44px;
   }
   /* Cresce a area de toque da estrela sem crescer o selo: numa capa de 96px
