@@ -2554,13 +2554,13 @@ input[type="checkbox"]{accent-color:var(--accent)}
    O seletor de periodo e o botao que abre o modal. */
 .res-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .res-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.res-periodos{display:inline-flex;padding:3px;gap:2px;background:var(--surface-1);
+.abas{display:inline-flex;padding:3px;gap:2px;background:var(--surface-1);
   border:1px solid var(--line);border-radius:11px}
-.res-periodo{padding:6px 13px;border:0;border-radius:8px;background:transparent;
+.aba{padding:6px 13px;border:0;border-radius:8px;background:transparent;
   font:inherit;font-size:13px;font-weight:500;color:var(--text-3);cursor:pointer;
   transition:background .16s,color .16s}
-.res-periodo:hover{color:var(--text)}
-.res-periodo[aria-pressed="true"]{background:var(--surface-3);color:var(--text)}
+.aba:hover{color:var(--text)}
+.aba[aria-pressed="true"]{background:var(--surface-3);color:var(--text)}
 .res-relatorio-btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 15px;
   border:0;border-radius:10px;background:var(--grad-accent);color:var(--text-on-accent);
   font:inherit;font-size:13px;font-weight:500;cursor:pointer;
@@ -2752,8 +2752,116 @@ input[type="checkbox"]{accent-color:var(--accent)}
 @media (max-width:640px){
   .res-header{align-items:flex-start}
   .res-acoes{width:100%}
-  .res-periodos{flex:1}
-  .res-periodo{flex:1}
+  .abas{flex:1}
+  .aba{flex:1}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ASSINATURAS — Perfil > Assinaturas, e os convites a assinar
+   Montado por js/plano.js.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Plano atual ──────────────────────────────────────────────────────── */
+.plano-atual{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  flex-wrap:wrap;padding:20px 22px;margin-bottom:16px;
+  background:var(--grad-card),var(--surface-1);
+  border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 2px rgba(6,8,4,.55)}
+.plano-rotulo{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-3)}
+.plano-atual-linha{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px}
+.plano-atual-nome{font-size:20px;font-weight:600;letter-spacing:-.025em;color:var(--text)}
+.plano-atual-preco{font-size:14px;color:var(--text-2)}
+.plano-atual-nota{font-size:13px;color:var(--text-3);margin-top:5px}
+.plano-aviso{margin-top:10px;padding:10px 12px;border-radius:10px;
+  background:var(--warning-soft);border:1px solid rgba(227,179,65,.35);
+  font-size:12.5px;line-height:1.5;color:var(--text)}
+.plano-atual-acoes{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Chamada do Max ───────────────────────────────────────────────────── */
+.plano-chamada{display:flex;align-items:center;gap:16px;padding:16px 20px;margin-bottom:22px;
+  background:var(--grad-hero);border:1px solid var(--forest-line);border-radius:16px}
+.plano-chamada-tico{flex:none;line-height:0}
+.plano-chamada b{display:block;font-size:15px;font-weight:600;letter-spacing:-.015em;
+  color:var(--text-on-forest)}
+.plano-chamada span{display:block;font-size:13px;line-height:1.55;margin-top:3px;
+  color:var(--text-on-forest-2)}
+
+/* ── Os tres cartoes ──────────────────────────────────────────────────── */
+.plano-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:14px}
+.plano-cartao{display:flex;flex-direction:column;padding:20px;
+  background:var(--surface-1);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 1px 2px rgba(6,8,4,.55)}
+.plano-cartao.destaque{border-color:var(--accent-line);
+  box-shadow:0 10px 32px -14px rgba(235,125,0,.45)}
+.plano-cartao.atual{border-color:var(--line-strong)}
+.plano-selo{align-self:flex-start;padding:4px 10px;border-radius:999px;
+  background:var(--surface-3);font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:var(--text-2);margin-bottom:14px}
+.plano-selo.on{background:var(--accent-soft);color:var(--accent-text)}
+.plano-cartao.destaque .plano-selo:not(.on){background:var(--accent);color:var(--text-on-accent)}
+.plano-nome{font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.plano-desc{font-size:13px;line-height:1.5;color:var(--text-3);margin-top:4px;min-height:2.9em}
+.plano-preco{display:flex;align-items:baseline;gap:6px;margin-top:14px}
+.plano-preco b{font-size:30px;font-weight:600;letter-spacing:-.03em;color:var(--text)}
+.plano-preco span{font-size:13px;color:var(--text-3)}
+.plano-preco-nota{font-size:12px;color:var(--text-3);margin-top:3px}
+
+.plano-lista{list-style:none;margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:9px;flex:1}
+.plano-item{display:flex;align-items:center;gap:9px;font-size:13px;line-height:1.35;color:var(--text-2)}
+.plano-item svg{width:16px;height:16px;flex:none}
+.plano-item.sim svg{color:var(--success-text)}
+/* O que ainda nao existe nao leva check: leva relogio, e diz "Em breve".
+   Um check ao lado de um recurso que nao esta no app e uma promessa que o
+   cliente descobre quebrada depois de pagar. */
+.plano-item.breve{color:var(--text-3)}
+.plano-item.breve svg{color:var(--warning-text)}
+/* >>> --text-4 (0,43) media 3,44:1 nestas linhas de 13px. O token existe
+   para elementos nao textuais, com piso de 3:1; aqui e texto e precisa de
+   4,5. --text-3 da 4,59 e continua claramente mais apagado que as linhas
+   inclusas, que e o que a lista precisa comunicar. */
+.plano-item.nao{color:var(--text-3)}
+.plano-item.nao svg{color:var(--text-4)}
+.plano-breve{margin-left:auto;padding:2px 7px;border-radius:6px;background:var(--warning-soft);
+  font-size:10.5px;font-weight:600;color:var(--warning-text);white-space:nowrap}
+.plano-acao{margin-top:18px}
+.plano-acao .btn{width:100%;justify-content:center}
+
+.plano-letra-miuda{margin:20px 0 0;max-width:78ch;font-size:12px;line-height:1.65;color:var(--text-3)}
+
+/* ── Convite a assinar e cancelamento ─────────────────────────────────── */
+.plano-modal{text-align:center}
+.plano-modal-tico{display:flex;justify-content:center;margin:4px 0 14px}
+.plano-modal-frase{margin:0;font-size:16px;line-height:1.5;font-weight:500;color:var(--text)}
+.plano-modal-nota{margin:10px 0 0;font-size:13px;line-height:1.6;color:var(--text-2)}
+.plano-modal .modal-actions{justify-content:center}
+
+/* ── Resumo antes de pagar ────────────────────────────────────────────── */
+.assinar-plano{font-size:20px;font-weight:600;letter-spacing:-.025em;color:var(--text);margin-bottom:14px}
+.assinar-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:14px 16px;border-radius:12px;background:var(--accent-soft);
+  border:1px solid var(--accent-line);margin-bottom:14px}
+.assinar-total span:first-child{font-size:13px;color:var(--text-2)}
+.assinar-total span:last-child{font-size:22px;font-weight:600;letter-spacing:-.025em;color:var(--text)}
+.assinar-linhas{margin:0;padding:0}
+.assinar-linhas>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--line);font-size:13px}
+.assinar-linhas>div:last-child{border-bottom:0}
+.assinar-linhas dt{color:var(--text-3)}
+.assinar-linhas dd{margin:0;color:var(--text);font-weight:500;text-align:right}
+.assinar-ganho{margin:14px 0 0;font-size:13px;line-height:1.6;color:var(--text-2)}
+.assinar-aviso{margin:10px 0 0;font-size:12px;line-height:1.55;color:var(--text-3)}
+
+/* O cadeado no botao do relatorio: o Free ve que existe, e o clique abre o
+   convite em vez de nao fazer nada. */
+.res-relatorio-btn.travado{background:var(--surface-2);color:var(--text-2);box-shadow:none}
+.res-relatorio-btn.travado:hover{filter:none;background:var(--surface-3)}
+
+@media (max-width:640px){
+  .plano-atual{flex-direction:column;gap:14px}
+  .plano-atual-acoes{width:100%}
+  .plano-atual-acoes .btn{flex:1;justify-content:center}
+  .plano-desc{min-height:0}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -2797,7 +2905,7 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .shelf-popup-btn,.scroll-arrow,.agenda-nav-btn,.icon-btn,.modal-close,
   .mobile-nav-item,
   .ex-nova,.ex-link,.ex-grupo-opt,.ex-tipo-opt,
-  .res-periodo,.res-relatorio-btn,.rel-opcao{
+  .aba,.res-relatorio-btn,.rel-opcao,.plano-acao .btn{
     min-height:44px;
   }
   /* Cresce a area de toque da estrela sem crescer o selo: numa capa de 96px

@@ -63,6 +63,9 @@ function saveTask(){
     var t=state.tasks.find(function(x){return x.id===currentDetailId;});
     if(t){t.name=name;t.desc=document.getElementById('task-desc').value.trim();t.group=document.getElementById('task-group').value;t.deadline=document.getElementById('task-deadline').value;t.budget=document.getElementById('task-budget').value;if(img)t.img=img;saveState();closeModal('modal-add-task');renderTasks();toast('✏️ Tarefa atualizada!');currentDetailId=null;return;}
   }
+  // Criar e o unico caminho que esbarra no limite do Free. Editar uma
+  // tarefa que ja existe nao aumenta a conta, entao passa direto.
+  if(typeof podeCriarTarefa==='function' && !podeCriarTarefa()){ closeModal('modal-add-task'); return; }
   state.tasks.push({id:uid(),_type:'task',name:name,desc:document.getElementById('task-desc').value.trim(),group:document.getElementById('task-group').value,deadline:document.getElementById('task-deadline').value,budget:document.getElementById('task-budget').value,img:img,done:false,createdAt:new Date().toISOString()});
   saveState();closeModal('modal-add-task');resetTaskForm();renderTasks();renderHome();toast('✅ Tarefa criada!');
 }

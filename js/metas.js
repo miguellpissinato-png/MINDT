@@ -53,6 +53,7 @@ function saveMeta(){
     var m=state.metas.find(function(x){return x.id===currentDetailId;});
     if(m){m.name=name;m.desc=document.getElementById('meta-desc').value.trim();m.group=document.getElementById('meta-group').value;m.deadline=document.getElementById('meta-deadline').value;m.budget=document.getElementById('meta-budget').value;m.checklist=checklist;if(img)m.img=img;saveState();closeModal('modal-add-meta');renderMetas();toast('✏️ Meta atualizada!');currentDetailId=null;return;}
   }
+  if(typeof podeCriarMeta==='function' && !podeCriarMeta()){ closeModal('modal-add-meta'); return; }
   state.metas.push({id:uid(),_type:'meta',name:name,desc:document.getElementById('meta-desc').value.trim(),group:document.getElementById('meta-group').value,deadline:document.getElementById('meta-deadline').value,budget:document.getElementById('meta-budget').value,checklist:checklist,img:img,done:false,createdAt:new Date().toISOString()});
   saveState();closeModal('modal-add-meta');resetMetaForm();renderMetas();renderHome();toast('🎯 Meta criada!');
 }

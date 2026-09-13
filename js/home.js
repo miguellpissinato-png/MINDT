@@ -18,6 +18,9 @@ sb.auth.onAuthStateChange(function(event,session){
       // porque loadStudyXP() so era chamado de dentro de renderEstudos().
       // Todo dado compartilhado precisa ser hidratado aqui, no carregamento.
       if (typeof loadStudyXP === 'function') loadStudyXP();
+      // O plano vem da tabela subscriptions e decide o que fica liberado.
+      // Nao segura a entrada no app: enquanto nao chega, vale o Free.
+      if (typeof carregarPlano === 'function') carregarPlano();
       updateGroupSelects();updateGroupFilters();renderHome();
       if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
