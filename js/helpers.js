@@ -261,7 +261,13 @@ var TICO_MOODS = {
   boxe:       ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-fit-luvas',    '#tico-brows'],
   cansado:    ['#tico-eyes-sleepy', '#tico-mouth-open',  '#tico-paws',         '#tico-fit-suor'],
   pausa:      ['#tico-eyes-arc',    '#tico-mouth-smile', '#tico-fit-agua',     ''],
-  forte:      ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-fit-forte',    '#tico-fit-faixa', '#tico-spark']
+  forte:      ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-fit-forte',    '#tico-fit-faixa', '#tico-spark'],
+
+  // Tristeza. A poca vem depois do corpo de proposito: e translucida, e
+  // passar por cima dos pes e o que faz parecer que ele esta dentro dela.
+  triste:     ['#tico-eyes-chorando', '#tico-mouth-chorando', '#tico-paws',  '#tico-brows-triste'],
+  chorando:   ['#tico-eyes-chorando', '#tico-mouth-chorando', '#tico-poca',
+               '#tico-lagrimas',      '#tico-brows-triste']
 };
 
 // Devolve o SVG do Ticolino no humor pedido.

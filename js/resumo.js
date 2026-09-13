@@ -16,7 +16,7 @@ function renderResumo(){
   var p = relPeriodo(relPeriodoAtual);
 
   // Qual botao de periodo esta ligado.
-  var botoes = document.querySelectorAll('.res-periodo');
+  var botoes = document.querySelectorAll('#page-resumo .aba');
   var tipos = ['semana','mes','ano'];
   for(var i = 0; i < botoes.length; i++){
     botoes[i].setAttribute('aria-pressed', String(tipos[i] === relPeriodoAtual));

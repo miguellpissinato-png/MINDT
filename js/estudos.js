@@ -535,6 +535,10 @@ function playAlertSound() {
 }
 
 function addXP(amount) {
+  // O XP em dobro do Ticolino Max vale para tudo que da XP: pomodoro,
+  // itens do dia e treinos. Dobrar aqui, na porta unica, evita ter que
+  // lembrar de dobrar em cada um deles.
+  if (typeof xpEmDobro === 'function' && xpEmDobro()) amount = amount * 2;
   var previousXP = studyXP;
   studyXP += amount;
   // Passa tambem pelo historico: o studyXP e so o acumulado da vida toda, e

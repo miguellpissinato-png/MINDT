@@ -219,6 +219,31 @@
       <path d="M172 54 c6 8 8 11 8 15 a8.5 8.5 0 0 1 -17 0 c0 -4 3 -7 9 -15 z"></path>
       <path d="M14 98 c4.5 6 6.5 9 6.5 12 a6.8 6.8 0 0 1 -13.5 0 c0 -3 2 -6 7 -12 z"></path>
     </g>
+    <!-- Pecas do Ticolino chorando: entregues junto com a tela de
+         Assinaturas, para o momento de cancelar. -->
+    <g id="tico-eyes-chorando" stroke="#3A2A20" stroke-width="3.4" stroke-linecap="round" fill="none">
+      <path d="M64 97 q8 12 17 0"></path>
+      <path d="M119 97 q8 12 17 0"></path>
+    </g>
+    <g id="tico-brows-triste" stroke="#7A5240" stroke-width="2.8" stroke-linecap="round" fill="none">
+      <path d="M62 87 q9 -5 18 -9"></path>
+      <path d="M138 87 q-9 -5 -18 -9"></path>
+    </g>
+    <g id="tico-mouth-chorando">
+      <path d="M89 128 q11 -11 22 0" stroke="#7A5240" stroke-width="2.8" fill="none" stroke-linecap="round"></path>
+    </g>
+    <g id="tico-lagrimas" fill="#8CA9FF" stroke="#7A5240" stroke-width="2.2" stroke-linejoin="round">
+      <path d="M70 105 c-7 16 -8 27 -1 31 c7 -4 7 -15 1 -31 z"></path>
+      <path d="M130 105 c7 16 8 27 1 31 c-7 -4 -7 -15 -1 -31 z"></path>
+      <path d="M62 150 c-5 7 -3.5 12 0 12 c3.5 0 5 -5 0 -12 z"></path>
+      <path d="M140 144 c-5 7 -3.5 12 0 12 c3.5 0 5 -5 0 -12 z"></path>
+    </g>
+    <g id="tico-poca">
+      <ellipse cx="100" cy="193" rx="92" ry="17" fill="#8CA9FF" fill-opacity="0.22" stroke="#7A5240" stroke-width="2.2" stroke-opacity="0.5"></ellipse>
+      <ellipse cx="100" cy="192" rx="80" ry="14" fill="#8CA9FF" fill-opacity="0.5" stroke="#7A5240" stroke-width="2.6"></ellipse>
+      <path d="M42 190 q14 -5 28 -1" stroke="#FFFBF2" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.7"></path>
+      <path d="M126 197 q16 4 30 -3" stroke="#FFFBF2" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.5"></path>
+    </g>
   </defs>
 </svg>
 <canvas id="bg-canvas"></canvas>
@@ -704,12 +729,12 @@
           <div class="res-sub" id="res-subtitulo">Tudo que você moveu neste mês, num lugar só</div>
         </div>
         <div class="res-acoes">
-          <div class="res-periodos" role="group" aria-label="Período do resumo">
-            <button type="button" class="res-periodo" aria-pressed="false" onclick="resTrocarPeriodo('semana')">Semana</button>
-            <button type="button" class="res-periodo" aria-pressed="true" onclick="resTrocarPeriodo('mes')">Mês</button>
-            <button type="button" class="res-periodo" aria-pressed="false" onclick="resTrocarPeriodo('ano')">Ano</button>
+          <div class="abas" role="group" aria-label="Período do resumo">
+            <button type="button" class="aba" aria-pressed="false" onclick="resTrocarPeriodo('semana')">Semana</button>
+            <button type="button" class="aba" aria-pressed="true" onclick="resTrocarPeriodo('mes')">Mês</button>
+            <button type="button" class="aba" aria-pressed="false" onclick="resTrocarPeriodo('ano')">Ano</button>
           </div>
-          <button type="button" class="res-relatorio-btn" onclick="relAbrirModal()">
+          <button type="button" class="res-relatorio-btn" id="res-relatorio-btn" onclick="relAbrirModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h10l4 4v12a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h7M8 17h5"/></svg>
             Resumo de atividades
           </button>
@@ -1147,7 +1172,20 @@
     </section>
 
     <section class="page" id="page-perfil">
-      <div class="page-header"><h2 class="page-title">Perfil</h2></div>
+      <div class="page-header res-header">
+        <div>
+          <h2 class="page-title">Perfil</h2>
+          <div class="res-sub" id="perfil-sub">Sua conta, seu plano e o que ele libera.</div>
+        </div>
+        <div class="abas" role="group" aria-label="Seções do perfil">
+          <button type="button" class="aba" aria-pressed="true" onclick="perfilAba('conta')">Conta</button>
+          <button type="button" class="aba" aria-pressed="false" onclick="perfilAba('assinaturas')">Assinaturas</button>
+        </div>
+      </div>
+
+      <div id="perfil-assinaturas" hidden></div>
+
+      <div id="perfil-conta">
       <div class="tico-lang-block">
         <div class="form-label" data-i18n="tema">Tema</div>
         <div class="tico-lang-switch">
@@ -1178,6 +1216,7 @@
       <div style="display:flex;gap:8px;margin-bottom:16px"><button class="btn btn-primary btn-sm" onclick="openModal('modal-add-grupo')">+ Novo grupo</button></div>
       <ul class="grupos-list" id="grupos-list"></ul>
       <div style="margin-top:32px"><button class="btn btn-danger" onclick="confirmLogout()">↩ Sair da conta</button></div>
+      </div>
     </section>
   </main>
 </div>
@@ -1330,6 +1369,58 @@
   </div>
 </div>
 
+<!-- Convite a assinar, quando o Free esbarra num limite ou num recurso pago. -->
+<div class="modal-overlay" id="modal-limite">
+  <div class="modal modal-sm plano-modal">
+    <div class="modal-close" onclick="closeModal('modal-limite')">✕</div>
+    <div class="plano-modal-tico" id="limite-tico" aria-hidden="true"></div>
+    <p class="plano-modal-frase" id="limite-frase"></p>
+    <p class="plano-modal-nota" id="limite-nota"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="irParaPlanos()">Ver os planos</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-limite')">Agora não</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resumo do que vai ser cobrado, antes de sair do app para o pagamento. -->
+<div class="modal-overlay" id="modal-assinar">
+  <div class="modal modal-sm">
+    <div class="modal-close" onclick="closeModal('modal-assinar')">✕</div>
+    <div class="modal-title">Resumo da assinatura</div>
+    <div class="assinar-plano" id="assinar-nome"></div>
+    <div class="assinar-total">
+      <span>Total hoje</span><span id="assinar-total"></span>
+    </div>
+    <dl class="assinar-linhas">
+      <div><dt>Cobrança</dt><dd id="assinar-cobranca"></dd></div>
+      <div><dt>Renovação</dt><dd>Automática, mensal</dd></div>
+      <div><dt>Cancelamento</dt><dd>Quando quiser, sem multa</dd></div>
+    </dl>
+    <p class="assinar-ganho" id="assinar-ganho"></p>
+    <p class="assinar-aviso">O pagamento acontece no Mercado Pago, fora do Mindt. Dados do cartão não passam por aqui.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="assinar-ok">Ir para o pagamento</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-assinar')">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancelamento: quem manda na assinatura e o Mercado Pago, entao o botao
+     leva para la em vez de fingir que cancela aqui. -->
+<div class="modal-overlay" id="modal-cancelar">
+  <div class="modal modal-sm plano-modal">
+    <div class="modal-close" onclick="closeModal('modal-cancelar')">✕</div>
+    <div class="plano-modal-tico" id="cancelar-tico" aria-hidden="true"></div>
+    <p class="plano-modal-frase">Você tem certeza de que vai abandonar toda a nossa aventura juntos? Minhas habilidades ficam limitadas se você cancelar.</p>
+    <p class="plano-modal-nota">O cancelamento é feito na sua conta do Mercado Pago, que é quem administra a cobrança. Assim que você cancelar por lá, o Mindt volta sozinho para o Ticolino Free — e o acesso pago continua até o fim do período que você já pagou, sem multa.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="planoIrAoMercadoPago()">Abrir o Mercado Pago</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-cancelar')">Voltar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-relatorio">
   <div class="modal modal-sm">
     <div class="modal-close" onclick="closeModal('modal-relatorio')">✕</div>
@@ -1405,6 +1496,7 @@
 <script src="js/historico.js"></script>
 <script src="js/home.js"></script>
 <script src="js/notas.js"></script>
+<script src="js/plano.js"></script>
 <script src="js/perfil.js"></script>
 <script src="js/metas.js"></script>
 <script src="js/tarefas.js"></script>

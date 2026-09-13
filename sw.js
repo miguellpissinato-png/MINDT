@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v19';
+var VERSAO = 'mindt-v20';
 
 var ARQUIVOS = [
   './',
@@ -26,6 +26,7 @@ var ARQUIVOS = [
   './js/historico.js',
   './js/home.js',
   './js/notas.js',
+  './js/plano.js',
   './js/perfil.js',
   './js/metas.js',
   './js/tarefas.js',

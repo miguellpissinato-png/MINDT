@@ -306,6 +306,11 @@ function relSemDados(texto){
 // ─── O modal de escolher o periodo ─────────────────────────────────────
 
 function relAbrirModal(){
+  // Recurso do Ticolino Max. O convite substitui o modal do relatorio.
+  if(typeof temRecurso === 'function' && !temRecurso('relatorios')){
+    mostrarLimite('relatorios');
+    return;
+  }
   relPeriodoModal = relPeriodoAtual;
   relPintarModal();
   openModal('modal-relatorio');
