@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v21';
+var VERSAO = 'mindt-v22';
 
 var ARQUIVOS = [
   './',
