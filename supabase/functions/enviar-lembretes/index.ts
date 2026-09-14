@@ -24,8 +24,14 @@
 // precisa carregar a chave de servico, que e a chave mais poderosa que
 // existe aqui — e o segredo nunca sai do projeto.
 //
-// SEGREDOS: VAPID_PUBLICA, VAPID_PRIVADA, VAPID_CONTATO
-//           BREVO_API_KEY, REMETENTE_EMAIL, REMETENTE_NOME (ja existiam)
+// AS CHAVES DE PUSH NASCEM AQUI DENTRO
+// Na primeira execucao a funcao gera o par VAPID e o guarda no cofre do
+// projeto. A metade privada, que assina cada envio, nunca existe fora do
+// Supabase: nao foi digitada num painel, nao passou por e-mail, nao esta em
+// arquivo nenhum. Nas execucoes seguintes ela so le o que ja existe.
+//
+// SEGREDOS QUE PRECISAM SER CONFIGURADOS A MAO: nenhum para o push.
+// Para o e-mail: BREVO_API_KEY, REMETENTE_EMAIL, REMETENTE_NOME (ja existiam).
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -42,10 +48,9 @@ Deno.serve(async (req) => {
     return new Response("nao autorizado", { status: 401 });
   }
 
-  const publica = Deno.env.get("VAPID_PUBLICA");
-  const privada = Deno.env.get("VAPID_PRIVADA");
+  const chaves = await obterVapid(db);
   const contato = Deno.env.get("VAPID_CONTATO") || "mailto:mindt.contact@gmail.com";
-  if (publica && privada) webpush.setVapidDetails(contato, publica, privada);
+  if (chaves) webpush.setVapidDetails(contato, chaves.publica, chaves.privada);
 
   // Quem esta na hora. A conta e feita no Postgres porque e ele que sabe
   // converter fuso horario ('America/Sao_Paulo') sem sofrer com horario de
@@ -69,7 +74,7 @@ Deno.serve(async (req) => {
     }
 
     let entregou = false;
-    if (publica && privada) {
+    if (chaves) {
       entregou = await mandarPush(db, pessoa.user_id, recado);
       if (entregou) relatorio.push++;
     }
@@ -105,6 +110,47 @@ function iguais(a: string, b: string) {
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
+}
+
+// ─── As chaves de push ─────────────────────────────────────────────────
+// O par VAPID prova ao servico de push (Google, Apple, Mozilla) que quem
+// mandou a mensagem foi mesmo este servidor. A metade publica vai no
+// navegador; a privada assina. Trocar o par depois invalidaria todos os
+// aparelhos ja inscritos, por isso guardar_vapid() nunca sobrescreve.
+
+async function obterVapid(db: any) {
+  const { data } = await db.rpc("vapid_do_cofre");
+  const linha = Array.isArray(data) ? data[0] : data;
+  if (linha?.publica && linha?.privada) {
+    return { publica: linha.publica, privada: linha.privada };
+  }
+
+  const par = await crypto.subtle.generateKey(
+    { name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"],
+  );
+  // A publica vai como o ponto cru de 65 bytes, que e o formato que o
+  // navegador espera em applicationServerKey.
+  const cru = new Uint8Array(await crypto.subtle.exportKey("raw", par.publicKey));
+  const jwk = await crypto.subtle.exportKey("jwk", par.privateKey);
+  const publica = base64url(cru);
+  const privada = jwk.d!;   // o escalar de 32 bytes, ja em base64url
+
+  const { data: guardou, error } = await db.rpc("guardar_vapid", {
+    p_publica: publica, p_privada: privada,
+  });
+  if (error) { console.error("guardar_vapid:", error); return null; }
+  // false = alguem gerou um par entre a leitura e a gravacao. Le de novo,
+  // para os dois lados ficarem com o mesmo par.
+  if (guardou === false) return await obterVapid(db);
+
+  console.log("par VAPID criado. Chave publica:", publica);
+  return { publica, privada };
+}
+
+function base64url(bytes: Uint8Array) {
+  let txt = "";
+  for (const b of bytes) txt += String.fromCharCode(b);
+  return btoa(txt).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 // ─── O que dizer ───────────────────────────────────────────────────────

@@ -29,9 +29,18 @@
 // como saber que essa pessoa quer ser lembrada.
 
 // A metade publica do par de chaves VAPID. Ela e publica por natureza — vai
-// no navegador de todo mundo. A metade privada vive so nos segredos do
-// Supabase, e e ela que assina cada envio.
-var LEMBRETE_VAPID = 'BBeAZNU0M81fFgj1uaRW4Np_88rW0fXfU9nfbiVN0EL5GNtaIWe_jUWPfcfLdEsbiqoAkHvfz64eElgQHc45ieA';
+// no navegador de todo mundo, e e assim que o servico de push confere quem
+// assinou a mensagem.
+//
+// A metade privada NUNCA existiu fora do Supabase: quem gerou o par foi a
+// propria funcao enviar-lembretes, na primeira vez que rodou, e ela guardou
+// as duas metades no cofre do projeto. Ninguem digitou, copiou nem colou a
+// chave privada em lugar nenhum.
+//
+// Se um dia for preciso trocar o par, lembre que todo aparelho ja inscrito
+// se inscreveu com a chave ANTIGA: trocar aqui sem apagar a tabela
+// lembrete_dispositivos deixa os avisos falhando em silencio.
+var LEMBRETE_VAPID = 'BHOdYW0MFoZGMFLNqE5umr-_7pT-DqXh3AVA35AK3NROmd34rtmGqJkwzSHW8kKP7J8pOalbAfjeLGU24P6hSXk';
 
 var lembrete = {ativo:false, hora:8, canal:'nenhum'};
 
