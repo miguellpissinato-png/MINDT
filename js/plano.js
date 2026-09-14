@@ -56,7 +56,7 @@ var PLANO_RECURSOS = [
   {chave:'tarefas',    de:'free', rotuloFree:'20 tarefas liberadas', rotulo:'Tarefas ilimitadas'},
   {chave:'metas',      de:'free', rotuloFree:'20 metas liberadas',   rotulo:'Metas ilimitadas'},
   {chave:'abas',       de:'free', rotulo:'Acesso a todas as abas'},
-  {chave:'lembretes',  de:'pro',  rotulo:'Lembretes de tarefas',  breve:true},
+  {chave:'lembretes',  de:'pro',  rotulo:'Lembretes diários'},
   {chave:'xpDobro',    de:'max',  rotulo:'XP em dobro'},
   {chave:'relatorios', de:'max',  rotulo:'Relatórios'},
   {chave:'skins',      de:'max',  rotulo:'Skins do Ticolino',     breve:true},
@@ -112,6 +112,7 @@ function aplicarPlano(){
     botao.setAttribute('title', liberado ? '' : 'Recurso do Ticolino Max');
   }
   if(document.getElementById('perfil-assinaturas')) renderAssinaturas();
+  if(typeof pintarLembrete === 'function') pintarLembrete();
 }
 
 // ─── Limites do Free ───────────────────────────────────────────────────
@@ -147,6 +148,12 @@ var PLANO_RECADOS = {
     frase:'Ticolino tá com as patinhas cheias de metas! 🐾 Assine o Pro pra ele dar conta de tudo com você.',
     nota:'Você tem ' + PLANO_LIMITES.metas + ' metas em andamento, o limite do plano gratuito. '
        + 'Concluir uma libera a vaga — ou o Pro tira o limite de vez.'
+  },
+  lembretes: {
+    humor:'sonolento',
+    frase:'O Ticolino ainda não pode te cutucar.',
+    nota:'Os lembretes diários são do Ticolino Pro. Todo dia, no horário que você '
+       + 'escolher, ele avisa o que vence hoje e o que falta fechar — no celular ou por e-mail.'
   },
   relatorios: {
     humor:'focado',

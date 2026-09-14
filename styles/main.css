@@ -2864,6 +2864,17 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .plano-desc{min-height:0}
 }
 
+/* ── Lembretes diarios (Perfil > Conta) ───────────────────────────────── */
+#lembrete-bloco[aria-busy="true"]{opacity:.6;pointer-events:none}
+.lembrete-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.lembrete-nota{margin:6px 0 0;max-width:56ch;font-size:13px;line-height:1.55;color:var(--text-2)}
+.lembrete-quando{margin-top:14px;max-width:200px}
+.lembrete-quando .form-label{margin-bottom:6px}
+.lembrete-ios{margin:12px 0 0;padding:12px 14px;border-radius:12px;
+  background:var(--warning-soft);border:1px solid rgba(227,179,65,.35);
+  font-size:12.5px;line-height:1.6;color:var(--text)}
+.lembrete-ios b{color:var(--text);font-weight:600}
+
 /* ═══════════════════════════════════════════════════════════════════════
    ACESSIBILIDADE — teclado e toque
    Adicionado na passagem /impeccable adapt.

@@ -116,6 +116,20 @@ function resetTaskForm(){['task-name','task-desc','task-deadline','task-budget']
 function uid(){return Math.random().toString(36).substr(2,9);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function formatDate(iso){if(!iso)return '';return new Date(iso).toLocaleDateString('pt-BR');}
+// Normaliza uma data para aaaa-mm-dd, o unico formato em que comparar como
+// texto equivale a comparar como data.
+//
+// O app tem os dois: createdAt/completedAt sao ISO (do new Date().toISOString())
+// e o prazo vem do calendario como dd/mm/aaaa. Comparar os dois formatos
+// misturados fazia "vence neste periodo" nunca bater — o dia do mes ia parar
+// no lugar do ano.
+function dataISO(v){
+  if(!v) return '';
+  var t = String(v).trim();
+  var br = t.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(br) return br[3] + '-' + br[2] + '-' + br[1];
+  return t.slice(0, 10);
+}
 function calcProgress(m){if(!m.checklist||!m.checklist.length)return m.progress||0;var done=m.checklist.filter(function(c){return c.done;}).length;return Math.round((done/m.checklist.length)*100);}
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2800);}
 

@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v20';
+var VERSAO = 'mindt-v21';
 
 var ARQUIVOS = [
   './',
@@ -27,6 +27,7 @@ var ARQUIVOS = [
   './js/home.js',
   './js/notas.js',
   './js/plano.js',
+  './js/lembretes.js',
   './js/perfil.js',
   './js/metas.js',
   './js/tarefas.js',
@@ -119,6 +120,46 @@ self.addEventListener('fetch', function(e){
         return r;
       }).catch(function(){ return cacheado; });
       return cacheado || rede;
+    })
+  );
+});
+
+
+// ─── LEMBRETES ─────────────────────────────────────────────────────────
+// O unico jeito de um site avisar alguem com o app fechado. Quem manda e a
+// funcao enviar-lembretes, no Supabase; aqui o worker so acorda e mostra.
+
+self.addEventListener('push', function(e){
+  var dados = {};
+  try { dados = e.data ? e.data.json() : {}; } catch(err) {}
+
+  var titulo = dados.titulo || 'Mindt';
+  e.waitUntil(self.registration.showNotification(titulo, {
+    body: dados.corpo || '',
+    icon: './icons/icon-192.png',
+    badge: './icons/icon-192.png',
+    // A mesma tag para todo lembrete: se por algum motivo dois chegarem, o
+    // segundo substitui o primeiro em vez de empilhar dois avisos iguais.
+    tag: 'mindt-lembrete',
+    renotify: true,
+    lang: 'pt-BR',
+    data: { url: dados.url || './' }
+  }));
+});
+
+self.addEventListener('notificationclick', function(e){
+  e.notification.close();
+  var destino = (e.notification.data && e.notification.data.url) || './';
+  e.waitUntil(
+    // Se o app ja esta aberto numa aba, traz ela para a frente em vez de
+    // abrir uma segunda.
+    self.clients.matchAll({type:'window', includeUncontrolled:true}).then(function(abas){
+      for (var i = 0; i < abas.length; i++) {
+        if (abas[i].url.indexOf(self.registration.scope) === 0 && 'focus' in abas[i]) {
+          return abas[i].focus();
+        }
+      }
+      return self.clients.openWindow(destino);
     })
   );
 });

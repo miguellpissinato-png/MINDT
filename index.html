@@ -1201,6 +1201,27 @@
         </div>
       </div>
 
+      <div class="tico-lang-block" id="lembrete-bloco">
+        <div class="lembrete-topo">
+          <div>
+            <div class="form-label" style="margin:0">Lembretes diários</div>
+            <p class="lembrete-nota" id="lembrete-nota"></p>
+          </div>
+          <div class="toggle-switch" id="lembrete-chave" role="switch" aria-checked="false"
+               tabindex="0" data-a11y="1" aria-label="Ligar lembretes diários"
+               onclick="lembreteAlternar()"></div>
+        </div>
+        <div class="lembrete-quando" id="lembrete-quando" hidden>
+          <label class="form-label" for="lembrete-hora">Horário</label>
+          <select class="form-select" id="lembrete-hora" onchange="lembreteTrocarHora(this.value)"></select>
+        </div>
+        <p class="lembrete-ios" id="lembrete-ios" hidden>
+          No iPhone e no iPad, o aviso na tela só funciona com o Mindt adicionado à
+          tela de início: toque em <b>Compartilhar</b> e depois em
+          <b>Adicionar à Tela de Início</b>. Sem isso, o lembrete chega por e-mail.
+        </p>
+      </div>
+
       <div class="perfil-hero glass">
         <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           <span id="avatar-emoji">👤</span><img id="avatar-img" alt="" data-vazia="1" style="display:none">
@@ -1497,6 +1518,7 @@
 <script src="js/home.js"></script>
 <script src="js/notas.js"></script>
 <script src="js/plano.js"></script>
+<script src="js/lembretes.js"></script>
 <script src="js/perfil.js"></script>
 <script src="js/metas.js"></script>
 <script src="js/tarefas.js"></script>

@@ -78,8 +78,8 @@ function relDiaMes(d){ return pad(d.getDate()) + '/' + pad(d.getMonth() + 1); }
 // Um item entra no periodo pela data dele. Datas ISO comparam como texto,
 // o que evita a armadilha de fuso horario do construtor de Date.
 function relNoPeriodo(iso, p){
-  if(!iso) return false;
-  var dia = String(iso).slice(0, 10);
+  var dia = dataISO(iso);
+  if(!dia) return false;
   return dia >= p.de && dia <= p.ate;
 }
 
@@ -121,7 +121,7 @@ function relTarefas(p){
     semData: todas.filter(function(t){ return t.done && !t.completedAt; }).length,
     porSemana: relPorSemana(p, feitas, function(){ return 1; }, 'completedAt'),
     lista: abertas.slice().sort(function(a,b){
-      return (a.deadline || '9999') < (b.deadline || '9999') ? -1 : 1;
+      return (dataISO(a.deadline) || '9999') < (dataISO(b.deadline) || '9999') ? -1 : 1;
     }).slice(0, 6)
   };
 }
@@ -144,9 +144,9 @@ function relAgenda(p){
   var hoje = hojeStr();
   return {
     total: eventos.length,
-    passados: eventos.filter(function(ev){ return String(ev.data).slice(0,10) < hoje; }).length,
-    proximos: eventos.filter(function(ev){ return String(ev.data).slice(0,10) >= hoje; })
-      .sort(function(a,b){ return a.data < b.data ? -1 : 1; }).slice(0, 5)
+    passados: eventos.filter(function(ev){ return dataISO(ev.data) < hoje; }).length,
+    proximos: eventos.filter(function(ev){ return dataISO(ev.data) >= hoje; })
+      .sort(function(a,b){ return dataISO(a.data) < dataISO(b.data) ? -1 : 1; }).slice(0, 5)
   };
 }
 

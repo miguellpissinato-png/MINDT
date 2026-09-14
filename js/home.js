@@ -21,6 +21,7 @@ sb.auth.onAuthStateChange(function(event,session){
       // O plano vem da tabela subscriptions e decide o que fica liberado.
       // Nao segura a entrada no app: enquanto nao chega, vale o Free.
       if (typeof carregarPlano === 'function') carregarPlano();
+      if (typeof carregarLembrete === 'function') carregarLembrete();
       updateGroupSelects();updateGroupFilters();renderHome();
       if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
