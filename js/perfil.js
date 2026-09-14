@@ -3,6 +3,8 @@
 // PERFIL
 function renderPerfil(){
   if(!document.getElementById('perfil-name-display')) return;
+  montarHorasLembrete();
+  if(typeof pintarLembrete==='function') pintarLembrete();
   document.getElementById('perfil-name-display').textContent=state.perfil.name||'Meu Nome';
   document.getElementById('perfil-name-input').value=state.perfil.name||'';
   document.getElementById('perfil-email-display').textContent=currentUser?currentUser.email:'';
@@ -29,4 +31,14 @@ function saveGrupo(){
 function savePerfil(){
   var name=document.getElementById('perfil-name-input').value.trim();if(name)state.perfil.name=name;
   saveState();closeModal('modal-edit-perfil');renderPerfil();toast('👤 Perfil atualizado!');
+}
+
+// As 24 horas do seletor de lembrete. Montadas em JavaScript para nao
+// engordar o index.html com 24 linhas de <option>.
+function montarHorasLembrete(){
+  var sel = document.getElementById('lembrete-hora');
+  if(!sel || sel.options.length) return;
+  var html = '';
+  for(var h = 0; h < 24; h++) html += '<option value="' + h + '">' + pad(h) + ':00</option>';
+  sel.innerHTML = html;
 }
