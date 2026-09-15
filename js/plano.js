@@ -20,6 +20,15 @@
 // pessoa cancela no Mercado Pago, o MP avisa o webhook, a linha vira
 // inativa e o app cai para o Free sozinho, sem precisar de endpoint nenhum.
 //
+// CONTAS DE CORTESIA
+// A tabela tem tambem `origem` ('mercadopago' ou 'cortesia') e `nota`. Uma
+// linha escrita a mao — a conta do fundador, um teste, um cliente que teve
+// problema de cobranca — vale igual aqui: o app nao olha a origem, so plano e
+// status. A marcacao existe para a contagem de faturamento nao somar quem
+// nunca pagou. O mp-webhook nao envia essas duas colunas, entao assinatura
+// paga nasce com origem 'mercadopago' e a marcacao de cortesia sobrevive a
+// qualquer atualizacao vinda do Mercado Pago.
+//
 // A TRAVA AQUI E DE INTERFACE, NAO DE SEGURANCA
 // Os limites do Free sao conferidos no navegador. Quem abrir o console
 // consegue passar por eles. Enquanto o estado do usuario for um unico JSON

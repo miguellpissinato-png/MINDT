@@ -1207,9 +1207,13 @@
             <div class="form-label" style="margin:0">Lembretes diários</div>
             <p class="lembrete-nota" id="lembrete-nota"></p>
           </div>
-          <div class="toggle-switch" id="lembrete-chave" role="switch" aria-checked="false"
-               tabindex="0" data-a11y="1" aria-label="Ligar lembretes diários"
-               onclick="lembreteAlternar()"></div>
+          <div class="lembrete-chave-wrap">
+            <span class="lembrete-estado" id="lembrete-estado" aria-hidden="true"
+                  onclick="lembreteAlternar()">Desligado</span>
+            <div class="toggle-switch" id="lembrete-chave" role="switch" aria-checked="false"
+                 tabindex="0" data-a11y="1" aria-label="Ligar lembretes diários"
+                 onclick="lembreteAlternar()"></div>
+          </div>
         </div>
         <div class="lembrete-quando" id="lembrete-quando" hidden>
           <label class="form-label" for="lembrete-hora">Horário</label>

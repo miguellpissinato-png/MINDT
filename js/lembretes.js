@@ -211,6 +211,9 @@ function pintarLembrete(){
   if(chave) chave.className = 'toggle-switch' + (lembrete.ativo ? ' on' : '');
   if(chave) chave.setAttribute('aria-checked', String(lembrete.ativo));
 
+  var estado = document.getElementById('lembrete-estado');
+  if(estado) estado.textContent = lembrete.ativo ? 'Ligado' : 'Desligado';
+
   var horas = document.getElementById('lembrete-hora');
   if(horas){
     horas.value = String(lembrete.hora);
