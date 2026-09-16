@@ -2900,8 +2900,16 @@ input[type="checkbox"]{accent-color:var(--accent)}
 .lembrete-estado{font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;
   user-select:none;white-space:nowrap}
 @media (max-width:560px){ .lembrete-estado{display:none} }
-.lembrete-quando{margin-top:14px;max-width:200px}
-.lembrete-quando .form-label{margin-bottom:6px}
+/* Horario e canal lado a lado no desktop, empilhados no celular. */
+.lembrete-quando{margin-top:14px;display:flex;flex-wrap:wrap;gap:18px 24px;align-items:flex-start}
+.lembrete-campo .form-label{margin-bottom:6px}
+.lembrete-campo:first-child{width:160px;flex:0 0 auto}
+.lembrete-campo:last-child{flex:1 1 260px;min-width:0}
+#lembrete-canal{max-width:400px}
+#lembrete-canal button{white-space:nowrap}
+/* A ressalva do canal escolhido. Fica em --text-3 para pesar menos que a
+   linha principal sem cair abaixo do piso de contraste de texto. */
+.lembrete-aviso{margin:12px 0 0;max-width:58ch;font-size:12.5px;line-height:1.55;color:var(--text-3)}
 .lembrete-ios{margin:12px 0 0;padding:12px 14px;border-radius:12px;
   background:var(--warning-soft);border:1px solid rgba(227,179,65,.35);
   font-size:12.5px;line-height:1.6;color:var(--text)}
