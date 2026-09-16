@@ -1216,9 +1216,24 @@
           </div>
         </div>
         <div class="lembrete-quando" id="lembrete-quando" hidden>
-          <label class="form-label" for="lembrete-hora">Horário</label>
-          <select class="form-select" id="lembrete-hora" onchange="lembreteTrocarHora(this.value)"></select>
+          <div class="lembrete-campo">
+            <label class="form-label" for="lembrete-hora">Horário</label>
+            <select class="form-select" id="lembrete-hora" onchange="lembreteTrocarHora(this.value)"></select>
+          </div>
+          <div class="lembrete-campo">
+            <div class="form-label" id="lembrete-canal-rotulo">Como quer receber</div>
+            <div class="tico-lang-switch" id="lembrete-canal" role="group"
+                 aria-labelledby="lembrete-canal-rotulo">
+              <button type="button" data-canal="tela"  aria-pressed="true"
+                      onclick="lembreteTrocarCanal('tela')">Aviso na tela</button>
+              <button type="button" data-canal="email" aria-pressed="false"
+                      onclick="lembreteTrocarCanal('email')">E-mail</button>
+              <button type="button" data-canal="ambos" aria-pressed="false"
+                      onclick="lembreteTrocarCanal('ambos')">Os dois</button>
+            </div>
+          </div>
         </div>
+        <p class="lembrete-aviso" id="lembrete-aviso" hidden></p>
         <p class="lembrete-ios" id="lembrete-ios" hidden>
           No iPhone e no iPad, o aviso na tela só funciona com o Mindt adicionado à
           tela de início: toque em <b>Compartilhar</b> e depois em

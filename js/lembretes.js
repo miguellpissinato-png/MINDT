@@ -22,11 +22,27 @@
 // Aberto no Safari, nem a permissao aparece. Por isso a tela explica o passo
 // antes de deixar a pessoa tentar e achar que quebrou.
 //
-// SE O PUSH FALHAR, SOBRA O E-MAIL
-// Quem nao aceitou a permissao, ou esta num iPhone sem instalar, ainda recebe
-// o lembrete por e-mail. Por isso ligar o lembrete grava a preferencia mesmo
-// quando a permissao e negada: sem a linha na tabela, o servidor nao teria
-// como saber que essa pessoa quer ser lembrada.
+// POR ONDE O AVISO CHEGA: A PESSOA ESCOLHE
+// Tres canais: 'tela' (so a notificacao), 'email' (so o e-mail) e 'ambos'.
+//
+// Isto nasceu de um defeito. Antes o servidor mandava o push e so mandava
+// e-mail se o push FALHASSE — e a tela dizia "se o aparelho estiver
+// desligado, o lembrete chega por e-mail". A promessa era impossivel: o
+// servico de push responde "aceitei" assim que recebe a mensagem, e um
+// celular desligado nao e uma falha para ele. O servidor achava que tinha
+// entregue, o e-mail nunca saia, e quem estava com o aparelho desligado
+// ficava sem nada.
+//
+// O Web Push nao tem confirmacao de entrega. Nao ha como o servidor saber
+// se a notificacao apareceu. Entao quem decide e quem conhece o proprio
+// aparelho, e a tela diz a verdade sobre cada escolha.
+//
+// 'tela' ainda cai para o e-mail num caso: quando nao ha aparelho nenhum
+// cadastrado (permissao negada, ou iPhone sem o app instalado). Sem isso a
+// pessoa nao receberia NADA — pior do que receber por um canal que nao
+// escolheu. Por isso ligar o lembrete grava a preferencia ANTES de pedir a
+// permissao: sem a linha na tabela, o servidor nao saberia que ela quer ser
+// lembrada.
 
 // A metade publica do par de chaves VAPID. Ela e publica por natureza — vai
 // no navegador de todo mundo, e e assim que o servico de push confere quem
@@ -42,7 +58,7 @@
 // lembrete_dispositivos deixa os avisos falhando em silencio.
 var LEMBRETE_VAPID = 'BHOdYW0MFoZGMFLNqE5umr-_7pT-DqXh3AVA35AK3NROmd34rtmGqJkwzSHW8kKP7J8pOalbAfjeLGU24P6hSXk';
 
-var lembrete = {ativo:false, hora:8, canal:'nenhum'};
+var lembrete = {ativo:false, hora:8, canal:'tela', temAparelho:false};
 
 // ─── Leitura ───────────────────────────────────────────────────────────
 
@@ -50,8 +66,12 @@ async function carregarLembrete(){
   if(!currentUser) return;
   try{
     var res = await sb.from('lembretes')
-      .select('ativo,hora').eq('user_id', currentUser.id).maybeSingle();
-    if(res.data){ lembrete.ativo = !!res.data.ativo; lembrete.hora = res.data.hora; }
+      .select('ativo,hora,canal').eq('user_id', currentUser.id).maybeSingle();
+    if(res.data){
+      lembrete.ativo = !!res.data.ativo;
+      lembrete.hora = res.data.hora;
+      lembrete.canal = res.data.canal || 'tela';
+    }
   }catch(e){ console.error('carregarLembrete:', e); }
   pintarLembrete();
 }
@@ -80,21 +100,18 @@ async function lembreteLigar(){
   }
   lembrete.ativo = true;
 
-  var canal = await cadastrarAparelho();
-  lembrete.canal = canal;
+  lembrete.temAparelho = lembrete.canal === 'email' ? false : await cadastrarAparelho();
   if(caixa) caixa.removeAttribute('aria-busy');
   pintarLembrete();
 
-  toast(canal === 'push'
-    ? '🔔 Lembrete ligado! Vou te avisar às ' + pad(lembrete.hora) + ':00.'
-    : '📧 Lembrete ligado! Como o aviso na tela não foi liberado, ele chega por e-mail.');
+  toast(mensagemDeLigado());
 }
 
 async function lembreteDesligar(){
   var salvou = await lembreteSalvar({ativo:false});
   if(!salvou){ toast('⚠️ Não consegui salvar. Tenta de novo?'); return; }
   lembrete.ativo = false;
-  lembrete.canal = 'nenhum';
+  lembrete.temAparelho = false;
   await descadastrarAparelho();
   pintarLembrete();
   toast('Lembrete desligado.');
@@ -109,6 +126,45 @@ async function lembreteTrocarHora(valor){
   pintarLembrete();
 }
 
+// Trocar de canal com o lembrete ligado pode precisar cadastrar o aparelho
+// (quem vinha de 'email' nunca pediu a permissao) ou descadastrar (quem vai
+// para 'email' nao deve continuar recebendo push).
+async function lembreteTrocarCanal(qual){
+  if(qual !== 'tela' && qual !== 'email' && qual !== 'ambos') return;
+  if(qual === lembrete.canal) return;
+  var antes = lembrete.canal;
+  lembrete.canal = qual;
+  pintarLembrete();
+  if(!lembrete.ativo) return;
+
+  if(!(await lembreteSalvar({canal:qual}))){
+    lembrete.canal = antes; pintarLembrete();
+    toast('⚠️ Não consegui salvar. Tenta de novo?');
+    return;
+  }
+  if(qual === 'email'){
+    await descadastrarAparelho();
+    lembrete.temAparelho = false;
+  }else if(!lembrete.temAparelho){
+    lembrete.temAparelho = await cadastrarAparelho();
+  }
+  pintarLembrete();
+  toast(mensagemDeLigado());
+}
+
+function mensagemDeLigado(){
+  var h = pad(lembrete.hora) + ':00';
+  if(lembrete.canal === 'email') return '📧 Pronto! O lembrete chega por e-mail às ' + h + '.';
+  if(lembrete.canal === 'ambos'){
+    return lembrete.temAparelho
+      ? '🔔 Pronto! Aviso na tela e e-mail, às ' + h + '.'
+      : '📧 Pronto! Como o aviso na tela não foi liberado, só o e-mail vai chegar, às ' + h + '.';
+  }
+  return lembrete.temAparelho
+    ? '🔔 Pronto! Aviso neste aparelho às ' + h + '.'
+    : '📧 Aviso na tela não liberado neste aparelho — o lembrete vai por e-mail às ' + h + '.';
+}
+
 // Grava a linha da pessoa. O fuso vai junto porque e ele que diz que horas
 // sao "8 da manha" para quem mora onde: o servidor guarda o nome da zona
 // ('America/Sao_Paulo') e o Postgres resolve o horario de verao sozinho.
@@ -118,6 +174,7 @@ async function lembreteSalvar(campos){
     user_id: currentUser.id,
     email: currentUser.email,
     fuso: fusoDoAparelho(),
+    canal: lembrete.canal,
     atualizado_em: new Date().toISOString()
   }, campos);
   try{
@@ -136,13 +193,13 @@ function fusoDoAparelho(){
 // ─── O aparelho ────────────────────────────────────────────────────────
 
 async function cadastrarAparelho(){
-  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return 'email';
-  if(typeof Notification === 'undefined') return 'email';
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  if(typeof Notification === 'undefined') return false;
 
   try{
     var permissao = Notification.permission;
     if(permissao === 'default') permissao = await Notification.requestPermission();
-    if(permissao !== 'granted') return 'email';
+    if(permissao !== 'granted') return false;
 
     var reg = await navigator.serviceWorker.ready;
     var inscricao = await reg.pushManager.getSubscription();
@@ -155,7 +212,7 @@ async function cadastrarAparelho(){
       });
     }
     var j = inscricao.toJSON();
-    if(!j.keys || !j.keys.p256dh || !j.keys.auth) return 'email';
+    if(!j.keys || !j.keys.p256dh || !j.keys.auth) return false;
 
     var res = await sb.from('lembrete_dispositivos').upsert({
       user_id: currentUser.id,
@@ -164,10 +221,10 @@ async function cadastrarAparelho(){
       auth: j.keys.auth
     }, {onConflict:'endpoint'});
     if(res.error) throw res.error;
-    return 'push';
+    return true;
   }catch(e){
     console.error('cadastrarAparelho:', e);
-    return 'email';
+    return false;
   }
 }
 
@@ -222,22 +279,51 @@ function pintarLembrete(){
   var quando = document.getElementById('lembrete-quando');
   if(quando) quando.hidden = !lembrete.ativo;
 
+  var botoes = document.querySelectorAll('#lembrete-canal button');
+  for(var i = 0; i < botoes.length; i++){
+    var qual = botoes[i].getAttribute('data-canal');
+    botoes[i].classList.toggle('on', qual === lembrete.canal);
+    botoes[i].setAttribute('aria-pressed', String(qual === lembrete.canal));
+    botoes[i].disabled = !liberado;
+  }
+
   var nota = document.getElementById('lembrete-nota');
-  if(nota){
-    if(!liberado){
-      nota.textContent = 'Os lembretes diários são do Ticolino Pro.';
-    }else if(!lembrete.ativo){
-      nota.textContent = 'Todo dia, no horário que você escolher, o Ticolino avisa o que '
-        + 'vence hoje e o que falta fechar.';
-    }else if(lembrete.canal === 'email'){
-      nota.textContent = 'O aviso na tela não está liberado neste aparelho, então o lembrete '
-        + 'chega por e-mail em ' + (currentUser ? currentUser.email : '') + '.';
-    }else{
-      nota.textContent = 'Você recebe o aviso neste aparelho. Se ele estiver desligado, o '
-        + 'lembrete chega por e-mail.';
+  if(nota) nota.textContent = textoDoLembrete(liberado);
+
+  // A ressalva de cada canal. Dizer aqui o que cada escolha NAO garante e o
+  // que impede alguem de contar com um aviso que pode nao chegar.
+  var aviso = document.getElementById('lembrete-aviso');
+  if(aviso){
+    var t = '';
+    if(liberado && lembrete.ativo){
+      if(lembrete.canal === 'tela'){
+        t = 'O aviso na tela só aparece com o aparelho ligado e com internet. '
+          + 'Se ele estiver desligado na hora, o lembrete não chega — escolha '
+          + '"E-mail" ou "Os dois" se quiser garantia.';
+      }else if(lembrete.canal === 'ambos'){
+        t = 'Você recebe os dois todo dia em que houver algo a lembrar.';
+      }
     }
+    aviso.textContent = t;
+    aviso.hidden = !t;
   }
 
   var dica = document.getElementById('lembrete-ios');
-  if(dica) dica.hidden = !(liberado && precisaInstalarNoiPhone());
+  if(dica) dica.hidden = !(liberado && lembrete.canal !== 'email' && precisaInstalarNoiPhone());
+}
+
+function textoDoLembrete(liberado){
+  if(!liberado) return 'Os lembretes diários são do Ticolino Pro.';
+  if(!lembrete.ativo){
+    return 'Todo dia, no horário que você escolher, o Ticolino avisa o que vence hoje '
+         + 'e o que falta fechar.';
+  }
+  var email = currentUser ? currentUser.email : 'seu e-mail';
+  if(lembrete.canal === 'email') return 'O lembrete chega por e-mail em ' + email + '.';
+  if(lembrete.canal === 'ambos') return 'O lembrete chega neste aparelho e por e-mail em ' + email + '.';
+  if(!lembrete.temAparelho){
+    return 'O aviso na tela não está liberado neste aparelho, então o lembrete vai por '
+         + 'e-mail em ' + email + '.';
+  }
+  return 'O lembrete aparece neste aparelho.';
 }

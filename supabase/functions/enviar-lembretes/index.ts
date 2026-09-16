@@ -11,11 +11,28 @@
 // A funcao olha a hora local de cada pessoa e envia so para quem chegou na
 // hora escolhida e ainda nao recebeu hoje.
 //
-// DOIS CAMINHOS DE ENTREGA
-// Push para cada aparelho cadastrado. Se a pessoa nao tem aparelho nenhum
-// (nao aceitou, ou esta num iPhone sem instalar o app) ou se todos falharam,
-// cai para e-mail, pelo mesmo Brevo que manda as boas-vindas. A ideia e que
-// ninguem que pediu lembrete fique sem aviso.
+// POR ONDE O AVISO SAI: QUEM DECIDE E A PESSOA
+// A coluna lembretes.canal vale 'tela', 'email' ou 'ambos'.
+//
+// Esta escolha existe por causa de um defeito que este arquivo teve, e que
+// vale registrar para nao voltar. A versao anterior mandava o push e, SO SE
+// ele falhasse, mandava o e-mail. O problema e que o push "funcionar" nao
+// quer dizer que alguem viu: webpush.sendNotification responde bem quando o
+// SERVICO DE PUSH aceita a mensagem, e um celular desligado nao e uma falha
+// para ele — a mensagem fica guardada esperando o aparelho voltar. O
+// fundador ficou com o celular desligado, o Google aceitou, a funcao contou
+// como entregue e o e-mail nunca saiu.
+//
+// O Web Push nao devolve confirmacao de entrega: nao existe como o servidor
+// descobrir sozinho se a notificacao apareceu na tela. Entao a decisao volta
+// para quem sabe do proprio aparelho.
+//
+//   tela   → so notificacao. Se a pessoa nao tem aparelho cadastrado
+//            (negou a permissao, ou esta num iPhone sem instalar o app),
+//            o e-mail entra assim mesmo: sem ele ela nao receberia NADA,
+//            que e pior do que receber por um canal que nao escolheu.
+//   email  → so e-mail. Nem tenta push.
+//   ambos  → os dois, todo dia. E a unica opcao com garantia.
 //
 // COMO A FUNCAO SABE QUE QUEM CHAMOU FOI O RELOGIO
 // verify_jwt fica DESLIGADO, e a prova vem de um segredo guardado no cofre
@@ -73,14 +90,25 @@ Deno.serve(async (req) => {
       continue;
     }
 
-    let entregou = false;
-    if (chaves) {
-      entregou = await mandarPush(db, pessoa.user_id, recado);
-      if (entregou) relatorio.push++;
+    const canal = pessoa.canal || "tela";
+
+    // O prazo de validade da mensagem de push e o que falta para acabar o
+    // DIA da pessoa. Antes era fixo em 6h: passado esse tempo o servico de
+    // push descartava a mensagem sem avisar ninguem. Contando ate a meia
+    // noite dela, o aviso espera o aparelho voltar enquanto ainda faz
+    // sentido — e nao aparece amanha de manha falando do dia de ontem.
+    const validade = Math.max(60, Number(pessoa.segundos_ate_meia_noite) || 6 * 3600);
+
+    let temAparelho = false;
+    if (chaves && canal !== "email") {
+      temAparelho = await mandarPush(db, pessoa.user_id, recado, validade);
+      if (temAparelho) relatorio.push++;
     }
-    if (!entregou && pessoa.email) {
-      entregou = await mandarEmail(pessoa.email, recado);
-      if (entregou) relatorio.email++;
+    // 'tela' so cai para o e-mail quando nao ha aparelho nenhum para avisar.
+    const mandaEmail = canal === "email" || canal === "ambos" ||
+                       (canal === "tela" && !temAparelho);
+    if (mandaEmail && pessoa.email) {
+      if (await mandarEmail(pessoa.email, recado)) relatorio.email++;
     }
     await marcarEnviado(db, pessoa.user_id, pessoa.hoje_local);
   }
@@ -214,7 +242,7 @@ async function montarRecado(db: any, userId: string) {
 
 // ─── Push ──────────────────────────────────────────────────────────────
 
-async function mandarPush(db: any, userId: string, recado: any) {
+async function mandarPush(db: any, userId: string, recado: any, validade: number) {
   const { data: aparelhos } = await db.from("lembrete_dispositivos")
     .select("id, endpoint, p256dh, auth").eq("user_id", userId);
   if (!aparelhos?.length) return false;
@@ -225,7 +253,10 @@ async function mandarPush(db: any, userId: string, recado: any) {
       await webpush.sendNotification(
         { endpoint: ap.endpoint, keys: { p256dh: ap.p256dh, auth: ap.auth } },
         JSON.stringify({ titulo: recado.titulo, corpo: recado.corpo, url: SITE }),
-        { TTL: 6 * 60 * 60 },   // depois de 6h o lembrete de hoje ja nao serve
+        // Vale ate o fim do dia da pessoa. Ver a nota no laco principal:
+        // um prazo fixo fazia o servico de push jogar fora o aviso em
+        // silencio quando o aparelho passava muito tempo desligado.
+        { TTL: validade },
       );
       algum = true;
     } catch (e: any) {
