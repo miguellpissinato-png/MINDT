@@ -673,6 +673,92 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .gasto-item:hover .gasto-item-actions{opacity:1}
 .parcela-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(37,132,95,0.3);color:var(--purple-light);margin-left:4px}
 
+/* ═══ GASTOS NO CELULAR ═══
+   No iPhone (390px) a lista ficava assim, medido:
+
+     nome da categoria .... 24px de largura  → "Ali-men-ta-ção" empilhado
+     cabecalho do grupo ... 124px de altura  (no desktop sao 47)
+     descricao do item .... 16px             → "M…"
+     acoes do item ........ 93px, opacidade 0
+     45 de 45 descricoes cortadas, 45 datas vazando da propria caixa
+
+   TRES CAUSAS, e nenhuma delas e "a tela e pequena":
+
+   1. A regra "texto longo nao pode estourar o cartao" poe overflow-wrap:
+      anywhere e hyphens:auto nestes nomes. Dentro de uma linha flex isso e
+      pior que o problema que resolve: com quebra em qualquer letra, a
+      largura MINIMA do texto vira uma letra so, e o flex fica livre para
+      espremer a coluna ate nada. Sem a regra, a linha transbordaria; com
+      ela, o texto e triturado. A saida nao e nenhuma das duas: e o texto
+      ganhar a linha inteira e cortar com reticencia se ainda assim nao
+      couber.
+
+   2. Valor, contagem, seta e acoes sao todos flex-shrink:0. Quem paga a
+      conta da falta de espaco e sempre a unica coluna flexivel — o texto.
+
+   3. As acoes ficam com opacidade 0 ate o hover. No celular nao existe
+      hover: elas somem para sempre, mas continuam ocupando 93px da linha.
+      Invisiveis E no caminho.
+
+   O conserto e dar duas linhas para cada registro, que e o que cabe:
+
+     ●  Alimentação                        ›        ●  Mercado da esquina    ✏️ 🗑
+        38 itens                  R$ 627,44            16/11/2026     R$ 54,56
+
+   display:contents em .gasto-item-info dissolve o embrulho e deixa a
+   descricao e a data serem postas em celulas separadas da grade, sem
+   precisar mexer no HTML que o js/gastos.js monta. */
+
+/* Vale em qualquer largura: nome e descricao cortam com reticencia em vez
+   de serem hifenizados letra a letra. */
+.gasto-group-name,.gasto-item-desc{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  overflow-wrap:normal;word-break:normal;hyphens:none;
+}
+.gasto-item-meta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* No dedo nao ha hover: editar e excluir precisam estar visiveis. */
+@media (pointer:coarse){
+  .gasto-item-actions{opacity:1}
+}
+
+@media (max-width:560px){
+  .gasto-group-header{
+    display:grid;align-items:center;
+    grid-template-columns:10px minmax(0,1fr) auto auto;
+    grid-template-areas:
+      "ponto nome     nome  seta"
+      "ponto contagem total seta";
+    column-gap:10px;row-gap:1px;padding:12px 14px;
+  }
+  .gasto-group-dot{grid-area:ponto}
+  .gasto-group-name{grid-area:nome}
+  .gasto-group-count{grid-area:contagem;justify-self:start;margin-left:0}
+  .gasto-group-total{grid-area:total;justify-self:end}
+  .gasto-group-arrow{grid-area:seta;justify-self:end}
+
+  .gasto-item{
+    display:grid;align-items:center;
+    grid-template-columns:8px minmax(0,1fr) auto;
+    grid-template-areas:
+      "ponto desc acoes"
+      "ponto meta valor";
+    column-gap:10px;row-gap:1px;padding:11px 14px;
+  }
+  /* Dissolve o embrulho: a descricao e a data viram celulas da grade. */
+  .gasto-item-info{display:contents}
+  .gasto-cat-dot{grid-area:ponto}
+  .gasto-item-desc{grid-area:desc}
+  .gasto-item-meta{grid-area:meta}
+  .gasto-item-valor{grid-area:valor;justify-self:end}
+  .gasto-item-actions{grid-area:acoes;justify-self:end}
+
+  /* Editar e excluir mantem os 44px de area de toque, mas perdem a moldura.
+     Com fundo e borda proprios os dois botoes pesavam mais na linha do que
+     o nome do gasto e o valor — e sao a acao secundaria, nao a informacao. */
+  .gasto-item-actions .icon-btn{background:transparent;border-color:transparent}
+}
+
 /* ═══ INSTALLMENT PREVIEW ═══ */
 #installment-preview table{width:100%;border-collapse:collapse;font-size:12px}
 #installment-preview th{color:var(--text-muted);text-align:left;padding:4px 8px;font-weight:600;font-size:10px;letter-spacing:0.5px;text-transform:uppercase}
@@ -1919,6 +2005,33 @@ html,body{background:var(--bg);color:var(--text);font-family:'Poppins',system-ui
 #main{background:var(--bg);padding:32px 40px 48px;scrollbar-color:var(--surface-3) transparent}
 #main::-webkit-scrollbar{width:6px}
 #main::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px}
+
+/* ── A margem lateral no celular ──────────────────────────────────────
+   Medido num iPhone de 390px: sobravam 262px para o conteudo. 128px — um
+   terco da tela — eram margem. Dai a sensacao de aperto: nenhum texto tinha
+   onde caber.
+
+   A causa e a MESMA que ja aconteceu com o botao "Instalar app" mais abaixo
+   neste arquivo: havia duas regras de celular para o #main (linhas 472 e
+   1631, ambas dentro de @media) e uma terceira aqui em cima, FORA de
+   qualquer media query. Mesma especificidade, e a de baixo vence — entao o
+   padding de 40px do desktop valia tambem no celular, atropelando os 16px
+   que as regras de celular pediam.
+
+   Esta regra vem depois e devolve a margem certa. Os 96px embaixo sao a
+   barra de navegacao mais a area segura do aparelho. */
+@media (max-width:768px){
+  #main{padding:20px 14px calc(96px + env(safe-area-inset-bottom,0px))}
+}
+
+/* Os paineis da pagina de Gastos (e os irmaos) tinham padding:24px escrito
+   no atributo style do HTML, que nenhuma media query alcanca. Virou classe
+   justamente para poder encolher no celular: 24 + 24 de padding num painel
+   de 310px e quase um sexto da largura. */
+.painel{padding:24px}
+@media (max-width:560px){
+  .painel{padding:14px}
+}
 .music-list{scrollbar-color:var(--surface-3) transparent}
 ::selection{background:var(--accent);color:var(--text-on-accent)}
 
