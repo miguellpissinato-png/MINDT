@@ -2914,6 +2914,33 @@ input[type="checkbox"]{accent-color:var(--accent)}
   font-size:12.5px;line-height:1.5;color:var(--text)}
 .plano-atual-acoes{display:flex;gap:8px;flex-wrap:wrap}
 
+/* ── Finalizar leitura (modal de editar livro) ────────────────────────
+   Uma faixa propria, separada dos campos por uma borda, porque nao e mais
+   um campo do formulario: e uma acao que muda o estado do livro. Fica
+   acima de Salvar/Cancelar e abaixo de tudo que se edita, que e a ordem em
+   que se le. No tom de sucesso e nao no laranja de acao, para nao disputar
+   com o botao Salvar — sao duas coisas diferentes, e a principal continua
+   sendo salvar. */
+.livro-finalizar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin:16px 0 4px;padding:13px 14px;border-radius:12px;
+  background:var(--success-soft);border:1px solid var(--success);
+}
+.livro-finalizar-texto{min-width:0}
+.livro-finalizar-titulo{font-size:13.5px;font-weight:600;color:var(--text)}
+.livro-finalizar-nota{margin:3px 0 0;font-size:12px;line-height:1.5;color:var(--text-2);max-width:42ch}
+.livro-finalizar-btn{
+  flex-shrink:0;background:var(--success);border:1px solid var(--success);
+  color:var(--text-on-accent);font-weight:600;
+}
+.livro-finalizar-btn:hover{filter:brightness(1.08)}
+/* No celular o botao vai para baixo e ocupa a largura toda: lado a lado,
+   sobrariam poucos caracteres para a explicacao. */
+@media (max-width:560px){
+  .livro-finalizar{flex-direction:column;align-items:stretch;gap:12px}
+  .livro-finalizar-btn{width:100%;justify-content:center}
+}
+
 /* ── Chamada do Max ───────────────────────────────────────────────────── */
 .plano-chamada{display:flex;align-items:center;gap:16px;padding:16px 20px;margin-bottom:22px;
   background:var(--grad-hero);border:1px solid var(--forest-line);border-radius:16px}

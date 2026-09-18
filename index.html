@@ -1079,7 +1079,7 @@
         <div class="leitura-hero-card glass" id="leitura-hero-card">
           <!-- No book reading -->
           <div id="leitura-empty-state" style="display:flex;flex-direction:column;align-items:center;gap:0">
-            <div class="leitura-add-btn" id="leitura-add-btn" onclick="openModal('modal-add-livro')">
+            <div class="leitura-add-btn" id="leitura-add-btn" onclick="abrirNovoLivro()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               <span class="leitura-add-label">O que você está lendo?</span>
             </div>
@@ -1107,7 +1107,7 @@
             </div>
             <div style="display:flex;gap:10px;width:100%;justify-content:center;flex-wrap:wrap">
               <button class="btn btn-primary btn-sm" onclick="openModal('modal-registrar-leitura')">📖 Registrar leitura</button>
-              <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-livro')" style="border-color:var(--line-strong);color:var(--text-dim)">
+              <button class="btn btn-ghost btn-sm" onclick="editarLivroAtivo()" style="border-color:var(--line-strong);color:var(--text-dim)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Editar
               </button>
@@ -1647,9 +1647,47 @@
           <span style="font-size:12px;color:var(--text-muted)">Define como leitura ativa</span>
         </div>
 
+        <!-- FINALIZAR LEITURA
+             So aparece ao EDITAR um livro que ainda nao esta concluido nem
+             abandonado. Quem controla a visibilidade e pintarFinalizarLivro(),
+             em js/leitura.js. -->
+        <div class="livro-finalizar" id="livro-finalizar-bloco" hidden>
+          <div class="livro-finalizar-texto">
+            <div class="livro-finalizar-titulo">Já terminou este livro?</div>
+            <p class="livro-finalizar-nota">Marca como lido sem registrar página
+              por página, e passa a contar nos relatórios.</p>
+          </div>
+          <button type="button" class="btn btn-sm livro-finalizar-btn"
+                  onclick="abrirFinalizarLivro()">Finalizar leitura</button>
+        </div>
+
         <div class="modal-actions">
           <button class="btn btn-primary" onclick="saveLivro()">Salvar</button>
           <button class="btn btn-ghost" onclick="closeModal('modal-add-livro')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINALIZAR LEITURA: CONFIRMACAO
+         Nao fica empilhada sobre o modal de edicao — o de edicao fecha e este
+         abre. Dois modais abertos ao mesmo tempo brigariam pelo Esc, que fecha
+         o primeiro que encontra na pagina, e nao o de cima. Cancelar devolve o
+         modal de edicao com tudo que estava digitado, porque os campos nunca
+         foram limpos. -->
+    <div class="modal-overlay" id="modal-finalizar-livro">
+      <div class="modal" style="max-width:380px;text-align:center">
+        <div class="modal-close" onclick="cancelarFinalizarLivro()">✕</div>
+        <div style="font-size:64px;margin:16px 0 8px">🎉</div>
+        <div class="modal-title" style="text-align:center">Marcar como lido?</div>
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:10px;line-height:1.6">
+          <strong id="finalizar-livro-titulo" style="color:var(--text)"></strong>
+          vai constar como concluído na estante e nos relatórios.</p>
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:20px;line-height:1.55">
+          As páginas não entram na contagem do período: o app não tem como saber
+          quando você leu.</p>
+        <div class="modal-actions" style="justify-content:center">
+          <button class="btn btn-primary" onclick="confirmarFinalizarLivro()">Marcar como lido</button>
+          <button class="btn btn-ghost" onclick="cancelarFinalizarLivro()">Voltar</button>
         </div>
       </div>
     </div>
