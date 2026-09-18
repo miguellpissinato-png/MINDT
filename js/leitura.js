@@ -4,6 +4,13 @@
 
 var _lendoAgoraOn = false;
 var _jaLeuSim = false;
+
+// Pedido de "finalizar leitura" esperando a gravacao. Ele existe porque o
+// botao NAO grava sozinho: ele passa por saveLivro(), o mesmo caminho do
+// botao Salvar. Assim nada que a pessoa tenha digitado no formulario se
+// perde, e a marcacao usa a rotina de gravacao que ja existia e ja era
+// testada, em vez de uma segunda copia da mesma logica.
+var _finalizarPedido = false;
 var _shelfPopupBookId = null;
 var _selectedWebImg = null;
 var _shelfFilterVisible = false;
@@ -389,6 +396,49 @@ function resetLivroForm() {
   document.getElementById('web-image-search-wrap').style.display = 'none';
   document.getElementById('livro-edit-id').value = '';
   document.getElementById('livro-modal-title').textContent = 'Adicionar livro';
+  _finalizarPedido = false;
+  pintarFinalizarLivro(null);
+}
+
+// Mostra o bloco "Finalizar leitura" so quando ele faz sentido: ao EDITAR um
+// livro que ainda nao esta concluido e nao foi abandonado.
+//
+// Abandonado fica de fora de proposito. livroConcluido() devolve false para
+// livro abandonado ANTES de olhar a marca de concluido — entao marcar um
+// abandonado como lido nao o faria contar em lugar nenhum, e o botao
+// prometeria uma coisa que nao acontece. Retomar um livro abandonado e outra
+// funcao, que o app ainda nao tem.
+function pintarFinalizarLivro(livro){
+  var bloco = document.getElementById('livro-finalizar-bloco');
+  if(!bloco) return;
+  bloco.hidden = !(livro && !livroConcluido(livro) && !livro.abandonado);
+}
+
+// Abrir "Adicionar livro" TEM que limpar o formulario antes.
+//
+// Os botoes de adicionar chamavam openModal('modal-add-livro') direto. Como
+// fechar o modal nao limpa nada, quem tivesse editado um livro antes reabria
+// o formulario com os dados DAQUELE livro e, pior, com livro-edit-id ainda
+// preenchido: salvar entao RENOMEAVA o livro antigo em vez de criar um novo.
+// Reproduzido: com "O Hobbit" na estante, Editar → fechar → "+ Adicionar
+// livro" → digitar outro titulo → Salvar deixava a estante com um livro so,
+// chamado pelo titulo novo. O Hobbit desaparecia.
+//
+// Isto e anterior a funcao de finalizar leitura, mas o bloco "Finalizar"
+// tambem vazava por esse caminho, entao entra junto.
+function abrirNovoLivro(){
+  resetLivroForm();
+  openModal('modal-add-livro');
+}
+
+// O botao "Editar" ao lado da leitura ativa abria o formulario cru, sem
+// carregar livro nenhum: ou vinha em branco dizendo "Adicionar livro", ou
+// vinha com as sobras da ultima edicao. Agora ele edita o livro que esta
+// sendo lido, que e o que o rotulo promete.
+function editarLivroAtivo(){
+  var ativo = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
+  if(ativo) return openEditLivro(ativo.id);
+  abrirNovoLivro();
 }
 
 function openEditLivro(id) {
@@ -413,7 +463,43 @@ function openEditLivro(id) {
   if(l.vezes) document.getElementById('livro-vezes').value = l.vezes;
   _lendoAgoraOn = !!l.lendoAgora;
   document.getElementById('lendo-agora-toggle').className = 'toggle-switch' + (_lendoAgoraOn ? ' on' : '');
+  pintarFinalizarLivro(l);
   openModal('modal-add-livro');
+}
+
+// ── FINALIZAR LEITURA ──
+// Marca um livro como lido sem exigir que a pessoa registre pagina por
+// pagina. Sem isto, um livro parado em 0% na estante nunca entrava na conta
+// de "concluidos" do relatorio, e o numero saia menor do que a verdade.
+
+function abrirFinalizarLivro(){
+  var id = document.getElementById('livro-edit-id').value;
+  var l = (state.livros||[]).find(function(x){ return x.id === id; });
+  if(!l){ toast('⚠️ Livro não encontrado.'); return; }
+  document.getElementById('finalizar-livro-titulo').textContent = '"' + (l.titulo || 'Este livro') + '"';
+  // Fecha o de edicao e abre o de confirmacao. Os campos continuam
+  // preenchidos: fechar o modal nao limpa o formulario, e e isso que deixa
+  // "Voltar" devolver tudo como estava.
+  closeModal('modal-add-livro');
+  openModal('modal-finalizar-livro');
+}
+
+function cancelarFinalizarLivro(){
+  closeModal('modal-finalizar-livro');
+  openModal('modal-add-livro');
+}
+
+function confirmarFinalizarLivro(){
+  _finalizarPedido = true;
+  closeModal('modal-finalizar-livro');
+  // saveLivro() grava os campos do formulario e, vendo o pedido, aplica a
+  // conclusao. Se ele recusar (titulo ou paginas em branco), o pedido e
+  // desfeito e o modal de edicao volta para a pessoa corrigir.
+  saveLivro();
+  if(_finalizarPedido){
+    _finalizarPedido = false;
+    openModal('modal-add-livro');
+  }
 }
 
 function saveLivro() {
@@ -433,6 +519,7 @@ function saveLivro() {
 
   if(editId) {
     var l = state.livros.find(function(x){ return x.id === editId; });
+    var finalizou = false;
     if(l) {
       l.titulo = titulo;
       l.autor = document.getElementById('livro-autor').value.trim();
@@ -444,8 +531,32 @@ function saveLivro() {
       l.jaLeu = _jaLeuSim;
       l.vezes = _jaLeuSim ? (parseInt(document.getElementById('livro-vezes').value)||1) : 0;
       l.lendoAgora = _lendoAgoraOn;
+
+      // Veio de "Finalizar leitura". Sao as MESMAS quatro marcas que
+      // registrarLeitura() deixa quando a ultima pagina e registrada — e nao
+      // um estado novo, para o resto do app nao precisar aprender nada:
+      //
+      //   concluido    → e o que livroConcluido() e o relatorio olham
+      //   concluidoEm  → quando foi dado por lido
+      //   paginasLidas → fecha a barra em 100%; sem isto o livro apareceria
+      //                  como "Concluído" e 0% ao mesmo tempo
+      //   lendoAgora   → livro terminado nao continua sendo a leitura ativa
+      //
+      // Nao e criada entrada em logLeitura de proposito. O log e o que o
+      // relatorio soma como "paginas lidas no periodo"; inventar uma leitura
+      // de 300 paginas hoje, de um livro lido sabe-se la quando, estragaria
+      // justamente o numero que esta funcao veio consertar.
+      if(_finalizarPedido && !l.abandonado) {
+        l.concluido = true;
+        l.concluidoEm = new Date().toISOString();
+        l.paginasLidas = paginas;
+        l.lendoAgora = false;
+        finalizou = true;
+      }
     }
-    toast('✏️ Livro atualizado!');
+    _finalizarPedido = false;
+    toast(finalizou ? '🎉 Parabéns! Você terminou "' + l.titulo + '"!'
+                    : '✏️ Livro atualizado!');
   } else {
     var livro = {
       id: uid(), titulo: titulo,
@@ -613,7 +724,7 @@ document.addEventListener('click', function(e) {
   }
   // Botao de adicionar
   var addBook = e.target.closest ? e.target.closest('[data-addbook]') : null;
-  if(addBook) { openModal('modal-add-livro'); return; }
+  if(addBook) { abrirNovoLivro(); return; }
   // Toque/clique no cartao
   var book = e.target.closest ? e.target.closest('.livro-card') : null;
   if(book && book.dataset.id) {
