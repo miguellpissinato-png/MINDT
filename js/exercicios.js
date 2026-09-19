@@ -173,12 +173,49 @@ function exTempo(seg){
 }
 
 // ─── Check do dia ──────────────────────────────────────────
+//
+// DIZER QUE TREINOU E UM DIA DE TREINO.
+//
+// Antes, a unica coisa que criava um dia treinado era o cronometro. Quem
+// marcava "Exercicio do dia concluido" — na Home ou aqui — fechava o check,
+// ganhava o XP, e a pagina de Exercicios continuava dizendo que a pessoa nao
+// tinha treinado: os cartoes de dias treinados, a semana e a media por mes
+// ignoravam esse dia. O app cobrava o treino e depois fingia que ele nao
+// aconteceu.
+//
+// O modelo ja sabia lidar com isso. Registrar uma corrida tambem cria um
+// treino de duracao zero, pelo mesmo motivo, e o relatorio ja separa "quantos
+// treinos" de "duracao media" olhando so os que tem dur > 0. Entao o check do
+// dia entra pela mesma porta, e nada mais precisou mudar.
+//
+// A marca `doCheck` existe para o caminho de volta: desmarcar o check tira o
+// treino QUE O CHECK CRIOU, e nunca um treino de cronometro ou uma corrida do
+// mesmo dia. Sem ela, desmarcar o item apagaria um treino de verdade.
+function exSincronizarDiaDeTreino(){
+  var e=garantirExercicios(), d=garantirDiario(), hoje=hojeStr();
+  if(d.exercicio){
+    // Ja havendo treino hoje (cronometro, corrida ou um check anterior), nao
+    // cria outro: dois treinos no mesmo dia inflariam a contagem sem que a
+    // pessoa tivesse treinado duas vezes.
+    if(!exTemTreino(hoje)){
+      var mod=exAtiva();
+      e.treinos.unshift({id:'t'+Date.now(), data:hoje,
+                         modId:mod?mod.id:null, dur:0, doCheck:true});
+    }
+  }else{
+    e.treinos = e.treinos.filter(function(t){
+      return !(t.data===hoje && t.doCheck);
+    });
+  }
+}
+
 // Marca ou desmarca o check do dia PAGANDO o XP — e o que o botao
 // "Concluir exercicio do dia" faz.
 function exMarcarDia(valor){
   var d=garantirDiario();
   if(!!d.exercicio===!!valor) return;
   d.exercicio=!!valor;
+  exSincronizarDiaDeTreino();
   addXP(valor?EX_XP:-EX_XP);
   if(typeof atualizarStreak==='function') atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
@@ -189,6 +226,10 @@ function exFecharDiaSemXP(){
   var d=garantirDiario();
   if(d.exercicio) return;
   d.exercicio=true;
+  // Quem chama isto acabou de registrar o proprio treino, entao a sincronia
+  // encontra um treino de hoje e nao cria nada. A chamada fica por seguranca:
+  // se um dia alguem fechar o check por outro caminho, o dia conta igual.
+  exSincronizarDiaDeTreino();
   if(typeof atualizarStreak==='function') atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
 }
