@@ -259,8 +259,22 @@
   <button class="onb-cta" id="onb-cta" onclick="fecharOnboarding()"></button>
 </div>
 <div id="auth-screen">
+  <!-- O mesmo cenario da Home. A classe (e nao o id) e o que deixa o
+       js/floresta.js montar a paisagem aqui tambem. -->
+  <div class="floresta" id="floresta-login" aria-hidden="true"></div>
+
+  <!-- Troca de idioma. Usa o MESMO data-lang-opt do Perfil: definirIdioma()
+       ja repinta todo mundo que tem esse atributo, entao as duas telas
+       ficam em sincronia sem uma linha de codigo nova. -->
+  <div class="auth-topo">
+    <div class="tico-lang-switch auth-lang" role="group" aria-label="Idioma">
+      <button type="button" data-lang-opt="pt" class="on" onclick="definirIdioma('pt')">PT</button>
+      <button type="button" data-lang-opt="en" onclick="definirIdioma('en')">EN</button>
+    </div>
+  </div>
+
   <div class="auth-card">
-    <div class="auth-logo-icon">M</div>
+    <div class="auth-avatar" id="auth-avatar"></div>
     <div class="auth-logo-text">Mindt</div>
     <div class="auth-subtitle" id="auth-subtitle">Organize sua vida</div>
     <div class="auth-tabs">
@@ -274,6 +288,13 @@
       <div class="auth-pass-wrap">
         <input class="auth-input" id="auth-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')authSubmit()">
         <button type="button" class="auth-eye" id="auth-eye" onclick="alternarVerSenha('auth-password','auth-eye')" aria-label="Mostrar senha"></button>
+      </div>
+      <div class="auth-lembrar-linha" id="auth-lembrar-linha">
+        <span class="auth-check on" id="auth-lembrar" role="checkbox" aria-checked="true"
+              tabindex="0" data-a11y="1" onclick="alternarLembrarLogin()"
+              aria-labelledby="auth-lembrar-txt"></span>
+        <span class="auth-lembrar-txt" id="auth-lembrar-txt"
+              onclick="alternarLembrarLogin()">Lembrar de mim</span>
       </div>
       <div class="auth-error" id="auth-error"></div>
       <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Entrar</button>
@@ -388,7 +409,7 @@
     <section class="page active" id="page-home">
       <!-- A floresta do Ticolino. Preenchida por montarFloresta() em js/floresta.js;
            fica vazia no HTML para nao pesar o carregamento inicial. -->
-      <div id="floresta" aria-hidden="true"></div>
+      <div class="floresta" id="floresta" aria-hidden="true"></div>
       <div class="tico-home-head">
         <div>
           <div class="tico-date" id="home-date"></div>
@@ -1239,6 +1260,25 @@
           tela de início: toque em <b>Compartilhar</b> e depois em
           <b>Adicionar à Tela de Início</b>. Sem isso, o lembrete chega por e-mail.
         </p>
+      </div>
+
+      <!-- LEMBRAR DE MIM — a mesma chave do login, do lado de ca.
+           Usa as classes do bloco de lembretes de proposito: as duas linhas
+           sao o mesmo tipo de ajuste e tem que se parecer. -->
+      <div class="tico-lang-block" id="lembrar-bloco">
+        <div class="lembrete-topo">
+          <div>
+            <div class="form-label" style="margin:0">Lembrar de mim</div>
+            <p class="lembrete-nota" id="lembrar-nota"></p>
+          </div>
+          <div class="lembrete-chave-wrap">
+            <span class="lembrete-estado" id="lembrar-estado" aria-hidden="true"
+                  onclick="lembrarAlternar()">Ligado</span>
+            <div class="toggle-switch on" id="lembrar-chave" role="switch" aria-checked="true"
+                 tabindex="0" data-a11y="1" aria-label="Lembrar de mim neste aparelho"
+                 onclick="lembrarAlternar()"></div>
+          </div>
+        </div>
       </div>
 
       <div class="perfil-hero glass">

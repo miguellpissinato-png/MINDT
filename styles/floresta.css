@@ -2,7 +2,7 @@
    Compartilhado pela Home do app e pela pagina de convite (conheca/).
    Cinco planos de silhueta com parallax, o brilho do sol baixo e o
    bando de passaros. O desenho e montado por js/floresta.js. */
-#floresta{
+.floresta{
   /* Fixo na janela, nao na pagina: o cenario e o FUNDO da Home inteira, e
      nao rola junto com o conteudo. O parallax e que da o movimento. Como
      esta dentro de #page-home, some sozinho nas outras paginas. */
