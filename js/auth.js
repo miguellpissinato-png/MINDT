@@ -7,6 +7,139 @@
 // O registro do sb.auth.onAuthStateChange continua no index.html porque chama
 // renderHome(); ele vem para ca quando o home.js for criado.
 
+// ─── LEMBRAR DE MIM ────────────────────────────────────────────────────
+//
+// A preferencia em si mora em config.js, junto do armazem que o Supabase
+// usa (lembrarLigado / MINDT_ARMAZEM). Aqui ficam as duas pontas que a
+// pessoa toca: a caixa no login e a chave no Perfil.
+
+// Nomes das chaves que o Supabase usa para o cracha: 'sb-<projeto>-auth-token'.
+// Procuro pelo formato em vez de escrever o nome na mao — se o Supabase
+// mudar a chave num dia, isto continua achando, e se nao achar nada o pior
+// que acontece e sobrar uma chave velha numa gaveta.
+function chavesDaSessao(armazem){
+  var achadas = [];
+  try {
+    for (var i = 0; i < armazem.length; i++) {
+      var k = armazem.key(i);
+      if (k && /^sb-.*-auth-token$/.test(k)) achadas.push(k);
+    }
+  } catch(e){}
+  return achadas;
+}
+
+// Troca a preferencia COM alguem ja logado.
+//
+// So virar a chave nao bastaria: o cracha ja esta gravado numa gaveta, e
+// ficaria la. Por isso a sessao e reescrita depois da troca — setSession
+// passa pelo armazem, que agora aponta para a gaveta nova — e so entao a
+// gaveta antiga e limpa. Nessa ordem: se algo falhar no meio, o pior caso e
+// o cracha existir nas duas, e nao em nenhuma.
+async function definirLembrar(ligado){
+  var antes = lembrarLigado();
+  if (antes === ligado) return true;
+
+  try {
+    // A ORDEM AQUI E O CONSERTO DE UM ERRO QUE EU COMETI.
+    //
+    // Na primeira versao eu virava a chave e so depois lia a sessao. Mas
+    // getSession() le PELO ARMAZEM, e o armazem ja estava apontando para a
+    // gaveta nova — que esta vazia. Resultado: lia null, nao movia nada, e o
+    // cracha ficava na gaveta antiga. Desligar "Lembrar de mim" nao desligava
+    // coisa nenhuma. O teste pegou: depois de desligar, o cracha continuava
+    // no localStorage.
+    //
+    // Entao: ler primeiro, com o armazem ainda apontando para a gaveta de
+    // origem; virar a chave; regravar (cai na gaveta nova); limpar a antiga.
+    var res = await sb.auth.getSession();
+    var sessao = res && res.data && res.data.session;
+
+    try { localStorage.setItem(LEMBRAR_CHAVE, ligado ? '1' : '0'); }
+    catch(e){ return false; }     // sem storage nao ha o que lembrar
+
+    if (sessao && sessao.access_token && sessao.refresh_token) {
+      await sb.auth.setSession({
+        access_token: sessao.access_token,
+        refresh_token: sessao.refresh_token
+      });
+      // Limpa a gaveta de ONDE veio, nunca a de destino.
+      var antiga = ligado ? sessionStorage : localStorage;
+      chavesDaSessao(antiga).forEach(function(k){
+        try { antiga.removeItem(k); } catch(e){}
+      });
+    }
+    return true;
+  } catch(e){
+    console.error('definirLembrar:', e);
+    // Desfaz a preferencia: a tela nao pode dizer uma coisa e o cracha estar
+    // em outra.
+    try { localStorage.setItem(LEMBRAR_CHAVE, antes ? '1' : '0'); } catch(e2){}
+    return false;
+  }
+}
+
+// A caixa da tela de login. Ela grava a preferencia na hora do clique, e
+// nao no momento de entrar: assim o PRIMEIRO cracha ja nasce na gaveta
+// certa, sem precisar ser movido depois.
+function alternarLembrarLogin(){
+  var cx = document.getElementById('auth-lembrar');
+  if(!cx) return;
+  var ligado = !cx.classList.contains('on');
+  cx.classList.toggle('on', ligado);
+  cx.setAttribute('aria-checked', String(ligado));
+  try { localStorage.setItem(LEMBRAR_CHAVE, ligado ? '1' : '0'); } catch(e){}
+}
+
+function pintarLembrarLogin(){
+  var cx = document.getElementById('auth-lembrar');
+  if(!cx) return;
+  var ligado = lembrarLigado();
+  cx.classList.toggle('on', ligado);
+  cx.setAttribute('aria-checked', String(ligado));
+}
+
+// A chave do Perfil. Aqui ha alguem logado, entao a troca precisa MOVER a
+// sessao de gaveta — e isso pode falhar. Por isso a tela so muda depois de
+// definirLembrar() dizer que deu certo.
+async function lembrarAlternar(){
+  var chave = document.getElementById('lembrar-chave');
+  if(!chave) return;
+  var querLigar = !lembrarLigado();
+  chave.setAttribute('aria-busy', 'true');
+  var ok = await definirLembrar(querLigar);
+  chave.removeAttribute('aria-busy');
+  if(!ok){ toast('⚠️ Não consegui salvar. Tenta de novo?'); pintarLembrar(); return; }
+  pintarLembrar();
+  toast(querLigar
+    ? '🔒 Você vai continuar conectado neste aparelho.'
+    : '🔓 Da próxima vez o Mindt vai pedir sua senha.');
+}
+
+function pintarLembrar(){
+  var chave = document.getElementById('lembrar-chave');
+  if(!chave) return;
+  var ligado = lembrarLigado();
+  chave.className = 'toggle-switch' + (ligado ? ' on' : '');
+  chave.setAttribute('aria-checked', String(ligado));
+  var estado = document.getElementById('lembrar-estado');
+  if(estado) estado.textContent = ligado ? 'Ligado' : 'Desligado';
+  var nota = document.getElementById('lembrar-nota');
+  if(nota){
+    nota.textContent = ligado
+      ? 'Mantém você conectado neste aparelho, sem pedir a senha de novo ao abrir o Mindt.'
+      : 'O Mindt vai pedir seu e-mail e senha toda vez que você abrir.';
+  }
+}
+
+// Pinta o que a tela de login tem de proprio: o Ticolino no lugar do antigo
+// selo "M" e o estado da caixa "Lembrar de mim".
+document.addEventListener('DOMContentLoaded', function(){
+  var av = document.getElementById('auth-avatar');
+  if (av && typeof ticolino === 'function') av.innerHTML = ticolino('feliz', 46, true);
+  pintarLembrarLogin();
+  pintarLembrar();
+});
+
 // AUTH
 function switchAuthTab(mode){
   authMode=mode;

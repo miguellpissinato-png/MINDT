@@ -76,7 +76,11 @@ var TEXTOS = {
 };
 
 // Textos que estao escritos no HTML (português -> ingles)
-var DIC = {"Gastos do mês":"Monthly spend","Metas ativas":"Active goals",
+var DIC = {"Lembrar de mim":"Remember me",
+"Mantém você conectado neste aparelho, sem pedir a senha de novo ao abrir o Mindt.":"Keeps you signed in on this device, without asking for your password again when you open Mindt.",
+"Desligue para ter que entrar toda vez.":"Turn it off to sign in every time.",
+"Ligado":"On","Desligado":"Off",
+"Gastos do mês":"Monthly spend","Metas ativas":"Active goals",
 "Exercícios":"Exercise","Treinos na semana":"Workouts this week","Dias treinados":"Days trained",
 "Você treina mais":"You train most","Cronômetro do treino":"Workout timer",
 "Concluir exercício do dia":"Complete today's exercise","Exercício do dia concluído":"Today's exercise done",

@@ -87,9 +87,13 @@ var FLORESTA_PALETAS = {
           passaro:'#2E2910',passaroOp:0.6,vale:0.08}
 };
 
+// Desde a tela de login o cenario aparece em DOIS lugares: no fundo da Home
+// e atras do cartao de entrar. Por isso a busca e pela CLASSE, e nao pelo
+// id. So um dos dois esta visivel de cada vez — o outro esta em display:none
+// e nem anima.
 function montarFloresta(){
-  var host = document.getElementById('floresta');
-  if (!host) return;
+  var hosts = document.querySelectorAll('.floresta');
+  if (!hosts.length) return;
   var claro = document.documentElement.getAttribute('data-theme') === 'light';
   var P = FLORESTA_PALETAS[claro ? 'light' : 'dark'];
 
@@ -109,7 +113,7 @@ function montarFloresta(){
                '</g></g></g>';
   }).join('');
 
-  host.innerHTML =
+  var desenho =
     // Luz do sol no ceu, acima da linha das cristas.
     '<div class="floresta-ceu" style="background:' +
       'radial-gradient(56% 62% at 66% 58%,rgba(245,160,61,' + (claro?0.16:0.22) + ') 0%,rgba(235,125,0,' + (claro?0.07:0.11) + ') 38%,rgba(235,125,0,0) 72%),' +
@@ -148,7 +152,13 @@ function montarFloresta(){
     '</svg>' +
     '';   // o topo da paisagem se dissolve por mascara no CSS (.floresta-svg)
 
-  ligarParallaxFloresta(host);
+  // Desliga o parallax dos hosts anteriores antes de trocar o desenho: as
+  // funcoes de desligar apontam para elementos que vao deixar de existir.
+  soltarFloresta();
+  for (var i = 0; i < hosts.length; i++) {
+    hosts[i].innerHTML = desenho;
+    ligarParallaxFloresta(hosts[i]);
+  }
 }
 
 // Ate onde a rolagem pode levar o cenario, em pixels, para o plano de
@@ -180,10 +190,15 @@ function florestaDeslocamento(rolagem){
   return FLORESTA_TETO * (1 - Math.exp(-rolagem * FLORESTA_TAXA / FLORESTA_TETO));
 }
 
-var florestaSolto = null;   // guarda como desligar o parallax anterior
+// Uma funcao de desligar por host. Era uma so quando havia um host so.
+var florestaSoltos = [];
+
+function soltarFloresta(){
+  florestaSoltos.forEach(function(f){ try { f(); } catch(e){} });
+  florestaSoltos = [];
+}
 
 function ligarParallaxFloresta(host){
-  if (florestaSolto) { florestaSolto(); florestaSolto = null; }
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   var planos = host.querySelectorAll('[data-plano]');
@@ -217,11 +232,11 @@ function ligarParallaxFloresta(host){
   rolante.addEventListener('scroll', naRolagem, {passive:true});
   naRolagem();
 
-  florestaSolto = function(){
+  florestaSoltos.push(function(){
     window.removeEventListener('mousemove', noMouse);
     rolante.removeEventListener('scroll', naRolagem);
     if (quadro != null) cancelAnimationFrame(quadro);
-  };
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function(){
