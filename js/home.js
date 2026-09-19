@@ -76,6 +76,12 @@ function tarefasDoDiaFeitas(){
 function toggleTarefaDia(chave){
   var d=garantirDiario();
   d[chave]=!d[chave];
+  // O item de exercicio nao e so um check: dizer que treinou conta como dia
+  // de treino na aba Exercicios. Quem sabe fazer essa conta e o modulo de
+  // exercicios — aqui so se avisa que o check mudou.
+  if(chave==='exercicio' && typeof exSincronizarDiaDeTreino==='function'){
+    exSincronizarDiaDeTreino();
+  }
   var xp=xpDaTarefaDia(chave);
   if(d[chave]) addXP(xp); else addXP(-xp);
   atualizarStreak();
