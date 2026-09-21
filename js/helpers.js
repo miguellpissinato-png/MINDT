@@ -322,6 +322,83 @@ function moeda(v){
             : 'R$ ' + n.toLocaleString('pt-BR', opts);
 }
 
+// ── NUMEROS GRANDES ────────────────────────────────────────────────────
+//
+// Um valor em reais e um TOKEN SO. Ate aqui os numeros grandes levavam
+// "overflow-wrap:anywhere" para nao vazar do cartao, e o navegador fazia o
+// unico corte que essa regra permite: entre digitos. "R$ 1.001.319.449,23"
+// virava "R$ 1.001.319.449,2" numa linha e "3" na outra — pior que vazar,
+// porque a primeira linha vira um numero errado que se le como certo.
+//
+// Entao o numero nao quebra mais: quem cede e o corpo da fonte. Chamar de
+// novo repoe o tamanho do CSS antes de medir, entao serve para o primeiro
+// desenho e para qualquer remedida depois.
+function encaixarNumero(el){
+  if(!el || !el.isConnected) return;
+  el.style.fontSize = '';
+  var tam = parseFloat(getComputedStyle(el).fontSize) || 24;
+  var guarda = 0;
+  while(el.scrollWidth > el.clientWidth + 1 && tam > 12 && guarda++ < 80){
+    tam -= 1;
+    el.style.fontSize = tam + 'px';
+  }
+  // Em que largura este tamanho foi decidido. E o que permite ignorar o
+  // proprio efeito colateral do ajuste — ver o observador abaixo.
+  el._larguraAjustada = el.clientWidth;
+}
+
+// Medir uma vez nao basta. Encolher o numero muda a ALTURA da pagina, a
+// altura decide se ha barra de rolagem, e a barra muda a largura util: a
+// largura medida no comeco do ajuste podia ja nao existir no fim dele, e o
+// numero ficava parado num tamanho grande demais. Em vez de adivinhar
+// quantas passadas bastam, o ajuste escuta a largura de verdade e refaz a
+// conta quando ela muda. Encolher a fonte muda a altura, nao a largura,
+// entao comparar com a largura da ultima conta impede o laco infinito.
+var observadorNumero = (typeof ResizeObserver === 'function')
+  ? new ResizeObserver(function(entradas){
+      entradas.forEach(function(e){
+        var el = e.target;
+        if(el.clientWidth !== el._larguraAjustada) encaixarNumero(el);
+      });
+    })
+  : null;
+
+// Os numeros que ocupam um cartao inteiro. Os de lista ja tem reticencia.
+var SEL_NUMERO_GRANDE = '.big-metric .value:not(.value-texto),.stat-value,'
+                      + '.tico-quick-value,.gasto-group-total,.total-banner-value';
+function encaixarNumeros(raiz){
+  var alvo = raiz || document;
+  alvo.querySelectorAll(SEL_NUMERO_GRANDE).forEach(function(el){
+    encaixarNumero(el);
+    // observe() no mesmo elemento nao duplica a inscricao.
+    if(observadorNumero) observadorNumero.observe(el);
+  });
+}
+// Sem ResizeObserver (navegador antigo) sobra o caminho manual.
+if(!observadorNumero){
+  window.addEventListener('resize', function(){ encaixarNumeros(); });
+}
+
+// Valor abreviado, para o unico lugar onde nem encolher resolve: o miolo da
+// rosquinha de categorias, que tem 100px de diametro. So entra quando o
+// valor inteiro ja nao caberia de forma legivel — ver pintarTotalDaRosquinha.
+function moedaCurta(v){
+  var n = parseFloat(v);
+  if(!isFinite(n)) n = 0;
+  var en = (typeof idiomaAtual === 'function') && idiomaAtual() === 'en';
+  var a = Math.abs(n);
+  var escala = a >= 1e9 ? [1e9, en?'B':'bi']
+             : a >= 1e6 ? [1e6, en?'M':'mi']
+             : a >= 1e3 ? [1e3, en?'K':'mil']
+             : null;
+  if(!escala) return moeda(n);
+  var x = n / escala[0];
+  var casas = Math.abs(x) >= 100 ? 0 : 1;
+  var texto = x.toLocaleString(en ? 'en-US' : 'pt-BR',
+                {minimumFractionDigits:casas, maximumFractionDigits:casas});
+  return (en ? '$' : 'R$ ') + texto + (en ? escala[1] : ' ' + escala[1]);
+}
+
 // Pixel transparente. Usado como origem inicial das <img> que so recebem
 // imagem depois: <img src=""> resolve para a propria pagina e dispara uma
 // requisicao falhada a cada carregamento.

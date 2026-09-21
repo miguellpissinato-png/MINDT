@@ -22,6 +22,10 @@ function goToPage(name){
   else if(name==='exercicios')renderExercicios();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
+  // Os numeros que ocupam um cartao inteiro so podem ser medidos depois de
+  // pintados e com a pagina visivel. Este e o unico funil por onde toda
+  // pagina passa, entao o ajuste mora aqui e nao em cada render.
+  if(typeof encaixarNumeros === 'function') encaixarNumeros(document.getElementById('page-'+name));
 }
 function mobileNav(el,page){document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.remove('active');});el.classList.add('active');goToPage(page);}
 
