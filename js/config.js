@@ -52,7 +52,7 @@ var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
     detectSessionInUrl: true
   }
 });
-var state={metas:[],tasks:[],notas:[],grupos:[],perfil:{name:'',avatar:null},gastos:[],categorias:[],livros:[],eventos:[],contatos:[]};
+var state={metas:[],tasks:[],notas:[],grupos:[],perfil:{name:'',avatar:null},gastos:[],categorias:[],livros:[],eventos:[],contatos:[],ganhos:[],instituicoes:[],ganhosPulados:{}};
 
 
 var currentUser=null,saveTimer=null,authMode='login';

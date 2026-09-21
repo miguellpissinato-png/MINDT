@@ -3231,3 +3231,233 @@ input[type="checkbox"]{accent-color:var(--accent)}
   }
   .mobile-nav-item .m-label{font-size:10px}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ÁREA DE DINHEIRO — as três telas: Gastos, Ganhos e Geral
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Cabeçalho: as ações mudam conforme a aba aberta ─────────────────── */
+.fin-acoes-wrap{display:flex}
+.fin-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.fin-abas{margin-bottom:20px}
+
+/* ── Forma de pagamento ───────────────────────────────────────────────
+   O tópico fica dentro da abinha do gasto, acima da descrição. O
+   invólucro existe mesmo sem forma escolhida: no celular a linha vira
+   grade e uma célula que some desmonta o resto do alinhamento. */
+.gasto-pag-topo{line-height:0}
+.gasto-pag-topo:empty{display:none}
+.pag-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:600;letter-spacing:0.04em;line-height:1.6;
+  padding:1px 8px;border-radius:var(--radius-pill);
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  color:var(--text-3);margin-bottom:3px;
+}
+.pag-badge[data-pag="pix"]{color:var(--data-6)}
+.pag-badge[data-pag="debito"]{color:var(--data-2)}
+.pag-badge[data-pag="credito"]{color:var(--data-4)}
+.pag-badge[data-pag="boleto"]{color:var(--data-3)}
+.pag-badge[data-pag="dinheiro"]{color:var(--data-5)}
+
+/* Chips de escolha dentro do modal de gasto. */
+.pag-opcoes{display:flex;flex-wrap:wrap;gap:8px}
+.pag-opcao{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 14px;border-radius:var(--radius-pill);
+  background:var(--surface);border:1px solid var(--line);
+  color:var(--text-dim);font-family:inherit;font-size:13px;font-weight:500;
+  cursor:pointer;transition:background var(--dur,.2s),border-color var(--dur,.2s),color var(--dur,.2s);
+}
+.pag-opcao:hover{background:var(--surface-2);color:var(--text)}
+.pag-opcao.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text)}
+.pag-opcao-emoji{font-size:15px;line-height:1}
+
+/* ── Aba Ganhos: instituições ─────────────────────────────────────────
+   Quem cria as abas é o usuário; nenhum nome vem pronto. */
+.inst-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;
+  scrollbar-width:none}
+.inst-chips::-webkit-scrollbar{display:none}
+.inst-chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  flex:0 0 auto;min-width:130px;padding:10px 16px;
+  background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--text-3);font-family:inherit;cursor:pointer;text-align:left;
+  transition:background var(--dur,.2s),border-color var(--dur,.2s),color var(--dur,.2s);
+}
+.inst-chip:hover{background:var(--surface-2);color:var(--text)}
+.inst-chip.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text)}
+.inst-chip-nome{font-size:13px;font-weight:600;letter-spacing:-0.01em}
+.inst-chip-valor{font-size:11px;font-weight:500;color:var(--text-4);font-variant-numeric:tabular-nums}
+.inst-chip.active .inst-chip-valor{color:var(--text-3)}
+
+/* ── Saldo da instituição ─────────────────────────────────────────────
+   O valor é o primeiro item da tela e o maior número dela. */
+.ganhos-saldo{
+  background:var(--grad-hero);border:1px solid var(--forest-line);
+  border-radius:var(--radius-lg);box-shadow:var(--glow-forest);
+  padding:24px;margin-bottom:16px;
+}
+.ganhos-saldo-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ganhos-saldo-label{
+  font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text-on-forest-2);
+}
+.ganhos-editar-btn{
+  flex:none;padding:6px 12px;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.18);border:1px solid var(--forest-line);
+  color:var(--text-on-forest);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;
+  transition:background var(--dur,.2s);
+}
+.ganhos-editar-btn:hover{background:rgba(0,0,0,0.3)}
+.ganhos-editar-btn.ativo{background:var(--grad-accent);border-color:transparent;color:var(--text-on-accent)}
+.ganhos-saldo-valor{
+  font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:44px;
+  line-height:1.05;letter-spacing:-0.03em;margin-top:10px;
+  color:var(--text-on-forest);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.ganhos-saldo-pct{font-size:13px;color:var(--text-on-forest-2);margin-top:8px}
+.ganhos-saldo-pct strong{color:var(--text-on-forest);font-weight:600}
+.ganhos-saldo .progress-bar-track{background:rgba(0,0,0,0.28)}
+.ganhos-inst-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+
+.ganhos-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.ganhos-acoes .btn-ghost.ativo{background:var(--accent-soft);border-color:var(--accent-line);color:var(--text)}
+.ganho-valor{color:var(--success-text)}
+
+/* No modo editar, editar e excluir não dependem mais do hover. */
+.gasto-item-actions.sempre-visivel{opacity:1}
+
+/* Caixa do dia da recorrência, dentro do modal. */
+.ganho-rec-caixa{
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--radius);padding:16px;margin-bottom:8px;
+}
+.ganho-rec-nota{font-size:12px;line-height:1.5;color:var(--text-4);margin:10px 0 0 0}
+
+/* ── Aba Geral ────────────────────────────────────────────────────────── */
+.geral-hero{
+  background:var(--grad-hero);border:1px solid var(--forest-line);
+  border-radius:var(--radius-lg);box-shadow:var(--glow-forest);
+  padding:32px 28px;margin-bottom:20px;text-align:center;
+}
+.geral-hero-label{
+  font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text-on-forest-2);
+}
+.geral-hero-valor{
+  font-family:'Poppins',system-ui,sans-serif;font-weight:600;font-size:56px;
+  line-height:1.02;letter-spacing:-0.035em;margin-top:12px;
+  color:var(--text-on-forest);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.geral-hero-valor.negativo{color:var(--warning)}
+.geral-hero-detalhe{
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  font-size:13px;margin-top:12px;color:var(--text-on-forest-2);
+}
+.geral-pos{color:var(--text-on-forest);font-weight:500}
+.geral-neg{color:var(--text-on-forest);font-weight:500}
+.geral-sep{opacity:.5}
+
+.geral-colunas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;align-items:start}
+.fin-coluna{padding:20px}
+.fin-secao{margin-bottom:20px}
+
+.fin-mini-item{display:flex;align-items:center;gap:10px;padding:9px 0}
+.fin-mini-item + .fin-mini-item{border-top:1px solid var(--line)}
+.fin-mini-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.fin-mini-info{flex:1;min-width:0}
+.fin-mini-nome{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fin-mini-meta{font-size:11px;color:var(--text-4);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fin-mini-valor{font-size:13px;font-weight:600;flex:none;font-variant-numeric:tabular-nums}
+.fin-mini-valor.positivo{color:var(--success-text)}
+.fin-mini-valor.negativo{color:var(--danger-text)}
+.fin-mini-vazio{font-size:13px;color:var(--text-4);padding:8px 0}
+
+.fin-em-breve{text-align:center;padding:14px 0}
+.fin-em-breve-tag{
+  display:inline-block;padding:4px 12px;border-radius:var(--radius-pill);
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+  color:var(--accent-text);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+}
+.fin-em-breve p{font-size:12px;line-height:1.5;color:var(--text-4);margin:12px 0 0 0}
+
+/* ── Pizzas e legendas ────────────────────────────────────────────────── */
+.fin-pizzas{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.fin-pizza-bloco{min-width:0}
+.fin-pizza-titulo{font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px}
+.fin-pizza-caixa{display:flex;justify-content:center}
+.fin-pizza-caixa canvas{max-width:100%;height:auto}
+.fin-pizza-linha{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.fin-pizza-linha .fin-legenda{flex:1;min-width:200px}
+
+.fin-legenda{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.fin-legenda-linha{flex-direction:row;flex-wrap:wrap;gap:14px}
+.fin-legenda-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.fin-legenda-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.fin-legenda-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+.fin-legenda-pct{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.fin-legenda-valor{color:var(--text-4);font-variant-numeric:tabular-nums}
+.fin-legenda-vazia{font-size:12px;color:var(--text-4)}
+
+/* ── Frequência das origens ───────────────────────────────────────────── */
+.fin-freq{display:flex;flex-direction:column}
+.fin-freq-item{display:flex;align-items:center;gap:10px;padding:10px 0}
+.fin-freq-item + .fin-freq-item{border-top:1px solid var(--line)}
+.fin-freq-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.fin-freq-info{flex:1;min-width:0}
+.fin-freq-nome{font-size:13px;font-weight:500}
+.fin-freq-meta{font-size:11px;color:var(--text-4);margin-top:2px}
+.fin-freq-valor{font-size:13px;font-weight:600;color:var(--success-text);font-variant-numeric:tabular-nums}
+
+/* ── Médias ───────────────────────────────────────────────────────────── */
+.fin-medias{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.fin-medias-titulo{font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px}
+.fin-media-geral{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;margin-bottom:10px;border-radius:var(--radius-sm);
+  background:var(--surface-2);font-size:12px;color:var(--text-3);
+}
+.fin-media-geral strong{font-size:15px;color:var(--text);font-variant-numeric:tabular-nums}
+.fin-media-item{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12px}
+.fin-media-item + .fin-media-item{border-top:1px solid var(--line-faint)}
+.fin-media-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+.fin-media-qtd{color:var(--text-4);font-variant-numeric:tabular-nums}
+.fin-media-valor{font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;min-width:82px;text-align:right}
+
+/* ── Gráfico dos dias da semana ───────────────────────────────────────── */
+.fin-semana-topo{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;margin-bottom:18px}
+.fin-semana-caixa{width:100%}
+.fin-semana-caixa canvas{display:block;width:100%}
+
+/* ── Telas menores ────────────────────────────────────────────────────── */
+@media (max-width:900px){
+  .geral-colunas{grid-template-columns:1fr}
+  .fin-pizzas{grid-template-columns:1fr}
+  .fin-medias{grid-template-columns:1fr;gap:22px}
+}
+@media (max-width:560px){
+  .fin-acoes-wrap{width:100%}
+  .fin-acoes{width:100%}
+  .fin-acoes .btn{flex:1;justify-content:center}
+  .geral-hero{padding:24px 18px}
+  .geral-hero-valor{font-size:40px}
+  /* Empilhado: lado a lado a linha quebra e o ponto separador fica sobrando
+     no fim da primeira linha. */
+  .geral-hero-detalhe{flex-direction:column;gap:4px}
+  .geral-sep{display:none}
+  .ganhos-saldo-valor{font-size:34px}
+  .ganhos-acoes .btn{flex:1;justify-content:center}
+
+  /* A linha do gasto virou grade nesta largura: a forma de pagamento
+     precisa da própria faixa, senão vira um item solto fora do lugar. */
+  .gasto-item{
+    grid-template-areas:
+      "ponto pag  pag"
+      "ponto desc acoes"
+      "ponto meta valor";
+  }
+  .gasto-pag-topo{grid-area:pag}
+}
