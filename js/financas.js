@@ -629,11 +629,161 @@ document.addEventListener('click', function(e){
 // ═══════════════════════════════════════════════════════════════════════
 // GRAFICOS
 // ═══════════════════════════════════════════════════════════════════════
+
+// ─── BALAO DE INFORMACAO (mouse e dedo) ─────────────────────────────────
 //
-// Um desenhador de rosca generico, usado pelas quatro pizzas novas (origens
-// das entradas no dashboard de Ganhos, e as tres da aba Geral). A pizza da
-// aba Gastos continua com a funcao propria dela em js/gastos.js, que tem
-// tooltip e rotulo central — nao vale reescrever o que ja funciona.
+// Um unico balao para todos os graficos do app — pizza de gastos, pizzas
+// da aba Geral, dashboard de ganhos e o grafico de dias da semana. Um so
+// elemento no DOM, um so comportamento, uma so aparencia.
+//
+// No mouse ele acompanha o ponteiro e some ao sair. No dedo aparece ao
+// tocar, acompanha o arrasto e fica legivel por um instante depois de
+// soltar — sumir junto com o toque nao deixaria tempo de ler.
+
+var _balao = null;
+var _balaoTimer = null;
+
+function balaoElemento(){
+  if(_balao && document.body.contains(_balao)) return _balao;
+  _balao = document.createElement('div');
+  _balao.className = 'grafico-balao';
+  _balao.setAttribute('role', 'status');
+  _balao.setAttribute('aria-live', 'polite');
+  document.body.appendChild(_balao);
+  return _balao;
+}
+
+function balaoMostrar(html, x, y){
+  var el = balaoElemento();
+  clearTimeout(_balaoTimer);
+  el.innerHTML = html;
+  el.style.display = 'block';
+  // Medir depois de preencher: so ai da para saber se cabe de um lado ou
+  // do outro do ponteiro. Sem isto o balao sai da tela na borda direita e
+  // no pe da pagina, que e justamente onde os graficos ficam no celular.
+  var larg = el.offsetWidth, alt = el.offsetHeight;
+  var esq = x + 16, topo = y - 14;
+  if(esq + larg > window.innerWidth - 10) esq = x - larg - 16;
+  if(esq < 10) esq = Math.max(10, (window.innerWidth - larg) / 2);
+  if(topo + alt > window.innerHeight - 10) topo = y - alt - 16;
+  if(topo < 10) topo = 10;
+  el.style.left = Math.round(esq) + 'px';
+  el.style.top = Math.round(topo) + 'px';
+}
+
+function balaoEsconder(atraso){
+  clearTimeout(_balaoTimer);
+  if(!_balao) return;
+  if(atraso){ _balaoTimer = setTimeout(function(){ _balao.style.display = 'none'; }, atraso); }
+  else _balao.style.display = 'none';
+}
+
+// Liga um canvas ao balao. `achar(x, y)` recebe a posicao em pixels de CSS
+// dentro do canvas e devolve { html: '...', chave: '...' } ou null.
+// A chave evita repintar e reposicionar a cada pixel de movimento.
+var _balaoLimpezas = [];   // uma por canvas ligado, para o toque fora fechar tudo
+
+function ligarBalao(canvas, achar, aoEntrar){
+  if(!canvas || canvas._balaoLigado) return;
+  canvas._balaoLigado = true;
+  // pan-y: o dedo continua rolando a pagina na vertical, mas o arrasto
+  // horizontal fica com o grafico. Sem isto o navegador engole o gesto e
+  // nao ha como percorrer os dados com o dedo.
+  canvas.style.touchAction = 'pan-y';
+
+  var ultima = null;     // chave do ponto apontado agora
+  var marcado = false;   // aoEntrar foi avisado e ainda nao foi desfeito
+  var geracao = 0;       // cancela a limpeza adiada quando algo muda antes
+
+  function marcar(achado){
+    geracao++;
+    marcado = !!achado;
+    if(aoEntrar) aoEntrar(achado);
+  }
+
+  function posicao(ev){
+    var rect = canvas.getBoundingClientRect();
+    if(!rect.width || !rect.height) return null;
+    return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  }
+
+  function atualizar(ev){
+    var pos = posicao(ev);
+    var achado = pos ? achar(pos.x, pos.y) : null;
+    if(!achado){
+      if(ultima !== null){ ultima = null; if(aoEntrar) aoEntrar(null); }
+      balaoEsconder();
+      canvas.style.cursor = 'default';
+      return false;
+    }
+    if(achado.chave !== ultima){
+      ultima = achado.chave;
+      marcar(achado);
+    }
+    balaoMostrar(achado.html, ev.clientX, ev.clientY);
+    canvas.style.cursor = 'pointer';
+    return true;
+  }
+
+  function limpar(atraso){
+    balaoEsconder(atraso);
+    canvas.style.cursor = 'default';
+    ultima = null;
+    if(!marcado) return;
+    // No toque o balao fica um instante a mais para dar tempo de ler, e o
+    // destaque no desenho tem de sair junto com ele, nao antes. A geracao
+    // cancela essa limpeza adiada se algo for apontado nesse meio-tempo —
+    // senao ela apagaria o destaque novo.
+    if(!atraso){ marcar(null); return; }
+    var minha = ++geracao;
+    setTimeout(function(){ if(minha === geracao) marcar(null); }, atraso);
+  }
+
+  _balaoLimpezas.push(function(){ limpar(); });
+
+  canvas.addEventListener('pointerdown', function(ev){
+    if(atualizar(ev) && ev.pointerType !== 'mouse'){
+      // Segurar o ponteiro mantem os eventos vindo mesmo se o dedo sair do
+      // canvas, entao o arrasto nao trava na borda do grafico.
+      try { canvas.setPointerCapture(ev.pointerId); } catch(e){}
+    }
+  });
+  canvas.addEventListener('pointermove', function(ev){
+    if(ev.pointerType === 'mouse' || ev.buttons || canvas.hasPointerCapture && canvas.hasPointerCapture(ev.pointerId)) atualizar(ev);
+  });
+  canvas.addEventListener('pointerup', function(ev){
+    if(ev.pointerType === 'mouse') return;
+    limpar(2200);   // tempo de ler antes de sumir
+  });
+  canvas.addEventListener('pointercancel', function(){ limpar(); });
+  canvas.addEventListener('pointerleave', function(ev){
+    if(ev.pointerType === 'mouse') limpar();
+  });
+}
+
+// Tocar fora de qualquer grafico fecha o balao — no celular nao ha
+// "sair com o ponteiro" para fecha-lo sozinho.
+document.addEventListener('pointerdown', function(e){
+  if(e.target && e.target.tagName === 'CANVAS') return;
+  _balaoLimpezas.forEach(function(f){ f(); });
+});
+
+// ─── PIZZA ──────────────────────────────────────────────────────────────
+//
+// Desenhador de rosca generico, usado pelas pizzas da aba Geral e pelo
+// dashboard de Ganhos. A geometria e as fatias ficam guardadas no proprio
+// canvas, que e o que permite descobrir depois qual fatia esta sob o
+// ponteiro. A pizza da aba Gastos (js/gastos.js) guarda o mesmo formato e
+// usa este mesmo balao.
+
+function conteudoBalaoFatia(f, total){
+  var pct = total ? (f.valor / total * 100) : 0;
+  return '<div class="balao-topo">'
+      + '<span class="balao-dot" style="background:' + f.cor + '"></span>'
+      + '<strong>' + esc(f.nome) + '</strong></div>'
+    + '<div class="balao-valor">' + moeda(f.valor) + '</div>'
+    + '<div class="balao-nota">' + pct.toFixed(1).replace('.', ',') + '% do total</div>';
+}
 
 function desenharPizza(canvas, fatias){
   if(!canvas || !canvas.getContext) return;
@@ -643,12 +793,15 @@ function desenharPizza(canvas, fatias){
   ctx.clearRect(0,0,W,H);
 
   var total = fatias.reduce(function(s,f){ return s + f.valor; }, 0);
+  canvas._pizza = { cx:cx, cy:cy, R:R, r:r, total:total, fatias:[] };
+
   if(!total || !fatias.length){
     ctx.beginPath();
     ctx.arc(cx,cy,R,0,Math.PI*2);
     ctx.arc(cx,cy,r,0,Math.PI*2,true);
     ctx.fillStyle = 'rgba(128,128,128,0.16)';
     ctx.fill();
+    ativarBalaoPizza(canvas);
     return;
   }
 
@@ -671,7 +824,42 @@ function desenharPizza(canvas, fatias){
     ctx.lineWidth = 2;
     ctx.strokeStyle = corDoCartao();
     ctx.stroke();
+    // A area sensivel e a fatia inteira, sem descontar a fresta: senao
+    // haveria faixas mortas entre uma fatia e a vizinha.
+    canvas._pizza.fatias.push({ a0: ini, a1: fim, nome: f.nome, valor: f.valor, cor: f.cor });
     ini = fim;
+  });
+
+  ativarBalaoPizza(canvas);
+}
+
+// Descobre a fatia sob o ponteiro. Vale para qualquer canvas que tenha
+// guardado `_pizza` — o da aba Gastos inclusive.
+function ativarBalaoPizza(canvas){
+  ligarBalao(canvas, function(x, y){
+    var p = canvas._pizza;
+    if(!p || !p.fatias.length) return null;
+    var rect = canvas.getBoundingClientRect();
+    // O canvas e desenhado no tamanho do atributo e esticado pelo CSS:
+    // sem converter, o acerto erra quanto menor for a tela.
+    var px = x * (canvas.width / rect.width) - p.cx;
+    var py = y * (canvas.height / rect.height) - p.cy;
+    var dist = Math.sqrt(px*px + py*py);
+    if(dist < p.r || dist > p.R) return null;
+
+    var ang = Math.atan2(py, px);
+    // As fatias comecam em -PI/2 e crescem; o atan2 volta a -PI depois de
+    // PI. Normalizar para a mesma faixa evita o buraco no lado esquerdo.
+    while(ang < -Math.PI/2) ang += Math.PI*2;
+    while(ang > -Math.PI/2 + Math.PI*2) ang -= Math.PI*2;
+
+    for(var i = 0; i < p.fatias.length; i++){
+      var f = p.fatias[i];
+      if(ang >= f.a0 && ang <= f.a1){
+        return { chave: 'f' + i, html: conteudoBalaoFatia(f, p.total) };
+      }
+    }
+    return null;
   });
 }
 
@@ -722,13 +910,21 @@ function fatiasPorCategoria(lista){
 
 // ─── Grafico dos dias da semana ─────────────────────────────────────────
 //
-// Colunas empilhadas ou linhas, a escolha do usuario. O canvas e medido na
-// hora porque a largura depende da tela; quando a secao esta escondida a
-// largura e 0 e nao ha o que desenhar — o proximo render, com ela visivel,
-// resolve.
+// Colunas empilhadas ou linhas, a escolha do usuario, com filtro por
+// categoria e balao de informacao no dia apontado.
+//
+// O desenho esta separado do resto (desenharSemana) porque passar o
+// ponteiro de um dia para o outro so precisa repintar o canvas: refazer os
+// filtros a cada movimento piscaria a tela e perderia o foco do teclado.
 
 var semanaModo = 'coluna';
+var semanaOcultas = {};        // chave da categoria -> escondida do grafico
+var _semanaDestaque = null;    // dia sob o ponteiro
+var _semanaCache = null;       // dados e medidas do ultimo desenho
+
 var DIAS_SEMANA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+var DIAS_SEMANA_LONGO = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira',
+                         'Quinta-feira','Sexta-feira','Sábado'];
 
 function setSemanaModo(modo){
   semanaModo = modo;
@@ -739,8 +935,9 @@ function setSemanaModo(modo){
   renderGraficoSemana();
 }
 
+// Todas as categorias que aparecem em algum gasto, escondidas ou nao.
 function dadosSemana(){
-  var series = {};   // categoriaId -> {nome, cor, dias:[7]}
+  var series = {};   // categoriaId -> {id, nome, cor, dias:[7]}
   (state.gastos||[]).forEach(function(g){
     if(!g.data) return;
     var d = new Date(g.data + 'T12:00:00');
@@ -748,7 +945,8 @@ function dadosSemana(){
     var k = g.categoriaId || '__none__';
     if(!series[k]){
       var cat = getCat(k);
-      series[k] = { nome: cat ? cat.nome : 'Sem categoria',
+      series[k] = { id: k,
+                    nome: cat ? cat.nome : 'Sem categoria',
                     cor: cat ? corDaCategoria(cat) : corParaTema(COR_OUTROS),
                     dias: [0,0,0,0,0,0,0] };
     }
@@ -762,52 +960,74 @@ function dadosSemana(){
     });
 }
 
+function toggleSemanaCategoria(id){
+  if(semanaOcultas[id]) delete semanaOcultas[id];
+  else semanaOcultas[id] = true;
+  renderGraficoSemana();
+}
+
+function mostrarTodasSemana(){
+  semanaOcultas = {};
+  renderGraficoSemana();
+}
+
+// A legenda E o filtro: uma lista so, em vez de repetir as categorias em
+// dois lugares. Clicar tira e devolve a categoria ao grafico.
+function renderFiltrosSemana(series){
+  var el = document.getElementById('semana-legenda');
+  if(!el) return;
+  if(!series.length){ el.innerHTML = ''; return; }
+
+  var escondidas = series.filter(function(s){ return semanaOcultas[s.id]; }).length;
+  el.innerHTML = '<span class="fin-filtros-rotulo">Mostrar:</span>'
+    + series.map(function(s){
+        var ativa = !semanaOcultas[s.id];
+        return '<button type="button" class="fin-filtro-chip' + (ativa ? '' : ' off') + '" '
+          + 'data-cat="' + esc(s.id) + '" aria-pressed="' + (ativa ? 'true' : 'false') + '">'
+          + '<span class="fin-legenda-dot" style="background:' + s.cor + '"></span>'
+          + esc(s.nome) + '</button>';
+      }).join('')
+    + (escondidas ? '<button type="button" class="fin-filtro-limpar" data-cat="__todas__">Mostrar todas</button>' : '');
+}
+
+document.addEventListener('click', function(e){
+  var chip = e.target.closest('#semana-legenda [data-cat]');
+  if(!chip) return;
+  if(chip.dataset.cat === '__todas__') mostrarTodasSemana();
+  else toggleSemanaCategoria(chip.dataset.cat);
+});
+
 function renderGraficoSemana(){
   var canvas = document.getElementById('grafico-semana');
   if(!canvas || !canvas.getContext) return;
   var caixa = canvas.parentNode;
   var largura = caixa ? caixa.clientWidth : 0;
-  var altura = 260;
   if(!largura) return;   // secao escondida: o proximo desenho pega a medida
 
-  var dpr = window.devicePixelRatio || 1;
-  canvas.style.width = '100%';
-  canvas.style.height = altura + 'px';
-  canvas.width = Math.round(largura * dpr);
-  canvas.height = Math.round(altura * dpr);
-  var ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, largura, altura);
+  _semanaDestaque = null;
+  balaoEsconder();
 
-  var series = dadosSemana();
-  var legenda = document.getElementById('semana-legenda');
-  if(legenda){
-    legenda.innerHTML = series.length ? series.map(function(s){
-      return '<div class="fin-legenda-item"><span class="fin-legenda-dot" style="background:'+s.cor+'"></span>'
-        + '<span class="fin-legenda-nome">' + esc(s.nome) + '</span></div>';
-    }).join('') : '';
-  }
+  var todas = dadosSemana();
+  renderFiltrosSemana(todas);
 
-  var estilo = getComputedStyle(document.documentElement);
-  var corTexto = (estilo.getPropertyValue('--text-3') || '').trim() || 'rgba(235,227,167,0.62)';
-  var corLinha = (estilo.getPropertyValue('--line') || '').trim() || 'rgba(235,227,167,0.10)';
+  var series = todas.filter(function(s){ return !semanaOcultas[s.id]; });
 
-  var padE = 58, padD = 12, padT = 14, padB = 28;
-  var larguraUtil = Math.max(10, largura - padE - padD);
-  var alturaUtil = Math.max(10, altura - padT - padB);
-  var passo = larguraUtil / 7;
-
-  if(!series.length){
-    ctx.fillStyle = corTexto;
-    ctx.font = '13px Poppins, system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Nenhum gasto registrado ainda.', largura/2, altura/2);
-    return;
-  }
+  _semanaCache = {
+    canvas: canvas,
+    largura: largura,
+    altura: 260,
+    todas: todas,
+    series: series,
+    padE: 58, padD: 12, padT: 14, padB: 28
+  };
+  _semanaCache.larguraUtil = Math.max(10, largura - _semanaCache.padE - _semanaCache.padD);
+  _semanaCache.alturaUtil  = Math.max(10, _semanaCache.altura - _semanaCache.padT - _semanaCache.padB);
+  _semanaCache.passo = _semanaCache.larguraUtil / 7;
 
   // Teto do eixo: a soma do dia mais caro (colunas empilhadas) ou o maior
   // valor de uma categoria num dia (linhas). Usar o teto errado espremeria
-  // o desenho contra o topo ou deixaria metade do quadro vazia.
+  // o desenho contra o topo ou deixaria metade do quadro vazia. Ele leva em
+  // conta so o que esta visivel, entao filtrar aproxima a escala dos dados.
   var maximo = 0;
   for(var d = 0; d < 7; d++){
     if(semanaModo === 'coluna'){
@@ -817,7 +1037,66 @@ function renderGraficoSemana(){
       series.forEach(function(se){ if(se.dias[d] > maximo) maximo = se.dias[d]; });
     }
   }
-  if(maximo <= 0) maximo = 1;
+  _semanaCache.maximo = maximo > 0 ? maximo : 1;
+  _semanaCache.vazio = !todas.length ? 'Nenhum gasto registrado ainda.'
+                     : (!series.length ? 'Nenhuma categoria selecionada.' : null);
+
+  desenharSemana();
+  ativarBalaoSemana(canvas);
+  canvas.setAttribute('aria-label', resumoSemanaTexto());
+}
+
+// Resumo em texto do que o grafico mostra, para leitor de tela.
+function resumoSemanaTexto(){
+  var c = _semanaCache;
+  if(!c || c.vazio) return c && c.vazio ? c.vazio : 'Gastos por dia da semana.';
+  var melhorDia = 0, melhorValor = -1;
+  for(var d = 0; d < 7; d++){
+    var soma = c.series.reduce(function(s,se){ return s + se.dias[d]; }, 0);
+    if(soma > melhorValor){ melhorValor = soma; melhorDia = d; }
+  }
+  return 'Gastos por dia da semana, ' + c.series.length + ' categoria'
+    + (c.series.length > 1 ? 's' : '') + ' selecionada' + (c.series.length > 1 ? 's' : '')
+    + '. Maior gasto em ' + DIAS_SEMANA_LONGO[melhorDia].toLowerCase() + ': ' + moeda(melhorValor) + '.';
+}
+
+function desenharSemana(){
+  var c = _semanaCache;
+  if(!c) return;
+  var canvas = c.canvas;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.style.width = '100%';
+  canvas.style.height = c.altura + 'px';
+  canvas.width = Math.round(c.largura * dpr);
+  canvas.height = Math.round(c.altura * dpr);
+  var ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, c.largura, c.altura);
+
+  var estilo = getComputedStyle(document.documentElement);
+  var corTexto = (estilo.getPropertyValue('--text-3') || '').trim() || 'rgba(235,227,167,0.62)';
+  var corLinha = (estilo.getPropertyValue('--line') || '').trim() || 'rgba(235,227,167,0.10)';
+  var corAcento = (estilo.getPropertyValue('--accent-soft') || '').trim() || 'rgba(235,125,0,0.15)';
+
+  var padE = c.padE, padT = c.padT;
+  var larguraUtil = c.larguraUtil, alturaUtil = c.alturaUtil, passo = c.passo;
+
+  if(c.vazio){
+    ctx.fillStyle = corTexto;
+    ctx.font = '13px Poppins, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(c.vazio, c.largura/2, c.altura/2);
+    return;
+  }
+
+  var series = c.series, maximo = c.maximo;
+
+  // Faixa do dia apontado, por baixo de tudo.
+  if(_semanaDestaque !== null){
+    ctx.fillStyle = corAcento;
+    ctx.fillRect(padE + passo*_semanaDestaque, padT, passo, alturaUtil);
+  }
 
   // Grade e rotulos do eixo vertical.
   ctx.font = '10px Poppins, system-ui, sans-serif';
@@ -839,9 +1118,10 @@ function renderGraficoSemana(){
   // Rotulos dos dias.
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.font = '11px Poppins, system-ui, sans-serif';
-  ctx.fillStyle = corTexto;
   for(var dd = 0; dd < 7; dd++){
+    var apontado = _semanaDestaque === dd;
+    ctx.font = (apontado ? '600 11px' : '11px') + ' Poppins, system-ui, sans-serif';
+    ctx.fillStyle = apontado ? ((estilo.getPropertyValue('--text') || '').trim() || '#EBE3A7') : corTexto;
     ctx.fillText(DIAS_SEMANA[dd], padE + passo*dd + passo/2, padT + alturaUtil + 8);
   }
 
@@ -877,11 +1157,56 @@ function renderGraficoSemana(){
         var cxp = padE + passo*dia3 + passo/2;
         var cyp = padT + alturaUtil - (se.dias[dia3] / maximo) * alturaUtil;
         ctx.beginPath();
-        ctx.arc(cxp, cyp, 3, 0, Math.PI*2);
+        ctx.arc(cxp, cyp, _semanaDestaque === dia3 ? 5 : 3, 0, Math.PI*2);
         ctx.fill();
       }
     });
   }
+}
+
+// O balao mostra o dia inteiro, nao so a fatia sob o ponteiro: com colunas
+// empilhadas as faixas finas sao impossiveis de acertar no dedo, e ver o
+// dia completo e mais util do que ver um valor solto.
+function conteudoBalaoDia(dia){
+  var c = _semanaCache;
+  var linhas = c.series.map(function(se){ return { nome: se.nome, cor: se.cor, valor: se.dias[dia] }; })
+    .filter(function(l){ return l.valor > 0; })
+    .sort(function(a,b){ return b.valor - a.valor; });
+  var total = linhas.reduce(function(s,l){ return s + l.valor; }, 0);
+
+  if(!linhas.length){
+    return '<div class="balao-topo"><strong>' + DIAS_SEMANA_LONGO[dia] + '</strong></div>'
+      + '<div class="balao-nota">Nenhum gasto neste dia.</div>';
+  }
+  return '<div class="balao-topo"><strong>' + DIAS_SEMANA_LONGO[dia] + '</strong></div>'
+    + '<div class="balao-valor">' + moeda(total) + '</div>'
+    + '<div class="balao-linhas">' + linhas.map(function(l){
+        return '<div class="balao-linha">'
+          + '<span class="balao-dot" style="background:' + l.cor + '"></span>'
+          + '<span class="balao-linha-nome">' + esc(l.nome) + '</span>'
+          + '<span class="balao-linha-valor">' + moeda(l.valor) + '</span>'
+        + '</div>';
+      }).join('') + '</div>';
+}
+
+function ativarBalaoSemana(canvas){
+  ligarBalao(canvas, function(x, y){
+    var c = _semanaCache;
+    if(!c || c.vazio) return null;
+    // As medidas do cache estao em pixels de CSS, e o canvas e esticado
+    // para 100% da caixa: converter mantem o acerto certo em qualquer tela.
+    var escala = c.largura / (canvas.getBoundingClientRect().width || c.largura);
+    var cx = x * escala, cy = y * escala;
+    if(cy < c.padT || cy > c.padT + c.alturaUtil) return null;
+    if(cx < c.padE || cx > c.padE + c.larguraUtil) return null;
+    var dia = Math.floor((cx - c.padE) / c.passo);
+    if(dia < 0 || dia > 6) return null;
+    return { chave: 'd' + dia, html: conteudoBalaoDia(dia) };
+  }, function(achado){
+    // Repinta so quando o dia muda — e o que mantem o movimento fluido.
+    _semanaDestaque = achado ? parseInt(achado.chave.slice(1), 10) : null;
+    desenharSemana();
+  });
 }
 
 // Redesenhar ao girar o celular ou redimensionar a janela: o canvas guarda
