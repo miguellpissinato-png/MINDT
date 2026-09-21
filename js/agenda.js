@@ -415,7 +415,7 @@ function renderParticipantesChips() {
 function salvarContato() {
   var nome = document.getElementById('contato-nome').value.trim();
   var email = document.getElementById('contato-email').value.trim();
-  if(!nome) { toast('⚠️ Informe o nome do contato.'); return; }
+  if(!nome) { toast('⚠️ Dê um nome ao contato.'); return; }
   if(!state.contatos) state.contatos = [];
   state.contatos.push({ id: uid(), nome: nome, email: email });
   saveState();
@@ -489,8 +489,8 @@ function openEditarEvento(ev) {
 function salvarEvento() {
   var nome = document.getElementById('evento-nome').value.trim();
   var data = document.getElementById('evento-data').value;
-  if(!nome){ toast('⚠️ Informe o nome do evento.'); return; }
-  if(!data){ toast('⚠️ Informe a data do evento.'); return; }
+  if(!nome){ toast('⚠️ Dê um nome ao evento.'); return; }
+  if(!data){ toast('⚠️ Escolha a data do evento.'); return; }
 
   if(!state.eventos) state.eventos=[];
   var editId=document.getElementById('evento-edit-id').value;
@@ -535,9 +535,12 @@ function salvarEvento() {
 }
 
 function deleteEvento(id) {
+  var ev = (state.eventos||[]).find(function(e){return e.id===id;});
   document.getElementById('confirm-icon').textContent='📅';
   document.getElementById('confirm-title').textContent='Excluir evento';
-  document.getElementById('confirm-body').textContent='Excluir este evento permanentemente?';
+  document.getElementById('confirm-body').textContent = ev && ev.nome
+    ? 'Excluir "'+ev.nome+'" de vez? Não dá para desfazer.'
+    : 'Excluir este evento de vez? Não dá para desfazer.';
   document.getElementById('confirm-ok-btn').textContent='Excluir';
   document.getElementById('confirm-ok-btn').onclick=function(){
     state.eventos=(state.eventos||[]).filter(function(e){return e.id!==id;});
@@ -584,15 +587,15 @@ function toggleSelecionarTodos() {
 
 function excluirEventosSelecionados() {
   var ids=getSelectedEventos();
-  if(!ids.length){toast('⚠️ Selecione ao menos um evento.');return;}
+  if(!ids.length){toast('⚠️ Marque ao menos um evento na lista.');return;}
   state.eventos=(state.eventos||[]).filter(function(e){return ids.indexOf(e.id)===-1;});
   saveState(); renderGerenciarLista(); renderCalendar(); renderUpcoming();
-  toast('🗑 '+ids.length+' evento(s) excluído(s)!');
+  toast('🗑 '+plural(ids.length,'evento excluído','eventos excluídos')+'!');
 }
 
 function editarProximoSelecionado() {
   var ids=getSelectedEventos();
-  if(!ids.length){toast('⚠️ Selecione ao menos um evento.');return;}
+  if(!ids.length){toast('⚠️ Marque ao menos um evento na lista.');return;}
   _editQueue=ids.slice(1);
   var ev=(state.eventos||[]).find(function(e){return e.id===ids[0];});
   closeModal('modal-gerenciar-eventos');

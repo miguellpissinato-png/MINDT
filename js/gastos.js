@@ -367,7 +367,12 @@ function renderGastos(){
   if(!listEl) return;
 
   if(!lista.length){
-    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto no período selecionado.</p></div>';
+    // O vazio tem duas causas bem diferentes, e a saida de cada uma tambem.
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💸</div><p>' +
+      ((state.gastos && state.gastos.length)
+        ? 'Nenhum gasto neste período. Seus outros lançamentos continuam aqui — troque o filtro acima.'
+        : 'Nenhum gasto lançado ainda. Comece em “+ Novo gasto”.') +
+      '</p></div>';
   } else {
     // Group by category
     var bycat = {};
@@ -428,7 +433,7 @@ function renderGastos(){
   var keys = Object.keys(byG);
   if(gBar) {
     if(!keys.length){
-      gBar.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Nenhum item com valor previsto.</div>';
+      gBar.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0">Nenhuma meta ou tarefa tem valor previsto. Preencha “Valor previsto” ao criar uma para ela aparecer aqui.</div>';
     } else {
       var maxV=Math.max.apply(null,keys.map(function(k){return byG[k];}));
       gBar.innerHTML=keys.map(function(g){
@@ -441,12 +446,12 @@ function renderGastos(){
   var ml = document.getElementById('gastos-metas-list');
   if(ml) {
     var mf = state.metas.filter(function(m){return m.budget;});
-    ml.innerHTML = mf.length ? mf.map(function(m){return gastoRow('🎯',m);}).join('') : '<div class="empty-state"><p>Nenhuma meta com valor.</p></div>';
+    ml.innerHTML = mf.length ? mf.map(function(m){return gastoRow('🎯',m);}).join('') : '<div class="empty-state"><p>Nenhuma meta tem valor previsto.</p></div>';
   }
   var tl = document.getElementById('gastos-tasks-list');
   if(tl) {
     var tf = state.tasks.filter(function(t){return t.budget;});
-    tl.innerHTML = tf.length ? tf.map(function(t){return gastoRow('✅',t);}).join('') : '<div class="empty-state"><p>Nenhuma tarefa com valor.</p></div>';
+    tl.innerHTML = tf.length ? tf.map(function(t){return gastoRow('✅',t);}).join('') : '<div class="empty-state"><p>Nenhuma tarefa tem valor previsto.</p></div>';
   }
 }
 
@@ -565,9 +570,9 @@ function saveGasto() {
   var data = document.getElementById('gasto-data').value;
   var editId = document.getElementById('gasto-edit-id').value;
 
-  if(!desc){ toast('⚠️ Informe uma descrição.'); return; }
-  if(!valor||valor<=0){ toast('⚠️ Informe um valor válido.'); return; }
-  if(!data){ toast('⚠️ Informe uma data.'); return; }
+  if(!desc){ toast('⚠️ Descreva o gasto — por exemplo, "mercado".'); return; }
+  if(!valor||valor<=0){ toast('⚠️ O valor precisa ser um número maior que zero.'); return; }
+  if(!data){ toast('⚠️ Escolha a data do gasto.'); return; }
 
   if(!state.gastos) state.gastos = [];
 
@@ -658,7 +663,7 @@ function closeCatBackToGasto() {
 function saveCategoria() {
   var nome = document.getElementById('cat-nome').value.trim();
   var cor = document.getElementById('cat-cor').value;
-  if(!nome){ toast('⚠️ Informe um nome.'); return; }
+  if(!nome){ toast('⚠️ Dê um nome à categoria.'); return; }
   if(!state.categorias) state.categorias = [];
   state.categorias.push({id:uid(),nome:nome,cor:cor});
   saveState();

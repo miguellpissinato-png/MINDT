@@ -108,7 +108,7 @@ async function lembrarAlternar(){
   chave.setAttribute('aria-busy', 'true');
   var ok = await definirLembrar(querLigar);
   chave.removeAttribute('aria-busy');
-  if(!ok){ toast('⚠️ Não consegui salvar. Tenta de novo?'); pintarLembrar(); return; }
+  if(!ok){ toast('⚠️ Não deu para mudar o "Lembrar de mim". Sua conta continua como estava.'); pintarLembrar(); return; }
   pintarLembrar();
   toast(querLigar
     ? '🔒 Você vai continuar conectado neste aparelho.'
@@ -184,17 +184,34 @@ function authSubmit(){
     });
   }
 }
+// O Supabase responde em ingles e em linguagem de servidor. Cada caso
+// conhecido vira uma frase que diz o que houve E o que fazer a seguir.
+//
+// O que nao for reconhecido NAO vai cru para a tela. Antes, qualquer erro
+// fora dos quatro casos abaixo aparecia em ingles para um usuario
+// brasileiro — "For security purposes, you can only request this after 47
+// seconds" —, que nao informa e ainda assusta. Agora o texto original vai
+// para o console, onde serve para investigar, e a pessoa le uma frase que
+// consegue usar.
 function authErr(m){
-  if(m.indexOf('Invalid login')!==-1)return T('errInvalid');
-  if(m.indexOf('Email not confirmed')!==-1)return T('errUnconfirmed');
-  if(m.indexOf('User already registered')!==-1)return T('errRegistered');
-  if(m.indexOf('Password should be')!==-1)return T('errShort');
-  return m;
+  var t = String(m || '');
+  if(t.indexOf('Invalid login')!==-1)          return T('errInvalid');
+  if(t.indexOf('Email not confirmed')!==-1)    return T('errUnconfirmed');
+  if(t.indexOf('User already registered')!==-1)return T('errRegistered');
+  if(t.indexOf('Password should be')!==-1)     return T('errShort');
+  var espera = t.match(/after (\d+) seconds?/i);
+  if(espera)                                   return T('errEspere').replace('{s}', espera[1]);
+  if(/rate limit|too many requests/i.test(t))  return T('errMuitas');
+  if(/invalid format|unable to validate email/i.test(t)) return T('errEmailRuim');
+  if(/failed to fetch|networkerror|network error/i.test(t)) return T('errSemRede');
+  console.warn('auth (texto original):', t);
+  return T('errOutro');
 }
 function confirmLogout(){
   document.getElementById('confirm-icon').textContent='👋';
   document.getElementById('confirm-title').textContent='Sair da conta';
-  document.getElementById('confirm-body').textContent='Tem certeza que deseja sair?';
+  document.getElementById('confirm-body').textContent=
+    'Seus dados ficam salvos na sua conta. Para voltar, você vai precisar do email e da senha.';
   document.getElementById('confirm-ok-btn').textContent='Sair';
   document.getElementById('confirm-ok-btn').onclick=function(){closeModal('modal-confirm');sb.auth.signOut();resetConfirmBtn();};
   openModal('modal-confirm');
@@ -337,7 +354,21 @@ function mostrarFalhaDeCarga(err){
   tela.style.display = 'flex';
   mostrarEtapaAuth('auth-falha');
   var det = document.getElementById('auth-falha-detalhe');
-  if (det) det.textContent = (err && err.message) ? err.message : '';
+  if (det) det.textContent = detalheDaFalha(err);
+}
+// Esta tela ja diz o que importa ("seus dados estao salvos"). O detalhe so
+// ajuda se disser algo que a pessoa possa usar. Um "TypeError: Failed to
+// fetch" nao diz — e era exatamente o que aparecia aqui. Quando nao da para
+// traduzir com honestidade, a linha fica vazia e o original vai ao console:
+// um palpite errado sobre a causa e pior que silencio.
+function detalheDaFalha(err){
+  var m = (err && err.message) ? String(err.message) : '';
+  if (!m) return '';
+  if (/failed to fetch|networkerror|network error/i.test(m)) return 'A conexão não completou.';
+  if (/timeout|timed out/i.test(m))                          return 'O servidor demorou demais para responder.';
+  if (/jwt|token|expired|session/i.test(m))                  return 'Sua sessão expirou.';
+  console.warn('carga (texto original):', m);
+  return '';
 }
 function tentarCarregarDeNovo(){
   var btn = document.getElementById('auth-falha-btn');
@@ -351,7 +382,7 @@ function tentarCarregarDeNovo(){
   }).catch(function(e){
     console.error('nova tentativa falhou:', e);
     var det = document.getElementById('auth-falha-detalhe');
-    if (det) det.textContent = (e && e.message) ? e.message : '';
+    if (det) det.textContent = detalheDaFalha(e);
   }).then(function(){
     if (btn) { btn.disabled = false; btn.textContent = T('tentarDeNovo'); }
   });

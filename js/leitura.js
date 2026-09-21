@@ -480,7 +480,7 @@ function openEditLivro(id) {
 function abrirFinalizarLivro(){
   var id = document.getElementById('livro-edit-id').value;
   var l = (state.livros||[]).find(function(x){ return x.id === id; });
-  if(!l){ toast('⚠️ Livro não encontrado.'); return; }
+  if(!l){ toast('⚠️ Esse livro não está mais na estante.'); return; }
   document.getElementById('finalizar-livro-titulo').textContent = '"' + (l.titulo || 'Este livro') + '"';
   // Fecha o de edicao e abre o de confirmacao. Os campos continuam
   // preenchidos: fechar o modal nao limpa o formulario, e e isso que deixa
@@ -509,9 +509,9 @@ function confirmarFinalizarLivro(){
 
 function saveLivro() {
   var titulo = document.getElementById('livro-titulo').value.trim();
-  if(!titulo) { toast('⚠️ Informe o título do livro.'); return; }
+  if(!titulo) { toast('⚠️ Dê o título do livro.'); return; }
   var paginas = parseInt(document.getElementById('livro-paginas').value) || 0;
-  if(!paginas) { toast('⚠️ Informe a quantidade de páginas.'); return; }
+  if(!paginas) { toast('⚠️ Diga quantas páginas o livro tem.'); return; }
 
   if(!state.livros) state.livros = [];
 
@@ -592,7 +592,7 @@ function saveLivro() {
 // ── REGISTRAR LEITURA ──
 function openModal_registrarLeitura() {
   var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
-  if(!active) { toast('⚠️ Nenhum livro em leitura ativa.'); return; }
+  if(!active) { toast('⚠️ Nenhum livro marcado como "lendo agora". Escolha um na estante.'); return; }
   document.getElementById('registrar-paginas').value = '';
   document.getElementById('registrar-preview').textContent = '';
   openModal('modal-registrar-leitura');
@@ -614,7 +614,7 @@ function registrarLeitura() {
   var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
   if(!active) return;
   var novas = parseInt(document.getElementById('registrar-paginas').value) || 0;
-  if(novas <= 0) { toast('⚠️ Informe quantas páginas você leu.'); return; }
+  if(novas <= 0) { toast('⚠️ Diga em que página você parou.'); return; }
 
   active.paginasLidas = Math.min(active.paginas, (active.paginasLidas||0) + novas);
   active.logLeitura = active.logLeitura || [];

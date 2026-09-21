@@ -95,7 +95,7 @@ async function lembreteLigar(){
   var salvou = await lembreteSalvar({ativo:true, hora:lembrete.hora});
   if(!salvou){
     if(caixa) caixa.removeAttribute('aria-busy');
-    toast('⚠️ Não consegui salvar. Tenta de novo?');
+    toast('⚠️ Não deu para ligar o lembrete agora. Tente de novo em instantes.');
     return;
   }
   lembrete.ativo = true;
@@ -109,7 +109,7 @@ async function lembreteLigar(){
 
 async function lembreteDesligar(){
   var salvou = await lembreteSalvar({ativo:false});
-  if(!salvou){ toast('⚠️ Não consegui salvar. Tenta de novo?'); return; }
+  if(!salvou){ toast('⚠️ Não deu para desligar o lembrete agora. Ele continua ligado.'); return; }
   lembrete.ativo = false;
   lembrete.temAparelho = false;
   await descadastrarAparelho();
@@ -139,7 +139,7 @@ async function lembreteTrocarCanal(qual){
 
   if(!(await lembreteSalvar({canal:qual}))){
     lembrete.canal = antes; pintarLembrete();
-    toast('⚠️ Não consegui salvar. Tenta de novo?');
+    toast('⚠️ Não deu para trocar o canal do lembrete. Ele segue como estava.');
     return;
   }
   if(qual === 'email'){
