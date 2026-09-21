@@ -14,7 +14,7 @@ function goToPage(name){
   if(name==='home')renderHome();
   else if(name==='metas')renderMetas();
   else if(name==='tarefas')renderTasks();
-  else if(name==='gastos')renderGastos();
+  else if(name==='gastos')renderFinancas();
   else if(name==='estudos')renderEstudos();
   else if(name==='notas')renderNotas();
   else if(name==='resumo')renderResumo();
