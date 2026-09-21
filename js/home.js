@@ -24,6 +24,10 @@ sb.auth.onAuthStateChange(function(event,session){
       if (typeof carregarLembrete === 'function') carregarLembrete();
       updateGroupSelects();updateGroupFilters();renderHome();
       if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
+      // Entradas recorrentes (salario e afins) que venceram enquanto o app
+      // estava fechado. Roda aqui, e nao so na pagina de dinheiro, para o
+      // saldo da Home ja nascer certo.
+      if (typeof atualizarRecorrentes === 'function') atualizarRecorrentes();
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
     }).catch(function(err){
       // Nao entrar no app com o estado vazio: o usuario acharia que perdeu

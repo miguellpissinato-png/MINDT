@@ -7,6 +7,34 @@ function getCat(id) {
   return state.categorias.find(function(c){return c.id===id;}) || null;
 }
 
+// ─── FORMAS DE PAGAMENTO ─────────────────────────────────
+//
+// Cada modalidade tem o proprio emoji, porque no meio de uma lista longa o
+// simbolo e lido antes da palavra. Os identificadores nunca mudam: sao eles
+// que ficam gravados em cada gasto.
+var PAGAMENTOS = [
+  { id:'pix',      nome:'Pix',      emoji:'\u26A1' },
+  { id:'debito',   nome:'D\u00E9bito',   emoji:'\uD83C\uDFE7' },
+  { id:'credito',  nome:'Cr\u00E9dito',  emoji:'\uD83D\uDCB3' },
+  { id:'boleto',   nome:'Boleto',   emoji:'\uD83E\uDDFE' },
+  { id:'dinheiro', nome:'Dinheiro', emoji:'\uD83D\uDCB5' }
+];
+
+function getPagamento(id){
+  if(!id) return null;
+  return PAGAMENTOS.find(function(p){ return p.id === id; }) || null;
+}
+
+// O topico que aparece em cima do gasto, dentro da abinha dele. Sem forma
+// de pagamento escolhida o lugar continua existindo mas fica vazio: no
+// celular a linha e uma grade, e uma celula que some desmonta o resto.
+function pagamentoTopoHTML(g){
+  var p = getPagamento(g && g.pagamento);
+  if(!p) return '<div class="gasto-pag-topo"></div>';
+  return '<div class="gasto-pag-topo"><span class="pag-badge" data-pag="' + p.id + '">'
+    + p.emoji + ' ' + esc(p.nome) + '</span></div>';
+}
+
 // ─── PIZZA CHART ─────────────────────────────────────────
 
 // Paleta categorica das categorias de gasto.
@@ -132,6 +160,10 @@ function renderPizzaChart(lista) {
   var cx = W/2, cy = H/2, R = 78, r = 50;
   ctx.clearRect(0,0,W,H);
   pizzaSlices = [];
+  // Geometria e fatias no formato que o balao compartilhado le. E o mesmo
+  // balao das pizzas da aba Geral, entao o comportamento no mouse e no dedo
+  // e um so em todo o app.
+  canvas._pizza = { cx:cx, cy:cy, R:R, r:r, total:0, fatias:[] };
 
   var bycat = {};
   lista.forEach(function(g){
@@ -150,6 +182,7 @@ function renderPizzaChart(lista) {
     ctx.fill();
     var leg = document.getElementById('pizza-legend');
     if(leg) leg.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center">Nenhum gasto ainda</div>';
+    if(typeof ativarBalaoPizza === 'function') ativarBalaoPizza(canvas);
     return;
   }
 
@@ -193,10 +226,16 @@ function renderPizzaChart(lista) {
       cor: cor, nome: nome, val: val,
       pct: ((val/total)*100).toFixed(1)
     });
+    // A area sensivel e a fatia inteira, sem descontar a fresta: senao
+    // haveria faixas mortas entre uma fatia e a vizinha.
+    canvas._pizza.fatias.push({ a0:startAngle, a1:endAngle, nome:nome, valor:val, cor:cor });
 
     legend.push({cor:cor, nome:nome, val:val, pct:((val/total)*100).toFixed(0)});
     startAngle = endAngle;
   });
+
+  canvas._pizza.total = total;
+  if(typeof ativarBalaoPizza === 'function') ativarBalaoPizza(canvas);
 
   var leg2 = document.getElementById('pizza-legend');
   if(leg2) {
@@ -212,58 +251,6 @@ function renderPizzaChart(lista) {
     }).join('');
   }
 }
-
-// Pizza tooltip
-document.addEventListener('DOMContentLoaded', function(){
-  var canvas = document.getElementById('pizza-chart');
-  if(!canvas) return;
-  var tooltip = document.createElement('div');
-  tooltip.id = 'pizza-tooltip';
-  tooltip.style.cssText = 'position:fixed;display:none;background:var(--surface-2);color:var(--text);border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:var(--shadow-lg)';
-  document.body.appendChild(tooltip);
-
-  canvas.addEventListener('mousemove', function(e){
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width / rect.width;
-    var scaleY = canvas.height / rect.height;
-    var x = (e.clientX - rect.left) * scaleX - canvas.width/2;
-    var y = (e.clientY - rect.top) * scaleY - canvas.height/2;
-    var dist = Math.sqrt(x*x + y*y);
-    var R = 78, r = 50;
-    if(dist >= r && dist <= R && pizzaSlices.length){
-      var angle = Math.atan2(y, x);
-      if(angle < -Math.PI/2) angle += Math.PI*2;
-      var hit = null;
-      for(var i=0;i<pizzaSlices.length;i++){
-        var s = pizzaSlices[i];
-        var sa = s.startAngle < -Math.PI/2 ? s.startAngle + Math.PI*2 : s.startAngle;
-        var ea = s.endAngle < -Math.PI/2 ? s.endAngle + Math.PI*2 : s.endAngle;
-        var a = angle < sa ? angle + Math.PI*2 : angle;
-        if(a >= sa && a <= ea){ hit = s; break; }
-      }
-      if(hit){
-        tooltip.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-          +'<div style="width:10px;height:10px;border-radius:50%;background:'+hit.cor+'"></div>'
-          +'<strong>'+esc(hit.nome)+'</strong></div>'
-          +'<div style="color:rgba(240,234,255,0.6)">'+hit.pct+'% do total</div>'
-          +'<div style="font-size:16px;font-weight:700;margin-top:4px">'+moeda(hit.val)+'</div>';
-        tooltip.style.display = 'block';
-        tooltip.style.left = (e.clientX + 14)+'px';
-        tooltip.style.top = (e.clientY - 20)+'px';
-        canvas.style.cursor = 'pointer';
-      } else {
-        tooltip.style.display = 'none';
-        canvas.style.cursor = 'default';
-      }
-    } else {
-      tooltip.style.display = 'none';
-      canvas.style.cursor = 'default';
-    }
-  });
-  canvas.addEventListener('mouseleave', function(){
-    tooltip.style.display = 'none';
-  });
-});
 
 // ─── GASTOS ──────────────────────────────────────────────
 var gastosFiltro = 'mes';
@@ -408,6 +395,7 @@ function renderGastos(){
         html += '<div class="gasto-item">'
           +'<div class="gasto-cat-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-item-info">'
+            +pagamentoTopoHTML(g)
             +'<div class="gasto-item-desc">'+esc(g.desc)+parcelaBadge+'</div>'
             +'<div class="gasto-item-meta">'+dataFmt+(g.juros?' • Juros '+g.juros+'%':'')+'</div>'
           +'</div>'
@@ -470,6 +458,30 @@ function switchGastosTab(tabId,btn){document.querySelectorAll('#page-gastos .tab
 // ─── ADICIONAR/EDITAR GASTO ──────────────────────────────
 var _installmentOn = false;
 var _jurosOn = false;
+var _pagamentoSel = '';   // forma de pagamento escolhida no modal
+
+// Os chips do modal. Sao botoes de verdade para funcionarem no teclado sem
+// depender do ajudante de acessibilidade.
+function renderPagamentoChips(){
+  var el = document.getElementById('gasto-pagamento');
+  if(!el) return;
+  el.innerHTML = PAGAMENTOS.map(function(p){
+    var ativo = p.id === _pagamentoSel;
+    return '<button type="button" class="pag-opcao' + (ativo ? ' active' : '') + '" '
+      + 'data-pag="' + p.id + '" aria-pressed="' + (ativo ? 'true' : 'false') + '" '
+      + 'onclick="setPagamento(\'' + p.id + '\')">'
+      + '<span class="pag-opcao-emoji">' + p.emoji + '</span>'
+      + '<span>' + esc(p.nome) + '</span>'
+      + '</button>';
+  }).join('');
+}
+
+// Clicar no chip ja marcado limpa a escolha: a forma de pagamento e
+// opcional, e sem isso nao haveria como voltar atras.
+function setPagamento(id){
+  _pagamentoSel = (_pagamentoSel === id) ? '' : id;
+  renderPagamentoChips();
+}
 
 function updateCategoriaSelect() {
   var sel = document.getElementById('gasto-categoria');
@@ -486,7 +498,7 @@ function openModal_addGasto() {
   document.getElementById('gasto-edit-id').value = '';
   document.getElementById('gasto-desc').value = '';
   document.getElementById('gasto-valor').value = '';
-  document.getElementById('gasto-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('gasto-data').value = (typeof dataLocalISO === 'function') ? dataLocalISO() : new Date().toISOString().slice(0,10);
   document.getElementById('gasto-parcelas').value = '2';
   document.getElementById('gasto-valor-parcela').value = '';
   document.getElementById('gasto-juros').value = '';
@@ -497,6 +509,8 @@ function openModal_addGasto() {
   document.getElementById('installment-wrap').style.display = 'none';
   document.getElementById('juros-wrap').style.display = 'none';
   document.getElementById('installment-preview').textContent = 'Preencha o valor e número de parcelas para visualizar.';
+  _pagamentoSel = '';
+  renderPagamentoChips();
   updateCategoriaSelect();
   openModal('modal-add-gasto');
 }
@@ -590,7 +604,7 @@ function saveGasto() {
       state.gastos.push({
         id:uid(), desc:desc, valor:valorParcela, categoriaId:catId,
         data:dStr, parcelas:n, parcelaAtual:i+1,
-        juros:taxa, jurosTipo:tipo,
+        juros:taxa, jurosTipo:tipo, pagamento:_pagamentoSel,
         createdAt:new Date().toISOString()
       });
     }
@@ -598,16 +612,18 @@ function saveGasto() {
   } else {
     if(editId) {
       var g = state.gastos.find(function(x){return x.id===editId;});
-      if(g){ g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; }
+      if(g){ g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; g.pagamento=_pagamentoSel; }
       toast('✏️ Gasto atualizado!');
     } else {
-      state.gastos.push({id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,createdAt:new Date().toISOString()});
+      state.gastos.push({id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,pagamento:_pagamentoSel,createdAt:new Date().toISOString()});
       toast('💸 Gasto registrado!');
     }
   }
   saveState();
   closeModal('modal-add-gasto');
-  renderGastos();
+  // O saldo e os graficos da aba Geral dependem dos gastos: redesenhar so a
+  // lista deixaria o total da pessoa desatualizado ate trocar de pagina.
+  if(typeof renderFinancas === 'function') renderFinancas(); else renderGastos();
 }
 
 function editGasto(id) {
@@ -624,6 +640,8 @@ function editGasto(id) {
   document.getElementById('juros-toggle-sw').className = 'toggle-switch';
   document.getElementById('installment-wrap').style.display = 'none';
   document.getElementById('juros-wrap').style.display = 'none';
+  _pagamentoSel = g.pagamento || '';
+  renderPagamentoChips();
   updateCategoriaSelect();
   document.getElementById('gasto-categoria').value = g.categoriaId||'';
   openModal('modal-add-gasto');
@@ -636,7 +654,9 @@ function deleteGasto(id) {
   document.getElementById('confirm-ok-btn').textContent = 'Excluir';
   document.getElementById('confirm-ok-btn').onclick = function(){
     state.gastos = (state.gastos||[]).filter(function(g){return g.id!==id;});
-    saveState(); closeModal('modal-confirm'); renderGastos(); toast('🗑 Gasto excluído!'); resetConfirmBtn();
+    saveState(); closeModal('modal-confirm');
+    if(typeof renderFinancas === 'function') renderFinancas(); else renderGastos();
+    toast('🗑 Gasto excluído!'); resetConfirmBtn();
   };
   openModal('modal-confirm');
 }
@@ -717,7 +737,7 @@ function deleteCategoria(id) {
   saveState();
   renderCategoriasList();
   updateCategoriaSelect();
-  renderGastos();
+  if(typeof renderFinancas === 'function') renderFinancas(); else renderGastos();
   toast('🗑 Categoria excluída!');
 }
 

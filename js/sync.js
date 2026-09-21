@@ -21,7 +21,7 @@
 //
 // Nada aqui apaga dado sem que exista uma marca de exclusao mais recente.
 
-var COLECOES = ['metas','tasks','notas','gastos','categorias','livros','eventos','contatos'];
+var COLECOES = ['metas','tasks','notas','gastos','categorias','livros','eventos','contatos','ganhos','instituicoes'];
 
 var revLocal = null;      // updated_at do servidor que conhecemos
 var sombra = null;        // ultimo estado sincronizado, para comparacao
@@ -111,6 +111,11 @@ function mesclar(local, servidor){
   var g = {};
   (local.grupos || []).concat(servidor.grupos || []).forEach(function(n){ g[n] = 1; });
   saida.grupos = Object.keys(g).filter(function(n){ return !lixo['grupo:' + n]; });
+
+  // Meses de entrada recorrente que o usuario apagou na mao. E uma marca de
+  // exclusao, igual ao _lixo: uniao das duas versoes, senao a entrada
+  // apagada num aparelho voltaria a ser gerada pelo outro.
+  saida.ganhosPulados = Object.assign({}, servidor.ganhosPulados || {}, local.ganhosPulados || {});
 
   // perfil: o mais recente
   var pa = local.perfil || {}, pb = servidor.perfil || {};
