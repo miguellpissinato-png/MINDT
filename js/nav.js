@@ -7,10 +7,16 @@ document.querySelectorAll('.nav-item').forEach(function(el){
     document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===page);});
   });
 });
+// Ligada so durante a pintura que vem de uma navegacao. E o que distingue
+// "a lista chegou" de "a pessoa mexeu na lista" — ver marcarEntradaDaGrade().
+var chegandoNaPagina = false;
+
 function goToPage(name){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===name);});
+  chegandoNaPagina = true;
+  try {
   if(name==='home')renderHome();
   else if(name==='metas')renderMetas();
   else if(name==='tarefas')renderTasks();
@@ -22,6 +28,7 @@ function goToPage(name){
   else if(name==='exercicios')renderExercicios();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
+  } finally { chegandoNaPagina = false; }
   // Os numeros que ocupam um cartao inteiro so podem ser medidos depois de
   // pintados e com a pagina visivel. Este e o unico funil por onde toda
   // pagina passa, entao o ajuste mora aqui e nao em cada render.

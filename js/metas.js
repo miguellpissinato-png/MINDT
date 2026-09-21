@@ -21,6 +21,7 @@ function renderMetas(filter,groupFilter){
       '</p></div>';
     return;
   }
+  marcarEntradaDaGrade(grid);
   grid.innerHTML=list.map(function(m){
     var pct=calcProgress(m);
     var inlineChecklist='';

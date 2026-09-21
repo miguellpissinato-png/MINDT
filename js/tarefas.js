@@ -14,6 +14,7 @@ function renderTasks(filter){
       '<button class="btn btn-primary btn-sm" onclick="openModal(\'modal-add-task\')">+ ' + T('novaTarefa') + '</button>');
     return;
   }
+  marcarEntradaDaGrade(grid);
   grid.innerHTML=list.map(function(t){
     var chkSvg='<svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>';
     var inlineChecklist='';
