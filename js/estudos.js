@@ -415,7 +415,9 @@ function applyCustomTimer() {
   var mins = parseInt(document.getElementById('custom-minutes').value) || 0;
   var secs = parseInt(document.getElementById('custom-seconds').value) || 0;
   var total = mins * 60 + secs;
-  if (total < 1) { toast('⚠️ Defina um tempo válido.'); return; }
+  // O limite e 1 SEGUNDO, nao 1 minuto — os dois campos somam. Prometer
+  // "pelo menos 1 minuto" faria a mensagem mentir sobre a propria regra.
+  if (total < 1) { toast('⚠️ Preencha os minutos ou os segundos do timer.'); return; }
   timerTotal = total;
   timerRemaining = total;
   document.querySelectorAll('.timer-preset-btn').forEach(function(b) { b.classList.remove('active'); });

@@ -17,14 +17,24 @@ function showSelBar(type,isEdit){
 }
 function confirmSel(type,isEdit){
   if(isEdit){
-    if(deleteMode.selected.length!==1){toast('⚠️ Selecione exatamente 1 item.');return;}
+    if(deleteMode.selected.length!==1){toast('⚠️ Para editar, deixe apenas um item marcado.');return;}
     var id=deleteMode.selected[0];cancelSel(type);
     if(type==='metas'){var m=state.metas.find(function(x){return x.id===id;});if(m){populateMetaForm(m);openModal('modal-add-meta');}}
     else{var t=state.tasks.find(function(x){return x.id===id;});if(t){populateTaskForm(t);openModal('modal-add-task');}}
     return;
   }
-  if(!deleteMode.selected.length){toast('⚠️ Selecione ao menos um item.');return;}
-  document.getElementById('confirm-icon').textContent='🗑';document.getElementById('confirm-title').textContent='Excluir itens';document.getElementById('confirm-body').textContent='Excluir '+deleteMode.selected.length+' item(s)?';document.getElementById('confirm-ok-btn').textContent='Excluir';
+  if(!deleteMode.selected.length){toast('⚠️ Marque ao menos um item na lista.');return;}
+  // A confirmacao dizia so "Excluir 3 item(s)?" — nao dizia de QUE lista,
+  // e a caixa cobre a tela que daria essa pista.
+  var quantos = deleteMode.selected.length;
+  var oQue = type==='metas' ? plural(quantos,'meta','metas')
+           : type==='tasks' ? plural(quantos,'tarefa','tarefas')
+           :                  plural(quantos,'nota','notas');
+  document.getElementById('confirm-icon').textContent='🗑';
+  document.getElementById('confirm-title').textContent='Excluir '+oQue;
+  document.getElementById('confirm-body').textContent=
+    'Isto apaga '+oQue+' de vez. Não dá para desfazer.';
+  document.getElementById('confirm-ok-btn').textContent='Excluir';
   document.getElementById('confirm-ok-btn').onclick=function(){
     var sel=deleteMode.selected.slice();
     if(type==='metas')state.metas=state.metas.filter(function(m){return sel.indexOf(m.id)===-1;});
@@ -207,9 +217,17 @@ function completeDetail(){
   currentDetailType==='meta'?renderMetas():renderTasks();renderHome();
 }
 function requestDeleteDetail(){
+  // "Excluir permanentemente?" nao dizia O QUE seria excluido, e a caixa de
+  // confirmacao cobre justamente a tela que mostrava o nome.
+  var alvo = currentDetailType==='meta'
+    ? state.metas.find(function(m){return m.id===currentDetailId;})
+    : state.tasks.find(function(t){return t.id===currentDetailId;});
+  var tipo = currentDetailType==='meta' ? 'meta' : 'tarefa';
   document.getElementById('confirm-icon').textContent='🗑';
-  document.getElementById('confirm-title').textContent='Excluir item';
-  document.getElementById('confirm-body').textContent='Excluir permanentemente?';
+  document.getElementById('confirm-title').textContent='Excluir '+tipo;
+  document.getElementById('confirm-body').textContent = alvo && alvo.name
+    ? 'Excluir "'+alvo.name+'" de vez? Não dá para desfazer.'
+    : 'Excluir esta '+tipo+' de vez? Não dá para desfazer.';
   document.getElementById('confirm-ok-btn').textContent='Excluir';
   document.getElementById('confirm-ok-btn').onclick=function(){
     if(currentDetailType==='meta')state.metas=state.metas.filter(function(m){return m.id!==currentDetailId;});
@@ -320,6 +338,14 @@ function moeda(v){
   var opts = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
   return en ? '$' + n.toLocaleString('en-US', opts)
             : 'R$ ' + n.toLocaleString('pt-BR', opts);
+}
+
+// ── PLURAL ─────────────────────────────────────────────────────────────
+// "3 item(s)" e o jeito de quem nao quis escolher, e aparece justamente na
+// hora mais tensa do app: a confirmacao de exclusao. Uma frase com
+// parenteses no meio le-se pior e ainda passa a sensacao de rascunho.
+function plural(n, um, muitos){
+  return n + ' ' + (n === 1 ? um : muitos);
 }
 
 // ── NUMEROS GRANDES ────────────────────────────────────────────────────

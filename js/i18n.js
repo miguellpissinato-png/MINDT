@@ -58,6 +58,19 @@ var TEXTOS = {
   errUnconfirmed:{pt:'Confirme seu email primeiro.',en:'Confirm your email first.'},
   errRegistered:{pt:'Email já cadastrado. Faça login.',en:'Email already registered. Sign in instead.'},
   errShort:{pt:'Senha muito curta (mín. 6 caracteres).',en:'Password too short (min. 6 characters).'},
+  // Os casos que o Supabase devolve em ingles e que a pessoa consegue
+  // resolver sozinha. Cada um diz o que houve E o proximo passo.
+  errMuitas:{pt:'Tentativas demais em pouco tempo. Espere um minuto e tente outra vez.',
+             en:'Too many attempts in a short time. Wait a minute and try again.'},
+  errEspere:{pt:'Aguarde {s} segundos antes de tentar de novo.',
+             en:'Wait {s} seconds before trying again.'},
+  errEmailRuim:{pt:'Esse email não parece completo. Confira o que vem antes e depois do @.',
+                en:"That email doesn't look complete. Check what comes before and after the @."},
+  errSemRede:{pt:'Não deu para falar com o servidor. Confira sua internet e tente de novo.',
+              en:"Couldn't reach the server. Check your connection and try again."},
+  // Ultimo recurso: o texto original vai para o console, nunca para a tela.
+  errOutro:{pt:'Não deu para continuar agora. Tente de novo em instantes.',
+            en:"Couldn't continue right now. Try again in a moment."},
   subLogin:{pt:'Organize sua vida',en:'Organize your life'},
   subSignup:{pt:'Crie sua conta gratuita',en:'Create your free account'},
   btnLogin:{pt:'Entrar',en:'Sign in'},
@@ -156,7 +169,11 @@ var DIC = {"Lembrar de mim":"Remember me",
 "Janeiro":"January","Fevereiro":"February","Março":"March","Abril":"April","Maio":"May","Junho":"June",
 "Julho":"July","Agosto":"August","Setembro":"September","Outubro":"October","Novembro":"November","Dezembro":"December",
 "Janeiro 2026":"January 2026",
-"+ Adicionar":"+ Add","+ Adicionar gasto":"+ Add expense","+ Criar nota":"+ New note","+ Novo grupo":"+ New group",
+"+ Nova meta":"+ New goal","+ Nova tarefa":"+ New task","+ Novo gasto":"+ New expense",
+"+ Nova nota":"+ New note","+ Novo grupo":"+ New group",
+// Rotulos antigos, mantidos para quem tiver o data-pt gravado de uma
+// versao anterior na mesma aba.
+"+ Adicionar":"+ Add","+ Adicionar gasto":"+ Add expense","+ Criar nota":"+ New note",
 "+ Criar evento neste dia":"+ New event this day",
 "✓ Concluir":"✓ Complete","✎ Customizar":"✎ Customize","✏️ Editar":"✏️ Edit","✏️ Editar nome":"✏️ Edit name",
 "✏️ Editar selecionados":"✏️ Edit selected","🗑 Excluir":"🗑 Delete","🗑 Excluir selecionados":"🗑 Delete selected",

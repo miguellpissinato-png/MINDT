@@ -456,8 +456,9 @@ function excluirInstituicao(id){
   document.getElementById('confirm-icon').textContent = '🏦';
   document.getElementById('confirm-title').textContent = 'Excluir ' + inst.nome;
   document.getElementById('confirm-body').textContent = quantas
-    ? 'Isso apaga também as ' + quantas + ' entradas lançadas nela. Não dá para desfazer.'
-    : 'Excluir esta instituição?';
+    ? 'Isto apaga também ' + (quantas === 1 ? 'a entrada lançada nela'
+                                             : 'as ' + quantas + ' entradas lançadas nela') + '. Não dá para desfazer.'
+    : 'Excluir esta instituição de vez? Não dá para desfazer.';
   document.getElementById('confirm-ok-btn').textContent = 'Excluir';
   document.getElementById('confirm-ok-btn').onclick = function(){
     // As entradas geradas por recorrencia tambem somem, e o registro de
@@ -554,9 +555,9 @@ function salvarGanho(){
   var data = document.getElementById('ganho-data').value;
   var instId = document.getElementById('ganho-instituicao').value;
 
-  if(!valor || valor <= 0){ toast('⚠️ Informe um valor válido.'); return; }
-  if(!fonte){ toast('⚠️ Informe de onde veio essa entrada.'); return; }
-  if(!data){ toast('⚠️ Informe a data.'); return; }
+  if(!valor || valor <= 0){ toast('⚠️ O valor precisa ser um número maior que zero.'); return; }
+  if(!fonte){ toast('⚠️ Diga de onde veio essa entrada — por exemplo, "salário".'); return; }
+  if(!data){ toast('⚠️ Escolha a data da entrada.'); return; }
   if(!instId || !instituicaoPorId(instId)){ toast('⚠️ Escolha uma instituição.'); return; }
 
   var dia = parseInt(document.getElementById('ganho-rec-dia').value, 10);
@@ -601,7 +602,7 @@ function excluirGanho(id){
   document.getElementById('confirm-title').textContent = 'Excluir entrada';
   document.getElementById('confirm-body').textContent = g.recorrente
     ? 'Esta é a entrada que se repete todo mês. Excluir para de gerar as próximas — as já lançadas continuam.'
-    : 'Excluir esta entrada permanentemente?';
+    : 'Excluir esta entrada de vez? Não dá para desfazer.';
   document.getElementById('confirm-ok-btn').textContent = 'Excluir';
   document.getElementById('confirm-ok-btn').onclick = function(){
     // Uma copia gerada pela recorrencia voltaria no proximo desenho se

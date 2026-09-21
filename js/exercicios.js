@@ -141,7 +141,7 @@ function exFinalizarTreino(){
   var e=garantirExercicios();
   if(!exEmAndamento()) return;
   var dur=exDecorrido(), modId=e.cronometro.modId||e.ativa;
-  if(dur<10){ toast('Treino muito curto para registrar.'); return; }
+  if(dur<10){ toast('⚠️ Treino curto demais para registrar. O mínimo são 10 segundos.'); return; }
   e.treinos.unshift({id:'t'+Date.now(), data:hojeStr(), modId:modId, dur:dur});
   e.ultimo={dur:dur, modId:modId};
   e.cronometro=null; exDesligarRelogio();
@@ -454,7 +454,7 @@ function exToggleGrupo(dia,grupo){
   var i=cur.indexOf(grupo);
   if(i>=0) cur.splice(i,1);
   else if(cur.length<2) cur.push(grupo);
-  else { toast('Máximo de dois grupos por dia.'); return; }
+  else { toast('⚠️ Cada dia aceita no máximo dois grupos musculares.'); return; }
   exPintarRotinaEdit();
 }
 function exSalvarRotina(){
@@ -491,7 +491,7 @@ function exPintarCorridas(){
 
   var el=document.getElementById('ex-corridas');
   if(!lista.length){
-    el.innerHTML='<div class="empty-inline">Nenhuma corrida registrada ainda.</div>';
+    el.innerHTML='<div class="empty-inline">Nenhuma corrida registrada ainda. Use “Registrar corrida” depois de correr.</div>';
     return;
   }
   el.innerHTML=lista.slice(0,6).map(function(c){
@@ -541,7 +541,7 @@ function exSalvarCorrida(){
   var e=garantirExercicios(), mod=exAtiva();
   var dist=parseFloat(String(document.getElementById('ex-corrida-dist').value).replace(',','.'));
   var tempo=document.getElementById('ex-corrida-tempo').value.trim();
-  if(isNaN(dist)||dist<=0){ toast('Coloque a distância primeiro.'); return; }
+  if(isNaN(dist)||dist<=0){ toast('⚠️ Informe a distância em km antes de salvar a corrida.'); return; }
   var recorde=exCorridasDaMod().reduce(function(m,c){return Math.max(m,c.dist);},0);
   var bateu = dist>recorde;
   e.corridas.unshift({id:'c'+Date.now(), data:hojeStr(), modId:mod.id, dist:dist, tempo:tempo});
@@ -617,7 +617,7 @@ function exPintarCircuito(){
   var mod=exAtiva(), lista=exCircuitoDe(mod.id);
   var el=document.getElementById('ex-circuito');
   if(!lista.length){
-    el.innerHTML='<div class="empty-inline">Circuito vazio. Adicione o primeiro exercício.</div>';
+    el.innerHTML='<div class="empty-inline">Circuito vazio. Monte a sequência de exercícios que você repete neste treino.</div>';
     return;
   }
   el.innerHTML=lista.map(function(x,i){
@@ -637,7 +637,7 @@ function exSalvarExercicio(){
   var nome=document.getElementById('ex-circ-nome').value.trim();
   var series=parseInt(document.getElementById('ex-circ-series').value,10);
   var reps=parseInt(document.getElementById('ex-circ-reps').value,10);
-  if(!nome){ toast('Dê um nome ao exercício.'); return; }
+  if(!nome){ toast('⚠️ Dê um nome ao exercício.'); return; }
   lista.push({nome:nome, series:series>0?series:3, reps:reps>0?reps:12});
   saveState(); closeModal('modal-ex-circuito'); renderExercicios();
 }
@@ -665,7 +665,7 @@ function exEscolherTipo(t){ exNovoTipo=t; exPintarTipos(); }
 function exCriarModalidade(){
   var e=garantirExercicios();
   var nome=document.getElementById('ex-nova-nome').value.trim();
-  if(!nome){ toast('Dê um nome à modalidade.'); return; }
+  if(!nome){ toast('⚠️ Dê um nome à modalidade.'); return; }
   var id='m'+Date.now();
   e.modalidades.push({id:id, nome:nome, tipo:exNovoTipo});
   e.ativa=id;
@@ -677,11 +677,11 @@ function exCriarModalidade(){
 // dias treinados, e some-los na surdina seria perder historico do usuario.
 function exApagarModalidade(){
   var e=garantirExercicios(), mod=exAtiva();
-  if(e.modalidades.length<=1){ toast('Deixe ao menos uma modalidade.'); return; }
-  document.getElementById('confirm-title').textContent='Apagar modalidade';
+  if(e.modalidades.length<=1){ toast('⚠️ Esta é sua última modalidade. Crie outra antes de excluir esta.'); return; }
+  document.getElementById('confirm-title').textContent='Excluir modalidade';
   document.getElementById('confirm-body').textContent=
-    'Apagar "'+mod.nome+'"? Os treinos já registrados continuam contando nos dias treinados.';
-  document.getElementById('confirm-ok-btn').textContent='Apagar';
+    'Excluir "'+mod.nome+'"? Os treinos já registrados continuam contando nos dias treinados.';
+  document.getElementById('confirm-ok-btn').textContent='Excluir';
   document.getElementById('confirm-ok-btn').onclick=function(){
     e.modalidades=e.modalidades.filter(function(m){return m.id!==mod.id;});
     e.ativa=e.modalidades[0].id;

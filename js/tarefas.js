@@ -56,7 +56,7 @@ function handleCardClick(type,id,event){
 }
 
 function saveTask(){
-  var name=document.getElementById('task-name').value.trim();if(!name){toast('⚠️ Informe um nome.');return;}
+  var name=document.getElementById('task-name').value.trim();if(!name){toast('⚠️ Dê um nome à tarefa.');return;}
   var imgEl=document.getElementById('task-preview-img'),imgDiv=document.getElementById('task-img-preview');
   var img=(imgEl.src&&imgDiv.style.display!=='none')?imgEl.src:null;
   if(currentDetailId&&currentDetailType==='task'){

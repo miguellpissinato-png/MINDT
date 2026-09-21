@@ -206,7 +206,7 @@ function planoConfirmar(qual){
 }
 
 async function assinarPlano(qual){
-  if(!currentUser){ toast('⚠️ Entre na sua conta primeiro.'); return; }
+  if(!currentUser){ toast('⚠️ Entre na sua conta para assinar.'); return; }
   var botao = document.getElementById('assinar-ok');
   botao.disabled = true;
   botao.textContent = 'Abrindo o pagamento…';
@@ -229,7 +229,7 @@ async function assinarPlano(qual){
     console.error('assinarPlano:', e);
     botao.disabled = false;
     botao.textContent = 'Ir para o pagamento';
-    toast('⚠️ Não consegui abrir o pagamento. Tenta de novo em instantes?');
+    toast('⚠️ A tela de pagamento não abriu. Nada foi cobrado. Tente de novo em instantes.');
   }
 }
 

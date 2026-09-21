@@ -10,7 +10,17 @@ function renderMetas(filter,groupFilter){
   if(filter==='recent')list.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
   if(filter==='old')list.sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);});
   if(groupFilter)list=list.filter(function(m){return m.group===groupFilter;});
-  if(list.length===0){grid.innerHTML='<div class="empty-state"><div class="empty-icon">🎯</div><p>Nenhuma meta ainda.</p></div>';return;}
+  // Um estado vazio que nao distingue "voce ainda nao criou nada" de "o
+  // filtro nao achou nada" faz a pessoa achar que perdeu as metas.
+  if(list.length===0){
+    var semNenhuma = !state.metas.length;
+    grid.innerHTML='<div class="empty-state"><div class="empty-icon">🎯</div><p>'+
+      (semNenhuma
+        ? 'Nenhuma meta ainda. Crie a primeira em “+ Nova meta”.'
+        : 'Nenhuma meta neste filtro. Suas outras metas continuam aqui — é só trocar o filtro.')+
+      '</p></div>';
+    return;
+  }
   grid.innerHTML=list.map(function(m){
     var pct=calcProgress(m);
     var inlineChecklist='';
@@ -45,7 +55,7 @@ function renderMetas(filter,groupFilter){
 function filterMetas(type,el){document.querySelectorAll('#metas-filter-row .filter-chip').forEach(function(c){c.classList.remove('active');});if(el)el.classList.add('active');renderMetas(type);}
 
 function saveMeta(){
-  var name=document.getElementById('meta-name').value.trim();if(!name){toast('⚠️ Informe um nome.');return;}
+  var name=document.getElementById('meta-name').value.trim();if(!name){toast('⚠️ Dê um nome à meta.');return;}
   var checklist=Array.from(document.getElementById('meta-checklist').querySelectorAll('.checklist-item')).map(function(li){return{text:li.querySelector('label').textContent,done:li.querySelector('input').checked};});
   var imgEl=document.getElementById('meta-preview-img'),imgDiv=document.getElementById('meta-img-preview');
   var img=(imgEl.src&&imgDiv.style.display!=='none')?imgEl.src:null;
