@@ -142,6 +142,10 @@ function renderPizzaChart(lista) {
   var cx = W/2, cy = H/2, R = 78, r = 50;
   ctx.clearRect(0,0,W,H);
   pizzaSlices = [];
+  // Geometria e fatias no formato que o balao compartilhado le. E o mesmo
+  // balao das pizzas da aba Geral, entao o comportamento no mouse e no dedo
+  // e um so em todo o app.
+  canvas._pizza = { cx:cx, cy:cy, R:R, r:r, total:0, fatias:[] };
 
   var bycat = {};
   lista.forEach(function(g){
@@ -160,6 +164,7 @@ function renderPizzaChart(lista) {
     ctx.fill();
     var leg = document.getElementById('pizza-legend');
     if(leg) leg.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center">Nenhum gasto ainda</div>';
+    if(typeof ativarBalaoPizza === 'function') ativarBalaoPizza(canvas);
     return;
   }
 
@@ -203,10 +208,16 @@ function renderPizzaChart(lista) {
       cor: cor, nome: nome, val: val,
       pct: ((val/total)*100).toFixed(1)
     });
+    // A area sensivel e a fatia inteira, sem descontar a fresta: senao
+    // haveria faixas mortas entre uma fatia e a vizinha.
+    canvas._pizza.fatias.push({ a0:startAngle, a1:endAngle, nome:nome, valor:val, cor:cor });
 
     legend.push({cor:cor, nome:nome, val:val, pct:((val/total)*100).toFixed(0)});
     startAngle = endAngle;
   });
+
+  canvas._pizza.total = total;
+  if(typeof ativarBalaoPizza === 'function') ativarBalaoPizza(canvas);
 
   var leg2 = document.getElementById('pizza-legend');
   if(leg2) {
@@ -221,58 +232,6 @@ function renderPizzaChart(lista) {
     }).join('');
   }
 }
-
-// Pizza tooltip
-document.addEventListener('DOMContentLoaded', function(){
-  var canvas = document.getElementById('pizza-chart');
-  if(!canvas) return;
-  var tooltip = document.createElement('div');
-  tooltip.id = 'pizza-tooltip';
-  tooltip.style.cssText = 'position:fixed;display:none;background:var(--surface-2);color:var(--text);border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px 14px;font-size:12px;pointer-events:none;z-index:800;min-width:140px;box-shadow:var(--shadow-lg)';
-  document.body.appendChild(tooltip);
-
-  canvas.addEventListener('mousemove', function(e){
-    var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width / rect.width;
-    var scaleY = canvas.height / rect.height;
-    var x = (e.clientX - rect.left) * scaleX - canvas.width/2;
-    var y = (e.clientY - rect.top) * scaleY - canvas.height/2;
-    var dist = Math.sqrt(x*x + y*y);
-    var R = 78, r = 50;
-    if(dist >= r && dist <= R && pizzaSlices.length){
-      var angle = Math.atan2(y, x);
-      if(angle < -Math.PI/2) angle += Math.PI*2;
-      var hit = null;
-      for(var i=0;i<pizzaSlices.length;i++){
-        var s = pizzaSlices[i];
-        var sa = s.startAngle < -Math.PI/2 ? s.startAngle + Math.PI*2 : s.startAngle;
-        var ea = s.endAngle < -Math.PI/2 ? s.endAngle + Math.PI*2 : s.endAngle;
-        var a = angle < sa ? angle + Math.PI*2 : angle;
-        if(a >= sa && a <= ea){ hit = s; break; }
-      }
-      if(hit){
-        tooltip.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
-          +'<div style="width:10px;height:10px;border-radius:50%;background:'+hit.cor+'"></div>'
-          +'<strong>'+esc(hit.nome)+'</strong></div>'
-          +'<div style="color:rgba(240,234,255,0.6)">'+hit.pct+'% do total</div>'
-          +'<div style="font-size:16px;font-weight:700;margin-top:4px">'+moeda(hit.val)+'</div>';
-        tooltip.style.display = 'block';
-        tooltip.style.left = (e.clientX + 14)+'px';
-        tooltip.style.top = (e.clientY - 20)+'px';
-        canvas.style.cursor = 'pointer';
-      } else {
-        tooltip.style.display = 'none';
-        canvas.style.cursor = 'default';
-      }
-    } else {
-      tooltip.style.display = 'none';
-      canvas.style.cursor = 'default';
-    }
-  });
-  canvas.addEventListener('mouseleave', function(){
-    tooltip.style.display = 'none';
-  });
-});
 
 // ─── GASTOS ──────────────────────────────────────────────
 var gastosFiltro = 'mes';

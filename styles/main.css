@@ -3429,6 +3429,10 @@ input[type="checkbox"]{accent-color:var(--accent)}
 /* ── Gráfico dos dias da semana ───────────────────────────────────────── */
 .fin-semana-topo{display:flex;align-items:center;justify-content:space-between;gap:14px;
   flex-wrap:wrap;margin-bottom:18px}
+/* No celular há uma regra geral que estica `.abas` para preencher a linha
+   (ela existe para o seletor de período do Resumo). Aqui o par Coluna/Linha
+   ficaria do tamanho do gráfico e pesaria mais que o próprio título. */
+.fin-semana-topo .abas,.fin-semana-topo .aba{flex:0 0 auto}
 .fin-semana-caixa{width:100%}
 .fin-semana-caixa canvas{display:block;width:100%}
 
@@ -3460,4 +3464,59 @@ input[type="checkbox"]{accent-color:var(--accent)}
       "ponto meta valor";
   }
   .gasto-pag-topo{grid-area:pag}
+}
+
+/* ── Balão de informação dos gráficos ─────────────────────────────────
+   Um só para todos: pizza de gastos, pizzas da aba Geral, dashboard de
+   ganhos e o gráfico de dias da semana. Fica fora do fluxo e nunca
+   intercepta o ponteiro — senão ele fugiria do próprio cursor. */
+.grafico-balao{
+  position:fixed;z-index:900;display:none;pointer-events:none;
+  min-width:150px;max-width:260px;padding:11px 14px;
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  border-radius:var(--radius);box-shadow:var(--shadow-lg);
+  color:var(--text);font-family:'Poppins',system-ui,sans-serif;font-size:12px;
+}
+.balao-topo{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:4px}
+.balao-topo strong{font-weight:600;letter-spacing:-0.01em}
+.balao-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.balao-valor{font-size:17px;font-weight:600;letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums}
+.balao-nota{font-size:11px;color:var(--text-3);margin-top:2px}
+.balao-linhas{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.balao-linha{display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px}
+.balao-linha-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:var(--text-2)}
+.balao-linha-valor{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* O gráfico de semana reage ao ponteiro: o cursor vira mão sobre os dias. */
+.fin-semana-caixa canvas{touch-action:pan-y}
+
+/* ── Filtros do gráfico de dias da semana ─────────────────────────────
+   A legenda é o filtro: uma lista só, em vez de repetir as categorias em
+   dois lugares da mesma seção. */
+.fin-filtros{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:16px}
+.fin-filtros-rotulo{font-size:11px;font-weight:600;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--text-4);margin-right:2px}
+.fin-filtro-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 13px;border-radius:var(--radius-pill);
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  color:var(--text-2);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;
+  transition:background var(--dur,.2s),border-color var(--dur,.2s),color var(--dur,.2s),opacity var(--dur,.2s);
+}
+.fin-filtro-chip:hover{background:var(--surface-3);color:var(--text)}
+.fin-filtro-chip.off{background:transparent;border-color:var(--line);
+  color:var(--text-4);opacity:.6}
+.fin-filtro-chip.off .fin-legenda-dot{background:var(--surface-3) !important}
+.fin-filtro-limpar{
+  padding:6px 13px;border-radius:var(--radius-pill);
+  background:transparent;border:1px dashed var(--line-strong);
+  color:var(--text-3);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;
+}
+.fin-filtro-limpar:hover{color:var(--text);border-color:var(--accent-line)}
+
+@media (pointer:coarse){
+  /* Alvo de toque de 44px, sem engordar o chip visualmente. */
+  .fin-filtro-chip,.fin-filtro-limpar{min-height:38px;padding:8px 14px}
 }
