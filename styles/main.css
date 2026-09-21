@@ -290,7 +290,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .task-mini-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--purple-light);margin-bottom:4px}
 .task-mini-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.3}
 .task-mini-desc{font-size:11px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:32px}
 .stat-card{padding:20px 22px;display:flex;flex-direction:column;gap:6px}
 .stat-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted)}
 .stat-value{font-family:'Poppins',system-ui,sans-serif;font-size:32px;font-weight:700;color:var(--text);line-height:1}
@@ -388,19 +388,45 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .add-item-row{display:flex;gap:8px;margin-top:12px}
 .add-item-row .form-input{flex:1}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.gasto-row{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;transition:background 0.2s}
+/* Linha de meta/tarefa prevista. O valor e um token so: a largura minima
+   dele nao cede. Com "flex:1" puro o nome e que era esmagado — virava uma
+   coluna de uma letra, 16 linhas de altura, no celular. Agora o nome tem
+   uma base de 140px e, se ainda assim nao couberem lado a lado, o valor
+   desce para a linha de baixo em vez de espremer o nome. */
+.gasto-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;transition:background 0.2s}
 .gasto-row:hover{background:var(--surface)}
-.gasto-icon{width:36px;height:36px;border-radius:10px;background:rgba(37,132,95,0.25);display:flex;align-items:center;justify-content:center;font-size:18px}
-.gasto-info{flex:1}
-.gasto-name{font-size:14px;font-weight:600}
-.gasto-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
-.gasto-value{font-family:'Poppins',system-ui,sans-serif;font-size:18px;font-weight:700;color:var(--purple-light)}
+.gasto-icon{width:36px;height:36px;border-radius:10px;background:rgba(37,132,95,0.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.gasto-info{flex:1 1 140px;min-width:0}
+.gasto-name{
+  font-size:14px;font-weight:600;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.gasto-meta{
+  font-size:12px;color:var(--text-muted);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.gasto-value{
+  font-family:'Poppins',system-ui,sans-serif;font-size:18px;font-weight:700;
+  color:var(--purple-light);white-space:nowrap;margin-left:auto;
+}
+@media (max-width:560px){ .gasto-value{font-size:15px} }
 .total-banner{padding:22px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
 .total-banner-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
 .total-banner-value{font-family:'Poppins',system-ui,sans-serif;font-size:36px;font-weight:700;color:var(--text)}
 .group-bar-item{margin-bottom:14px}
-.group-bar-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
-.group-bar-header span:last-child{color:var(--purple-light);font-weight:600}
+/* Nome a esquerda, valor a direita. Em flex simples o nome longo empurrava o
+   valor para fora da tela — o numero, que e o dado, era o primeiro a sumir.
+   No grid o valor tem coluna propria e inteira; quem cede e o nome. */
+.group-bar-header{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;
+  align-items:baseline;font-size:13px;margin-bottom:6px;
+}
+.group-bar-header span:first-child{
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.group-bar-header span:last-child{
+  color:var(--purple-light);font-weight:600;white-space:nowrap;
+}
 .notas-board{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:40px 32px 32px;min-height:400px;display:flex;flex-wrap:wrap;gap:28px;align-content:flex-start;position:relative}
 .notas-board::before{content:'';position:absolute;inset:0;border-radius:20px;background-image:radial-gradient(circle,var(--surface) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
 .nota-card{width:180px;min-height:140px;background:linear-gradient(135deg,rgba(37,132,95,0.25),rgba(58,24,112,0.3));border:1px solid var(--line);border-radius:4px 12px 12px 12px;padding:14px;cursor:pointer;position:relative;transition:transform 0.3s var(--ease-out),box-shadow 0.3s;transform-origin:top center}
@@ -451,8 +477,8 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .detail-img{width:100%;height:180px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,rgba(37,132,95,0.3),var(--surface-2));display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:20px}
 .detail-img img{width:100%;height:100%;object-fit:cover}
 .detail-body{font-size:14px;color:var(--text-dim);line-height:1.7;margin-bottom:16px}
-.resumo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.big-metric{padding:28px;text-align:center}
+.resumo-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
+.big-metric{padding:28px;text-align:center;min-width:0}
 .big-metric .value{font-family:'Poppins',system-ui,sans-serif;font-size:52px;font-weight:700;color:var(--text)}
 .big-metric .label{font-size:12px;color:var(--text-muted);margin-top:6px}
 /* Terceira linha do cartao do Resumo: o recorte do periodo escolhido. */
@@ -470,7 +496,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 @media(max-width:768px){
   #sidebar{display:none}#mobile-nav{display:flex}
   #main{padding:24px 18px 80px}
-  .home-title{font-size:52px}.stats-row{grid-template-columns:1fr;gap:10px}.stat-value{font-size:26px}
+  .home-title{font-size:52px}.stats-row{grid-template-columns:minmax(0,1fr);gap:10px}.stat-value{font-size:26px}
   .floating-island{padding:20px 18px}.task-mini{width:150px}
   .page-header{flex-direction:column;align-items:flex-start;gap:12px}.page-header>div{display:flex;flex-wrap:wrap;gap:8px}
   .cards-grid{grid-template-columns:repeat(2,1fr);gap:12px}
@@ -479,7 +505,7 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   .filter-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.filter-chip{flex-shrink:0}
   .two-col{grid-template-columns:1fr}
   .modal{padding:24px 18px;max-height:85vh;border-radius:20px 20px 0 0}.modal-overlay{align-items:flex-end;padding:0}
-  .resumo-grid{grid-template-columns:1fr}.big-metric .value{font-size:40px}
+  .resumo-grid{grid-template-columns:minmax(0,1fr)}.big-metric .value{font-size:40px}
   .notas-board{padding:32px 16px 20px;gap:16px}.nota-card{width:150px;min-height:120px}
   .perfil-hero{flex-direction:column;text-align:center;padding:24px;gap:16px}.perfil-name{font-size:22px}
   .total-banner{flex-direction:column;gap:12px;padding:18px}
@@ -1011,9 +1037,22 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
   background:linear-gradient(90deg,rgba(2,30,35,0.18),rgba(2,30,35,0.08));
   border-radius:3px 0 0 3px;
 }
+/* Este bloco e filho de um flex column com align-items:center, e nessa
+   combinacao a largura do filho e a do CONTEUDO: um titulo longo esticava a
+   caixa para alem do cartao e sangrava pelos DOIS lados. O max-width e o que
+   prende a caixa na largura do cartao. */
+.leitura-book-meta{text-align:center;max-width:100%;min-width:0}
 .leitura-book-title{font-family:'Poppins',system-ui,sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
-.leitura-book-author{font-size:13px;color:var(--text-muted);margin-bottom:8px}
-.leitura-book-genre-badge{display:inline-block;padding:3px 12px;border-radius:99px;background:rgba(37,132,95,0.25);border:1px solid var(--line);font-size:11px;color:var(--purple-light)}
+.leitura-book-author{
+  font-size:13px;color:var(--text-muted);margin-bottom:8px;
+  overflow-wrap:anywhere;word-break:break-word;
+}
+.leitura-book-genre-badge{
+  display:inline-block;max-width:100%;padding:3px 12px;border-radius:99px;
+  background:rgba(37,132,95,0.25);border:1px solid var(--line);
+  font-size:11px;color:var(--purple-light);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;
+}
 .leitura-progress-wrap{width:100%;max-width:320px}
 
 /* RESUMO BAR */
@@ -1639,6 +1678,11 @@ html,body{background:var(--cream)}
 /* Impede que o conteudo estoure a largura no celular:
    item flex nao encolhe abaixo do conteudo sem min-width:0. */
 #main{min-width:0}
+/* A barra de rolagem some quando a pagina encurta e volta quando cresce, e
+   cada troca muda a largura util em alguns pixels. Encaixar um numero
+   encurta a pagina; sem a calha reservada isso virava um vai-e-vem que fazia
+   o ajuste medir uma largura que ja nao existia. */
+#main{scrollbar-gutter:stable}
 .tico-msg-card>#home-tico{flex:none;line-height:0}
 .tico-msg-card>#home-tico svg{display:block}
 .tico-msg-card>div:not(#home-tico){flex:1 1 auto;min-width:0}
@@ -1958,9 +2002,24 @@ html,body{background:var(--bg);color:var(--text)}
 .agenda-upcoming-name,.gasto-group-name,.music-item-title{
   overflow-wrap:anywhere;word-break:break-word;hyphens:auto
 }
-/* Numeros grandes encolhem em vez de vazar */
+/* Numeros grandes encolhem em vez de vazar — mas NUNCA se partem.
+   "overflow-wrap:anywhere" era o que fazia "R$ 1.001.319.449,23" quebrar
+   entre digitos e virar "…449,2" na primeira linha. Quem encolhe agora e o
+   corpo da fonte, em encaixarNumero() (helpers.js); a reticencia so entra
+   se nem o piso de tamanho resolver. */
 .tico-quick-value,.stat-value,.big-metric .value,.gasto-group-total,.total-banner-value{
-  overflow-wrap:anywhere
+  overflow-wrap:normal;word-break:normal;white-space:nowrap;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;
+}
+/* Com "white-space:nowrap" a largura MINIMA do cartao passa a ser a do
+   numero inteiro, e uma coluna "1fr" (que e minmax(auto,1fr)) obedece esse
+   minimo: o cartao inteiro crescia para fora da tela. Por isso toda grade
+   que hospeda um desses numeros usa minmax(0,1fr). */
+/* A excecao e ser TEXTO, nao ser pequeno: "Media por lancamento" tambem usa
+   .value-sm e e um numero. Quem quebra e quem leva .value-texto. */
+.big-metric .value-texto{
+  overflow-wrap:anywhere;word-break:break-word;white-space:normal;
+  overflow:visible;text-overflow:clip;
 }
 
 /* ═══ Piso de contraste nos botoes ═══
@@ -2339,7 +2398,7 @@ input[type="checkbox"]{accent-color:var(--accent)}
 /* ── Gastos: as tres metricas do design system ────────────────────────
    Total em destaque (cartao verde) + maior categoria + media. */
 .gastos-metricas{
-  display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:20px;
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:20px;
 }
 .gastos-metricas .big-metric{
   background:var(--surface-1);border:1px solid var(--line);
@@ -2361,14 +2420,51 @@ input[type="checkbox"]{accent-color:var(--accent)}
 .gastos-metricas .value-sm{font-size:26px;letter-spacing:-0.02em}
 .gastos-metricas .delta{font-size:12px;font-weight:400;color:var(--text-3);margin-top:6px}
 @media (max-width:900px){
-  .gastos-metricas{grid-template-columns:1fr 1fr}
+  .gastos-metricas{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .gastos-metricas .metrica-destaque{grid-column:1/-1}
 }
 @media (max-width:560px){
-  .gastos-metricas{grid-template-columns:1fr}
+  .gastos-metricas{grid-template-columns:minmax(0,1fr)}
   .gastos-metricas .value{font-size:32px}
   .gastos-metricas .value-sm{font-size:22px}
 }
+
+/* ── Gastos: rosquinha de categorias + legenda ────────────────────────
+   O grid era "220px 1fr" fixo em estilo inline: no celular a rosquinha
+   sozinha ja comia 220 dos 360px de tela e a legenda inteira — nome, % e
+   valor — era empurrada para fora, sem barra de rolagem para alcanca-la.
+   Abaixo de 760px as duas partes passam a ser empilhadas. */
+.gastos-pizza-grid{
+  display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:center;
+}
+.gastos-pizza-donut{position:relative;width:200px;height:200px;justify-self:center}
+@media (max-width:760px){
+  .gastos-pizza-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+}
+/* O miolo da rosquinha tem 100px de vao. O total vai ate a borda do anel e
+   para ai: pintarTotalDaRosquinha() encolhe e, em ultimo caso, abrevia. */
+#pizza-total-label{
+  max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums;
+}
+#pizza-legend{min-width:0}
+/* Nome a esquerda com reticencia, % e valor inteiros a direita: numa
+   legenda o numero e o dado, e era ele que estava sendo cortado. */
+.pizza-legend-linha{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;
+}
+.pizza-legend-nome{display:flex;align-items:center;gap:8px;min-width:0}
+.pizza-legend-nome span{
+  font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pizza-legend-ponto{
+  width:12px;height:12px;border-radius:50%;flex-shrink:0;border:2px solid var(--ink);
+}
+.pizza-legend-valor{
+  font-size:12px;font-weight:600;color:var(--text-dim);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.pizza-legend-valor span{color:var(--text-muted);font-weight:400}
 
 /* ── Agenda: linha de evento na celula e painel do dia ────────────────
    O chip preenchido comia a largura da celula; vira ponto + nome, como no

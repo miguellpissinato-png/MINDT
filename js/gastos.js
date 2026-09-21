@@ -106,6 +106,24 @@ function migrarCoresCategorias(){
 
 var pizzaSlices = [];
 
+// O miolo da rosquinha tem 100px de vao: cabe "R$ 1.250,00", nao cabe
+// "R$ 1.001.319.449,23". Primeiro tenta o valor inteiro encolhendo a fonte;
+// so abrevia quando encolher ja teria passado do limite do legivel. O valor
+// exato continua no cartao "Total gasto" e no balao de cada fatia.
+function pintarTotalDaRosquinha(el, total){
+  if(!el) return;
+  el.textContent = moeda(total);
+  if(typeof encaixarNumero !== 'function') return;
+  encaixarNumero(el);
+  if(parseFloat(el.style.fontSize || '20') < 13){
+    el.textContent = moedaCurta(total);
+    el.title = moeda(total);
+    encaixarNumero(el);
+  } else {
+    el.removeAttribute('title');
+  }
+}
+
 function renderPizzaChart(lista) {
   var canvas = document.getElementById('pizza-chart');
   if(!canvas) return;
@@ -183,12 +201,13 @@ function renderPizzaChart(lista) {
   var leg2 = document.getElementById('pizza-legend');
   if(leg2) {
     leg2.innerHTML = legend.map(function(l){
-      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
-        +'<div style="display:flex;align-items:center;gap:8px">'
-          +'<div style="width:12px;height:12px;border-radius:50%;background:'+l.cor+';flex-shrink:0;border:2px solid var(--ink)"></div>'
-          +'<span style="font-size:13px">'+esc(l.nome)+'</span>'
+      // O title devolve o nome inteiro para quem so ve a reticencia.
+      return '<div class="pizza-legend-linha">'
+        +'<div class="pizza-legend-nome">'
+          +'<div class="pizza-legend-ponto" style="background:'+l.cor+'"></div>'
+          +'<span title="'+esc(l.nome)+'">'+esc(l.nome)+'</span>'
         +'</div>'
-        +'<div style="font-size:12px;font-weight:600;color:var(--text-dim)">'+l.pct+'% <span style="color:var(--text-muted);font-weight:400">'+moeda(l.val)+'</span></div>'
+        +'<div class="pizza-legend-valor">'+l.pct+'% <span>'+moeda(l.val)+'</span></div>'
       +'</div>';
     }).join('');
   }
@@ -334,10 +353,14 @@ function renderGastos(){
   if (elMed) elMed.textContent = moeda(lista.length ? total / lista.length : 0);
 
   var ptl = document.getElementById('pizza-total-label');
-  if(ptl) ptl.textContent = moeda(total);
+  if(ptl) pintarTotalDaRosquinha(ptl, total);
 
   // ── Render pizza chart ──
   renderPizzaChart(lista);
+
+  // Os tres cartoes do topo mostram valores que podem ser enormes. Medir so
+  // e possivel depois do texto estar no lugar — dai ser aqui, e nao no CSS.
+  if(typeof encaixarNumeros === 'function') encaixarNumeros(document.getElementById('page-gastos'));
 
   // ── Collapsible grouped list ──
   var listEl = document.getElementById('gastos-lista');

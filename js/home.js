@@ -186,6 +186,10 @@ function renderHome(){
   var all=[].concat(state.tasks,state.metas).filter(function(i){return !i.done;});
   document.getElementById('home-stat-tasks').textContent=state.tasks.filter(function(t){return !t.done;}).length;
   document.getElementById('home-task-count').textContent=all.length+' '+(all.length!==1?T('items'):T('item'));
+  // A Home e a unica pagina que aparece sem passar por goToPage (entra
+  // direto depois do login), entao o ajuste dos numeros e pedido aqui.
+  if(typeof encaixarNumeros==='function') encaixarNumeros(document.getElementById('page-home'));
+
   var scroll=document.getElementById('home-tasks-scroll');
   if(all.length===0){
     scroll.innerHTML='<div class="empty-inline">'+T('nothingRunning')+'</div>';

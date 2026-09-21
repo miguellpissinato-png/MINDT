@@ -165,11 +165,16 @@ function corDaCapa(titulo){
 }
 
 // Iniciais para a capa de quem ainda nao anexou imagem.
+//
+// slice(0,2) e [0] cortam por UNIDADE de UTF-16, nao por caractere: num
+// titulo que comeca com emoji ou bandeira isso parte o simbolo ao meio e a
+// capa mostrava o losango de erro. Array.from percorre por caractere.
 function iniciaisLivro(titulo){
   var palavras = String(titulo||'?').trim().split(/\s+/).filter(Boolean);
   if(!palavras.length) return '?';
-  if(palavras.length === 1) return palavras[0].slice(0,2).toUpperCase();
-  return (palavras[0][0] + palavras[1][0]).toUpperCase();
+  var letras = function(p){ return Array.from(p); };
+  if(palavras.length === 1) return letras(palavras[0]).slice(0,2).join('').toUpperCase();
+  return (letras(palavras[0])[0] + letras(palavras[1])[0]).toUpperCase();
 }
 
 // ── PAINEL DE ACOES DO LIVRO ──
