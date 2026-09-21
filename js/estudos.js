@@ -260,15 +260,21 @@ function checkTrophyUnlock(previousXP) {
     }
   });
   if(pendingTrophyPopup) {
+    // O valor e guardado AGORA, nao lido daqui a 1,2s. Dois trofeus
+    // destravados em sequencia agendavam dois disparos sobre a mesma
+    // variavel: o primeiro a chegar zerava, e o segundo chamava
+    // showTrophyPopup(null) — erro de JS, e o trofeu sumia sem aviso.
+    var trofeu = pendingTrophyPopup;
+    pendingTrophyPopup = null;
     setTimeout(function() {
-      showTrophyPopup(pendingTrophyPopup);
-      pendingTrophyPopup = null;
+      showTrophyPopup(trofeu);
     }, 1200); // slight delay after timer finish celebration
   }
 }
 
 // ── Show trophy unlock popup ──
 function showTrophyPopup(trophy) {
+  if(!trophy) return;
   var overlay = document.getElementById('trophy-popup-overlay');
   var nameEl = document.getElementById('popup-trophy-name');
   var modelEl = document.getElementById('popup-trophy-model');

@@ -616,17 +616,24 @@ html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(
 .nav-item.active .nav-icon svg{color:var(--text)}
 .mobile-nav-item.active .m-icon svg{stroke:var(--purple-light)}
 
-/* ═══ CARD ANIMATIONS ═══ */
-.task-card,.meta-card{animation:cardIn 0.3s cubic-bezier(0.4,0,0.2,1) both}
+/* ═══ CARD ANIMATIONS ═══
+   A entrada escalonada vale quando a LISTA CHEGA — ou seja, ao abrir a
+   pagina. Antes valia para qualquer pintura: marcar um item ou trocar um
+   filtro tambem reconstroi o innerHTML, e os cartoes repetiam a entrada
+   inteira a cada clique. Isso e pior que decoracao — a repeticao esconde
+   qual cartao mudou, que e exatamente a informacao que a pessoa procura.
+   Quem abre a porta e marcarEntradaDaGrade(), em helpers.js. */
+.cards-grid.entrando .task-card,
+.cards-grid.entrando .meta-card{animation:cardIn 0.3s cubic-bezier(0.4,0,0.2,1) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.task-card:nth-child(1){animation-delay:0ms}
-.task-card:nth-child(2){animation-delay:40ms}
-.task-card:nth-child(3){animation-delay:80ms}
-.task-card:nth-child(4){animation-delay:120ms}
-.task-card:nth-child(5){animation-delay:160ms}
-.meta-card:nth-child(1){animation-delay:0ms}
-.meta-card:nth-child(2){animation-delay:40ms}
-.meta-card:nth-child(3){animation-delay:80ms}
+.cards-grid.entrando .task-card:nth-child(1){animation-delay:0ms}
+.cards-grid.entrando .task-card:nth-child(2){animation-delay:40ms}
+.cards-grid.entrando .task-card:nth-child(3){animation-delay:80ms}
+.cards-grid.entrando .task-card:nth-child(4){animation-delay:120ms}
+.cards-grid.entrando .task-card:nth-child(5){animation-delay:160ms}
+.cards-grid.entrando .meta-card:nth-child(1){animation-delay:0ms}
+.cards-grid.entrando .meta-card:nth-child(2){animation-delay:40ms}
+.cards-grid.entrando .meta-card:nth-child(3){animation-delay:80ms}
 
 /* ═══ ESTUDOS FULL LAYOUT ═══ */
 .estudos-full-layout{display:flex;flex-direction:column;gap:24px}
@@ -1632,10 +1639,22 @@ html,body{background:var(--cream)}
   background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-soft);
   padding:13px 15px;cursor:pointer;font-family:inherit;transition:transform .08s}
 .tico-today-item:active{transform:translateY(2px)}
-.tico-check{width:26px;height:26px;flex:none;border:1px solid var(--line-strong);border-radius:999px;background:var(--card);position:relative}
+/* O CHECK DO DIA.
+   E o unico gesto que o app inteiro serve, e era o unico sem resposta:
+   o disco trocava de cor e o tique aparecia no mesmo quadro, sem nada
+   ligando o toque ao resultado. Agora o disco preenche e o tique cresce a
+   partir do proprio angulo, na curva que o resto do app ja usa.
+   Entrada em --dur-fast; a SAIDA usa --dur-press, mais curta: desmarcar e
+   uma correcao, nao uma conquista, e nao deve fazer esperar. */
+.tico-check{width:26px;height:26px;flex:none;border:1px solid var(--line-strong);border-radius:999px;background:var(--card);position:relative;
+  transition:background var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out)}
 .tico-check.on{background:var(--blue)}
-.tico-check.on::after{content:'';position:absolute;left:7px;top:3px;width:6px;height:12px;
-  border:solid var(--ink);border-width:0 3px 3px 0;transform:rotate(45deg)}
+.tico-check::after{content:'';position:absolute;left:7px;top:3px;width:6px;height:12px;
+  border:solid var(--ink);border-width:0 3px 3px 0;
+  transform:rotate(45deg) scale(0);transform-origin:80% 20%;opacity:0;
+  transition:transform var(--dur-press) var(--ease-out),opacity var(--dur-press) linear}
+.tico-check.on::after{transform:rotate(45deg) scale(1);opacity:1;
+  transition-duration:var(--dur-fast)}
 .tico-today-info{flex:1;display:flex;flex-direction:column}
 .tico-today-tag{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--ink);opacity:.5}
 .tico-today-label{font-size:15px;font-weight:700;color:var(--ink);margin-top:1px}
@@ -1918,7 +1937,7 @@ html,body{background:var(--bg);color:var(--text)}
 .tico-today-xp{color:var(--accent-text);font-weight:600}
 .tico-check{border:1.5px solid var(--line-strong);background:transparent}
 .tico-check.on{background:var(--accent);border-color:var(--accent)}
-.tico-check.on::after{border-color:var(--text-on-accent)}
+.tico-check::after,.tico-check.on::after{border-color:var(--text-on-accent)}
 /* O Ticolino fica, mas menor e sem roubar a cena */
 #home-tico{width:56px;height:58px}
 #home-tico svg{width:56px;height:58px}
@@ -2643,9 +2662,36 @@ input[type="checkbox"]{accent-color:var(--accent)}
   #page-home .tico-home-head{padding-top:4px}
 }
 
-/* Quem pediu menos movimento nao ganha o deslize. */
+/* ── QUEM PEDIU MENOS MOVIMENTO ────────────────────────────────────────
+   Esta regra cobria so a gaveta do menu. Tudo o mais continuava valendo:
+   a entrada de cada pagina, a dos modais, a dos cartoes, a sequencia do
+   trofeu e quatro lacos infinitos. Para quem sente enjoo de movimento, o
+   app era uma tela em movimento constante.
+
+   Menos movimento nao e movimento nenhum: o que CONFIRMA uma acao fica.
+   O tique do check continua aparecendo — so para de crescer, e passa a
+   surgir por opacidade. Cor e estado seguem mudando em toda parte. */
 @media (prefers-reduced-motion:reduce){
   #sidebar,#menu-fundo{transition:none}
+
+  /* Entradas: o conteudo ja esta no lugar, so passa a aparecer. */
+  .page,.page.active,
+  .modal-overlay,.modal-overlay.open,.modal-overlay.open .modal,
+  .cards-grid.entrando .task-card,.cards-grid.entrando .meta-card,
+  .calendar-dropdown.open,.shelf-filter-dropdown,
+  #trophy-popup,.trophy-popup-model,.trophy-popup-hole{
+    animation:none!important
+  }
+  /* O buraco do trofeu so existe enquanto anima; sem a animacao, some. */
+  .trophy-popup-hole{display:none}
+
+  /* Lacos decorativos param onde estao, em vez de girar para sempre. */
+  .music-vinyl.spinning,.resumo-pencil,.ex-tico.pulando{animation:none}
+  .wave-path{animation:none;stroke-dashoffset:0}
+
+  /* O retorno do toque permanece — so perde o deslocamento. */
+  .tico-today-item{transition:none}
+  .tico-check::after,.tico-check.on::after{transform:rotate(45deg) scale(1)}
 }
 
 /* ── Contadores por periodo (Tarefas e Metas) ─────────────────────────

@@ -115,6 +115,44 @@ var TAREFAS_DIA=[
   {chave:'exercicio', tag:'EXERCÍCIO', rotulo:'Exercício do dia concluído',  xp:5}
 ];
 
+// ─── OS QUATRO ITENS DO DIA ────────────────────────────────────────────
+//
+// Marcar o que se fez hoje e o gesto que o app inteiro serve — e era o
+// unico sem nenhum retorno. A causa nao estava no CSS: cada toque
+// reescrevia o innerHTML desta lista, entao o circulo do check era
+// DESTRUIDO e recriado. Nenhuma transicao chega a rodar num elemento que
+// acabou de nascer, e quem navega por teclado perdia o foco a cada Enter.
+//
+// Agora os botoes sao construidos uma vez e so o estado troca neles. O
+// retorno visual passa a ser possivel, o foco fica onde estava, e o leitor
+// de tela passa a anunciar "marcado"/"nao marcado" em vez de so "botao".
+function pintarItensDoDia(d){
+  var lista = document.getElementById('home-today-list');
+  if(!lista) return;
+  var idioma = (typeof idiomaAtual==='function') ? idiomaAtual() : 'pt';
+  // Reconstroi so quando nao ha o que reaproveitar: primeira pintura ou
+  // troca de idioma.
+  if(lista.children.length !== TAREFAS_DIA.length || lista.dataset.idioma !== idioma){
+    lista.dataset.idioma = idioma;
+    lista.innerHTML = TAREFAS_DIA.map(function(t){
+      return '<button type="button" class="tico-today-item" role="switch" aria-checked="false"'+
+        ' onclick="toggleTarefaDia(\''+t.chave+'\')">'+
+        '<span class="tico-check" aria-hidden="true"></span>'+
+        '<span class="tico-today-info"><span class="tico-today-tag">'+T('tag_'+t.chave)+'</span>'+
+        '<span class="tico-today-label">'+T('day_'+t.chave)+'</span></span>'+
+        '<span class="tico-today-xp">+'+t.xp+' XP</span></button>';
+    }).join('');
+  }
+  TAREFAS_DIA.forEach(function(t,i){
+    var btn = lista.children[i];
+    if(!btn) return;
+    var on = !!d[t.chave];
+    btn.setAttribute('aria-checked', on ? 'true' : 'false');
+    var c = btn.querySelector('.tico-check');
+    if(c) c.classList.toggle('on', on);
+  });
+}
+
 function renderHome(){
   if(!document.getElementById('home-today-list')) return;
   var d=garantirDiario(), feitos=tarefasDoDiaFeitas();
@@ -134,7 +172,8 @@ function renderHome(){
   var nivel=Math.floor(xp/100)+1, noNivel=xp%100;
   document.getElementById('home-streak').textContent=state.streak.count;
   document.getElementById('home-level').textContent=T('level')+' '+nivel;
-  document.getElementById('home-xp').textContent=noNivel+'/100 XP';
+  // O numero acompanha a barra: mesmo tempo, mesma curva. Ver contarAte().
+  contarAte(document.getElementById('home-xp'), noNivel, function(v){ return v+'/100 XP'; });
   document.getElementById('home-xp-bar').style.width=noNivel+'%';
 
   // Ticolino e sua fala
@@ -144,14 +183,7 @@ function renderHome(){
 
   // Lista do dia
   document.getElementById('home-today-count').textContent=feitos+' '+T('deQuatroConcluidos');
-  document.getElementById('home-today-list').innerHTML=TAREFAS_DIA.map(function(t){
-    var on=d[t.chave];
-    return '<button class="tico-today-item" onclick="toggleTarefaDia(\''+t.chave+'\')">'+
-      '<span class="tico-check'+(on?' on':'')+'"></span>'+
-      '<span class="tico-today-info"><span class="tico-today-tag">'+T('tag_'+t.chave)+'</span>'+
-      '<span class="tico-today-label">'+T('day_'+t.chave)+'</span></span>'+
-      '<span class="tico-today-xp">+'+t.xp+' XP</span></button>';
-  }).join('');
+  pintarItensDoDia(d);
 
   // Cartoes rapidos.
   // Este cartao somava o campo 'budget' de metas e tarefas e nunca lia

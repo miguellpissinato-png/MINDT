@@ -340,6 +340,68 @@ function moeda(v){
             : 'R$ ' + n.toLocaleString('pt-BR', opts);
 }
 
+// ── MOVIMENTO ──────────────────────────────────────────────────────────
+
+// Quem pediu menos movimento no sistema. Consultado na hora, nao guardado:
+// a preferencia pode mudar com a pagina aberta.
+function menosMovimento(){
+  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch(e){ return false; }
+}
+
+// A MESMA curva que o CSS usa (--ease-out: cubic-bezier(0.16,1,0.3,1)).
+// Sem isto o numero e a barra percorreriam o trajeto em ritmos diferentes e
+// chegariam juntos por acaso, nao por construcao.
+function _bezierY(t, x1, y1, x2, y2){
+  // acha o parametro cujo X e t, por bisseccao — precisao de sobra para 60fps
+  var lo = 0, hi = 1, u = t, x;
+  for (var i = 0; i < 20; i++){
+    u = (lo + hi) / 2;
+    var v = 1 - u;
+    x = 3*v*v*u*x1 + 3*v*u*u*x2 + u*u*u;
+    if (x < t) lo = u; else hi = u;
+  }
+  var w = 1 - u;
+  return 3*w*w*u*y1 + 3*w*u*u*y2 + u*u*u;
+}
+
+// Conta de um numero ao outro no mesmo tempo e na mesma curva da barra que
+// o acompanha. O texto do XP e a barra sao O MESMO dado: a barra deslizava
+// em 0,7s e o numero pulava no primeiro quadro, entao liam-se como duas
+// coisas que por acaso mudaram juntas.
+function contarAte(el, ate, formatar){
+  if(!el) return;
+  var de = parseFloat(el.dataset.valor);
+  if(!isFinite(de)) de = ate;
+  el.dataset.valor = ate;
+  var pintar = function(v){ el.textContent = formatar ? formatar(v) : String(v); };
+  if(de === ate){ pintar(ate); return; }
+  if(menosMovimento()){ pintar(ate); return; }
+
+  // Uma contagem por elemento: pedir outra no meio cancela a anterior, senao
+  // dois lacos disputariam o mesmo textContent.
+  if(el._contagem) cancelAnimationFrame(el._contagem);
+  var ms = 700;   // igual a --dur-progress
+  var t0 = null;
+  var passo = function(agora){
+    if(t0 === null) t0 = agora;
+    var t = Math.min(1, (agora - t0) / ms);
+    pintar(Math.round(de + (ate - de) * _bezierY(t, 0.16, 1, 0.3, 1)));
+    if(t < 1) el._contagem = requestAnimationFrame(passo);
+    else el._contagem = null;
+  };
+  el._contagem = requestAnimationFrame(passo);
+}
+
+// Abre (ou fecha) a entrada escalonada de uma grade de cartoes. Chamada
+// ANTES de escrever o innerHTML: ligar a classe depois do cartao ja pintado
+// faria ele piscar do estado final para o inicial.
+function marcarEntradaDaGrade(grid){
+  if(!grid) return;
+  var vale = (typeof chegandoNaPagina !== 'undefined') && chegandoNaPagina && !menosMovimento();
+  grid.classList.toggle('entrando', !!vale);
+}
+
 // ── PLURAL ─────────────────────────────────────────────────────────────
 // "3 item(s)" e o jeito de quem nao quis escolher, e aparece justamente na
 // hora mais tensa do app: a confirmacao de exclusao. Uma frase com
