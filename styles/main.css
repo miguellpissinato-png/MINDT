@@ -1,3 +1,13 @@
+/* ── [hidden] sempre esconde ─────────────────────────────────────────
+   O navegador aplica [hidden] como display:none com a MENOR prioridade que
+   existe: qualquer classe com display (flex, inline-flex, grid) vence. O app
+   usa hidden em dezenas de lugares e varios estavam aparecendo mesmo
+   "escondidos" — o bloco "Finalizar leitura" em livro novo, o horario dos
+   Lembretes com o lembrete desligado, botoes de lote. Remendar caso a caso
+   (.scroll-arrow[hidden]) nao escala; esta regra faz o atributo valer sempre,
+   que e o que ele promete. */
+[hidden]{display:none!important}
+
 /* Poppins — familia unica do design system, em quatro pesos. Substitui o par
    Manrope + Inter: uma familia so, uma requisicao so. */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
@@ -3676,4 +3686,54 @@ input[type="checkbox"]{accent-color:var(--accent)}
 @media (pointer:coarse){
   /* Alvo de toque de 44px, sem engordar o chip visualmente. */
   .fin-filtro-chip,.fin-filtro-limpar{min-height:38px;padding:8px 14px}
+}
+
+/* ── Tarefas recorrentes ──────────────────────────────────────────────
+   Tudo aqui reaproveita pecas que o app ja tinha: a linha de interruptor
+   do Ganho recorrente, a caixa dele, as abas segmentadas e o selo de estado.
+   So se ajusta o que muda por ser um <button> e o que e proprio da tarefa. */
+
+/* A linha virou <button> para funcionar no teclado (a do Ganho e uma div
+   com onclick, que o Tab nao alcanca). Botao traz fonte e cor do sistema. */
+.rec-toggle{width:100%;font:inherit;color:inherit;text-align:left;margin:4px 0 8px}
+.rec-toggle:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.rec-caixa{display:flex;flex-direction:column;gap:0}
+.rec-caixa .form-group{margin-bottom:14px}
+.rec-caixa .form-label{display:block}
+/* Duas opcoes que se excluem: o mesmo segmentado das telas de Dinheiro. */
+.rec-abas{display:flex;width:100%}
+.rec-abas .aba{flex:1 1 0;min-width:0;white-space:normal;line-height:1.25;padding:8px 10px}
+/* "A cada [10] dias depois de concluir" — os numeros ficam no meio da frase,
+   que e como a pessoa pensa a regra. */
+.rec-linha{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px;color:var(--text-2)}
+.rec-linha label{font-size:14px;color:var(--text-2)}
+.rec-num{width:72px;text-align:center;font-variant-numeric:tabular-nums;padding-left:8px;padding-right:8px}
+#task-rec-resumo{margin-top:12px;font-size:13px;color:var(--text-2)}
+#task-rec-resumo:empty{display:none}
+
+/* Selo "Tarefa atrasada": mesmo formato do selo de concluida. */
+.task-status-badge.atrasada{background:var(--danger-soft);color:var(--danger-text);font-weight:600}
+.task-card-rec{color:var(--text-2)}
+
+/* Aba Recorrentes. Linha em vez de cartao: aqui a pessoa gerencia regras,
+   e o que importa e bater o olho em estado e proxima data, em coluna. */
+.tarefas-abas{margin-bottom:20px}
+.aba-conta{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;
+  background:var(--surface-3);color:var(--text-2);font-size:11px;font-weight:600;line-height:18px;
+  text-align:center;font-variant-numeric:tabular-nums}
+.aba-conta:empty{display:none}
+.rec-intro{font-size:13px;color:var(--text-3);margin:0 0 14px;max-width:62ch}
+#rec-lista{display:flex;flex-direction:column;gap:10px}
+.rec-item{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:14px 16px;
+  background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius-lg)}
+.rec-item-info{flex:1 1 260px;min-width:0}
+.rec-item-nome{font-size:15px;font-weight:600;color:var(--text);overflow-wrap:anywhere}
+.rec-item-regra{font-size:13px;color:var(--text-2);margin-top:2px}
+.rec-item-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:8px;
+  font-size:12px;color:var(--text-3)}
+.rec-item-acoes{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.rec-item-acoes .rec-excluir{color:var(--danger-text)}
+@media (max-width:560px){
+  .rec-item-acoes{margin-left:0;width:100%}
+  .rec-item-acoes .btn{flex:1 1 auto;justify-content:center}
 }
