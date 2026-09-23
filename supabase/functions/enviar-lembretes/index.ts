@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
   const relatorio = { olhados: devidos?.length ?? 0, push: 0, email: 0, semNada: 0 };
 
   for (const pessoa of devidos ?? []) {
-    const recado = await montarRecado(db, pessoa.user_id);
+    const recado = await montarRecado(db, pessoa.user_id, String(pessoa.hoje_local));
     // Dia sem nada a cobrar nao vira notificacao. Um aviso que chega todo dia
     // sem ter o que dizer e o caminho mais curto para a pessoa desligar tudo.
     if (!recado) {
@@ -112,6 +112,13 @@ Deno.serve(async (req) => {
     }
     await marcarEnviado(db, pessoa.user_id, pessoa.hoje_local);
   }
+
+  // ── Tarefas recorrentes com horario ──────────────────────────────────
+  // Independente do lembrete diario: e a pessoa que marcou uma hora numa
+  // tarefa. Quem entra e quando, decide tarefas_da_hora() (plano, fuso, dia,
+  // hora e se ja foi avisada hoje).
+  const tr = await avisarTarefasDaHora(db, !!chaves);
+  (relatorio as any).tarefas = tr;
 
   console.log("lembretes:", JSON.stringify(relatorio));
   return new Response(JSON.stringify(relatorio), {
@@ -193,18 +200,37 @@ function dataISO(v: unknown): string {
   return br ? `${br[3]}-${br[2]}-${br[1]}` : t.slice(0, 10);
 }
 
-async function montarRecado(db: any, userId: string) {
+async function montarRecado(db: any, userId: string, hojeLocal: string) {
   const { data } = await db.from("user_data").select("data").eq("user_id", userId).maybeSingle();
   const estado = data?.data;
   if (!estado) return null;
 
-  const hoje = new Date().toISOString().slice(0, 10);
-  const tarefas = (estado.tasks ?? []).filter((t: any) => !t.done);
-  const vencemHoje = tarefas.filter((t: any) => dataISO(t.deadline) === hoje);
-  const atrasadas  = tarefas.filter((t: any) => {
+  // O dia da PESSOA, calculado no Postgres com o fuso dela. Antes era
+  // new Date().toISOString(), que e UTC: para quem marcou o lembrete as 21h
+  // ou mais tarde no Brasil, o "hoje" ja era amanha — o aviso dizia "vence
+  // hoje" sobre as tarefas do dia seguinte e chamava as de hoje de atrasadas.
+  const hoje = /^\d{4}-\d{2}-\d{2}$/.test(hojeLocal) ? hojeLocal : new Date().toISOString().slice(0, 10);
+
+  const todas = estado.tasks ?? [];
+  // Tarefa recorrente NAO e julgada pelo prazo: nela a data guardada e a
+  // "primeira vez", e uma tarefa comecada em julho viraria "atrasada" todo
+  // dia, para sempre. Ela conta pela propria data do ciclo (proxima).
+  const comuns = todas.filter((t: any) => !t.recorrencia && !t.done);
+  const recorrentes = todas.filter((t: any) => t.recorrencia && t.proxima);
+  const vencemHoje = [
+    ...comuns.filter((t: any) => dataISO(t.deadline) === hoje),
+    // Ciclo de hoje, esteja ou nao reaberta no app ainda.
+    ...recorrentes.filter((t: any) => t.proxima === hoje),
+  ];
+  const atrasadas = comuns.filter((t: any) => {
     const d = dataISO(t.deadline);
     return d && d < hoje;
   });
+  // Recorrente aberta de um ciclo que ja passou: esta em aberto. Se ja e
+  // "atrasada" depende da regra (o proximo ciclo chegou?), e essa conta vive
+  // no app. Aqui ela so aparece como em aberto — nunca como um atraso que o
+  // servidor nao tem como confirmar.
+  const emAberto = recorrentes.filter((t: any) => !t.done && t.proxima < hoje);
 
   // Os itens do dia so contam se o `diario` for de hoje; senao ele e a sobra
   // de ontem e ja nao diz nada.
@@ -213,7 +239,7 @@ async function montarRecado(db: any, userId: string) {
     ? ["leitura", "estudo", "grana", "exercicio"].filter((k) => !diario[k]).length
     : 4;
 
-  if (!vencemHoje.length && !atrasadas.length && faltam === 0) return null;
+  if (!vencemHoje.length && !atrasadas.length && !emAberto.length && faltam === 0) return null;
 
   const partes: string[] = [];
   if (vencemHoje.length) {
@@ -223,6 +249,10 @@ async function montarRecado(db: any, userId: string) {
   }
   if (atrasadas.length) {
     partes.push(atrasadas.length === 1 ? "1 tarefa está atrasada" : `${atrasadas.length} tarefas atrasadas`);
+  }
+  if (emAberto.length) {
+    partes.push(emAberto.length === 1 ? "1 tarefa que se repete está em aberto"
+                                      : `${emAberto.length} tarefas que se repetem estão em aberto`);
   }
   if (faltam) {
     partes.push(faltam === 4 ? "e os 4 itens do dia estão em aberto"
@@ -236,8 +266,74 @@ async function montarRecado(db: any, userId: string) {
     itens: [
       ...vencemHoje.map((t: any) => ({ nome: t.name, quando: "vence hoje" })),
       ...atrasadas.slice(0, 5).map((t: any) => ({ nome: t.name, quando: "atrasada" })),
+      ...emAberto.slice(0, 5).map((t: any) => ({ nome: t.name, quando: "em aberto" })),
     ],
   };
+}
+
+// ─── Aviso das tarefas recorrentes ─────────────────────────────────────
+// Uma pessoa pode ter varias tarefas marcadas para a mesma hora: vira UM
+// aviso com todas, nao uma rajada de notificacoes.
+
+async function avisarTarefasDaHora(db: any, temChaves: boolean) {
+  const rel = { pessoas: 0, tarefas: 0, push: 0, email: 0 };
+  const { data: linhas, error } = await db.rpc("tarefas_da_hora");
+  if (error) {
+    console.error("tarefas_da_hora:", error);
+    return rel;
+  }
+
+  const porPessoa = new Map<string, any[]>();
+  for (const l of linhas ?? []) {
+    if (!porPessoa.has(l.user_id)) porPessoa.set(l.user_id, []);
+    porPessoa.get(l.user_id)!.push(l);
+  }
+
+  for (const [userId, lista] of porPessoa) {
+    const hoje = lista[0].hoje_local;
+    // Reserva ANTES de enviar. O upsert que ignora repetidos devolve so as
+    // linhas que ele de fato criou: se outra execucao ja reservou uma
+    // tarefa, ela nao volta aqui — e ninguem recebe o mesmo aviso duas vezes.
+    const { data: reservadas, error: eRes } = await db.from("tarefas_avisadas")
+      .upsert(lista.map((l) => ({ user_id: userId, tarefa_id: l.tarefa_id, data: hoje })),
+              { onConflict: "user_id,tarefa_id,data", ignoreDuplicates: true })
+      .select("tarefa_id");
+    if (eRes) { console.error("tarefas_avisadas:", eRes); continue; }
+    const ok = new Set((reservadas ?? []).map((r: any) => r.tarefa_id));
+    const tarefas = lista.filter((l) => ok.has(l.tarefa_id));
+    if (!tarefas.length) continue;
+
+    rel.pessoas++;
+    rel.tarefas += tarefas.length;
+    const nomes = tarefas.map((t) => String(t.nome || "Tarefa"));
+    const recado = {
+      titulo: nomes.length === 1 ? `🔁 Hora de: ${nomes[0]}` : `🔁 ${nomes.length} tarefas para agora`,
+      corpo: nomes.length === 1
+        ? "Chegou o horário que você marcou para esta tarefa."
+        : "Chegou o horário que você marcou para: " + juntar(nomes) + ".",
+      itens: nomes.map((n) => ({ nome: n, quando: "agora" })),
+      rodape: "Você recebe este aviso porque marcou um horário nesta tarefa. " +
+              "Para parar, tire o horário dela em Tarefas › Recorrentes.",
+    };
+
+    const canal = tarefas[0].canal || "tela";
+    const validade = Math.max(60, Number(tarefas[0].segundos_ate_meia_noite) || 6 * 3600);
+    let temAparelho = false;
+    if (temChaves && canal !== "email") {
+      temAparelho = await mandarPush(db, userId, recado, validade);
+      if (temAparelho) rel.push++;
+    }
+    const mandaEmail = canal === "email" || canal === "ambos" || (canal === "tela" && !temAparelho);
+    if (mandaEmail && tarefas[0].email) {
+      if (await mandarEmail(tarefas[0].email, recado)) rel.email++;
+    }
+  }
+  return rel;
+}
+
+function juntar(nomes: string[]) {
+  if (nomes.length <= 1) return nomes.join("");
+  return nomes.slice(0, -1).join(", ") + " e " + nomes[nomes.length - 1];
 }
 
 // ─── Push ──────────────────────────────────────────────────────────────
@@ -305,8 +401,7 @@ async function mandarEmail(para: string, recado: any) {
          color:#211C08;text-decoration:none">Abrir o Mindt</a>
     </td></tr></table>
   <p style="margin:22px 0 0;font-size:12px;line-height:20px;color:#6F6C50">
-    Você recebe este lembrete porque ligou os lembretes diários no Mindt.
-    Para parar, é só desligar em Perfil &rsaquo; Conta.</p>
+    ${escapar(recado.rodape || "Você recebe este lembrete porque ligou os lembretes diários no Mindt. Para parar, é só desligar em Perfil › Conta.")}</p>
 </td></tr></table>
 </td></tr></table></body></html>`;
 

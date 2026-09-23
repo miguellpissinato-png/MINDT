@@ -232,8 +232,22 @@ function pintarFormRecorrencia(){
   var r = lerRecorrenciaDoForm();
   var primeira = recPrimeiraProxima(r, recISO(new Date()));
   var txt = regraEmPalavras(r) + '. Primeira vez: ' + recDDMM(primeira) + '.';
-  if(r.hora !== null) txt += ' Ela aparece na lista a partir das ' + pad(r.hora) + ':00.';
+  if(r.hora !== null){
+    txt += ' Ela aparece na lista a partir das ' + pad(r.hora) + ':00.';
+    txt += ' ' + avisoDoHorario();
+  }
   document.getElementById('task-rec-resumo').textContent = txt;
+}
+
+// O que acontece NO horario, alem de a tarefa aparecer. Tres situacoes, e
+// cada uma diz o que falta — nada de prometer um aviso que nao vai chegar.
+function avisoDoHorario(){
+  var liberado = (typeof temRecurso === 'function') && temRecurso('lembretes');
+  if(!liberado) return 'Com o plano Pro ou Max, você também recebe um aviso nesse horário.';
+  if(typeof lembrete === 'undefined' || !lembrete.configurado){
+    return 'Para receber um aviso nesse horário, ligue os Lembretes uma vez em Perfil › Conta.';
+  }
+  return 'Nesse horário você também recebe um aviso, pelo canal escolhido nos Lembretes.';
 }
 
 function resetRecorrenciaForm(){
