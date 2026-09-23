@@ -509,11 +509,24 @@
       <div class="page-header">
         <h2 class="page-title">Tarefas</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="startDelete('tasks')">🗑 Excluir</button>
-          <button class="btn btn-ghost btn-sm" onclick="startEdit('tasks')">✏️ Editar</button>
-          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-task')">+ Nova tarefa</button>
+          <button class="btn btn-ghost btn-sm" id="tasks-btn-excluir" onclick="startDelete('tasks')">🗑 Excluir</button>
+          <button class="btn btn-ghost btn-sm" id="tasks-btn-editar" onclick="startEdit('tasks')">✏️ Editar</button>
+          <button class="btn btn-primary btn-sm" onclick="abrirNovaTarefa()">+ Nova tarefa</button>
         </div>
       </div>
+
+      <!-- DUAS TELAS: a lista do dia a dia e as tarefas que se repetem -->
+      <div class="abas tarefas-abas" role="group" aria-label="Telas de tarefas">
+        <button type="button" class="aba" id="tarefas-tab-lista" aria-pressed="true" onclick="setTarefasAba('lista')">Tarefas</button>
+        <button type="button" class="aba" id="tarefas-tab-rec" aria-pressed="false" onclick="setTarefasAba('rec')">Recorrentes <span class="aba-conta" id="tarefas-rec-conta"></span></button>
+      </div>
+
+      <div id="tarefas-aba-rec" hidden>
+        <p class="rec-intro">Tarefas que voltam sozinhas. Parar de repetir mantém a tarefa e o que você já fez; excluir apaga tudo.</p>
+        <div id="rec-lista"></div>
+      </div>
+
+      <div id="tarefas-aba-lista">
       <div class="period-stats">
         <div class="period-chip"><div class="period-chip-label">Hoje</div><div class="period-chip-value" id="tasks-done-day">0</div></div>
         <div class="period-chip"><div class="period-chip-label">Semana</div><div class="period-chip-value" id="tasks-done-week">0</div></div>
@@ -526,6 +539,7 @@
         <div class="filter-chip" onclick="filterTasks('recent',this)">Recentes</div>
       </div>
       <div class="cards-grid" id="tasks-grid"></div>
+      </div>
     </section>
 
     <section class="page" id="page-gastos">
@@ -1509,16 +1523,81 @@
 <div class="modal-overlay" id="modal-add-task">
   <div class="modal modal-wide">
     <div class="modal-close" onclick="closeModal('modal-add-task')">✕</div>
-    <div class="modal-title">Nova tarefa</div>
+    <div class="modal-title" id="task-modal-title">Nova tarefa</div>
     <div class="upload-area" onclick="document.getElementById('task-img-input').click()"><div style="font-size:32px">🖼</div><p>Clique para adicionar imagem</p><input type="file" id="task-img-input" accept="image/*" style="display:none" onchange="previewImg(event,'task-img-preview','task-preview-img')"></div>
     <div id="task-img-preview" style="display:none;margin-top:10px;border-radius:10px;overflow:hidden;height:120px"><img id="task-preview-img" alt="" data-vazia="1" style="width:100%;height:100%;object-fit:cover"></div>
     <div class="form-group" style="margin-top:16px"><label class="form-label">Nome</label><input class="form-input" id="task-name" placeholder="Ex: Revisar relatório"></div>
     <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="task-desc" placeholder="Descreva a tarefa..."></textarea></div>
     <div class="two-col">
       <div class="form-group"><label class="form-label">Grupo</label><div style="display:flex;gap:8px"><select class="form-select" id="task-group" style="flex:1"><option value="">Sem grupo</option></select><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-grupo')">+</button></div></div>
-      <div class="form-group"><label class="form-label">Prazo</label><div style="position:relative"><input class="form-input" id="task-deadline" placeholder="dd/mm/aaaa" onclick="toggleCal('cal-task')" readonly><div class="calendar-dropdown" id="cal-task"></div></div></div>
+      <div class="form-group"><label class="form-label" id="task-deadline-label">Prazo</label><div style="position:relative"><input class="form-input" id="task-deadline" placeholder="dd/mm/aaaa" onclick="toggleCal('cal-task')" readonly><div class="calendar-dropdown" id="cal-task"></div></div></div>
     </div>
     <div class="form-group"><label class="form-label">Valor previsto (R$)</label><input class="form-input" id="task-budget" type="number" placeholder="0,00"></div>
+
+    <!-- REPETIR TAREFA -->
+    <button type="button" class="installment-toggle rec-toggle" id="task-rec-toggle"
+            role="switch" aria-checked="false" aria-controls="task-rec-wrap" onclick="toggleRepetirTarefa()">
+      <span style="display:flex;align-items:center;gap:10px">
+        <span class="toggle-switch" id="task-rec-sw" aria-hidden="true"></span>
+        <span style="font-size:14px;font-weight:500">Repetir tarefa?</span>
+      </span>
+      <span style="font-size:12px;color:var(--text-muted)">Ela volta sozinha</span>
+    </button>
+
+    <div id="task-rec-wrap" hidden>
+      <div class="ganho-rec-caixa rec-caixa">
+        <div class="form-group">
+          <label class="form-label" for="task-rec-tipo">Quando repetir?</label>
+          <select class="form-select" id="task-rec-tipo" onchange="pintarFormRecorrencia()">
+            <option value="diaria">Diariamente</option>
+            <option value="semanal">Semanalmente</option>
+            <option value="mensal">Mensalmente</option>
+            <option value="anual">Anualmente</option>
+            <option value="personalizada">Personalizado</option>
+          </select>
+        </div>
+
+        <!-- Os quatro basicos: data fixa ou a partir da conclusao -->
+        <div class="form-group" id="task-rec-ancora-grupo">
+          <span class="form-label" id="task-rec-ancora-rotulo">Contar a partir de</span>
+          <div class="abas rec-abas" role="group" aria-labelledby="task-rec-ancora-rotulo">
+            <button type="button" class="aba" id="task-rec-ancora-calendario" aria-pressed="true" onclick="setRecAncora('calendario')">Data fixa</button>
+            <button type="button" class="aba" id="task-rec-ancora-conclusao" aria-pressed="false" onclick="setRecAncora('conclusao')">Quando eu concluir</button>
+          </div>
+        </div>
+
+        <!-- Personalizado: a cada N dias, ou dia fixo a cada N meses -->
+        <div id="task-rec-pers" hidden>
+          <div class="form-group">
+            <span class="form-label" id="task-rec-modo-rotulo">Como repetir</span>
+            <div class="abas rec-abas" role="group" aria-labelledby="task-rec-modo-rotulo">
+              <button type="button" class="aba" id="task-rec-modo-dias" aria-pressed="true" onclick="setRecModo('dias')">A cada N dias</button>
+              <button type="button" class="aba" id="task-rec-modo-diaDoMes" aria-pressed="false" onclick="setRecModo('diaDoMes')">Dia fixo do mês</button>
+            </div>
+          </div>
+          <div class="form-group rec-linha" id="task-rec-dias-grupo">
+            <label for="task-rec-intervalo-dias">A cada</label>
+            <input class="form-input rec-num" id="task-rec-intervalo-dias" type="number" min="1" max="365" value="10" inputmode="numeric" oninput="pintarFormRecorrencia()">
+            <span id="task-rec-dias-unid">dias depois de concluir</span>
+          </div>
+          <div class="form-group rec-linha" id="task-rec-mes-grupo" hidden>
+            <label for="task-rec-dia">Dia</label>
+            <input class="form-input rec-num" id="task-rec-dia" type="number" min="1" max="31" value="1" inputmode="numeric" oninput="pintarFormRecorrencia()">
+            <label for="task-rec-intervalo-meses">a cada</label>
+            <input class="form-input rec-num" id="task-rec-intervalo-meses" type="number" min="1" max="24" value="1" inputmode="numeric" oninput="pintarFormRecorrencia()">
+            <span id="task-rec-meses-unid">mês</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" for="task-rec-hora">Horário</label>
+          <select class="form-select" id="task-rec-hora" onchange="pintarFormRecorrencia()"></select>
+        </div>
+
+        <p class="ganho-rec-nota" id="task-rec-resumo" aria-live="polite"></p>
+      </div>
+    </div>
+
     <div class="modal-actions"><button class="btn btn-primary" onclick="saveTask()">Salvar</button><button class="btn btn-ghost" onclick="closeModal('modal-add-task')">Cancelar</button></div>
   </div>
 </div>
@@ -1761,6 +1840,7 @@
 <script src="js/lembretes.js"></script>
 <script src="js/perfil.js"></script>
 <script src="js/metas.js"></script>
+<script src="js/recorrencia.js"></script>
 <script src="js/tarefas.js"></script>
 <script src="js/agenda.js"></script>
 <script src="js/resumo.js"></script>

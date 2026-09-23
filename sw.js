@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v35';
+var VERSAO = 'mindt-v37';
 
 var ARQUIVOS = [
   './',
@@ -30,11 +30,13 @@ var ARQUIVOS = [
   './js/lembretes.js',
   './js/perfil.js',
   './js/metas.js',
+  './js/recorrencia.js',
   './js/tarefas.js',
   './js/agenda.js',
   './js/resumo.js',
   './js/relatorio.js',
   './js/gastos.js',
+  './js/financas.js',   // area de Dinheiro: faltava aqui, e offline a tela quebrava
   './js/estudos.js',
   './js/exercicios.js',
   './js/leitura.js',

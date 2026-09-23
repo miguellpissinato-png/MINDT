@@ -110,8 +110,17 @@ function relExercicios(p){
 function relTarefas(p){
   var todas = state.tasks || [];
   var criadas = todas.filter(function(t){ return relNoPeriodo(t.createdAt, p); });
-  var feitas  = todas.filter(function(t){ return t.done && relNoPeriodo(t.completedAt, p); });
-  var abertas = todas.filter(function(t){ return !t.done; });
+  // Cada conclusao conta: a recorrente feita quatro vezes no periodo entra
+  // quatro vezes. Tarefa comum tem uma so, como sempre teve.
+  var feitas = [];
+  todas.forEach(function(t){
+    conclusoesDaTarefa(t).forEach(function(iso){
+      if(relNoPeriodo(iso, p)) feitas.push({completedAt: iso});
+    });
+  });
+  // Aberta de verdade: a recorrente que so volta mais adiante nao esta em
+  // aberto — esta esperando a data dela.
+  var abertas = todas.filter(function(t){ return !t.done && tarefaVisivel(t); });
   return {
     criadas: criadas.length,
     feitas: feitas.length,

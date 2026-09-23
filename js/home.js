@@ -28,6 +28,8 @@ sb.auth.onAuthStateChange(function(event,session){
       // estava fechado. Roda aqui, e nao so na pagina de dinheiro, para o
       // saldo da Home ja nascer certo.
       if (typeof atualizarRecorrentes === 'function') atualizarRecorrentes();
+      // Tarefas repetidas cujo dia (e hora) chegou voltam para a lista.
+      if (typeof atualizarTarefasRecorrentes === 'function' && atualizarTarefasRecorrentes()){ saveState(); renderHome(); }
       sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
     }).catch(function(err){
       // Nao entrar no app com o estado vazio: o usuario acharia que perdeu
@@ -219,8 +221,9 @@ function renderHome(){
 
 
   // Em andamento (mantido do app original)
-  var all=[].concat(state.tasks,state.metas).filter(function(i){return !i.done;});
-  document.getElementById('home-stat-tasks').textContent=state.tasks.filter(function(t){return !t.done;}).length;
+  // A tarefa recorrente que espera a proxima data nao esta "em andamento".
+  var all=[].concat(state.tasks,state.metas).filter(function(i){return !i.done && tarefaVisivel(i);});
+  document.getElementById('home-stat-tasks').textContent=state.tasks.filter(function(t){return !t.done && tarefaVisivel(t);}).length;
   document.getElementById('home-task-count').textContent=all.length+' '+(all.length!==1?T('items'):T('item'));
   // A Home e a unica pagina que aparece sem passar por goToPage (entra
   // direto depois do login), entao o ajuste dos numeros e pedido aqui.

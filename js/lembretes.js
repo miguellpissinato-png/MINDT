@@ -58,7 +58,10 @@
 // lembrete_dispositivos deixa os avisos falhando em silencio.
 var LEMBRETE_VAPID = 'BHOdYW0MFoZGMFLNqE5umr-_7pT-DqXh3AVA35AK3NROmd34rtmGqJkwzSHW8kKP7J8pOalbAfjeLGU24P6hSXk';
 
-var lembrete = {ativo:false, hora:8, canal:'tela', temAparelho:false};
+// `configurado`: ja existe a linha no servidor. E dela que o aviso das
+// tarefas recorrentes tira fuso, canal e e-mail — mesmo com o lembrete
+// diario desligado.
+var lembrete = {ativo:false, hora:8, canal:'tela', temAparelho:false, configurado:false};
 
 // ─── Leitura ───────────────────────────────────────────────────────────
 
@@ -68,6 +71,7 @@ async function carregarLembrete(){
     var res = await sb.from('lembretes')
       .select('ativo,hora,canal').eq('user_id', currentUser.id).maybeSingle();
     if(res.data){
+      lembrete.configurado = true;
       lembrete.ativo = !!res.data.ativo;
       lembrete.hora = res.data.hora;
       lembrete.canal = res.data.canal || 'tela';
@@ -180,6 +184,7 @@ async function lembreteSalvar(campos){
   try{
     var res = await sb.from('lembretes').upsert(linha, {onConflict:'user_id'});
     if(res.error) throw res.error;
+    lembrete.configurado = true;
     return true;
   }catch(e){ console.error('lembreteSalvar:', e); return false; }
 }

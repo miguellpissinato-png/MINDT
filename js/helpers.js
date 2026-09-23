@@ -80,7 +80,14 @@ function updateGroupFilters(){
 // PERIOD STATS
 function updatePeriodStats(type){
   var now=new Date(),todayStr=now.toDateString(),weekAgo=new Date(now-7*86400000),monthStart=new Date(now.getFullYear(),now.getMonth(),1);
-  var arr=type==='metas'?state.metas:state.tasks,done=arr.filter(function(i){return i.done&&i.completedAt;});
+  // Uma entrada por CONCLUSAO, nao por item: a tarefa semanal feita quatro
+  // vezes no mes conta quatro. Metas e tarefas comuns seguem com uma so.
+  var arr=type==='metas'?state.metas:state.tasks,done=[];
+  arr.forEach(function(i){
+    var lista = (type!=='metas' && typeof conclusoesDaTarefa==='function')
+      ? conclusoesDaTarefa(i) : ((i.done&&i.completedAt)?[i.completedAt]:[]);
+    lista.forEach(function(iso){ done.push({completedAt:iso}); });
+  });
   var day=done.filter(function(i){return new Date(i.completedAt).toDateString()===todayStr;}).length;
   var week=done.filter(function(i){return new Date(i.completedAt)>=weekAgo;}).length;
   var month=done.filter(function(i){return new Date(i.completedAt)>=monthStart;}).length;
@@ -115,12 +122,17 @@ function populateMetaForm(m){
   if(m.img){document.getElementById('meta-img-preview').style.display='';document.getElementById('meta-preview-img').src=m.img;}
 }
 function populateTaskForm(t){
+  // Limpa antes de preencher: sem isto, a imagem de uma tarefa ficava no
+  // formulario da proxima que nao tinha imagem.
+  resetTaskForm();
   currentDetailId=t.id;currentDetailType='task';
   document.getElementById('task-name').value=t.name;document.getElementById('task-desc').value=t.desc||'';document.getElementById('task-group').value=t.group||'';document.getElementById('task-deadline').value=t.deadline||'';document.getElementById('task-budget').value=t.budget||'';
   if(t.img){document.getElementById('task-img-preview').style.display='';document.getElementById('task-preview-img').src=t.img;}
+  if(typeof preencherRecorrenciaForm==='function') preencherRecorrenciaForm(t);
 }
 function resetMetaForm(){['meta-name','meta-desc','meta-deadline','meta-budget'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('meta-img-preview').style.display='none';document.getElementById('meta-checklist').innerHTML='';document.getElementById('meta-progress-fill').style.width='0%';document.getElementById('meta-progress-label').textContent='0%';currentDetailId=null;}
-function resetTaskForm(){['task-name','task-desc','task-deadline','task-budget'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('task-img-preview').style.display='none';currentDetailId=null;}
+function resetTaskForm(){['task-name','task-desc','task-deadline','task-budget','task-group'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('task-img-preview').style.display='none';currentDetailId=null;
+  if(typeof resetRecorrenciaForm==='function') resetRecorrenciaForm();}
 
 // HELPERS
 function uid(){return Math.random().toString(36).substr(2,9);}
@@ -212,6 +224,12 @@ function updateDetailProgress(item){
 function completeDetail(){
   var arr=currentDetailType==='meta'?state.metas:state.tasks;
   var item=arr.find(function(i){return i.id===currentDetailId;});if(!item)return;
+  // Recorrente: concluir registra a vez e manda para o proximo ciclo.
+  if(currentDetailType!=='meta' && item.recorrencia && item.proxima){
+    if(item.done && typeof desfazerConclusao==='function'){ desfazerConclusao(item); saveState(); closeModal('modal-detail'); toast('↩ Conclusão desfeita.'); }
+    else { concluirRecorrente(item); saveState(); closeModal('modal-detail'); toast('✅ Concluída! Volta em ' + recDDMM(item.proxima) + '.'); }
+    renderTasks(); renderHome(); return;
+  }
   item.done=!item.done;item.completedAt=item.done?new Date().toISOString():null;
   saveState();closeModal('modal-detail');toast(item.done?'✅ Concluído!':'↩ Reaberto!');
   currentDetailType==='meta'?renderMetas():renderTasks();renderHome();
