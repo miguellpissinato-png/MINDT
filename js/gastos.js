@@ -348,6 +348,7 @@ function renderGastos(){
   // Os tres cartoes do topo mostram valores que podem ser enormes. Medir so
   // e possivel depois do texto estar no lugar — dai ser aqui, e nao no CSS.
   if(typeof encaixarNumeros === 'function') encaixarNumeros(document.getElementById('page-gastos'));
+  if(typeof aplicarTravasDinheiro === 'function') aplicarTravasDinheiro();
 
   // ── Collapsible grouped list ──
   var listEl = document.getElementById('gastos-lista');

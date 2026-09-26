@@ -120,6 +120,12 @@ Deno.serve(async (req) => {
   const tr = await avisarTarefasDaHora(db, !!chaves);
   (relatorio as any).tarefas = tr;
 
+  // ── Fim do teste gratis ───────────────────────────────────────────────
+  // 2 dias antes, 1 dia antes e no ultimo dia, as 10h locais. Quem entra,
+  // decide testes_a_avisar() (so quem ainda esta no teste, no marco certo,
+  // e que ainda nao recebeu aquele marco).
+  (relatorio as any).teste = await avisarFimDoTeste(db, !!chaves);
+
   console.log("lembretes:", JSON.stringify(relatorio));
   return new Response(JSON.stringify(relatorio), {
     headers: { "Content-Type": "application/json" },
@@ -331,6 +337,108 @@ async function avisarTarefasDaHora(db: any, temChaves: boolean) {
   return rel;
 }
 
+// ─── Fim do teste gratis ───────────────────────────────────────────────
+// Os textos usam o que a pessoa FEZ no teste — os numeros dela, nunca
+// inventados — e dizem com clareza o que tranca e o que fica. A urgencia e
+// so a data real. O rodape promete o limite de avisos, e o laco cumpre.
+
+async function avisarFimDoTeste(db: any, temChaves: boolean) {
+  const rel = { pessoas: 0, push: 0, email: 0 };
+  const { data: linhas, error } = await db.rpc("testes_a_avisar");
+  if (error) {
+    console.error("testes_a_avisar:", error);
+    return rel;
+  }
+
+  for (const l of linhas ?? []) {
+    // Reserva antes de enviar: o mesmo marco nunca sai duas vezes.
+    const { data: reservou, error: eRes } = await db.from("avisos_teste")
+      .upsert({ user_id: l.user_id, marco: l.marco },
+              { onConflict: "user_id,marco", ignoreDuplicates: true })
+      .select("marco");
+    if (eRes) { console.error("avisos_teste:", eRes); continue; }
+    if (!reservou?.length) continue;
+
+    const { data } = await db.from("user_data").select("data").eq("user_id", l.user_id).maybeSingle();
+    const recado = recadoFimDoTeste(l.marco, data?.data ?? {}, l.expira_em);
+
+    rel.pessoas++;
+    const canal = l.canal || "email";
+    const validade = Math.max(60, Number(l.segundos_ate_meia_noite) || 6 * 3600);
+    let temAparelho = false;
+    if (temChaves && canal !== "email") {
+      temAparelho = await mandarPush(db, l.user_id, recado, validade);
+      if (temAparelho) rel.push++;
+    }
+    const mandaEmail = canal === "email" || canal === "ambos" || (canal === "tela" && !temAparelho);
+    if (mandaEmail && l.email) {
+      if (await mandarEmail(l.email, recado)) rel.email++;
+    }
+  }
+  return rel;
+}
+
+// O que a pessoa fez desde o comeco do teste (fim - 8 dias).
+function feitoNoTeste(estado: any, expiraEm: string) {
+  const inicio = new Date(new Date(expiraEm).getTime() - 8 * 86400000).toISOString();
+  const gastos = (estado.gastos ?? []).filter((g: any) => String(g.createdAt ?? "") >= inicio).length;
+  let feitas = 0;
+  for (const t of estado.tasks ?? []) {
+    const lista = Array.isArray(t.conclusoes) ? t.conclusoes
+                : (t.done && t.completedAt ? [t.completedAt] : []);
+    for (const iso of lista) if (String(iso) >= inicio) feitas++;
+  }
+  const partes: string[] = [];
+  if (gastos) partes.push(`lançou ${gastos} ${gastos === 1 ? "gasto" : "gastos"}`);
+  if (feitas) partes.push(`concluiu ${feitas} ${feitas === 1 ? "tarefa" : "tarefas"}`);
+  return partes.join(" e ");
+}
+
+function recadoFimDoTeste(marco: string, estado: any, expiraEm: string) {
+  const nome = estado.perfil?.name ? String(estado.perfil.name).trim() : "";
+  // Com nome: "Miguel, amanha termina...". Sem nome, a frase precisa
+  // comecar em maiuscula por conta propria.
+  const frase = (resto: string) => nome ? `${nome}, ${resto}` : resto.charAt(0).toUpperCase() + resto.slice(1);
+  const feito = feitoNoTeste(estado, expiraEm);
+  const tranca = [
+    { nome: "Gráficos e médias do Dinheiro", quando: "no Pro" },
+    { nome: "Lembretes diários e avisos das tarefas", quando: "no Pro" },
+    { nome: "Relatórios e XP em dobro", quando: "no Max" },
+  ];
+  const rodape = "Você recebe este aviso porque está no teste grátis do Ticolino Max. " +
+    "São só três avisos até o fim do teste, e nada é cobrado sem você assinar.";
+  const botao = "Continuar com o Ticolino";
+
+  if (marco === "faltam2") {
+    return {
+      titulo: "⏳ Seu Ticolino Max acaba em 2 dias",
+      corpo: (feito ? frase(`nesses dias você ${feito}.`) + " Em 2 dias" : frase("em 2 dias")) +
+        ", estes recursos voltam a ficar trancados. Seus dados continuam seus — " +
+        "o que tranca é a visão completa deles. Dá para continuar a partir de R$ 2,50 por semana.",
+      push: "Em 2 dias os gráficos, os relatórios e os lembretes voltam a ficar trancados. Toque para continuar.",
+      itens: tranca, rodape, botao,
+    };
+  }
+  if (marco === "faltam1") {
+    return {
+      titulo: "🐹 Amanhã eu volto pro plano Free",
+      corpo: frase("amanhã termina seu teste do Ticolino Max. ") +
+        (feito ? `Você ${feito} com ele — não precisa perder esse ritmo. ` : "") +
+        "Assinar leva 1 minuto, e dá para cancelar quando quiser.",
+      push: (feito ? `Você ${feito} no teste. ` : "") +
+        "Amanhã seu Ticolino Max acaba — continue sem perder o ritmo.",
+      itens: tranca, rodape, botao,
+    };
+  }
+  return {
+    titulo: "Hoje é o último dia do seu Ticolino Max",
+    corpo: frase("à meia-noite o teste acaba. ") + "Se quiser continuar de onde parou, é só assinar. " +
+      "Se não, tudo bem: seus dados ficam aqui, e o plano Free continua seu.",
+    push: "Seu Ticolino Max acaba à meia-noite. Seus dados ficam — continue se quiser.",
+    itens: [], rodape, botao,
+  };
+}
+
 function juntar(nomes: string[]) {
   if (nomes.length <= 1) return nomes.join("");
   return nomes.slice(0, -1).join(", ") + " e " + nomes[nomes.length - 1];
@@ -348,7 +456,7 @@ async function mandarPush(db: any, userId: string, recado: any, validade: number
     try {
       await webpush.sendNotification(
         { endpoint: ap.endpoint, keys: { p256dh: ap.p256dh, auth: ap.auth } },
-        JSON.stringify({ titulo: recado.titulo, corpo: recado.corpo, url: SITE }),
+        JSON.stringify({ titulo: recado.titulo, corpo: recado.push || recado.corpo, url: SITE }),
         // Vale ate o fim do dia da pessoa. Ver a nota no laco principal:
         // um prazo fixo fazia o servico de push jogar fora o aviso em
         // silencio quando o aparelho passava muito tempo desligado.
@@ -398,7 +506,7 @@ async function mandarEmail(para: string, recado: any) {
   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
     <td align="center" bgcolor="#EB7D00" style="border-radius:12px">
       <a href="${SITE}" style="display:block;padding:15px 32px;font-size:16px;font-weight:bold;
-         color:#211C08;text-decoration:none">Abrir o Mindt</a>
+         color:#211C08;text-decoration:none">${escapar(recado.botao || "Abrir o Mindt")}</a>
     </td></tr></table>
   <p style="margin:22px 0 0;font-size:12px;line-height:20px;color:#6F6C50">
     ${escapar(recado.rodape || "Você recebe este lembrete porque ligou os lembretes diários no Mindt. Para parar, é só desligar em Perfil › Conta.")}</p>

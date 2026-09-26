@@ -7,6 +7,14 @@
 // SELECT com auth.uid() = user_id e nenhuma de escrita. Ou seja, ninguem
 // vira Pro editando nada pelo navegador.
 //
+// PRAZO: O TESTE GRATIS
+// Toda conta nasce com 7 dias de Max (gatilho dar_teste_gratis no banco):
+// origem 'teste' e `expira_em` preenchido. Passado o prazo a linha continua
+// 'ativo', mas o plano deixa de valer — a conta abaixo olha o prazo. Pagar
+// apaga o prazo (mp-webhook grava expira_em null).
+//
+//     plano vale  ⟺  status === 'ativo'  E  (sem prazo OU prazo no futuro)
+//
 // STATUS MANDA MAIS QUE PLANO
 // A linha guarda `plano` e `status`. O webhook escreve status 'ativo' so
 // quando o Mercado Pago responde "authorized"; em cancelamento, falha de
@@ -25,9 +33,9 @@
 // linha escrita a mao — a conta do fundador, um teste, um cliente que teve
 // problema de cobranca — vale igual aqui: o app nao olha a origem, so plano e
 // status. A marcacao existe para a contagem de faturamento nao somar quem
-// nunca pagou. O mp-webhook nao envia essas duas colunas, entao assinatura
-// paga nasce com origem 'mercadopago' e a marcacao de cortesia sobrevive a
-// qualquer atualizacao vinda do Mercado Pago.
+// nunca pagou. O mp-webhook grava origem 'mercadopago' quando o pagamento e
+// autorizado, e um aviso de pagamento pendente nao derruba nem cortesia nem
+// teste em andamento.
 //
 // A TRAVA AQUI E DE INTERFACE, NAO DE SEGURANCA
 // Os limites do Free sao conferidos no navegador. Quem abrir o console
@@ -37,6 +45,8 @@
 
 var PLANO_ATUAL = 'free';
 var PLANO_STATUS = 'inativo';
+var PLANO_ORIGEM = null;     // 'mercadopago' | 'cortesia' | 'teste'
+var PLANO_EXPIRA = null;     // Date, so no teste gratis
 
 var PLANO_LIMITES = { tarefas: 20, metas: 20 };
 
@@ -66,6 +76,7 @@ var PLANO_RECURSOS = [
   {chave:'metas',      de:'free', rotuloFree:'20 metas liberadas',   rotulo:'Metas ilimitadas'},
   {chave:'abas',       de:'free', rotulo:'Acesso a todas as abas'},
   {chave:'lembretes',  de:'pro',  rotulo:'Lembretes diários'},
+  {chave:'financas',   de:'pro',  rotulo:'Gráficos e médias do Dinheiro'},
   {chave:'xpDobro',    de:'max',  rotulo:'XP em dobro'},
   {chave:'relatorios', de:'max',  rotulo:'Relatórios'},
   {chave:'skins',      de:'max',  rotulo:'Skins do Ticolino',     breve:true},
@@ -76,7 +87,48 @@ var PLANO_ORDEM = {free:0, pro:1, max:2};
 
 // ─── Leitura do plano ──────────────────────────────────────────────────
 
-function planoAtivo(){ return PLANO_STATUS === 'ativo' ? PLANO_ATUAL : 'free'; }
+function planoAtivo(){
+  if(PLANO_STATUS !== 'ativo') return 'free';
+  if(PLANO_EXPIRA && PLANO_EXPIRA.getTime() <= Date.now()) return 'free';
+  return PLANO_ATUAL;
+}
+
+// ─── Teste gratis ──────────────────────────────────────────────────────
+function emTeste(){ return PLANO_ORIGEM === 'teste' && planoAtivo() !== 'free'; }
+// Acabou e a pessoa nao assinou (se assinasse, a origem viraria mercadopago).
+function testeAcabou(){
+  return PLANO_ORIGEM === 'teste' && !!PLANO_EXPIRA && PLANO_EXPIRA.getTime() <= Date.now();
+}
+// Ultimo dia de uso: o prazo e a meia-noite DEPOIS dele.
+function ultimoDiaTeste(){
+  if(!PLANO_EXPIRA) return null;
+  return new Date(PLANO_EXPIRA.getTime() - 1000);
+}
+function diasRestantesTeste(){
+  var u = ultimoDiaTeste(); if(!u) return null;
+  var a = new Date(); a.setHours(12,0,0,0);
+  var b = new Date(u.getTime()); b.setHours(12,0,0,0);
+  return Math.round((b - a) / 86400000);
+}
+function dataCurta(d){ return d ? pad(d.getDate()) + '/' + pad(d.getMonth() + 1) : ''; }
+
+// O que a pessoa fez desde que o teste comecou — numeros dela, que e o que
+// mais pesa na hora de decidir. Nada inventado: se nao fez nada, nao diz.
+function conquistasDoTeste(){
+  if(!PLANO_EXPIRA) return '';
+  var inicio = new Date(PLANO_EXPIRA.getTime() - 8 * 86400000).toISOString();
+  var gastos = (state.gastos || []).filter(function(g){ return String(g.createdAt || '') >= inicio; }).length;
+  var feitas = 0;
+  (state.tasks || []).forEach(function(t){
+    var lista = typeof conclusoesDaTarefa === 'function' ? conclusoesDaTarefa(t)
+              : ((t.done && t.completedAt) ? [t.completedAt] : []);
+    lista.forEach(function(iso){ if(String(iso) >= inicio) feitas++; });
+  });
+  var partes = [];
+  if(gastos) partes.push('lançou ' + plural(gastos, 'gasto', 'gastos'));
+  if(feitas) partes.push('concluiu ' + plural(feitas, 'tarefa', 'tarefas'));
+  return partes.join(' e ');
+}
 
 // O recurso esta liberado? O que ainda nao existe (`breve`) nunca libera —
 // nao ha o que liberar.
@@ -96,13 +148,15 @@ async function carregarPlano(){
   if(!currentUser) return;
   try{
     var res = await sb.from('subscriptions')
-      .select('plano,status').eq('user_id', currentUser.id).maybeSingle();
+      .select('plano,status,origem,expira_em').eq('user_id', currentUser.id).maybeSingle();
     if(res.data){
       PLANO_ATUAL  = res.data.plano  || 'free';
       PLANO_STATUS = res.data.status || 'inativo';
+      PLANO_ORIGEM = res.data.origem || null;
+      PLANO_EXPIRA = res.data.expira_em ? new Date(res.data.expira_em) : null;
     }else{
       // Sem linha na tabela = nunca assinou. E o caso normal, nao um erro.
-      PLANO_ATUAL = 'free'; PLANO_STATUS = 'inativo';
+      PLANO_ATUAL = 'free'; PLANO_STATUS = 'inativo'; PLANO_ORIGEM = null; PLANO_EXPIRA = null;
     }
   }catch(e){
     // Rede fora: segue como Free. Tratar falha como "provavelmente e Pro"
@@ -122,6 +176,9 @@ function aplicarPlano(){
   }
   if(document.getElementById('perfil-assinaturas')) renderAssinaturas();
   if(typeof pintarLembrete === 'function') pintarLembrete();
+  aplicarTravasDinheiro();
+  pintarFaixaTeste();
+  avisarFimDoTeste();
 }
 
 // ─── Limites do Free ───────────────────────────────────────────────────
@@ -164,6 +221,12 @@ var PLANO_RECADOS = {
     nota:'Os lembretes diários são do Ticolino Pro. Todo dia, no horário que você '
        + 'escolher, ele avisa o que vence hoje e o que falta fechar — no celular ou por e-mail.'
   },
+  financas: {
+    humor:'rico',
+    frase:'Seus gastos já estão aqui. Falta só enxergar o desenho deles.',
+    nota:'Gráficos por categoria, médias e o dia da semana em que você mais gasta são do '
+       + 'Ticolino Pro: R$ 10,00 por mês — R$ 2,50 por semana.'
+  },
   relatorios: {
     humor:'focado',
     frase:'O Resumo de atividades é do Ticolino Max.',
@@ -178,6 +241,7 @@ function mostrarLimite(motivo){
   if(tico && typeof ticolino === 'function') tico.innerHTML = ticolino(r.humor, 72);
   document.getElementById('limite-frase').textContent = r.frase;
   document.getElementById('limite-nota').textContent = r.nota;
+  var cta = document.getElementById('limite-cta'); if(cta) cta.textContent = 'Ver os planos';
   openModal('modal-limite');
 }
 
@@ -252,9 +316,38 @@ function renderAssinaturas(){
   var atual = planoAtivo();
   var p = PLANOS[atual];
 
+  // Em teste, o plano "atual" e o Max, mas NINGUEM paga: sem isto a tela
+  // dizia "R$ 15,00 por mes, cobranca recorrente" e oferecia "Cancelar
+  // assinatura" a quem nunca assinou.
+  if(emTeste()){
+    var faltam = diasRestantesTeste();
+    alvo.innerHTML =
+      '<div class="plano-atual">'
+        + '<div>'
+          + '<div class="plano-rotulo">Seu plano atual</div>'
+          + '<div class="plano-atual-linha">'
+            + '<span class="plano-atual-nome">Teste grátis do Ticolino Max</span>'
+            + '<span class="plano-atual-preco">sem cobrança</span>'
+          + '</div>'
+          + '<div class="plano-atual-nota">Tudo liberado até ' + dataCurta(ultimoDiaTeste())
+            + (faltam === 0 ? ' (hoje é o último dia)' : faltam === 1 ? ' (falta 1 dia)' : ' (faltam ' + faltam + ' dias)')
+            + '. Depois, sua conta volta para o Free — seus dados ficam, e nada é cobrado sem você assinar.</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="plano-grade">'
+        + cartaoPlano('free', 'teste') + cartaoPlano('pro', 'teste') + cartaoPlano('max', 'teste')
+      + '</div>'
+      + '<p class="plano-letra-miuda">O teste grátis não pede cartão e termina sozinho. Se você assinar, '
+        + 'a cobrança é mensal e recorrente no cartão cadastrado: R$ 10,00 por mês no Pro e R$ 15,00 por '
+        + 'mês no Max. O valor por semana é só uma referência de comparação. Você pode cancelar quando '
+        + 'quiser, pelo Mercado Pago.</p>';
+    if(typeof tornarAcessivel === 'function') tornarAcessivel(alvo);
+    return;
+  }
+
   // Assinou, mas o pagamento ainda nao foi autorizado (ou falhou). Dizer
   // isso e melhor que mostrar "Free" para quem acabou de pagar.
-  var pendente = PLANO_ATUAL !== 'free' && PLANO_STATUS !== 'ativo';
+  var pendente = PLANO_ATUAL !== 'free' && PLANO_STATUS !== 'ativo' && PLANO_ORIGEM !== 'teste';
 
   alvo.innerHTML =
     '<div class="plano-atual">'
@@ -308,10 +401,11 @@ function cartaoPlano(qual, atual){
   var p = PLANOS[qual], ehAtual = qual === atual;
   var ordem = PLANO_ORDEM[qual];
 
+  var emTesteAgora = atual === 'teste';
   var selos = {
-    free: ehAtual ? 'Seu plano' : 'Plano gratuito',
+    free: ehAtual ? 'Seu plano' : (emTesteAgora ? 'Depois do teste' : 'Plano gratuito'),
     pro:  ehAtual ? 'Seu plano' : 'Mais completo',
-    max:  ehAtual ? 'Seu plano' : 'Mais vantajoso'
+    max:  ehAtual ? 'Seu plano' : (emTesteAgora ? 'Você está testando' : 'Mais vantajoso')
   };
   var descricoes = {
     free: 'Para organizar o básico do dia sem pagar nada.',
@@ -333,6 +427,9 @@ function cartaoPlano(qual, atual){
   var acao;
   if(ehAtual){
     acao = '<button class="btn btn-ghost btn-sm" disabled>Plano atual</button>';
+  }else if(qual === 'free' && emTesteAgora){
+    // No teste nao ha o que cancelar: o Free vem sozinho no fim.
+    acao = '<button class="btn btn-ghost btn-sm" disabled>Vem sozinho no fim do teste</button>';
   }else if(qual === 'free'){
     acao = '<button class="btn btn-ghost btn-sm" onclick="planoCancelar()">Voltar para o Free</button>';
   }else{
@@ -372,4 +469,150 @@ function perfilAba(qual){
     botoes[i].setAttribute('aria-pressed', String((i === 0) === conta));
   }
   if(!conta) renderAssinaturas();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TRAVAS DO DINHEIRO
+//
+// No Free ficam os bancos (aba Ganhos) e os lancamentos de gasto. Graficos,
+// medias e a aba Geral sao do Pro para cima.
+//
+// A trava nao esconde o bloco: ela o mostra DESFOCADO, com os dados da
+// propria pessoa por baixo. Um cadeado sobre uma caixa vazia nao diz nada;
+// o desenho borrado do proprio grafico diz "isso ja e seu, falta destravar".
+// O conteudo borrado fica inerte (sem foco, sem clique, fora do leitor de
+// tela) — so o convite responde.
+// ═══════════════════════════════════════════════════════════════════════
+
+var TRAVAS_DINHEIRO = [
+  {id:'metrica-maior-cat', compacta:true},
+  {id:'metrica-media',     compacta:true},
+  {id:'gastos-pizza-painel', titulo:'Para onde vai o seu dinheiro?',
+    texto:'O gráfico por categoria mostra, num relance, o que mais pesa no seu mês.'},
+  {id:'ganhos-dash', titulo:'De onde vem o seu dinheiro?',
+    texto:'Veja quais entradas mais pesam e com que frequência cada uma cai.'},
+  {id:'fin-aba-geral', titulo:'A visão completa do seu dinheiro',
+    texto:'Saldo de tudo, médias por categoria e o dia da semana em que você mais gasta, numa tela só.'}
+];
+
+function aplicarTravasDinheiro(){
+  var liberado = temRecurso('financas');
+  TRAVAS_DINHEIRO.forEach(function(t){
+    var el = document.getElementById(t.id);
+    if(el) trancarBloco(el, !liberado, t);
+  });
+  // A aba Geral inteira e do Pro: o botao dela mostra o cadeado.
+  var aba = document.getElementById('fin-tab-geral');
+  if(aba){
+    aba.classList.toggle('aba-trancada', !liberado);
+    aba.setAttribute('aria-label', liberado ? 'Geral' : 'Geral, recurso do Ticolino Pro');
+  }
+}
+
+function trancarBloco(el, trancar, t){
+  var velha = el.querySelector(':scope > .tranca');
+  Array.prototype.forEach.call(el.children, function(filho){
+    if(filho.classList.contains('tranca')) return;
+    if(trancar){ filho.setAttribute('inert', ''); filho.setAttribute('aria-hidden', 'true'); }
+    else { filho.removeAttribute('inert'); filho.removeAttribute('aria-hidden'); }
+  });
+  el.classList.toggle('trancado', trancar);
+  el.classList.toggle('trancado-compacto', trancar && !!t.compacta);
+  if(!trancar){ if(velha) velha.remove(); return; }
+  if(velha) return;
+  var tr = document.createElement('div');
+  tr.className = 'tranca';
+  if(t.compacta){
+    tr.innerHTML = '<button type="button" class="tranca-chip" onclick="mostrarLimite(\'financas\')">'
+      + '<span aria-hidden="true">🔒</span> Pro</button>';
+  }else{
+    // Quem viu isso no teste gratis ouve outra frase: nao e novidade, e algo
+    // que ela ja usou e continua ali.
+    var jaViu = testeAcabou();
+    tr.innerHTML = '<div class="tranca-caixa">'
+      + '<div class="tranca-icone" aria-hidden="true">🔒</div>'
+      + '<div class="tranca-titulo">' + esc(t.titulo) + '</div>'
+      + '<p class="tranca-texto">' + esc(jaViu
+          ? 'Você usou isso no teste grátis. Continua tudo aqui, com os seus dados — é só destravar.'
+          : t.texto) + '</p>'
+      + '<button type="button" class="btn btn-primary btn-sm" onclick="irParaPlanos()">Liberar com o Pro</button>'
+      + '<div class="tranca-preco">R$ 10,00 por mês — R$ 2,50 por semana</div>'
+      + '</div>';
+  }
+  el.appendChild(tr);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FAIXA DO TESTE GRATIS
+//
+// Quando faltam 3 dias ou mais: discreta, so na Home, avisando que esta
+// tudo liberado e ate quando. Nos ultimos 3 dias: em toda pagina, com o que
+// volta a ficar trancado — e fechavel ate o dia seguinte. A urgencia e a
+// data de verdade; nada de contador inventado.
+// ═══════════════════════════════════════════════════════════════════════
+
+function chaveFaixaHoje(){ return 'mindt-faixa-teste-' + (typeof hojeStr === 'function' ? hojeStr() : ''); }
+
+function pintarFaixaTeste(){
+  var f = document.getElementById('faixa-teste');
+  if(!f) return;
+  if(!emTeste()){ f.hidden = true; return; }
+  var faltam = diasRestantesTeste();
+  var ult = dataCurta(ultimoDiaTeste());
+  var naHome = !!document.querySelector('#page-home.active');
+  var fechada = false;
+  try { fechada = localStorage.getItem(chaveFaixaHoje()) === '1'; } catch(e){}
+
+  var urgente = faltam !== null && faltam <= 2;
+  if((!urgente && !naHome) || (urgente && fechada)){ f.hidden = true; return; }
+
+  var texto, cta;
+  if(!urgente){
+    texto = '🎁 Você está testando o Ticolino Max de graça até ' + ult + '. Gráficos, relatórios e lembretes estão liberados — aproveite.';
+    cta = 'Ver os planos';
+  }else if(faltam === 2){
+    texto = '⏳ Faltam 2 dias do seu Ticolino Max. Depois de ' + ult + ', gráficos, relatórios e lembretes voltam a ficar trancados.';
+    cta = 'Continuar com o Ticolino';
+  }else if(faltam === 1){
+    var feito = conquistasDoTeste();
+    texto = '⏳ Amanhã acaba o seu Ticolino Max.' + (feito ? ' Nesses dias você ' + feito + ' — dá pra continuar sem perder o ritmo.' : ' Dá pra continuar sem perder nada do que você montou.');
+    cta = 'Continuar com o Ticolino';
+  }else{
+    texto = '🐹 Hoje é o último dia do seu Ticolino Max. Ele acaba à meia-noite.';
+    cta = 'Continuar com o Ticolino';
+  }
+  f.className = 'faixa-teste' + (urgente ? ' urgente' : '');
+  f.innerHTML = '<span class="faixa-teste-texto">' + esc(texto) + '</span>'
+    + '<button type="button" class="btn btn-sm ' + (urgente ? 'btn-primary' : 'btn-ghost') + '" onclick="irParaPlanos()">' + cta + '</button>'
+    + (urgente ? '<button type="button" class="faixa-teste-fechar" aria-label="Fechar até amanhã" onclick="fecharFaixaTeste()">✕</button>' : '');
+  f.hidden = false;
+}
+
+function fecharFaixaTeste(){
+  try { localStorage.setItem(chaveFaixaHoje(), '1'); } catch(e){}
+  var f = document.getElementById('faixa-teste'); if(f) f.hidden = true;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FIM DO TESTE — um aviso so, na primeira abertura depois do fim.
+// Sem culpa e sem susto: o que fica, o que tranca, e a porta aberta.
+// ═══════════════════════════════════════════════════════════════════════
+
+function avisarFimDoTeste(){
+  if(!testeAcabou() || planoAtivo() !== 'free') return;
+  var chave = 'mindt-fim-teste-visto';
+  try { if(localStorage.getItem(chave) === '1') return; localStorage.setItem(chave, '1'); } catch(e){ return; }
+  var feito = conquistasDoTeste();
+  var tico = document.getElementById('limite-tico');
+  if(tico && typeof ticolino === 'function') tico.innerHTML = ticolino('triste', 72);
+  document.getElementById('limite-frase').textContent =
+    'Seu teste do Ticolino Max acabou' + (feito ? ' — e nesses dias você ' + feito + '.' : '.');
+  document.getElementById('limite-nota').textContent =
+    'Tudo o que você criou continua aqui: tarefas, metas, gastos e bancos. '
+    + 'O que volta a ficar trancado são os gráficos e as médias do Dinheiro, os relatórios, '
+    + 'os lembretes e o XP em dobro. Para continuar com tudo, é só assinar — leva 1 minuto '
+    + 'e dá para cancelar quando quiser.';
+  var cta = document.getElementById('limite-cta');
+  if(cta) cta.textContent = 'Continuar com o Ticolino';
+  openModal('modal-limite');
 }
