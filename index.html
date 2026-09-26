@@ -406,6 +406,8 @@
   </div>
 
   <main id="main">
+    <!-- Faixa do teste gratis. Pintada por pintarFaixaTeste() em js/plano.js. -->
+    <div class="faixa-teste" id="faixa-teste" role="status" hidden></div>
     <section class="page active" id="page-home">
       <!-- A floresta do Ticolino. Preenchida por montarFloresta() em js/floresta.js;
            fica vazia no HTML para nao pesar o carregamento inicial. -->
@@ -573,12 +575,12 @@
           <div class="value" id="gastos-total">R$ 0,00</div>
           <div class="delta" id="gastos-count-txt">0 lançamentos</div>
         </div>
-        <div class="big-metric">
+        <div class="big-metric" id="metrica-maior-cat">
           <div class="label" data-i18n="biggestCategory">Maior categoria</div>
           <div class="value value-sm value-texto" id="gastos-maior-cat">—</div>
           <div class="delta" id="gastos-maior-val"></div>
         </div>
-        <div class="big-metric">
+        <div class="big-metric" id="metrica-media">
           <div class="label" data-i18n="avgPerEntry">Média por lançamento</div>
           <div class="value value-sm" id="gastos-media">R$ 0,00</div>
         </div>
@@ -632,7 +634,7 @@
       </div>
 
       <!-- GRÁFICO DE PIZZA -->
-      <div class="glass painel" style="margin-bottom:20px">
+      <div class="glass painel" id="gastos-pizza-painel" style="margin-bottom:20px">
         <div class="section-title" style="margin:0 0 16px 0">Distribuição por categoria</div>
         <div class="gastos-pizza-grid">
           <div class="gastos-pizza-donut">
@@ -1717,7 +1719,7 @@
     <p class="plano-modal-frase" id="limite-frase"></p>
     <p class="plano-modal-nota" id="limite-nota"></p>
     <div class="modal-actions">
-      <button class="btn btn-primary" onclick="irParaPlanos()">Ver os planos</button>
+      <button class="btn btn-primary" id="limite-cta" onclick="irParaPlanos()">Ver os planos</button>
       <button class="btn btn-ghost" onclick="closeModal('modal-limite')">Agora não</button>
     </div>
   </div>

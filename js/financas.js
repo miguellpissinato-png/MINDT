@@ -281,7 +281,7 @@ function renderGanhos(){
         + historicoGanhosHTML(lista)
       + '</div>' : '')
 
-    + (_ganhosDash ? '<div class="glass painel fin-secao">'
+    + (_ganhosDash ? '<div class="glass painel fin-secao" id="ganhos-dash">'
         + '<div class="section-title" style="margin:0 0 16px 0">De onde vem o seu dinheiro</div>'
         + '<div class="fin-pizza-linha">'
           + '<div class="fin-pizza-caixa"><canvas id="pizza-ganhos" width="180" height="180"></canvas></div>'
@@ -298,6 +298,7 @@ function renderGanhos(){
     var leg = document.getElementById('pizza-ganhos-legenda');
     if(leg) leg.innerHTML = legendaHTML(fatias, 'Nenhuma entrada registrada nesta instituição.');
   }
+  if(typeof aplicarTravasDinheiro === 'function') aplicarTravasDinheiro();
 }
 
 function renderInstChips(){
@@ -1263,6 +1264,7 @@ function renderGeral(){
   renderGeralPizzas();
   renderGeralMedias();
   renderGraficoSemana();
+  if(typeof aplicarTravasDinheiro === 'function') aplicarTravasDinheiro();
 }
 
 function renderGeralUltimosGastos(){
