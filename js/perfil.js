@@ -30,7 +30,11 @@ function saveGrupo(){
 }
 function savePerfil(){
   var name=document.getElementById('perfil-name-input').value.trim();if(name)state.perfil.name=name;
-  saveState();closeModal('modal-edit-perfil');renderPerfil();toast('👤 Perfil atualizado!');
+  saveState();closeModal('modal-edit-perfil');renderPerfil();
+  // O nome tambem aparece no cartao do menu lateral; sem isto ele so
+  // mudava depois de abrir Estudos ou recarregar o app.
+  if(typeof updateXPDisplay==='function') updateXPDisplay();
+  toast('👤 Perfil atualizado!');
 }
 
 // As 24 horas do seletor de lembrete. Montadas em JavaScript para nao

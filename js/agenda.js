@@ -515,12 +515,14 @@ function salvarEvento() {
     state.eventos.push(evData);
     // Handle recurrence: create copies for future dates
     if(evData.repeticao) {
-      var baseDate=new Date(data+'T12:00:00');
-      var intervals={semanal:7,quinzenal:14,mensal:30,anual:365};
-      var days=intervals[evData.repeticao]||7;
+      // Mensal e anual andam no calendario, nao em dias corridos: "mensal"
+      // era a cada 30 dias e o evento do dia 15 ia parar no dia 14, 16...
+      var intervals={semanal:7,quinzenal:14};
       for(var r=1;r<=12;r++){
-        var nd=new Date(baseDate.getTime()+r*days*86400000);
-        var nEv=Object.assign({},evData,{id:uid(),data:nd.toISOString().slice(0,10),createdAt:new Date().toISOString()});
+        var ndStr = evData.repeticao==='mensal' ? recSomaMeses(data, r)
+                  : evData.repeticao==='anual'  ? recSomaMeses(data, 12*r)
+                  : recSomaDias(data, r*(intervals[evData.repeticao]||7));
+        var nEv=Object.assign({},evData,{id:uid(),data:ndStr,createdAt:new Date().toISOString()});
         state.eventos.push(nEv);
       }
     }

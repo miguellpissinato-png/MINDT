@@ -2246,8 +2246,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Poppins',system-ui
   box-shadow:var(--glow-forest);
   padding:20px;
 }
-#home-streak-card .tico-streak-num,#home-streak-card .tico-streak-nivel{color:var(--text-on-forest)}
-#home-streak-card .tico-streak-label,#home-streak-card .tico-streak-xp{
+/* As classes certas sao .tico-level e .tico-xp-text (as do index.html).
+   O seletor antigo apontava para .tico-streak-nivel/.tico-streak-xp, que
+   nao existem: no tema claro "Nivel 4 · 40/100 XP" ficava escuro sobre o
+   verde escuro e quase sumia. */
+#home-streak-card .tico-streak-num,#home-streak-card .tico-level{color:var(--text-on-forest)}
+#home-streak-card .tico-streak-label,#home-streak-card .tico-xp-text{
   color:var(--text-on-forest-2);opacity:1
 }
 #home-streak-card .progress-bar-track{background:rgba(20,18,10,0.42)}
@@ -2485,10 +2489,12 @@ input[type="checkbox"]{accent-color:var(--accent)}
 @media (max-width:760px){
   .gastos-pizza-grid{grid-template-columns:minmax(0,1fr);gap:20px}
 }
-/* O miolo da rosquinha tem 100px de vao. O total vai ate a borda do anel e
-   para ai: pintarTotalDaRosquinha() encolhe e, em ultimo caso, abrevia. */
+/* O miolo da rosquinha tem 100px de vao (raio interno 50 em renderPizzaChart).
+   O total vai ate a borda do anel e para ai: pintarTotalDaRosquinha()
+   encolhe e, em ultimo caso, abrevia. Estava 150px — mais largo que o vao —
+   e "R$ 4.209,00" passava por cima do anel. */
 #pizza-total-label{
-  max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:92px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   font-variant-numeric:tabular-nums;
 }
 #pizza-legend{min-width:0}
@@ -2613,13 +2619,12 @@ input[type="checkbox"]{accent-color:var(--accent)}
 .nav-rodape{flex:0 0 auto;margin-top:auto}
 
 /* ── Home no layout do design system ──────────────────────────────────
-   O conteudo tem largura maxima de 780px. Nao e economia de espaco: e o
-   que deixa a floresta respirar a direita em vez de ficar so atras dos
-   cartoes. */
-#page-home>*:not(#floresta){max-width:780px}
+   A largura vem do container comum das paginas (ver "Largura das
+   paginas"). Antes a Home tinha 780px presos a esquerda: em tela grande
+   metade da janela ficava vazia e parecia quebrado. */
 /* Sequencia e fala do Ticolino lado a lado. */
 .home-dupla{
-  display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:780px;
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
   align-items:stretch;
 }
 .home-dupla>*{margin-bottom:0;height:100%}
@@ -2747,7 +2752,6 @@ input[type="checkbox"]{accent-color:var(--accent)}
    EXERCÍCIOS
    ════════════════════════════════════════════════════════════════════════ */
 
-#page-exercicios{max-width:900px}
 .ex-header{align-items:flex-end}
 .ex-eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
   color:var(--text-3);margin-bottom:6px}
@@ -2907,7 +2911,6 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .ex-fala{text-align:center}
 }
 @media (max-width:768px){
-  #page-exercicios{max-width:none}
   .ex-header{flex-wrap:wrap;gap:12px;align-items:flex-start}
   /* No celular a regra geral vira `.page-header>div{display:flex}`, o que
      jogaria a data, o titulo e o subtitulo lado a lado na mesma linha. */
@@ -3773,3 +3776,23 @@ input[type="checkbox"]{accent-color:var(--accent)}
   width:32px;height:32px;border-radius:8px}
 .faixa-teste-fechar:hover{color:var(--text);background:var(--surface-2)}
 @media (max-width:560px){ .faixa-teste .btn{flex:1 1 auto;justify-content:center} }
+
+/* ── Largura das paginas ──────────────────────────────────────────────
+   Uma largura so para todas as paginas, centralizada. Antes cada uma tinha
+   a sua: a Home 780px presa a esquerda, Exercicios 900px e o resto
+   esticava ate a borda — num monitor grande, o interruptor do Perfil
+   ficava a 1.600px do texto que ele liga. 1120px cabe a agenda de 7
+   colunas com a lateral de eventos e mantem as linhas legiveis. No
+   celular nao muda nada: a tela ja e mais estreita que isso. */
+#main>.page,#main>.faixa-teste{max-width:1120px;margin-left:auto;margin-right:auto}
+
+/* ── Menu lateral em tela baixa ───────────────────────────────────────
+   Notebook com zoom de 125% tem ~780px de altura util. Os 10 itens mais o
+   rodape (tema, nivel, perfil) passavam disso e "Notas" ficava cortado
+   pela metade — a lista rola, mas sem barra ninguem percebe. Em tela baixa
+   os itens ficam um pouco mais juntos e tudo cabe. */
+@media (min-width:769px) and (max-height:840px){
+  #sidebar{padding-top:16px;padding-bottom:12px}
+  .nav-item{padding-top:8px;padding-bottom:8px}
+  .nav-nivel{margin-top:4px;padding-top:8px;padding-bottom:8px}
+}
