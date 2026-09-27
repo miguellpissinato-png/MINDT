@@ -14,8 +14,11 @@ var chegandoNaPagina = false;
 function goToPage(name){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===name);});
+  // "Conhecer novos Ticolinos" e uma pagina de dentro de Amizades.
+  var noMenu = name === 'conhecer' ? 'amizades' : name;
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
   chegandoNaPagina = true;
+  if(typeof notifAlternar === 'function' && typeof NOTIF !== 'undefined' && NOTIF.aberto) notifAlternar(false);
   try {
   if(name==='home')renderHome();
   else if(name==='metas')renderMetas();
@@ -28,6 +31,8 @@ function goToPage(name){
   else if(name==='exercicios')renderExercicios();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();
+  else if(name==='amizades')renderAmizades();
+  else if(name==='conhecer')renderConhecer();
   } finally { chegandoNaPagina = false; }
   // Os numeros que ocupam um cartao inteiro so podem ser medidos depois de
   // pintados e com a pagina visivel. Este e o unico funil por onde toda

@@ -9,6 +9,8 @@
 // sync.js: guarda de versao, marcacao do que mudou e mesclagem no conflito.
 // Aqui ficou so a porta de entrada, para nao mexer nos 41 pontos.
 async function saveState(){
+  // Vitrine das Amizades (XP, ofensiva, paginas). No maximo 1x por minuto.
+  if (typeof publicarPerfil === 'function') publicarPerfil();
   return gravar();
 }
 

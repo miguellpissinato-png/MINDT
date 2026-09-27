@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
       continue;
     }
 
+    await registrarNoSino(db, pessoa.user_id, "lembrete", recado);
     const canal = pessoa.canal || "tela";
 
     // O prazo de validade da mensagem de push e o que falta para acabar o
@@ -322,6 +323,7 @@ async function avisarTarefasDaHora(db: any, temChaves: boolean) {
               "Para parar, tire o horário dela em Tarefas › Recorrentes.",
     };
 
+    await registrarNoSino(db, userId, "tarefa", recado);
     const canal = tarefas[0].canal || "tela";
     const validade = Math.max(60, Number(tarefas[0].segundos_ate_meia_noite) || 6 * 3600);
     let temAparelho = false;
@@ -363,6 +365,7 @@ async function avisarFimDoTeste(db: any, temChaves: boolean) {
     const recado = recadoFimDoTeste(l.marco, data?.data ?? {}, l.expira_em);
 
     rel.pessoas++;
+    await registrarNoSino(db, l.user_id, "teste", recado);
     const canal = l.canal || "email";
     const validade = Math.max(60, Number(l.segundos_ate_meia_noite) || 6 * 3600);
     let temAparelho = false;
@@ -442,6 +445,20 @@ function recadoFimDoTeste(marco: string, estado: any, expiraEm: string) {
 function juntar(nomes: string[]) {
   if (nomes.length <= 1) return nomes.join("");
   return nomes.slice(0, -1).join(", ") + " e " + nomes[nomes.length - 1];
+}
+
+// ─── Sininho da Home ───────────────────────────────────────────────────
+// Toda notificacao que sai daqui tambem fica registrada no sininho do app
+// (tabela notificacoes; some depois de 1 dia). Falhar aqui nao impede o
+// envio: o sino e um extra, o push e o e-mail sao o aviso principal.
+async function registrarNoSino(db: any, userId: string, tipo: string, recado: any) {
+  const { error } = await db.from("notificacoes").insert({
+    user_id: userId,
+    tipo,
+    titulo: String(recado.titulo || "Mindt").slice(0, 140),
+    corpo: String(recado.push || recado.corpo || "").slice(0, 400),
+  });
+  if (error) console.error("notificacoes:", error);
 }
 
 // ─── Push ──────────────────────────────────────────────────────────────

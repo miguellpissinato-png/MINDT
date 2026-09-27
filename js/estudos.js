@@ -51,239 +51,94 @@ function cancelInlineEdit() {
   document.getElementById('timer-label').textContent = timerRunning ? 'Estudando...' : 'Clique no tempo para editar';
 }
 
-// ─── TROPHY SYSTEM ───────────────────────────────────────
+// ─── CORES DO TICOLINO ──────────────────────────────────
+// Substituem os antigos trofeus: cada marco de XP de estudo libera uma cor
+// nova para o Ticolino (paletas em TICO_CORES, js/helpers.js). As funcoes
+// mantem os nomes de antes (renderTrophies, checkTrophyUnlock...) porque
+// sao chamadas de varios pontos do app.
 
-var TROPHIES = [
-  {
-    id: 'viajante',
-    name: 'Viajante do Tempo',
-    desc: 'Primeiros passos na jornada do conhecimento',
-    xpRequired: 50,
-    color: '#E3CA96',
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#E3CA96"/>
-          <stop offset="100%" style="stop-color:#B08F4E"/>
-        </linearGradient>
-        <filter id="glow1"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <!-- Hourglass body -->
-      <path d="M30 15 L70 15 L55 50 L70 85 L30 85 L45 50 Z" fill="url(#g1)" opacity="0.9" filter="url(#glow1)" rx="4"/>
-      <rect x="26" y="12" width="48" height="8" rx="4" fill="#E3CA96" opacity="0.8"/>
-      <rect x="26" y="80" width="48" height="8" rx="4" fill="#E3CA96" opacity="0.8"/>
-      <ellipse cx="50" cy="50" rx="8" ry="8" fill="white" opacity="0.6"/>
-      <circle cx="50" cy="50" r="4" fill="#fff" opacity="0.9"/>
-      <!-- Glass shine -->
-      <path d="M34 18 L44 48" stroke="white" stroke-width="2" opacity="0.3" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    id: 'curioso',
-    name: 'Mente Curiosa',
-    desc: 'A curiosidade é o motor do aprendizado',
-    xpRequired: 100,
-    color: '#6CB2E5',
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#E3CA96"/>
-          <stop offset="100%" style="stop-color:#1D3A2E"/>
-        </linearGradient>
-        <filter id="glow2"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <!-- Brain -->
-      <ellipse cx="50" cy="46" rx="28" ry="24" fill="url(#g2)" opacity="0.9" filter="url(#glow2)"/>
-      <path d="M30 38 Q35 28 45 32 Q50 24 58 30 Q68 26 70 38 Q78 42 72 52 Q76 60 68 64 Q60 72 50 68 Q40 72 32 64 Q24 60 28 52 Q22 42 30 38Z" fill="url(#g2)" opacity="0.95"/>
-      <!-- Folds -->
-      <path d="M38 36 Q44 32 50 36 Q56 32 62 36" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M34 48 Q40 44 46 48 Q52 44 58 48 Q64 44 68 48" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <path d="M36 58 Q44 54 52 58 Q60 54 66 58" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <!-- Stem -->
-      <rect x="46" y="68" width="8" height="10" rx="4" fill="#E3CA96" opacity="0.8"/>
-      <!-- Base -->
-      <ellipse cx="50" cy="80" rx="16" ry="5" fill="#B08F4E" opacity="0.7"/>
-      <!-- Shine -->
-      <ellipse cx="42" cy="40" rx="6" ry="4" fill="white" opacity="0.2" transform="rotate(-20 42 40)"/>
-    </svg>`
-  },
-  {
-    id: 'genio',
-    name: 'Gênio Moderno',
-    desc: 'Einstein ficaria orgulhoso',
-    xpRequired: 200,
-    color: '#F5A03D',
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#D28756"/>
-          <stop offset="100%" style="stop-color:#B08F4E"/>
-        </linearGradient>
-        <filter id="glow3"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <!-- Light bulb -->
-      <path d="M50 18 C34 18 25 30 25 42 C25 52 31 60 38 65 L38 72 L62 72 L62 65 C69 60 75 52 75 42 C75 30 66 18 50 18Z" fill="url(#g3)" opacity="0.9" filter="url(#glow3)"/>
-      <!-- Filament -->
-      <path d="M42 58 Q46 50 50 54 Q54 50 58 58" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <line x1="50" y1="54" x2="50" y2="46" stroke="white" stroke-width="1.5" opacity="0.7"/>
-      <!-- Screw base -->
-      <rect x="38" y="72" width="24" height="5" rx="2" fill="#E3CA96" opacity="0.9"/>
-      <rect x="40" y="77" width="20" height="4" rx="2" fill="#6d28d9" opacity="0.9"/>
-      <rect x="42" y="81" width="16" height="4" rx="2" fill="#5b21b6" opacity="0.9"/>
-      <!-- Shine -->
-      <ellipse cx="40" cy="32" rx="7" ry="5" fill="white" opacity="0.25" transform="rotate(-20 40 32)"/>
-      <!-- Stars -->
-      <circle cx="20" cy="28" r="2" fill="#F5A03D" opacity="0.8"/>
-      <circle cx="80" cy="25" r="2.5" fill="#E3CA96" opacity="0.7"/>
-      <circle cx="15" cy="48" r="1.5" fill="#E3CA96" opacity="0.6"/>
-    </svg>`
-  },
-  {
-    id: 'viciado',
-    name: 'Viciado em Estudos',
-    desc: 'O conhecimento é seu vício mais saudável',
-    xpRequired: 350,
-    color: '#54AB7A',
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#6FB58C"/>
-          <stop offset="100%" style="stop-color:#1D3A2E"/>
-        </linearGradient>
-        <filter id="glow4"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <!-- Book stack -->
-      <rect x="22" y="62" width="56" height="12" rx="4" fill="url(#g4)" opacity="0.95" filter="url(#glow4)"/>
-      <rect x="25" y="48" width="50" height="14" rx="4" fill="#E3CA96" opacity="0.9"/>
-      <rect x="28" y="35" width="44" height="14" rx="4" fill="#9d5cf0" opacity="0.85"/>
-      <rect x="31" y="23" width="38" height="13" rx="4" fill="#E3CA96" opacity="0.8"/>
-      <!-- Spine lines -->
-      <line x1="30" y1="62" x2="30" y2="74" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-      <line x1="33" y1="48" x2="33" y2="62" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-      <line x1="36" y1="35" x2="36" y2="49" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-      <line x1="39" y1="23" x2="39" y2="36" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-      <!-- Page lines -->
-      <line x1="38" y1="27" x2="64" y2="27" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="3,2"/>
-      <line x1="38" y1="31" x2="60" y2="31" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
-      <!-- Shine -->
-      <rect x="68" y="63" width="6" height="10" rx="3" fill="white" opacity="0.2"/>
-      <!-- Base -->
-      <ellipse cx="50" cy="76" rx="24" ry="5" fill="#2d1060" opacity="0.5"/>
-    </svg>`
-  },
-  {
-    id: 'mestre',
-    name: 'Mestre Iluminado',
-    desc: 'Você transcendeu — o conhecimento flui por você',
-    xpRequired: 500,
-    color: '#E3B341',
-    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#FFD166"/>
-          <stop offset="50%" style="stop-color:#E3CA96"/>
-          <stop offset="100%" style="stop-color:#B08F4E"/>
-        </linearGradient>
-        <filter id="glow5"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <!-- Trophy cup -->
-      <path d="M35 20 L65 20 L60 55 Q56 65 50 67 Q44 65 40 55 Z" fill="url(#g5)" opacity="0.95" filter="url(#glow5)"/>
-      <!-- Handles -->
-      <path d="M35 25 Q20 28 22 40 Q24 50 35 48" stroke="url(#g5)" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M65 25 Q80 28 78 40 Q76 50 65 48" stroke="url(#g5)" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <!-- Stem -->
-      <rect x="44" y="67" width="12" height="10" rx="4" fill="#E3CA96" opacity="0.9"/>
-      <!-- Base -->
-      <rect x="32" y="77" width="36" height="8" rx="4" fill="#B08F4E" opacity="0.9"/>
-      <!-- Star inside cup -->
-      <polygon points="50,28 52.5,34 59,34 54,38 56,45 50,41 44,45 46,38 41,34 47.5,34" fill="white" opacity="0.4"/>
-      <!-- Stars around -->
-      <circle cx="22" cy="20" r="2.5" fill="#E3B341" opacity="0.9"/>
-      <circle cx="78" cy="18" r="2" fill="#E3B341" opacity="0.8"/>
-      <circle cx="18" cy="38" r="1.5" fill="#E3CA96" opacity="0.7"/>
-      <circle cx="82" cy="38" r="2" fill="#E3CA96" opacity="0.7"/>
-      <circle cx="50" cy="12" r="3" fill="#E3B341" opacity="0.9"/>
-      <!-- Shine -->
-      <ellipse cx="44" cy="30" rx="5" ry="7" fill="white" opacity="0.2" transform="rotate(-15 44 30)"/>
-    </svg>`
-  }
-];
+var corEmVista = null;   // cor mostrada no destaque (a clicada na grade)
 
-var unlockedTrophies = [];
-var pendingTrophyPopup = null;
-
-// ── Render trophy grid ──
 function renderTrophies() {
   var grid = document.getElementById('trophies-grid');
   if(!grid) return;
+  var emUso = minhaCorTico();
+  if(!corEmVista) corEmVista = emUso;
+  var liberadas = TICO_CORES.filter(function(c){ return studyXP >= c.xp; }).length;
 
-  var unlocked = TROPHIES.filter(function(t){ return studyXP >= t.xpRequired; });
-  var total = TROPHIES.length;
-
-  // Update counters
-  var counter = document.getElementById('trophy-total-counter');
-  if(counter) counter.textContent = unlocked.length + ' / ' + total + ' desbloqueados';
   var hCounter = document.getElementById('trophy-counter-text');
-  if(hCounter) hCounter.textContent = unlocked.length + ' / ' + total;
+  if(hCounter) hCounter.textContent = liberadas + ' / ' + TICO_CORES.length;
+  var xpEl = document.getElementById('cores-xp');
+  if(xpEl) xpEl.textContent = studyXP + ' XP de estudo';
 
-  grid.innerHTML = TROPHIES.map(function(t) {
-    var isUnlocked = studyXP >= t.xpRequired;
-    var pct = Math.min(100, Math.round((studyXP / t.xpRequired) * 100));
-    var xpLeft = Math.max(0, t.xpRequired - studyXP);
-
-    return '<div class="trophy-card ' + (isUnlocked ? 'unlocked' : 'locked-card') + '" id="trophy-card-' + t.id + '">'
-      + '<div class="trophy-model ' + (isUnlocked ? '' : 'locked') + '">' + t.svg + '</div>'
-      + '<div class="trophy-name">' + esc(t.name) + '</div>'
-      + '<div class="trophy-xp-wrap">'
-        + '<div class="trophy-xp-bar-track">'
-          + '<div class="trophy-xp-bar-fill" style="width:' + pct + '%"></div>'
-        + '</div>'
-        + '<div class="trophy-xp-label ' + (isUnlocked ? 'done' : '') + '">'
-          + (isUnlocked ? '✓ Desbloqueado!' : xpLeft + ' XP restantes')
-        + '</div>'
-      + '</div>'
-      + (!isUnlocked ? '<div class="trophy-lock-overlay">'
-          + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
-          + '<div class="trophy-lock-text">Bloqueado</div>'
-        + '</div>' : '')
+  // Destaque: a cor em vista, grande, com o que fazer com ela.
+  var c = ticoCor(corEmVista);
+  var livre = studyXP >= c.xp, usando = c.id === emUso;
+  var dest = document.getElementById('cores-destaque');
+  if(dest){
+    dest.innerHTML =
+      '<div class="cores-destaque-tico">' + ticolino('feliz', 120, false, c.id) + '</div>'
+      + '<div class="cores-destaque-txt">'
+        + '<div class="cores-destaque-nome">' + esc(c.nome) + '</div>'
+        + '<div class="cores-destaque-sub">' + (c.xp === 0 ? 'A cor de sempre do Ticolino.'
+            : livre ? 'Liberada com ' + c.xp + ' XP de estudo.'
+            : 'Faltam ' + (c.xp - studyXP) + ' XP de estudo para liberar.') + '</div>'
+        + (usando ? '<div class="cores-em-uso">✓ Em uso</div>'
+            : livre ? '<button type="button" class="btn btn-primary" onclick="usarCorTico(\'' + c.id + '\')">Usar esta cor</button>'
+            : '<div class="cores-falta"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + c.xp + ' XP</div>')
       + '</div>';
+  }
+
+  grid.innerHTML = TICO_CORES.map(function(t) {
+    var ok = studyXP >= t.xp, uso = t.id === emUso, vista = t.id === corEmVista;
+    return '<button type="button" class="cor-card' + (ok ? '' : ' trancada') + (vista ? ' em-vista' : '') + '"'
+      + ' aria-pressed="' + vista + '" onclick="verCorTico(\'' + t.id + '\')">'
+      + (uso ? '<span class="cor-check" aria-label="Em uso">✓</span>' : '')
+      + '<span class="cor-tico">' + ticolino('feliz', 64, false, t.id) + '</span>'
+      + '<span class="cor-nome">' + esc(t.nome) + '</span>'
+      + '<span class="cor-estado">' + (uso ? 'Em uso' : ok ? 'Liberada'
+          : '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + t.xp + ' XP') + '</span>'
+      + '</button>';
   }).join('');
 }
 
-// ── Check for newly unlocked trophies ──
+function verCorTico(id){ corEmVista = id; renderTrophies(); }
+
+function usarCorTico(id){
+  var c = ticoCor(id);
+  if(studyXP < c.xp) return;
+  if(!state.perfil) state.perfil = {};
+  state.perfil.cor = c.id;
+  saveState();
+  renderTrophies();
+  updateXPDisplay();                       // rosto do menu lateral
+  if(typeof renderHome === 'function') renderHome();
+  if(typeof publicarPerfil === 'function') publicarPerfil();
+  toast('🐹 Ticolino agora está ' + c.nome.toLowerCase() + '!');
+}
+
+// ── Cor nova liberada? ──
 function checkTrophyUnlock(previousXP) {
-  TROPHIES.forEach(function(t) {
-    var wasLocked = previousXP < t.xpRequired;
-    var nowUnlocked = studyXP >= t.xpRequired;
-    if(wasLocked && nowUnlocked) {
-      pendingTrophyPopup = t;
-    }
+  var nova = null;
+  TICO_CORES.forEach(function(c) {
+    if(c.xp > 0 && previousXP < c.xp && studyXP >= c.xp) nova = c;
   });
-  if(pendingTrophyPopup) {
-    // O valor e guardado AGORA, nao lido daqui a 1,2s. Dois trofeus
-    // destravados em sequencia agendavam dois disparos sobre a mesma
-    // variavel: o primeiro a chegar zerava, e o segundo chamava
-    // showTrophyPopup(null) — erro de JS, e o trofeu sumia sem aviso.
-    var trofeu = pendingTrophyPopup;
-    pendingTrophyPopup = null;
-    setTimeout(function() {
-      showTrophyPopup(trofeu);
-    }, 1200); // slight delay after timer finish celebration
+  if(nova) {
+    // O valor e guardado AGORA, nao lido depois do atraso: duas cores
+    // liberadas em sequencia nao podem disputar a mesma variavel.
+    setTimeout(function() { showTrophyPopup(nova); }, 1200);
   }
 }
 
-// ── Show trophy unlock popup ──
-function showTrophyPopup(trophy) {
-  if(!trophy) return;
+function showTrophyPopup(cor) {
+  if(!cor) return;
   var overlay = document.getElementById('trophy-popup-overlay');
   var nameEl = document.getElementById('popup-trophy-name');
   var modelEl = document.getElementById('popup-trophy-model');
   if(!overlay || !nameEl || !modelEl) return;
-
-  nameEl.textContent = '"' + trophy.name + '"';
-  modelEl.innerHTML = trophy.svg;
-
-  // Reset animation
+  nameEl.textContent = cor.nome;
+  modelEl.innerHTML = ticolino('feliz', 120, false, cor.id);
+  corEmVista = cor.id;
   overlay.classList.remove('show');
   void overlay.offsetWidth; // reflow
   overlay.classList.add('show');
@@ -296,12 +151,9 @@ function closeTrophyPopup() {
   if(overlay) overlay.classList.remove('show');
   var canvas = document.getElementById('confetti-canvas');
   if(canvas) { canvas.style.display = 'none'; stopConfetti(); }
-
-  // Scroll to trophies section smoothly
+  renderTrophies();
   var section = document.querySelector('.estudos-trophy-section');
-  if(section) {
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  if(section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Confetti ──
@@ -587,7 +439,7 @@ function updateXPDisplay() {
     var nf = document.getElementById('nav-nivel-fill');
     if (nf) nf.style.width = pct + '%';
     var nr = document.getElementById('nav-nivel-rosto');
-    if (nr && !nr.innerHTML) nr.innerHTML = ticolino('feliz', 34, true);
+    if (nr) nr.innerHTML = ticolino('feliz', 34, true);
   }
 }
 
