@@ -43,6 +43,7 @@ var ARQUIVOS = [
   './js/exercicios.js',
   './js/leitura.js',
   './js/amizades.js',
+  './js/notificacoes.js',
   './js/pwa.js',
   './icons/icon-192.png',
   './icons/icon-512.png',

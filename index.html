@@ -434,7 +434,17 @@
           <div class="tico-date" id="home-date"></div>
           <div class="tico-greeting" id="home-greeting">Olá</div>
         </div>
-        <button class="tico-avatar-btn" onclick="goToPage('perfil')" id="home-avatar" aria-label="Perfil"></button>
+        <div class="home-acoes">
+          <div class="sino-wrap">
+            <button type="button" class="sino-bt" id="sino-bt" onclick="notifAlternar()" aria-haspopup="dialog"
+                    aria-expanded="false" aria-controls="sino-painel" aria-label="Notificações">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="sino-selo" id="sino-selo" hidden></span>
+            </button>
+            <div class="sino-painel" id="sino-painel" role="dialog" aria-label="Notificações" hidden></div>
+          </div>
+          <button class="tico-avatar-btn" onclick="goToPage('perfil')" id="home-avatar" aria-label="Perfil"></button>
+        </div>
       </div>
 
       <div class="home-dupla">
@@ -1904,6 +1914,7 @@
 <script src="js/exercicios.js"></script>
 <script src="js/leitura.js"></script>
 <script src="js/amizades.js"></script>
+<script src="js/notificacoes.js"></script>
 <script src="js/pwa.js"></script>
 
 <!-- TROPHY UNLOCK POPUP -->

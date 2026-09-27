@@ -34,6 +34,7 @@ sb.auth.onAuthStateChange(function(event,session){
       // Amizades: selo de pedidos, meus numeros na vitrine e o convite que a
       // pessoa abriu (?amigo=) antes de entrar.
       if (typeof amzCarregar === 'function') amzCarregar().then(function(){ publicarPerfil(true); amzConvitePendente(); });
+      if (typeof notifIniciar === 'function') notifIniciar();   // sininho da Home
     }).catch(function(err){
       // Nao entrar no app com o estado vazio: o usuario acharia que perdeu
       // tudo, e a primeira gravacao sobrescreveria os dados de verdade.

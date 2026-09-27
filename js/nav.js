@@ -18,6 +18,7 @@ function goToPage(name){
   var noMenu = name === 'conhecer' ? 'amizades' : name;
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
   chegandoNaPagina = true;
+  if(typeof notifAlternar === 'function' && typeof NOTIF !== 'undefined' && NOTIF.aberto) notifAlternar(false);
   try {
   if(name==='home')renderHome();
   else if(name==='metas')renderMetas();
