@@ -384,7 +384,7 @@ function renderGastos(){
         +'<div class="gasto-group-header" data-gid="'+groupId+'" style="cursor:pointer">'
           +'<div class="gasto-group-dot" style="background:'+cor+'"></div>'
           +'<div class="gasto-group-name">'+esc(nome)+'</div>'
-          +'<span class="gasto-group-count">'+items.length+' item'+(items.length>1?'s':'')+'</span>'
+          +'<span class="gasto-group-count">'+items.length+' '+T(items.length===1?'item':'items')+'</span>'
           +'<div class="gasto-group-total">'+moeda(subtotal)+'</div>'
           +'<div class="gasto-group-arrow" id="arr-'+groupId+'">›</div>'
         +'</div>'
@@ -453,7 +453,7 @@ function toggleGastoGroup(id) {
   arrow.classList.toggle('open', !isOpen);
 }
 
-function gastoRow(icon,item){return '<div class="gasto-row"><div class="gasto-icon">'+icon+'</div><div class="gasto-info"><div class="gasto-name">'+esc(item.name)+'</div><div class="gasto-meta">'+(item.group||'Sem grupo')+' • '+(item.deadline||'Sem prazo')+'</div></div><div class="gasto-value">'+moeda(parseFloat(item.budget))+'</div></div>';}
+function gastoRow(icon,item){return '<div class="gasto-row"><div class="gasto-icon">'+icon+'</div><div class="gasto-info"><div class="gasto-name">'+esc(item.name)+'</div><div class="gasto-meta">'+esc(item.group||'Sem grupo')+' • '+esc(item.deadline||'Sem prazo')+'</div></div><div class="gasto-value">'+moeda(parseFloat(item.budget))+'</div></div>';}
 function switchGastosTab(tabId,btn){document.querySelectorAll('#page-gastos .tab-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.getElementById('metas-tab').style.display=tabId==='metas-tab'?'':'none';document.getElementById('tasks-tab').style.display=tabId==='tasks-tab'?'':'none';}
 
 // ─── ADICIONAR/EDITAR GASTO ──────────────────────────────
@@ -597,11 +597,11 @@ function saveGasto() {
     var tipo = document.getElementById('gasto-juros-tipo').value;
     var valorParcela = parseFloat(document.getElementById('gasto-valor-parcela').value) || (valor/n);
     // Create one entry per installment
-    var dataBase = new Date(data+'T12:00:00');
+    // Parcela i = mesmo dia, i meses depois. Compra no dia 31 cai no ultimo
+    // dia dos meses curtos: com setMonth, 31/01 + 1 mes virava 03/03 e a
+    // parcela de fevereiro sumia.
     for(var i=0;i<n;i++){
-      var d = new Date(dataBase);
-      d.setMonth(d.getMonth()+i);
-      var dStr = d.toISOString().slice(0,10);
+      var dStr = recSomaMeses(data, i);
       state.gastos.push({
         id:uid(), desc:desc, valor:valorParcela, categoriaId:catId,
         data:dStr, parcelas:n, parcelaAtual:i+1,

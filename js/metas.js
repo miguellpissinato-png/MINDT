@@ -45,7 +45,7 @@ function renderMetas(filter,groupFilter){
           +(m.desc?'<div class="meta-card-desc">'+esc(m.desc)+'</div>':'')
         +'</div>'
         +'<div>'
-          +(m.deadline?'<div class="meta-card-date">📅 '+(m.deadline||'Sem prazo')+'</div>':'')
+          +(m.deadline?'<div class="meta-card-date">📅 '+esc(m.deadline)+'</div>':'')
           +'<div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div><div class="progress-label">'+pct+'%</div></div>'
           +inlineChecklist
         +'</div>'
