@@ -1,0 +1,231 @@
+/* AMIZADES — aba social, pop-up do amigo e "Conhecer novos Ticolinos".
+   Segue o design "Ticolino — Aba Amizades" usando os tokens do app
+   (styles/main.css), entao os dois temas saem de graca. */
+
+/* ── Selo de pedidos no menu ─────────────────────────────────────────── */
+.nav-selo{
+  margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:99px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;
+  background:var(--accent);color:var(--text-on-accent);
+}
+.nav-item .nav-selo{position:relative}
+#sidebar:not(:hover) .nav-item .nav-selo{position:absolute;top:6px;left:34px;margin:0;min-width:16px;height:16px;font-size:10px}
+.m-icon{position:relative}
+.m-icon .nav-selo{position:absolute;top:-4px;right:-9px;min-width:16px;height:16px;font-size:10px}
+
+/* ── Estrutura da aba ────────────────────────────────────────────────── */
+.amz-raiz{max-width:640px;margin:0 auto}
+.amz-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.amz-topo .page-title{margin:0}
+.amz-topo-voltar{justify-content:flex-start}
+.amz-carregando{padding:40px 0;text-align:center;color:var(--text-3);font-size:14px}
+.amz-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+.amz-rotulo{display:block;margin:22px 0 10px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.amz-nota{font-size:13px;line-height:1.5;color:var(--text-3);margin:8px 0 0}
+.amz-centro{text-align:center}
+.amz-esq{text-align:left;margin:0}
+.amz-bt-largo{width:100%;justify-content:center;margin-top:14px}
+.amz-secao{display:flex;align-items:center;gap:8px;margin:28px 0 12px;font-size:17px;font-weight:700;color:var(--text)}
+.amz-conta{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--text-2)}
+
+.amz-icone-bt{
+  width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text-2);cursor:pointer;
+}
+.amz-icone-bt:hover{color:var(--text);border-color:var(--line-strong)}
+.amz-icone-bt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.amz-icone-bt:disabled{opacity:.4;cursor:not-allowed}
+.amz-icone-bt svg,.amz-olho svg,.amz-vazio>svg,.amz-acoes svg,.amz-saldo svg,.amz-chip-noz svg,
+.cnh-voltar svg,.cnh-busca svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Desligada ───────────────────────────────────────────────────────── */
+.amz-desligada{text-align:center}
+.amz-desl-tico{display:flex;justify-content:center;margin:4px 0 10px;position:relative;isolation:isolate}
+.amz-desl-tico::before,.amz-eu-tico::before,.amz-pop-tico::before{
+  content:'';position:absolute;left:50%;top:50%;width:180px;height:160px;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(closest-side,rgba(58,112,89,.5),transparent);z-index:-1;
+}
+.amz-desl-titulo{font-size:22px;font-weight:700;color:var(--text);margin:0 0 6px}
+.amz-desl-texto{font-size:14px;line-height:1.55;color:var(--text-2);margin:0 auto 18px;max-width:420px}
+.amz-vitrine{text-align:left;padding:18px 20px}
+.amz-vitrine .amz-rotulo{margin-top:0}
+.amz-check{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px;color:var(--text)}
+.amz-check span{width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;background:var(--surface-2);border:1px solid var(--line);color:var(--success)}
+.amz-desligada>.amz-rotulo,.amz-desligada>.amz-nota{text-align:left}
+.amz-nick-campo{position:relative}
+.amz-nick-campo span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-3);font-weight:600}
+.amz-nick-campo .form-input{padding-left:30px;width:100%}
+.amz-nick-estado{min-height:20px;margin-top:8px;font-size:13px;font-weight:600;text-align:left;color:var(--text-3)}
+.amz-nick-estado.bom{color:var(--success)}
+.amz-nick-estado.ruim{color:var(--danger-text,var(--danger))}
+
+/* ── Meu Ticolino ────────────────────────────────────────────────────── */
+.amz-eu{position:relative;padding:22px 22px 20px;text-align:center;
+  background:linear-gradient(180deg,rgba(58,112,89,.18),transparent 60%),var(--surface)}
+.amz-olho{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:12px;display:inline-flex;
+  align-items:center;justify-content:center;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer}
+.amz-olho:hover{color:var(--text)}
+.amz-olho:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.amz-eu-tico{display:flex;justify-content:center;position:relative;isolation:isolate}
+.amz-eu-nome{margin-top:8px;font-size:20px;font-weight:700;color:var(--text)}
+.amz-eu-nick{font-size:13px;color:var(--text-3)}
+.amz-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.amz-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text-2);white-space:nowrap}
+.amz-chip svg{width:13px;height:13px}
+.amz-chip-acc{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.amz-chip-ok{color:var(--success)}
+.amz-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:16px 0 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.amz-stats>div{padding:14px 6px;display:flex;flex-direction:column;gap:3px}
+.amz-stats>div+div{border-left:1px solid var(--line)}
+.amz-stats b{font-size:20px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.amz-stats span{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.amz-xp{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text-3)}
+.amz-xp-val{font-weight:700;color:var(--accent)}
+
+/* ── Listas (pedidos, amigos, busca) ─────────────────────────────────── */
+.amz-lista{display:flex;flex-direction:column;gap:8px}
+.amz-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-lg);
+  background:var(--surface);border:1px solid var(--line)}
+.amz-amigo{cursor:pointer;transition:border-color var(--dur) var(--ease-standard)}
+.amz-amigo:hover{border-color:var(--line-strong)}
+.amz-pedido{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.amz-rosto{width:44px;height:44px;flex:none;border-radius:12px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;
+  background:var(--grad-hero)}
+.amz-item-txt{flex:1;min-width:0}
+.amz-item-nome{font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amz-item-sub{font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amz-bt-aceitar{padding:7px 14px;font-size:13px;flex:none}
+.amz-vazio{display:flex;flex-direction:column;align-items:center;gap:12px;padding:34px 20px;text-align:center;
+  border:1px dashed var(--line-strong);border-radius:var(--radius-lg);color:var(--text-3)}
+.amz-vazio>svg{width:28px;height:28px}
+.amz-vazio p{margin:0;max-width:300px;font-size:14px;line-height:1.5}
+
+/* ── Privacidade ─────────────────────────────────────────────────────── */
+.amz-chave{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin-bottom:8px;
+  border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--text)}
+.amz-chave .toggle-switch{flex:none}
+.amz-previa{border-style:dashed}
+.amz-desativar{margin-top:28px}
+
+/* ── Pop-up do amigo ─────────────────────────────────────────────────── */
+.amz-modal{position:relative;max-width:400px;text-align:center}
+.amz-fechar{position:absolute;top:14px;right:14px}
+.amz-pop-tico{display:flex;justify-content:center;position:relative;isolation:isolate;margin-top:8px;transform-origin:50% 90%}
+.amz-pop-tico.acenando{animation:amz-aceno 1.6s var(--ease-standard,ease) both}
+@keyframes amz-aceno{
+  0%{transform:translateY(8px) scale(.94);opacity:0}
+  18%{transform:none;opacity:1}
+  30%{transform:rotate(-5deg)} 45%{transform:rotate(5deg)} 60%{transform:rotate(-4deg)} 75%{transform:rotate(3deg)}
+  100%{transform:none}
+}
+@media (prefers-reduced-motion:reduce){ .amz-pop-tico.acenando{animation:none} }
+.amz-pop-nome{margin-top:6px;font-size:21px;font-weight:700;color:var(--text)}
+.amz-pop-sub{font-size:13px;color:var(--text-3)}
+.amz-comp{margin:16px 0;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface-2);border:1px solid var(--line);text-align:left}
+.amz-comp-topo{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.amz-comp-topo i{display:inline-block;width:8px;height:8px;border-radius:2px;margin:0 6px;vertical-align:middle}
+.amz-comp-topo i.eu{background:var(--accent);margin-left:0}
+.amz-comp-topo i.ele{background:#4FA38A;margin-right:0}
+.amz-comp-linha{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;margin-top:10px}
+.amz-comp-v{font-size:16px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.amz-comp-v.ele{text-align:right}
+.amz-comp-v.ganha{color:var(--text);font-weight:700}
+.amz-comp-rot{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.amz-comp-barra{display:flex;height:4px;margin-top:6px;border-radius:99px;overflow:hidden;gap:2px}
+.amz-comp-barra i{background:var(--accent);border-radius:99px}
+.amz-comp-barra b{flex:1;background:#4FA38A;border-radius:99px}
+.amz-comp-barra.vazia i,.amz-comp-barra.vazia b{background:var(--surface-3)}
+.amz-acoes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.amz-acoes button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;border-radius:14px;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);color:var(--text);font:inherit;font-size:13px;font-weight:700}
+.amz-acoes button:hover{border-color:var(--line-strong)}
+.amz-acoes button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.amz-acoes svg{width:20px;height:20px}
+.amz-pop-cab{display:flex;align-items:center;gap:10px;margin-bottom:16px;text-align:left}
+.amz-pop-cab h3{flex:1;margin:0;font-size:19px;font-weight:700;color:var(--text)}
+.amz-pop-cab .amz-fechar{position:static}
+.amz-breve{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;vertical-align:middle;margin-left:4px;
+  background:var(--warning-soft);color:var(--text)}
+.amz-pres-topo{display:flex;align-items:center;gap:14px;text-align:left}
+.amz-pres-topo p{margin:0;font-size:14px;line-height:1.5;color:var(--text-2)}
+.amz-saldo{display:flex;align-items:center;gap:10px;margin-top:16px;padding:14px 16px;border-radius:var(--radius-lg);
+  background:var(--surface-2);border:1px solid var(--line);font-size:14px;color:var(--text-2)}
+.amz-saldo svg{color:var(--accent)}
+.amz-saldo b{margin-left:auto;font-size:20px;color:var(--text)}
+.amz-modal .amz-rotulo,.amz-modal .amz-nota{text-align:left}
+.amz-pilulas{display:flex;flex-wrap:wrap;gap:8px}
+.amz-pilula{padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--text-2);
+  font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.amz-pilula[aria-pressed="true"]{border-color:var(--accent);color:var(--text);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.amz-pilula:disabled{opacity:.4;cursor:not-allowed}
+.amz-pilula:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.amz-vs{display:flex;align-items:center;justify-content:center;gap:12px}
+.amz-vs span{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.amz-abas{display:flex}
+.amz-abas .aba{flex:1}
+.amz-resumo{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);
+  font-size:13px;line-height:1.5;color:var(--text-2);text-align:left}
+.amz-conf-titulo{margin:10px 0 6px;font-size:20px;font-weight:700;color:var(--text)}
+.amz-conf-texto{margin:0;font-size:14px;line-height:1.55;color:var(--text-2)}
+.amz-conf-bts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.amz-conf-bts .btn{justify-content:center}
+
+/* ── Conhecer novos Ticolinos ────────────────────────────────────────── */
+/* A cena ocupa o lado direito inteiro; o container da pagina fica largo. */
+#main>#page-conhecer{max-width:1240px}
+.cnh-layout{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:40px;align-items:start}
+.cnh-lado{min-width:0}
+.cnh-voltar{display:inline-flex;align-items:center;gap:6px;padding:7px 14px 7px 10px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--text-2);font:inherit;font-size:13px;font-weight:700}
+.cnh-voltar:hover{color:var(--text)}
+.cnh-titulo{margin:16px 0 6px}
+.cnh-sub{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--text-2)}
+.cnh-abas{display:flex;width:100%;margin-bottom:16px}
+.cnh-abas .aba{flex:1}
+.cnh-card{padding:20px}
+.cnh-card .amz-rotulo:first-child{margin-top:0}
+.cnh-card>.btn{margin-top:14px}
+.cnh-qr-card{display:flex;flex-direction:column;align-items:center}
+.cnh-qr{position:relative;width:220px;height:220px;border-radius:18px;overflow:hidden;background:#F4E9C9;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+.cnh-qr svg[role="img"]{width:100%;height:100%;display:block}
+.cnh-qr .amz-carregando,.cnh-qr .amz-nota{color:#3A3322;padding:16px}
+.cnh-qr-rosto{position:absolute;left:50%;top:50%;width:50px;height:50px;transform:translate(-50%,-50%);border-radius:12px;
+  background:#F4E9C9;box-shadow:0 0 0 4px #F4E9C9;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.cnh-qr-nick{margin-top:14px;font-size:17px;font-weight:700;color:var(--text)}
+.cnh-bts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.cnh-busca{position:relative;margin-bottom:12px}
+.cnh-busca svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-3)}
+.cnh-busca .form-input{width:100%;padding-left:42px}
+.cnh-link{display:flex;gap:8px;align-items:center}
+.cnh-link .form-input{flex:1;min-width:0;font-size:13px;text-overflow:ellipsis}
+.cnh-link.vencido .form-input{opacity:.5;text-decoration:line-through}
+.cnh-expira{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 8px;font-size:13px;color:var(--text-3)}
+.cnh-expira b{font-size:20px;color:var(--text);font-variant-numeric:tabular-nums}
+.cnh-card .cnh-bts{justify-content:flex-start}
+.cnh-cena{position:sticky;top:0;height:min(760px,calc(100vh - 80px));border-radius:var(--radius-lg);overflow:hidden;
+  background:#0E1009;border:1px solid var(--line)}
+.cnh-cena-svg{width:100%;height:100%;display:block}
+[data-theme="light"] .cnh-cena{border-color:transparent;box-shadow:var(--shadow-sm)}
+
+/* Leitor de QR (so onde o navegador tem BarcodeDetector). */
+.cnh-scan{position:fixed;inset:0;z-index:10000;background:rgba(8,10,6,.94);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;padding:20px}
+.cnh-scan video{width:min(420px,100%);aspect-ratio:1;object-fit:cover;border-radius:20px;border:2px solid var(--accent)}
+.cnh-scan p{margin:0;color:#F4E9C9;font-size:15px}
+
+@media (max-width:900px){
+  .cnh-layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .cnh-cena{order:-1;position:relative;height:260px;margin:0 0 16px}
+  .cnh-lado{order:0}
+}
+@media (max-width:560px){
+  .amz-topo .btn{width:100%;justify-content:center}
+  .amz-eu{padding:20px 14px 18px}
+  .amz-stats b{font-size:17px}
+  .amz-bt-aceitar{padding:6px 11px}
+  .cnh-qr{width:200px;height:200px}
+}

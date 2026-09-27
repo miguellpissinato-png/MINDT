@@ -294,6 +294,9 @@ document.addEventListener('change', function(e) {
 // Cada humor e uma combinaçao, conforme a folha de poses do design.
 var TICO_MOODS = {
   feliz:      ['#tico-eyes-open',   '#tico-mouth-smile', '#tico-paws',   ''],
+  // Amizades: o amigo acena ao abrir o pop-up e depois fica tranquilo.
+  acenando:   ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-aceno',  ''],
+  tranquilo:  ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-paws',   ''],
   animado:    ['#tico-eyes-arc',    '#tico-mouth-open',  '#tico-paws',   '#tico-spark'],
   lendo:      ['#tico-eyes-arc',    '#tico-mouth-smile', '#tico-book',   ''],
   focado:     ['#tico-eyes-open',   '#tico-mouth-flat',  '#tico-pencil', '#tico-brows'],

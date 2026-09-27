@@ -28,6 +28,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="styles/floresta.css">
 <link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/amizades.css">
 </head>
 <body>
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
@@ -66,6 +67,14 @@
       <path d="M100 106 c5.4 0 8 2.8 8 5.2 c0 2.6 -3.4 4.6 -8 4.6 c-4.6 0 -8 -2 -8 -4.6 c0 -2.4 2.6 -5.2 8 -5.2 z" style="fill:var(--tn,#F0959B);stroke:var(--tt,#7A5240)" stroke-width="2.2" stroke-linejoin="round"></path>
     </g>
     <g id="tico-none"></g>
+    <!-- Aceno (pop-up do amigo): uma pata no peito, a outra levantada. -->
+    <g id="tico-aceno">
+      <ellipse cx="80" cy="140" rx="9" ry="6.6" style="fill:var(--tpa,#F6C7A0);stroke:var(--tc,#7A5240)" stroke-width="2.6" transform="rotate(-16 80 140)"></ellipse>
+      <ellipse cx="170" cy="96" rx="10" ry="12.5" style="fill:var(--tpa,#F6C7A0);stroke:var(--tc,#7A5240)" stroke-width="2.6" transform="rotate(24 170 96)"></ellipse>
+      <g stroke="#F4B64A" stroke-width="2.6" stroke-linecap="round" fill="none">
+        <path d="M186 80 q6 6 4 14"></path><path d="M193 71 q9 9 6 22"></path>
+      </g>
+    </g>
     <g id="tico-eyes-open">
       <g style="display:var(--teod,none);fill:var(--teo,#F3E2CD)"><ellipse cx="72" cy="100" rx="10.6" ry="12.6"></ellipse><ellipse cx="128" cy="100" rx="10.6" ry="12.6"></ellipse></g>
       <ellipse cx="72" cy="100" rx="8" ry="10" style="fill:var(--te,#3A2A20)"></ellipse>
@@ -373,6 +382,7 @@
     <div class="nav-item" data-page="exercicios"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></div><span class="nav-label">Exercícios</span></div>
     <div class="nav-item" data-page="leitura"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><span class="nav-label">Leitura</span></div>
     <div class="nav-item" data-page="notas"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="nav-label">Notas</span></div>
+    <div class="nav-item" data-page="amizades"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span class="nav-label">Amizades</span><span class="nav-selo" id="nav-selo-amizades" hidden></span></div>
     </div>
     <div class="nav-rodape">
     <div class="sidebar-divider"></div>
@@ -408,6 +418,7 @@
     <div class="mobile-nav-item" data-page="exercicios" onclick="mobileNav(this,'exercicios')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></div><div class="m-label">Exercícios</div></div>
     <div class="mobile-nav-item" data-page="leitura" onclick="mobileNav(this,'leitura')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="m-label">Leitura</div></div>
     <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="m-label">Notas</div></div>
+    <div class="mobile-nav-item" data-page="amizades" onclick="mobileNav(this,'amizades')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-selo" id="mnav-selo-amizades" hidden></span></div><div class="m-label">Amizades</div></div>
     <div class="mobile-nav-item" data-page="perfil" onclick="mobileNav(this,'perfil')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="m-label">Perfil</div></div>
   </div>
 
@@ -1399,6 +1410,31 @@
       <div class="notas-board" id="notas-board"></div>
     </section>
 
+    <!-- AMIZADES — montada por js/amizades.js (desligada, principal ou privacidade). -->
+    <section class="page" id="page-amizades">
+      <div id="amz-raiz" class="amz-raiz" aria-live="polite"></div>
+    </section>
+
+    <!-- CONHECER NOVOS TICOLINOS — convite por QR, pesquisa e link de 5 min. -->
+    <section class="page" id="page-conhecer">
+      <div class="cnh-layout">
+        <div class="cnh-lado">
+          <button type="button" class="cnh-voltar" onclick="goToPage('amizades')">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Amizades
+          </button>
+          <h2 class="page-title cnh-titulo">Conhecer novos Ticolinos</h2>
+          <p class="cnh-sub">Mostre seu QR code, mande um link ou procure alguém pelo nick.</p>
+          <div class="abas cnh-abas" role="group" aria-label="Como convidar">
+            <button type="button" class="aba" data-cnh="qr" aria-pressed="true" onclick="cnhAba('qr')">QR code</button>
+            <button type="button" class="aba" data-cnh="pesquisa" aria-pressed="false" onclick="cnhAba('pesquisa')">Pesquisar</button>
+            <button type="button" class="aba" data-cnh="link" aria-pressed="false" onclick="cnhAba('link')">Link</button>
+          </div>
+          <div id="cnh-painel" class="cnh-painel"></div>
+        </div>
+        <div class="cnh-cena" id="cnh-cena" aria-hidden="true"></div>
+      </div>
+    </section>
+
     <section class="page" id="page-perfil">
       <div class="page-header res-header">
         <div>
@@ -1818,6 +1854,11 @@
   </div>
 </div>
 
+<!-- Pop-up do amigo (principal, presente, desafio e as confirmacoes). -->
+<div class="modal-overlay" id="modal-amigo">
+  <div class="modal modal-sm amz-modal" id="amz-modal" role="dialog" aria-modal="true" aria-label="Amigo"></div>
+</div>
+
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal modal-sm">
     <div class="confirm-icon" id="confirm-icon">⚠️</div>
@@ -1862,6 +1903,7 @@
 <script src="js/estudos.js"></script>
 <script src="js/exercicios.js"></script>
 <script src="js/leitura.js"></script>
+<script src="js/amizades.js"></script>
 <script src="js/pwa.js"></script>
 
 <!-- TROPHY UNLOCK POPUP -->
