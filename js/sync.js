@@ -121,6 +121,12 @@ function mesclar(local, servidor){
   var pa = local.perfil || {}, pb = servidor.perfil || {};
   saida.perfil = (pb._upd && (!pa._upd || pb._upd > pa._upd)) ? pb : pa;
 
+  // Cores ja anunciadas: uniao. Senao o aparelho que ainda nao viu o aviso
+  // anunciaria de novo uma cor que o outro ja anunciou.
+  var ca = {};
+  (local.coresAnunciadas || []).concat(servidor.coresAnunciadas || []).forEach(function(id){ ca[id] = 1; });
+  if (local.coresAnunciadas || servidor.coresAnunciadas) saida.coresAnunciadas = Object.keys(ca);
+
   // XP nunca diminui
   saida.studyXP = Math.max(local.studyXP || 0, servidor.studyXP || 0);
 
@@ -145,7 +151,10 @@ function mesclar(local, servidor){
     saida.diario = { data: da.data,
       leitura: !!(da.leitura || db.leitura),
       estudo:  !!(da.estudo  || db.estudo),
-      grana:   !!(da.grana   || db.grana) };
+      grana:   !!(da.grana   || db.grana),
+      // Faltava: o item de exercicio sumia na mesclagem e podia ser marcado
+      // (e dar XP) de novo no mesmo dia.
+      exercicio: !!(da.exercicio || db.exercicio) };
   } else {
     saida.diario = ((da && da.data) || '') >= ((db && db.data) || '') ? da : db;
   }

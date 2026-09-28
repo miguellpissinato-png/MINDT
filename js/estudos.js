@@ -118,10 +118,27 @@ function usarCorTico(id){
 }
 
 // ── Cor nova liberada? ──
+// O aviso sai UMA vez na vida por cor. Antes ele saia toda vez que o XP
+// cruzava o marco: desmarcar um item da Home tira XP, marcar de novo
+// devolve, e a mesma cor era "liberada" de novo a cada vai e volta.
+// A lista das ja anunciadas mora no estado (sincroniza entre aparelhos).
+// Quem ainda nao tem a lista ganha uma com as cores que o XP de antes ja
+// liberava — elas ja eram dela, nao sao novidade.
+function coresAnunciadas(xpAntes) {
+  if(!Array.isArray(state.coresAnunciadas)) {
+    state.coresAnunciadas = TICO_CORES.filter(function(c){ return c.xp > 0 && xpAntes >= c.xp; })
+      .map(function(c){ return c.id; });
+  }
+  return state.coresAnunciadas;
+}
+
 function checkTrophyUnlock(previousXP) {
-  var nova = null;
+  var nova = null, vistas = coresAnunciadas(previousXP);
   TICO_CORES.forEach(function(c) {
-    if(c.xp > 0 && previousXP < c.xp && studyXP >= c.xp) nova = c;
+    if(c.xp > 0 && studyXP >= c.xp && vistas.indexOf(c.id) === -1) {
+      vistas.push(c.id);
+      nova = c;
+    }
   });
   if(nova) {
     // O valor e guardado AGORA, nao lido depois do atraso: duas cores
@@ -242,6 +259,7 @@ var studyLevel = 1;
 // Load XP from state
 function loadStudyXP() {
   if (state.studyXP !== undefined) studyXP = state.studyXP;
+  coresAnunciadas(studyXP);   // cria a lista ja com o que esta liberado
   if (state.todaySessions !== undefined) {
     var today = new Date().toDateString();
     if (state.sessionDate === today) todaySessions = state.todaySessions;
