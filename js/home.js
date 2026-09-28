@@ -11,31 +11,11 @@ sb.auth.onAuthStateChange(function(event,session){
   }
   if(session&&session.user){
     currentUser=session.user;
-    loadUserData().then(function(){
-      document.getElementById('auth-screen').style.display='none';
-      document.getElementById('app').style.visibility='visible';
-      // O XP vinha zerado na Home ate o usuario visitar a pagina Estudos,
-      // porque loadStudyXP() so era chamado de dentro de renderEstudos().
-      // Todo dado compartilhado precisa ser hidratado aqui, no carregamento.
-      if (typeof loadStudyXP === 'function') loadStudyXP();
-      // O plano vem da tabela subscriptions e decide o que fica liberado.
-      // Nao segura a entrada no app: enquanto nao chega, vale o Free.
-      if (typeof carregarPlano === 'function') carregarPlano();
-      if (typeof carregarLembrete === 'function') carregarLembrete();
-      updateGroupSelects();updateGroupFilters();renderHome();
-      if (migrarCoresCategorias()) saveState();   // categorias antigas nasceram roxas
-      // Entradas recorrentes (salario e afins) que venceram enquanto o app
-      // estava fechado. Roda aqui, e nao so na pagina de dinheiro, para o
-      // saldo da Home ja nascer certo.
-      if (typeof atualizarRecorrentes === 'function') atualizarRecorrentes();
-      // Tarefas repetidas cujo dia (e hora) chegou voltam para a lista.
-      if (typeof atualizarTarefasRecorrentes === 'function' && atualizarTarefasRecorrentes()){ saveState(); renderHome(); }
-      sincronizar();   // traz o que outro aparelho fez e envia o que ficou pendente
-      // Amizades: selo de pedidos, meus numeros na vitrine e o convite que a
-      // pessoa abriu (?amigo=) antes de entrar.
-      if (typeof amzCarregar === 'function') amzCarregar().then(function(){ publicarPerfil(true); amzConvitePendente(); });
-      if (typeof notifIniciar === 'function') notifIniciar();   // sininho da Home
-    }).catch(function(err){
+    // Separado de proposito: so falha AO CARREGAR os dados mostra a tela
+    // "Nao conseguimos carregar seus dados". Um erro depois disso, ao
+    // desenhar alguma tela, nao e problema de dados — antes ele caia no
+    // mesmo .catch e trancava a pessoa fora do app com os dados ja em maos.
+    loadUserData().then(entrarNoApp, function(err){
       // Nao entrar no app com o estado vazio: o usuario acharia que perdeu
       // tudo, e a primeira gravacao sobrescreveria os dados de verdade.
       console.error('loadUserData error:', err);
@@ -49,6 +29,57 @@ sb.auth.onAuthStateChange(function(event,session){
     setAuthLoading(false);
   }
 });
+
+// Abre o app com os dados ja carregados. Cada passo roda isolado: se um
+// falhar (uma tela com defeito, um arquivo velho no cache), os outros
+// seguem e a pessoa entra do mesmo jeito. O erro vai para o console.
+function entrarNoApp(){
+  var falhou = [];
+  var passo = function(nome, fn){
+    try { fn(); } catch(e) { falhou.push(nome); console.error('entrar no app — ' + nome + ':', e); }
+  };
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.visibility='visible';
+  // O XP vinha zerado na Home ate o usuario visitar a pagina Estudos,
+  // porque loadStudyXP() so era chamado de dentro de renderEstudos().
+  // Todo dado compartilhado precisa ser hidratado aqui, no carregamento.
+  passo('xp', function(){ if (typeof loadStudyXP === 'function') loadStudyXP(); });
+  // O plano vem da tabela subscriptions e decide o que fica liberado.
+  // Nao segura a entrada no app: enquanto nao chega, vale o Free.
+  passo('plano', function(){ if (typeof carregarPlano === 'function') carregarPlano(); });
+  passo('lembrete', function(){ if (typeof carregarLembrete === 'function') carregarLembrete(); });
+  passo('grupos', function(){ updateGroupSelects(); updateGroupFilters(); });
+  passo('home', renderHome);
+  passo('categorias', function(){ if (migrarCoresCategorias()) saveState(); });   // categorias antigas nasceram roxas
+  // Entradas recorrentes (salario e afins) que venceram enquanto o app
+  // estava fechado. Roda aqui, e nao so na pagina de dinheiro, para o
+  // saldo da Home ja nascer certo.
+  passo('ganhos', function(){ if (typeof atualizarRecorrentes === 'function') atualizarRecorrentes(); });
+  // Tarefas repetidas cujo dia (e hora) chegou voltam para a lista.
+  passo('tarefas', function(){
+    if (typeof atualizarTarefasRecorrentes === 'function' && atualizarTarefasRecorrentes()){ saveState(); renderHome(); }
+  });
+  passo('sync', sincronizar);   // traz o que outro aparelho fez e envia o que ficou pendente
+  // Amizades: selo de pedidos, meus numeros na vitrine e o convite que a
+  // pessoa abriu (?amigo=) antes de entrar.
+  passo('amizades', function(){
+    if (typeof amzCarregar === 'function') amzCarregar().then(function(){ publicarPerfil(true); amzConvitePendente(); });
+  });
+  passo('sino', function(){ if (typeof notifIniciar === 'function') notifIniciar(); });   // sininho da Home
+  if (falhou.length) curarCacheVelho();
+}
+
+// Um erro ao abrir quase sempre e arquivo velho guardado no aparelho
+// misturado com a pagina nova. Uma vez por sessao: apaga os arquivos
+// guardados e recarrega, para tudo vir da mesma versao.
+function curarCacheVelho(){
+  try { if (sessionStorage.getItem('mindt-curou')) return; sessionStorage.setItem('mindt-curou', '1'); } catch(e) { return; }
+  if (!window.caches) return;
+  caches.keys().then(function(nomes){
+    return Promise.all(nomes.filter(function(n){ return n.indexOf('mindt-') === 0; })
+      .map(function(n){ return caches.delete(n); }));
+  }).then(function(){ location.reload(); }).catch(function(){});
+}
 
 // QUOTES
 var QUOTES=[

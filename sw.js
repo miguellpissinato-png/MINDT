@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v41';
+var VERSAO = 'mindt-v42';
 
 var ARQUIVOS = [
   './',
@@ -53,6 +53,10 @@ var ARQUIVOS = [
 ];
 
 self.addEventListener('install', function(e){
+  // Versao nova assume na hora, sem esperar a pessoa tocar em "Atualizar".
+  // Enquanto esperava, o worker velho seguia entregando JS velho para a
+  // pagina nova — e o app quebrava ao abrir ("Cannot set properties of null").
+  self.skipWaiting();
   e.waitUntil(
     caches.open(VERSAO).then(function(c){
       // addAll falha inteiro se um arquivo faltar; guarda um por um para ser tolerante.
@@ -112,7 +116,26 @@ self.addEventListener('fetch', function(e){
     return;
   }
 
-  // Arquivos do app: responde do cache (rapido) e atualiza por tras.
+  // Codigo do app (JS, CSS, JSON): REDE primeiro, cache so sem internet.
+  // Antes era cache primeiro: a pagina vinha nova da rede e o JS vinha
+  // velho do cache, e a mistura quebrava o app. 'no-cache' revalida com o
+  // servidor (ETag): quando nada mudou, a resposta e um 304 pequeno.
+  if (/\.(js|css|json)$/.test(url.pathname)) {
+    e.respondWith(
+      fetch(new Request(req, {cache:'no-cache'})).then(function(r){
+        if (r && r.status === 200) {
+          var copia = r.clone();
+          caches.open(VERSAO).then(function(c){ c.put(req, copia); });
+        }
+        return r;
+      }).catch(function(){
+        return caches.match(req).then(function(r){ return r || Response.error(); });
+      })
+    );
+    return;
+  }
+
+  // Imagens e icones: do cache (rapido) e atualiza por tras.
   e.respondWith(
     caches.match(req).then(function(cacheado){
       // 'no-cache' obriga a revalidar com o servidor. Sem isso a atualizacao

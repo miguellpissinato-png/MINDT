@@ -374,12 +374,9 @@ function tentarCarregarDeNovo(){
   var btn = document.getElementById('auth-falha-btn');
   if (btn) { btn.disabled = true; btn.textContent = T('tentando'); }
   loadUserData().then(function(){
-    if (typeof loadStudyXP === 'function') loadStudyXP();
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app').style.visibility = 'visible';
-    updateGroupSelects(); updateGroupFilters(); renderHome();
     mostrarEtapaAuth('auth-form-wrap');
-  }).catch(function(e){
+    entrarNoApp();          // o mesmo caminho do login (js/home.js)
+  }, function(e){
     console.error('nova tentativa falhou:', e);
     var det = document.getElementById('auth-falha-detalhe');
     if (det) det.textContent = detalheDaFalha(e);
