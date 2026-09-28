@@ -8,6 +8,9 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#12140E">
+<!-- O app tem os dois temas. Sem isto, o modo escuro forcado de alguns
+     navegadores repinta a pagina por cima (cores e Ticolino estranhos). -->
+<meta name="color-scheme" content="dark light">
 <script>
 // Le o tema salvo antes de qualquer pintura. Fica inline de proposito: um
 // arquivo externo chegaria depois do primeiro quadro e a tela piscaria.
@@ -29,7 +32,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/amizades.css">
 </head>
-<body>
+<body class="na-home">
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
 <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
   <defs>
@@ -1533,6 +1536,28 @@
         </div>
       </div>
 
+      <!-- AMIZADES — liga e desliga daqui tambem, nao so pela aba. Pintado
+           por pintarAmizadesPerfil() (js/amizades.js). -->
+      <div class="tico-lang-block" id="amizades-bloco">
+        <div class="lembrete-topo">
+          <div>
+            <div class="form-label" style="margin:0">Amizades</div>
+            <p class="lembrete-nota" id="perfil-amz-nota">Carregando…</p>
+          </div>
+          <div class="lembrete-chave-wrap">
+            <span class="lembrete-estado" id="perfil-amz-estado" aria-hidden="true"
+                  onclick="perfilAmizadesAlternar()">Desligadas</span>
+            <div class="toggle-switch" id="perfil-amz-chave" role="switch" aria-checked="false"
+                 tabindex="0" data-a11y="1" aria-label="Ligar amizades"
+                 onclick="perfilAmizadesAlternar()"></div>
+          </div>
+        </div>
+        <div class="perfil-amz-bts" id="perfil-amz-bts" hidden>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="goToPage('amizades')">Abrir Amizades</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="AMZ.tela='privacidade';goToPage('amizades')">Privacidade</button>
+        </div>
+      </div>
+
       <div class="perfil-hero glass">
         <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           <span id="avatar-emoji">👤</span><img id="avatar-img" alt="" data-vazia="1" style="display:none">
@@ -1881,7 +1906,10 @@
 </div>
 
 <div id="sync-status" class="sync-status" style="display:none"></div>
-<button id="btn-instalar" onclick="instalarApp()" style="display:none"></button>
+<div id="instalar-wrap" style="display:none">
+  <button id="btn-instalar" onclick="instalarApp()"></button>
+  <button id="btn-instalar-fechar" type="button" onclick="dispensarInstalar()" aria-label="Agora não">✕</button>
+</div>
 <div id="toast"></div>
 <!-- O Resumo de atividades e montado aqui por js/relatorio.js. Fica fora
      do #app de proposito: ao imprimir, todo o resto da pagina some. -->

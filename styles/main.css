@@ -145,7 +145,11 @@
    Liga com data-theme="light" no <html>.
    ═══════════════════════════════════════════════════════════════════════ */
 [data-theme="light"]{
-  color-scheme:light;
+  /* "light dark" (e nao so "light"): e assim que a pagina avisa ao
+     navegador que ja tem tema escuro. So com "light", o modo escuro
+     automatico do Chrome/Samsung Internet no Android repintava o tema claro
+     por cima — cores estranhas e o Ticolino sem olhos e bigodes. */
+  color-scheme:light dark;
 
   --accent:#AD5900;        /* >>> pacote: #C56800 dava 3,85:1 com texto branco. #AD5900 da 4,90 */
   --accent-bright:#C56800;
@@ -3836,3 +3840,20 @@ input[type="checkbox"]{accent-color:var(--accent)}
   .cores-destaque{gap:14px;padding:14px 16px}
   .cores-destaque-tico svg{width:96px!important;height:99px!important}
 }
+
+/* Convite de instalar: so na Home, com "x" para dispensar. */
+#instalar-wrap{position:fixed;bottom:88px;right:18px;z-index:9000;display:flex;align-items:center;gap:6px}
+#instalar-wrap #btn-instalar{position:static}
+body:not(.na-home) #instalar-wrap{display:none!important}
+#btn-instalar-fechar{width:36px;height:36px;border-radius:50%;border:1px solid var(--line-strong);
+  background:var(--surface-3);color:var(--text);font-size:14px;cursor:pointer;display:grid;place-items:center}
+@media (max-width:768px){ #instalar-wrap{bottom:calc(96px + env(safe-area-inset-bottom,0px));right:12px} }
+
+/* Aviso do modo escuro forcado (Samsung Internet) */
+#aviso-escuro{position:fixed;left:12px;right:12px;top:12px;z-index:9600;
+  background:var(--surface-2);color:var(--text);border:1px solid var(--line-strong);
+  border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5;max-width:560px;margin:0 auto}
+#aviso-escuro p{margin:0}
+#aviso-escuro button{align-self:flex-end;background:var(--accent);color:var(--text-on-accent);
+  border:0;border-radius:var(--radius-sm);padding:9px 16px;font-weight:600;cursor:pointer}

@@ -61,7 +61,7 @@ var LISTA_ENDPOINT =
       if (res.dados.enviado === false) {
         document.getElementById('pronto-titulo').textContent = 'Anotado!';
         document.getElementById('pronto-recado').textContent =
-          'Te aviso por e-mail assim que o Mindt abrir. Obrigado por entrar na lista!';
+          'Seu e-mail ficou guardado, e o link chega em breve. Enquanto isso, o Mindt já está aberto.';
       }
       bloco.hidden = true;
       pronto.hidden = false;
@@ -70,7 +70,7 @@ var LISTA_ENDPOINT =
     })
     .catch(function(){
       botao.disabled = false;
-      botao.textContent = 'Quero conhecer o Mindt';
+      botao.textContent = 'Me mande o link';
       avisar('Não consegui enviar agora. Tenta de novo em instantes?');
     });
   });

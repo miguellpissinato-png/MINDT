@@ -22,6 +22,17 @@ function goToPage(name){
   // "Conhecer novos Ticolinos" e uma pagina de dentro de Amizades.
   var noMenu = name === 'conhecer' ? 'amizades' : name;
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
+  // A barra de baixo do celular tambem: sem isto, chegar numa pagina por um
+  // botao (e nao pela barra) deixava a aba anterior acesa.
+  document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
+  // A barra rola para o lado (sao muitas abas): a acesa entra na tela.
+  var acesa = document.querySelector('.mobile-nav-item.active');
+  if(acesa && acesa.parentNode && acesa.parentNode.scrollWidth > acesa.parentNode.clientWidth){
+    var barra = acesa.parentNode, l = acesa.offsetLeft, r = l + acesa.offsetWidth;
+    if(l < barra.scrollLeft) barra.scrollLeft = l - 8;
+    else if(r > barra.scrollLeft + barra.clientWidth) barra.scrollLeft = r - barra.clientWidth + 8;
+  }
+  document.body.classList.toggle('na-home', name === 'home');
   chegandoNaPagina = true;
   if(typeof notifAlternar === 'function' && typeof NOTIF !== 'undefined' && NOTIF.aberto) notifAlternar(false);
   try {
