@@ -15,6 +15,8 @@ sb.auth.onAuthStateChange(function(event,session){
     // "Nao conseguimos carregar seus dados". Um erro depois disso, ao
     // desenhar alguma tela, nao e problema de dados — antes ele caia no
     // mesmo .catch e trancava a pessoa fora do app com os dados ja em maos.
+    // Antes de carregar: o que esta guardado neste navegador e desta conta?
+    if (typeof prepararLocalPara === 'function') prepararLocalPara(currentUser.id);
     loadUserData().then(entrarNoApp, function(err){
       // Nao entrar no app com o estado vazio: o usuario acharia que perdeu
       // tudo, e a primeira gravacao sobrescreveria os dados de verdade.

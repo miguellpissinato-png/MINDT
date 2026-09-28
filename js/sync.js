@@ -31,6 +31,39 @@ var salvando = null;      // promessa em andamento, para nao salvar em paralelo
 try { revLocal = localStorage.getItem('mindt-rev') || null; } catch(e){}
 try { sombra = JSON.parse(localStorage.getItem('mindt-sombra') || 'null'); } catch(e){}
 
+// ─── De quem sao os dados guardados neste navegador ──────
+// mindt-rev, mindt-sombra e mindt-local nao diziam de qual conta eram. Num
+// aparelho que ja teve outra conta, a conta nova herdava a versao (rev) da
+// antiga: o salvamento exigia uma versao que nao existe, nada gravava, e a
+// conta nova nunca era criada no servidor — e, pior, abria com os dados
+// da conta antiga (visto em 28/09). Agora o dono fica anotado, e so o dono
+// aproveita o que esta guardado.
+var localDoUsuario = false;   // mindt-local pode ser usado por esta conta?
+function prepararLocalPara(uid){
+  var dono = null;
+  try { dono = localStorage.getItem('mindt-dono'); } catch(e){}
+  localDoUsuario = !!dono && dono === uid;
+  if (localDoUsuario) return;
+  // Outra conta (ou aparelho de antes desta regra): a versao e a sombra nao
+  // servem. loadUserData busca a versao certa no servidor em seguida.
+  revLocal = null; sombra = null; pendente = false;
+  try {
+    localStorage.removeItem('mindt-rev');
+    localStorage.removeItem('mindt-sombra');
+    var local = localStorage.getItem('mindt-local');
+    if (local) {
+      // Sem dono conhecido, o backup nao entra em conta nenhuma — mas fica
+      // separado, e nao apagado, caso precise ser recuperado a mao.
+      if (!dono) localStorage.setItem('mindt-local-sem-dono', local);
+      localStorage.removeItem('mindt-local');
+    }
+  } catch(e){}
+}
+function marcarDono(uid){
+  localDoUsuario = true;
+  try { localStorage.setItem('mindt-dono', uid); } catch(e){}
+}
+
 function agoraISO(){ return new Date().toISOString(); }
 function guardarLocal(){ try { localStorage.setItem('mindt-local', JSON.stringify(state)); } catch(e){} }
 function guardarRev(){ try { revLocal ? localStorage.setItem('mindt-rev', revLocal) : localStorage.removeItem('mindt-rev'); } catch(e){} }
@@ -181,8 +214,11 @@ async function salvarNoServidor(){
 }
 
 async function resolverConflito(){
-  var res = await sb.from('user_data').select('data,updated_at').eq('user_id', currentUser.id).single();
-  if (res.error || !res.data) return { ok:false, motivo:'rede' };
+  var res = await sb.from('user_data').select('data,updated_at').eq('user_id', currentUser.id).maybeSingle();
+  if (res.error) return { ok:false, motivo:'rede' };
+  // Nao ha linha no servidor: a versao que tinhamos nao era desta conta (ou
+  // a linha foi apagada). Nao e conflito — e so criar.
+  if (!res.data) { revLocal = null; guardarRev(); return await salvarNoServidor(); }
   var doServidor = res.data.data || {};
   state = mesclar(state, doServidor);
   if (state.metas) state.metas.forEach(function(m){ m._type = 'meta'; });
