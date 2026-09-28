@@ -39,6 +39,12 @@ function goToPage(name){
   else if(name==='amizades')renderAmizades();
   else if(name==='conhecer')renderConhecer();
   } finally { chegandoNaPagina = false; }
+  // Pagina nova comeca do topo. Sem isto a rolagem da pagina anterior
+  // ficava: quem estava no fim de uma lista longa chegava numa pagina curta
+  // "rolado" alem do fim — e o Safari do iPhone mostrava a tela em branco.
+  var rolante = document.getElementById('main');
+  if(rolante) rolante.scrollTop = 0;
+  try { window.scrollTo(0, 0); } catch(e) {}
   // Os numeros que ocupam um cartao inteiro so podem ser medidos depois de
   // pintados e com a pagina visivel. Este e o unico funil por onde toda
   // pagina passa, entao o ajuste mora aqui e nao em cada render.

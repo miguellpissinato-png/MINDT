@@ -181,7 +181,20 @@ async function amzConvitePendente(){
 }
 
 // ── A pagina ────────────────────────────────────────────────────────────
+// Um erro ao desenhar nao pode deixar a aba em branco: mostra o aviso com
+// o motivo (ajuda a descobrir o que houve pelo print) e o botao de tentar.
 function renderAmizades(semRecarregar){
+  try { renderAmizadesSemRede(semRecarregar); }
+  catch(e){
+    console.error('amizades: desenho falhou', e);
+    var raiz = document.getElementById('amz-raiz');
+    if(raiz) raiz.innerHTML = '<div class="amz-topo"><h2 class="page-title">Amizades</h2></div>'
+      + '<div class="amz-vazio"><p>Não deu para mostrar suas amizades agora.</p>'
+      + '<p class="amz-nota">' + esc(String((e && e.message) || e).slice(0, 160)) + '</p>'
+      + '<button type="button" class="btn btn-ghost" onclick="AMZ.erro=null;amzCarregar(true).then(function(){renderAmizades(true);})">Tentar de novo</button></div>';
+  }
+}
+function renderAmizadesSemRede(semRecarregar){
   var raiz = document.getElementById('amz-raiz');
   if(!raiz) return;
   if(!AMZ.carregado){
