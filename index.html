@@ -32,7 +32,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/amizades.css">
 </head>
-<body>
+<body class="na-home">
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
 <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
   <defs>
@@ -1906,7 +1906,10 @@
 </div>
 
 <div id="sync-status" class="sync-status" style="display:none"></div>
-<button id="btn-instalar" onclick="instalarApp()" style="display:none"></button>
+<div id="instalar-wrap" style="display:none">
+  <button id="btn-instalar" onclick="instalarApp()"></button>
+  <button id="btn-instalar-fechar" type="button" onclick="dispensarInstalar()" aria-label="Agora não">✕</button>
+</div>
 <div id="toast"></div>
 <!-- O Resumo de atividades e montado aqui por js/relatorio.js. Fica fora
      do #app de proposito: ao imprimir, todo o resto da pagina some. -->

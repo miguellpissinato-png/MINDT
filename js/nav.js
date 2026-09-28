@@ -32,6 +32,7 @@ function goToPage(name){
     if(l < barra.scrollLeft) barra.scrollLeft = l - 8;
     else if(r > barra.scrollLeft + barra.clientWidth) barra.scrollLeft = r - barra.clientWidth + 8;
   }
+  document.body.classList.toggle('na-home', name === 'home');
   chegandoNaPagina = true;
   if(typeof notifAlternar === 'function' && typeof NOTIF !== 'undefined' && NOTIF.aberto) notifAlternar(false);
   try {

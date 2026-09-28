@@ -71,11 +71,22 @@ window.addEventListener('appinstalled', function(){
   mostrarBotaoInstalar(false);
 });
 
+// O convite fica so na Home (nas outras paginas ele cobria o conteudo, ate
+// o botao de ativar as Amizades) e some por 14 dias no "x".
+var INSTALAR_PAUSA = 14 * 24 * 3600 * 1000;
+function instalarDispensado(){
+  try { return Date.now() - (parseInt(localStorage.getItem('mindt-instalar-fechado'), 10) || 0) < INSTALAR_PAUSA; }
+  catch(e){ return false; }
+}
+function dispensarInstalar(){
+  try { localStorage.setItem('mindt-instalar-fechado', String(Date.now())); } catch(e){}
+  mostrarBotaoInstalar(false);
+}
 function mostrarBotaoInstalar(mostrar){
-  var b = document.getElementById('btn-instalar');
-  if (!b) return;
+  var b = document.getElementById('btn-instalar'), w = document.getElementById('instalar-wrap');
+  if (!b || !w) return;
   b.textContent = '\u2b07\ufe0f  ' + T('instalar');
-  b.style.display = mostrar ? '' : 'none';
+  w.style.display = (mostrar && !instalarDispensado()) ? '' : 'none';
 }
 function instalarApp(){
   if (!conviteInstalar) return;
@@ -92,6 +103,32 @@ function jaInstalado(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  registrarServiceWorker();
+  avisarEscuroForcado();
   if (jaInstalado()) mostrarBotaoInstalar(false);
+  registrarServiceWorker();
 });
+
+// ─── Modo escuro forcado do navegador ───────────────────
+// O Samsung Internet (e o Chrome com "escurecer sites") repinta paginas por
+// conta propria, mesmo as que ja tem tema escuro: o fundo vira preto, as
+// cores desbotam e o Ticolino perde os olhos. A pagina nao tem como
+// desligar isso em todos os casos, entao avisamos uma vez como resolver.
+function avisarEscuroForcado(){
+  try {
+    if (!/SamsungBrowser/i.test(navigator.userAgent)) return;
+    if (!window.matchMedia || !matchMedia('(prefers-color-scheme: dark)').matches) return;
+    if (localStorage.getItem('mindt-aviso-escuro')) return;
+  } catch(e){ return; }
+  var el = document.createElement('div');
+  el.id = 'aviso-escuro';
+  el.setAttribute('role', 'status');
+  el.innerHTML = '<p><b>As cores estão estranhas?</b> O modo escuro do navegador Samsung repinta o Mindt por cima. '
+    + 'Para ver as cores certas: toque no menu <b>☰</b> do navegador e desligue <b>Modo escuro</b>. '
+    + 'O Mindt já tem tema escuro próprio, em Perfil → Tema.</p>'
+    + '<button type="button">Entendi</button>';
+  el.querySelector('button').onclick = function(){
+    try { localStorage.setItem('mindt-aviso-escuro', '1'); } catch(e){}
+    el.remove();
+  };
+  document.body.appendChild(el);
+}
