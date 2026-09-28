@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v48';
+var VERSAO = 'mindt-v49';
 
 var ARQUIVOS = [
   './',
@@ -48,7 +48,6 @@ var ARQUIVOS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
-  './icons/favicon.svg',
   './icons/favicon.png'
 ];
 
