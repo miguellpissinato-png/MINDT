@@ -324,7 +324,7 @@ function enviarLinkRecuperacao(){
     btn.disabled = false; btn.textContent = 'Enviar link';
     if (res.error) { setResetError(authErr(res.error.message)); return; }
     // Resposta sempre positiva: nao revelamos se o email existe ou nao.
-    setResetError('Se existir uma conta com esse email, o link acabou de ser enviado. Confira sua caixa de entrada e o spam.', true);
+    setResetError('Se existir uma conta com esse email, o link acabou de ser enviado. Confira a caixa de entrada e o spam, e use só o e-mail mais recente: cada pedido cancela os links anteriores.', true);
   });
 }
 
@@ -350,12 +350,29 @@ function salvarNovaSenha(){
     if (res.error) { setNewPassError(authErr(res.error.message)); return; }
     // Limpa o token da URL para o link nao ser reutilizado ao recarregar.
     try { history.replaceState(null, '', location.pathname); } catch(e){}
+    LINK_DO_EMAIL.recuperacao = false;
     toast('Senha alterada! Entrando...');
     mostrarEtapaAuth('auth-form-wrap');
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app').style.visibility = 'visible';
-    if (typeof renderHome === 'function') renderHome();
+    // Entra pelo caminho normal, CARREGANDO os dados. Antes o app abria
+    // vazio, e o primeiro clique gravaria o vazio por cima dos dados reais.
+    sb.auth.getSession().then(function(r){
+      var s = r && r.data && r.data.session;
+      if (s && s.user) entrarComSessao(s);
+      else location.reload();
+    });
   });
+}
+
+// O link do e-mail venceu, ja foi usado, ou foi trocado por um pedido mais
+// novo (cada pedido invalida os links anteriores).
+function textoLinkVencido(){
+  return 'Esse link não vale mais. Ele vence em 1 hora, só funciona uma vez, e cada novo pedido cancela os links anteriores. Peça um link novo abaixo e abra só o e-mail mais recente.';
+}
+function avisarLinkVencido(){
+  LINK_DO_EMAIL.erro = null;
+  try { history.replaceState(null, '', location.pathname); } catch(e){}
+  abrirRecuperar();
+  setResetError(textoLinkVencido());
 }
 
 

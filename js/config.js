@@ -42,6 +42,21 @@ var MINDT_ARMAZEM = {
   }
 };
 
+// O link do e-mail de recuperacao volta para ca com o resultado no endereco
+// (#...type=recovery quando deu certo, #error_code=... quando o link venceu
+// ou ja foi usado). O Supabase le e LIMPA o endereco ao iniciar, entao a
+// leitura precisa acontecer antes do createClient.
+var LINK_DO_EMAIL = (function(){
+  try {
+    var h = new URLSearchParams(String(location.hash || '').replace(/^#/, ''));
+    var q = new URLSearchParams(location.search);
+    return {
+      recuperacao: h.get('type') === 'recovery',
+      erro: h.get('error_code') || q.get('error_code') || (h.get('error') ? 'erro' : null)
+    };
+  } catch(e){ return { recuperacao: false, erro: null }; }
+})();
+
 var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
   auth: {
     storage: MINDT_ARMAZEM,
