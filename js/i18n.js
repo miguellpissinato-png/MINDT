@@ -57,6 +57,7 @@ var TEXTOS = {
   errInvalid:{pt:'Email ou senha incorretos.',en:'Wrong email or password.'},
   errUnconfirmed:{pt:'Confirme seu email primeiro.',en:'Confirm your email first.'},
   errRegistered:{pt:'Email já cadastrado. Faça login.',en:'Email already registered. Sign in instead.'},
+  errJaTemConta:{pt:'Esse e-mail já tem conta no Mindt. Entre com sua senha — se não lembrar, toque em “Esqueci minha senha”.',en:'This email already has a Mindt account. Sign in with your password — if you forgot it, tap “Forgot password”.'},
   errShort:{pt:'Senha muito curta (mín. 6 caracteres).',en:'Password too short (min. 6 characters).'},
   // Os casos que o Supabase devolve em ingles e que a pessoa consegue
   // resolver sozinha. Cada um diz o que houve E o proximo passo.

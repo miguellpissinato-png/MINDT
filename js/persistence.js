@@ -28,11 +28,16 @@ async function loadUserData(){
       state=Object.assign({},state,p);
       // Guarda a versao vista e a sombra: base para detectar conflito depois.
       revLocal=res.data.updated_at||null; guardarRev(); fixarSombra();
+      if (typeof marcarDono === 'function') marcarDono(currentUser.id);
       recuperado = true;
     }else if(res.error&&(res.error.code==='PGRST116'||res.error.details==='The result contains 0 rows')){
-      // Brand new user
+      // Conta nova: nada no servidor ainda. A versao guardada (se houver)
+      // nao vale para ela.
+      revLocal=null; guardarRev();
+      if (typeof marcarDono === 'function') marcarDono(currentUser.id);
       try{
-        var local=localStorage.getItem('mindt-local');
+        // So aproveita o backup local se ele for DESTA conta.
+        var local=(typeof localDoUsuario==='undefined'||localDoUsuario)?localStorage.getItem('mindt-local'):null;
         if(local){
           var lp=JSON.parse(local);
           if(lp.metas&&lp.metas.length>0){
@@ -49,7 +54,7 @@ async function loadUserData(){
     }else{
       // Network error — fall back to localStorage
       try{
-        var local2=localStorage.getItem('mindt-local');
+        var local2=(typeof localDoUsuario==='undefined'||localDoUsuario)?localStorage.getItem('mindt-local'):null;
         if(local2){
           var lp2=JSON.parse(local2);
           if(lp2.metas)lp2.metas.forEach(function(m){m._type='meta';});
@@ -63,7 +68,7 @@ async function loadUserData(){
     // Any unexpected error — try localStorage
     console.error('loadUserData caught:', err);
     try{
-      var local3=localStorage.getItem('mindt-local');
+      var local3=(typeof localDoUsuario==='undefined'||localDoUsuario)?localStorage.getItem('mindt-local'):null;
       if(local3){
         var lp3=JSON.parse(local3);
         if(lp3.metas)lp3.metas.forEach(function(m){m._type='meta';});

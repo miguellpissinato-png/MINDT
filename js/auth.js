@@ -168,12 +168,28 @@ function authSubmit(){
   if(authMode==='signup'){
     sb.auth.signUp({email:email,password:pass}).then(function(res){
       if(res.error){setAuthError(authErr(res.error.message));setAuthLoading(false);return;}
+      // E-mail que JA tem conta: o Supabase responde "ok", sem erro e sem
+      // mandar e-mail nenhum (de proposito, para ninguem descobrir quem esta
+      // cadastrado). O sinal e a lista de identidades vazia. Antes o app
+      // mostrava "Enviamos um link" e a pessoa esperava um e-mail que nunca
+      // vinha. Agora tenta entrar com a senha que ela acabou de digitar; se
+      // nao for a senha da conta, leva para "Entrar" e explica.
+      var u=res.data.user;
+      if(u&&Array.isArray(u.identities)&&u.identities.length===0){
+        sb.auth.signInWithPassword({email:email,password:pass}).then(function(r2){
+          if(!r2.error) return;                    // entrou: o login segue sozinho
+          setAuthLoading(false);
+          switchAuthTab('login');
+          setAuthError(T('errJaTemConta'));
+        });
+        return;
+      }
       if(res.data.user&&!res.data.session){
         setAuthLoading(false);
         var w=document.getElementById('auth-form-wrap');w.innerHTML='';
         var d=document.createElement('div');d.className='auth-confirm';
         d.innerHTML='<div class="auth-confirm-icon">📧</div><div class="auth-confirm-title">Confirme seu email</div>'
-          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:var(--accent-text)">'+email+'</strong>.<br>Após confirmar, volte e faça login.</div>';
+          +'<div class="auth-confirm-text">Enviamos um link para <strong style="color:var(--accent-text)">'+esc(email)+'</strong>.<br>Após confirmar, volte e faça login.<br><small>Não chegou em alguns minutos? Olhe o Spam e a aba Promoções.</small></div>';
         var b=document.createElement('button');b.className='auth-confirm-btn';b.textContent='Ir para login';
         b.onclick=function(){location.reload();};d.appendChild(b);w.appendChild(d);
       }
