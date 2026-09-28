@@ -2,9 +2,8 @@
    Pagina separada do app: sem login, sem tema claro, sem o styles/main.css.
 
    Direcao: a floresta do app continua sendo o mundo (fundo escuro, verde
-   da mata) e a logo nova entra nele — o Ticolino flat em creme, a palavra
-   "mindt." com o ponto. O laranja e so tempero: o botao principal e o
-   ponto da marca. O verde e a cor que domina. */
+   da mata) e a logo laranja entra nele — no topo, no rodape e grande na
+   abertura. Fora da logo, o laranja fica so no botao principal. */
 
 :root{
   color-scheme:dark;
@@ -52,9 +51,7 @@ main{overflow-x:clip}
 
 /* ── Marca: o rosto da logo numa placa verde + "mindt." ─────────────── */
 .marca{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none}
-.marca-selo{width:40px;height:40px;border-radius:12px;background:var(--grad-mata);
-  border:1px solid var(--mata-linha);display:grid;place-items:center;overflow:hidden}
-.marca-selo img{width:34px;height:34px;display:block;margin-top:3px}
+.marca-selo{width:40px;height:40px;border-radius:12px;display:block}
 .marca-nome{font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1}
 .ponto{color:var(--accent)}
 
@@ -90,15 +87,9 @@ h1{margin:0;font-size:clamp(36px,6.6vw,60px);line-height:1.04;font-weight:700;
 .cartaz{position:relative;display:grid;place-items:center;min-width:0}
 .cartaz::before{content:"";position:absolute;width:128%;aspect-ratio:1;border-radius:50%;
   background:radial-gradient(circle,rgba(58,112,89,.55) 0%,rgba(44,87,69,.18) 42%,rgba(44,87,69,0) 70%)}
-.cartaz-placa{position:relative;width:min(100%,380px);aspect-ratio:1;border-radius:34px;
-  background:var(--grad-mata);padding:6%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  box-shadow:0 40px 70px -30px rgba(4,8,4,.9),inset 0 1px 0 rgba(235,227,167,.12);
+.cartaz-placa{position:relative;display:block;width:min(100%,380px);height:auto;aspect-ratio:1;border-radius:34px;
+  box-shadow:0 40px 70px -30px rgba(4,8,4,.9);
   transform:rotate(-4deg);animation:placa 1.1s var(--ease-out) both}
-.cartaz-placa img{width:72%;height:auto;display:block;margin-top:2%;
-  filter:drop-shadow(0 14px 18px rgba(8,20,14,.45))}
-.cartaz-nome{font-size:clamp(40px,7vw,64px);font-weight:700;letter-spacing:-.05em;line-height:1;color:var(--creme);
-  margin-top:-2%}
 /* O unico movimento da pagina: a placa assenta no lugar. */
 @keyframes placa{from{transform:rotate(-10deg) translateY(18px) scale(.94);filter:blur(6px);opacity:.4}
   to{transform:rotate(-4deg);filter:none;opacity:1}}
@@ -161,7 +152,6 @@ footer{border-top:1px solid var(--line);padding:26px 20px 40px}
 .rodape{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
   gap:16px;flex-wrap:wrap}
 .rodape .marca-selo{width:32px;height:32px;border-radius:10px}
-.rodape .marca-selo img{width:27px;height:27px}
 .rodape .marca-nome{font-size:19px}
 .rodape-frase{font-size:13px;color:var(--text-3)}
 
