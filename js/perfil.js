@@ -21,7 +21,40 @@ function deleteGrupo(idx){
     saveState();closeModal('modal-confirm');renderPerfil();updateGroupSelects();toast('🗑 Grupo excluído!');resetConfirmBtn();
   };openModal('modal-confirm');
 }
-function handleAvatarChange(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){state.perfil.avatar=ev.target.result;saveState();renderPerfil();};r.readAsDataURL(file);}
+// A foto vai dentro dos dados da pessoa, que sobem inteiros a cada
+// salvamento — por isso passa por reduzirImagem() (helpers.js): 320 px,
+// recorte quadrado, ~30 KB.
+function handleAvatarChange(e){
+  var file = e.target.files[0]; e.target.value = '';
+  if(!file) return;
+  lerImagemReduzida(file, AVATAR_LADO, true, function(foto){
+    if(!foto) return;
+    state.perfil.avatar = foto; saveState(); renderPerfil();
+    if(typeof renderHome === 'function') renderHome();
+  });
+}
+var AVATAR_LADO = 320;
+// Imagens salvas antes da reducao (foto de perfil, capas de metas, tarefas
+// e livros): encolhe uma vez, na entrada.
+function encolherImagensAntigas(){
+  var a = state.perfil && state.perfil.avatar;
+  if(a && typeof a === 'string'){
+    if(!/^data:image\//.test(a)){ state.perfil.avatar = null; saveState(); }
+    else if(a.length > 120000) reduzirImagem(a, AVATAR_LADO, true, function(foto){
+      if(foto && foto.length < a.length){ state.perfil.avatar = foto; saveState(); renderPerfil(); }
+    });
+  }
+  [['metas', 'img'], ['tasks', 'img'], ['livros', 'cover']].forEach(function(par){
+    (state[par[0]] || []).forEach(function(item){
+      var src = item && item[par[1]];
+      if(typeof src !== 'string' || src.length < 200000 || !/^data:image\//.test(src)) return;
+      reduzirImagem(src, IMAGEM_LADO, false, function(nova){
+        if(nova && nova.length < src.length){ item[par[1]] = nova; saveState(); }
+      });
+    });
+  });
+}
+
 
 function saveGrupo(){
   var name=document.getElementById('grupo-name').value.trim();if(!name){toast('⚠️ Dê um nome ao grupo.');return;}

@@ -111,7 +111,68 @@ document.querySelectorAll('.modal-overlay').forEach(function(overlay){overlay.ad
 function resetConfirmBtn(){document.getElementById('confirm-ok-btn').textContent='Confirmar';document.getElementById('confirm-icon').textContent='⚠️';}
 
 // IMAGE
-function previewImg(e,divId,imgId){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){document.getElementById(divId).style.display='';document.getElementById(imgId).src=ev.target.result;};r.readAsDataURL(file);}
+// IMAGENS — toda imagem escolhida pela pessoa vai dentro dos dados dela, que
+// sobem inteiros a cada salvamento. Guardada crua, uma foto de celular
+// (5-10 MB) deixava cada clique lento, estourava o espaco do navegador e
+// passava do teto de 5 MB por conta no servidor. Redesenhada num canvas
+// fica com dezenas de KB — e perde os metadados da foto (como o GPS).
+var IMAGEM_LADO = 800;
+
+// Teto dos valores em dinheiro: R$ 1 bilhao. Acima disso (ou 1e308, que o
+// campo numerico aceita) o saldo virava "Infinity".
+var VALOR_MAX = 1e9;
+function valorOk(v){ return typeof v === 'number' && isFinite(v) && v > 0 && v <= VALOR_MAX; }
+function imagemAceitavel(file){
+  if(!file) return false;
+  if(!/^image\//.test(file.type)){ toast('⚠️ Escolha uma imagem (JPG, PNG…).'); return false; }
+  if(file.size > 25 * 1024 * 1024){ toast('⚠️ Essa imagem é grande demais. Escolha uma de até 25 MB.'); return false; }
+  return true;
+}
+// quadrado=true recorta o centro (foto de perfil); senao mantem a proporcao
+// com o maior lado em 'lado' px.
+function reduzirImagem(src, lado, quadrado, pronto){
+  var img = new Image();
+  img.onload = function(){
+    var w = img.naturalWidth, h = img.naturalHeight, sx = 0, sy = 0, sw = w, sh = h, cw, ch;
+    if(!w || !h){ pronto(null); return; }
+    if(quadrado){
+      sw = sh = Math.min(w, h); sx = (w - sw) / 2; sy = (h - sh) / 2;
+      cw = ch = Math.min(lado, sw);
+    } else {
+      var k = Math.min(1, lado / Math.max(w, h));
+      cw = Math.round(w * k); ch = Math.round(h * k);
+    }
+    var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch);   // PNG transparente nao vira fundo preto
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+    try { pronto(cv.toDataURL('image/jpeg', 0.8)); } catch(e){ pronto(null); }
+  };
+  img.onerror = function(){ pronto(null); };
+  img.src = src;
+}
+// Le o arquivo escolhido e devolve a imagem ja reduzida (ou null).
+function lerImagemReduzida(file, lado, quadrado, pronto){
+  if(!imagemAceitavel(file)){ pronto(null); return; }
+  var r = new FileReader();
+  r.onload = function(ev){
+    reduzirImagem(ev.target.result, lado, quadrado, function(img){
+      if(!img) toast('⚠️ Não conseguimos abrir essa imagem. Tente outra.');
+      pronto(img);
+    });
+  };
+  r.onerror = function(){ toast('⚠️ Não conseguimos ler essa imagem. Tente outra.'); pronto(null); };
+  r.readAsDataURL(file);
+}
+function previewImg(e,divId,imgId){
+  var file=e.target.files[0]; e.target.value='';
+  if(!file) return;
+  lerImagemReduzida(file, IMAGEM_LADO, false, function(img){
+    if(!img) return;
+    document.getElementById(divId).style.display='';
+    document.getElementById(imgId).src=img;
+  });
+}
 
 // FORM POPULATION
 function populateMetaForm(m){

@@ -61,6 +61,7 @@ function entrarNoApp(){
   passo('tarefas', function(){
     if (typeof atualizarTarefasRecorrentes === 'function' && atualizarTarefasRecorrentes()){ saveState(); renderHome(); }
   });
+  passo('imagens', function(){ if (typeof encolherImagensAntigas === 'function') encolherImagensAntigas(); });
   passo('sync', sincronizar);   // traz o que outro aparelho fez e envia o que ficou pendente
   // Amizades: selo de pedidos, meus numeros na vitrine e o convite que a
   // pessoa abriu (?amigo=) antes de entrar.
@@ -125,14 +126,30 @@ function toggleTarefaDia(chave){
   if(chave==='exercicio' && typeof exSincronizarDiaDeTreino==='function'){
     exSincronizarDiaDeTreino();
   }
-  var xp=xpDaTarefaDia(chave);
-  if(d[chave]) addXP(xp); else addXP(-xp);
+  pagarItemDoDia(chave, d[chave], xpDaTarefaDia(chave));
   atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
   saveState();
   renderHome();
   // A aba Exercicios mostra o mesmo check; se estiver aberta, acompanha.
   if(typeof renderExercicios==='function') renderExercicios();
+}
+// O XP de cada item do dia e pago uma vez so e devolvido pelo MESMO valor
+// ao desmarcar. Antes o desmarcar recalculava (e o dobro do Max podia mudar
+// no meio), e cada caminho pagava por conta propria — marcar e desmarcar,
+// ou registrar varios treinos, rendia XP sem fim.
+function pagarItemDoDia(chave, marcar, base){
+  var d=garantirDiario();
+  if(!d.xpPago) d.xpPago={};
+  if(marcar){
+    if(d.xpPago[chave]) return 0;
+    d.xpPago[chave]=addXP(base);
+    return d.xpPago[chave];
+  }
+  var pago=d.xpPago[chave];
+  delete d.xpPago[chave];
+  if(pago==null) return addXP(-base);   // dia marcado antes desta regra
+  return pago ? addXP(-pago, true) : 0;
 }
 function xpDaTarefaDia(chave){
   for(var i=0;i<TAREFAS_DIA.length;i++) if(TAREFAS_DIA[i].chave===chave) return TAREFAS_DIA[i].xp;
@@ -203,7 +220,7 @@ function renderHome(){
   document.getElementById('home-greeting').textContent=saud+(nome?', '+nome:'');
   document.getElementById('home-date').textContent=new Date().toLocaleDateString(idiomaAtual()==='en'?'en-US':'pt-BR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-avatar').innerHTML = (state.perfil&&state.perfil.avatar)
-    ? '<img src="'+state.perfil.avatar+'" alt="">'
+    ? '<img src="'+esc(state.perfil.avatar)+'" alt="">'
     : ticolino('feliz',48,true);
 
   // Streak e XP (reaproveita o XP dos Estudos)

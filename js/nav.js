@@ -3,7 +3,9 @@
 // NAV
 document.querySelectorAll('.nav-item').forEach(function(el){
   el.addEventListener('click',function(){
-    var page=el.dataset.page;goToPage(page);
+    var page=el.dataset.page;
+    if(!page) return;   // o botao de tema mora no menu mas nao e pagina
+    goToPage(page);
     document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===page);});
   });
 });
@@ -12,6 +14,9 @@ document.querySelectorAll('.nav-item').forEach(function(el){
 var chegandoNaPagina = false;
 
 function goToPage(name){
+  // Pagina que nao existe nao pode apagar a atual: antes, as paginas eram
+  // escondidas primeiro e o erro vinha depois — tela em branco.
+  if(!document.getElementById('page-'+name)) return;
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.getElementById('page-'+name).classList.add('active');
   // "Conhecer novos Ticolinos" e uma pagina de dentro de Amizades.

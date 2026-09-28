@@ -172,6 +172,10 @@ function mesclar(local, servidor){
     saida.todaySessions = maisNovo.todaySessions || 0;
   }
 
+  // pomodoros que ja pagaram XP hoje: o maior dos dois (teto diario)
+  var pa2 = local.xpPomodoro, pb2 = servidor.xpPomodoro;
+  if (pa2 && pb2 && pa2.data === pb2.data) saida.xpPomodoro = { data: pa2.data, n: Math.max(pa2.n || 0, pb2.n || 0) };
+
   // streak: vale o registro do dia mais recente
   var sa = local.streak || {count:0,lastDay:null}, sbv = servidor.streak || {count:0,lastDay:null};
   saida.streak = ((sbv.lastDay || '') > (sa.lastDay || '')) ? sbv
@@ -187,7 +191,9 @@ function mesclar(local, servidor){
       grana:   !!(da.grana   || db.grana),
       // Faltava: o item de exercicio sumia na mesclagem e podia ser marcado
       // (e dar XP) de novo no mesmo dia.
-      exercicio: !!(da.exercicio || db.exercicio) };
+      exercicio: !!(da.exercicio || db.exercicio),
+      // O XP ja pago por item: sem isso o outro aparelho pagaria de novo.
+      xpPago: Object.assign({}, db.xpPago || {}, da.xpPago || {}) };
   } else {
     saida.diario = ((da && da.data) || '') >= ((db && db.data) || '') ? da : db;
   }
@@ -229,9 +235,17 @@ async function resolverConflito(){
   return r;
 }
 
-// Ponto unico de gravacao. Serializa as chamadas para nao correrem juntas.
+// Ponto unico de gravacao. Serializa as chamadas para nao correrem juntas
+// e junta as que chegam em rajada: se ja ha uma gravacao esperando a vez,
+// quem chega agora pega carona nela (ela le o state na hora de rodar, entao
+// leva a mudanca nova junto). Vinte cliques seguidos viravam vinte envios
+// do blob inteiro, um atras do outro.
+var gravacaoNaFila = null;
 function gravar(){
-  salvando = (salvando || Promise.resolve()).then(async function(){
+  guardarLocal();   // o backup local ja sai com a mudanca, mesmo na fila
+  if (gravacaoNaFila) return gravacaoNaFila;
+  var esta = salvando = (salvando || Promise.resolve()).then(async function(){
+    if (gravacaoNaFila === esta) gravacaoNaFila = null;
     marcarMudancas();
     guardarLocal();
     if (!currentUser) return { ok:false, motivo:'sem-login' };
@@ -254,7 +268,8 @@ function gravar(){
     console.error('sync:', e); pendente = true; statusSync('erro');
     return { ok:false, motivo:'excecao' };
   });
-  return salvando;
+  gravacaoNaFila = esta;
+  return esta;
 }
 
 // Chamado ao voltar a ficar online e na abertura do app.
