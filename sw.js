@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v51';
+var VERSAO = 'mindt-v52';
 
 var ARQUIVOS = [
   './',
@@ -96,8 +96,12 @@ self.addEventListener('fetch', function(e){
     var raiz = new URL('./', self.location).pathname;
     var ehApp = url.pathname === raiz || url.pathname === raiz + 'index.html';
 
+    // 'no-cache' confere com o servidor a cada abertura: sem isso o
+    // navegador podia servir a pagina guardada por ate 10 min (o cache do
+    // GitHub Pages) e a versao nova so aparecia depois. Um Request de
+    // navegacao nao pode ser recriado com outras opcoes; vai pela URL.
     e.respondWith(
-      fetch(req).then(function(r){
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function(r){
         if (ehApp) {
           var copia = r.clone();
           caches.open(VERSAO).then(function(c){ c.put('./index.html', copia); });
