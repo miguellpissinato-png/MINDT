@@ -328,16 +328,16 @@ function toggleLendoAgora() {
 }
 
 function previewLivroCover(e) {
-  var file = e.target.files[0]; if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    _selectedWebImg = ev.target.result;
-    document.getElementById('livro-cover-img').src = ev.target.result;
+  var file = e.target.files[0]; e.target.value = '';
+  if(!file) return;
+  lerImagemReduzida(file, IMAGEM_LADO, false, function(img) {
+    if(!img) return;
+    _selectedWebImg = img;
+    document.getElementById('livro-cover-img').src = img;
     document.getElementById('livro-cover-preview').style.display = 'block';
     document.getElementById('livro-cover-empty').style.display = 'none';
     document.getElementById('web-image-search-wrap').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 function clearLivroCover() {
@@ -512,6 +512,7 @@ function saveLivro() {
   if(!titulo) { toast('⚠️ Dê o título do livro.'); return; }
   var paginas = parseInt(document.getElementById('livro-paginas').value) || 0;
   if(!paginas) { toast('⚠️ Diga quantas páginas o livro tem.'); return; }
+  if(paginas < 1 || paginas > 20000) { toast('⚠️ O número de páginas vai de 1 a 20.000.'); return; }
 
   if(!state.livros) state.livros = [];
 
@@ -534,7 +535,7 @@ function saveLivro() {
       l.ano = document.getElementById('livro-ano').value.trim();
       l.cover = _selectedWebImg || l.cover || null;
       l.jaLeu = _jaLeuSim;
-      l.vezes = _jaLeuSim ? (parseInt(document.getElementById('livro-vezes').value)||1) : 0;
+      l.vezes = _jaLeuSim ? Math.min(100, Math.max(1, parseInt(document.getElementById('livro-vezes').value)||1)) : 0;
       l.lendoAgora = _lendoAgoraOn;
 
       // Veio de "Finalizar leitura". Sao as MESMAS quatro marcas que
@@ -572,7 +573,7 @@ function saveLivro() {
       ano: document.getElementById('livro-ano').value.trim(),
       cover: _selectedWebImg || null,
       jaLeu: _jaLeuSim,
-      vezes: _jaLeuSim ? (parseInt(document.getElementById('livro-vezes').value)||1) : 0,
+      vezes: _jaLeuSim ? Math.min(100, Math.max(1, parseInt(document.getElementById('livro-vezes').value)||1)) : 0,
       lendoAgora: _lendoAgoraOn,
       paginasLidas: 0,
       logLeitura: [],
@@ -615,6 +616,7 @@ function registrarLeitura() {
   if(!active) return;
   var novas = parseInt(document.getElementById('registrar-paginas').value) || 0;
   if(novas <= 0) { toast('⚠️ Diga em que página você parou.'); return; }
+  novas = Math.min(novas, Math.max(0, (active.paginas || 0) - (active.paginasLidas || 0)) || novas);
 
   active.paginasLidas = Math.min(active.paginas, (active.paginasLidas||0) + novas);
   active.logLeitura = active.logLeitura || [];

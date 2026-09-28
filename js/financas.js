@@ -557,6 +557,7 @@ function salvarGanho(){
   var instId = document.getElementById('ganho-instituicao').value;
 
   if(!valor || valor <= 0){ toast('⚠️ O valor precisa ser um número maior que zero.'); return; }
+  if(!valorOk(valor)){ toast('⚠️ Esse valor é alto demais. O máximo é R$ 1 bilhão.'); return; }
   if(!fonte){ toast('⚠️ Diga de onde veio essa entrada — por exemplo, "salário".'); return; }
   if(!data){ toast('⚠️ Escolha a data da entrada.'); return; }
   if(!instId || !instituicaoPorId(instId)){ toast('⚠️ Escolha uma instituição.'); return; }

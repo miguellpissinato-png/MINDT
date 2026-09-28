@@ -145,11 +145,11 @@ function exFinalizarTreino(){
   e.treinos.unshift({id:'t'+Date.now(), data:hojeStr(), modId:modId, dur:dur});
   e.ultimo={dur:dur, modId:modId};
   e.cronometro=null; exDesligarRelogio();
-  exFecharDiaSemXP();         // o check do dia na Home fecha junto
-  addXP(EX_XP);
+  var xp=exFecharDia();       // o check do dia na Home fecha junto
+  e.ultimo.xp=xp;
   saveState(); renderExercicios();
   if(typeof renderHome==='function') renderHome();
-  toast('+'+EX_XP+' XP · treino registrado');
+  toast(xp ? '+'+xp+' XP · treino registrado' : 'Treino registrado');
 }
 
 // Enquanto a pagina de exercicios esta visivel, o mostrador anda de segundo em
@@ -213,30 +213,35 @@ function exSincronizarDiaDeTreino(){
 // "Concluir exercicio do dia" faz.
 function exMarcarDia(valor){
   var d=garantirDiario();
-  if(!!d.exercicio===!!valor) return;
+  if(!!d.exercicio===!!valor) return 0;
   d.exercicio=!!valor;
   exSincronizarDiaDeTreino();
-  addXP(valor?EX_XP:-EX_XP);
+  var xp=pagarItemDoDia('exercicio', !!valor, EX_XP);
   if(typeof atualizarStreak==='function') atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
+  return xp;
 }
-// Fecha o check do dia SEM pagar XP. Usado por quem ja paga o seu proprio:
-// terminar um treino vale +5 uma vez so, nao +5 do treino mais +5 do check.
-function exFecharDiaSemXP(){
+// Treino e corrida registrados fecham o check do dia. O XP de exercicio e
+// um por dia, igual ao da Home: o primeiro registro paga, os seguintes nao
+// (antes cada treino de 10 s pagava de novo — XP sem fim). Devolve o XP que
+// entrou agora (0 se o dia ja estava pago).
+function exFecharDia(){
   var d=garantirDiario();
-  if(d.exercicio) return;
+  if(d.exercicio) return 0;     // ja fechado (e pago) hoje
   d.exercicio=true;
+  var xp=pagarItemDoDia('exercicio', true, EX_XP);
   // Quem chama isto acabou de registrar o proprio treino, entao a sincronia
   // encontra um treino de hoje e nao cria nada. A chamada fica por seguranca:
   // se um dia alguem fechar o check por outro caminho, o dia conta igual.
   exSincronizarDiaDeTreino();
   if(typeof atualizarStreak==='function') atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
+  return xp;
 }
 function exConcluirDia(){
-  exMarcarDia(true); saveState(); renderExercicios();
+  var xp=exMarcarDia(true); saveState(); renderExercicios();
   if(typeof renderHome==='function') renderHome();
-  toast('+'+EX_XP+' XP · exercício do dia');
+  toast(xp ? '+'+xp+' XP · exercício do dia' : 'Exercício do dia concluído');
 }
 
 // ─── Render ────────────────────────────────────────────────
@@ -246,7 +251,7 @@ function renderExercicios(){
 
   // Cabecalho
   var xp=(typeof studyXP==='number'?studyXP:0), nivel=Math.floor(xp/100)+1;
-  document.getElementById('ex-sub').textContent='Nível '+nivel+' · +'+EX_XP+' XP por treino concluído';
+  document.getElementById('ex-sub').textContent='Nível '+nivel+' · +'+EX_XP+' XP no primeiro treino do dia';
   document.getElementById('ex-mes').textContent=
     new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   document.getElementById('ex-dia-btn').style.display = d.exercicio?'none':'';
@@ -375,7 +380,8 @@ function exPintarCronometro(){
     resumo.style.display='';
     document.getElementById('ex-resumo-txt').textContent=
       (m?m.nome:'Treino')+' · '+exTempo(e.ultimo.dur);
-    document.getElementById('ex-resumo-xp').textContent='+'+EX_XP+' XP';
+    var xpUlt=(e.ultimo.xp!=null)?e.ultimo.xp:EX_XP;
+    document.getElementById('ex-resumo-xp').textContent=xpUlt?'+'+xpUlt+' XP':'';
   } else resumo.style.display='none';
 }
 
@@ -542,17 +548,18 @@ function exSalvarCorrida(){
   var dist=parseFloat(String(document.getElementById('ex-corrida-dist').value).replace(',','.'));
   var tempo=document.getElementById('ex-corrida-tempo').value.trim();
   if(isNaN(dist)||dist<=0){ toast('⚠️ Informe a distância em km antes de salvar a corrida.'); return; }
+  if(dist>1000){ toast('⚠️ Distância alta demais. Confira os km.'); return; }
   var recorde=exCorridasDaMod().reduce(function(m,c){return Math.max(m,c.dist);},0);
   var bateu = dist>recorde;
   e.corridas.unshift({id:'c'+Date.now(), data:hojeStr(), modId:mod.id, dist:dist, tempo:tempo});
   // Uma corrida registrada tambem e um treino do dia — senao o cartao de dias
   // treinados ignoraria quem corre e nao usa o cronometro.
   if(!exTemTreino(hojeStr())) e.treinos.unshift({id:'t'+Date.now(), data:hojeStr(), modId:mod.id, dur:0});
-  exFecharDiaSemXP();
-  addXP(EX_XP);
+  var xp=exFecharDia();
   saveState(); closeModal('modal-ex-corrida'); renderExercicios();
   if(typeof renderHome==='function') renderHome();
-  toast(bateu ? ('Recorde novo! +'+EX_XP+' XP') : ('Corrida registrada · +'+EX_XP+' XP'));
+  var ganho=xp ? ' · +'+xp+' XP' : '';
+  toast(bateu ? ('Recorde novo!'+ganho) : ('Corrida registrada'+ganho));
 }
 function exApagarCorrida(id){
   var e=garantirExercicios();
@@ -597,8 +604,9 @@ function exSalvarPassos(){
   var data=document.getElementById('ex-passos-data').value||hojeStr();
   var n=parseInt(document.getElementById('ex-passos-valor').value,10);
   var meta=parseInt(document.getElementById('ex-passos-meta').value,10);
-  if(meta>0) e.metaPassos=meta;
+  if(meta>0) e.metaPassos=Math.min(meta,200000);
   if(!isNaN(n)&&n>=0){
+    n=Math.min(n,200000);
     var achou=false;
     e.passos.forEach(function(p){ if(p.data===data){ p.passos=n; achou=true; } });
     if(!achou) e.passos.push({data:data, passos:n});
@@ -638,7 +646,7 @@ function exSalvarExercicio(){
   var series=parseInt(document.getElementById('ex-circ-series').value,10);
   var reps=parseInt(document.getElementById('ex-circ-reps').value,10);
   if(!nome){ toast('⚠️ Dê um nome ao exercício.'); return; }
-  lista.push({nome:nome, series:series>0?series:3, reps:reps>0?reps:12});
+  lista.push({nome:nome, series:series>0?Math.min(series,100):3, reps:reps>0?Math.min(reps,1000):12});
   saveState(); closeModal('modal-ex-circuito'); renderExercicios();
 }
 function exApagarExercicio(i){

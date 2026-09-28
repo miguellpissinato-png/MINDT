@@ -4,12 +4,41 @@
 sb.auth.onAuthStateChange(function(event,session){
   // O link de recuperacao enviado por email tambem cria uma sessao valida.
   // Sem este desvio, o usuario entraria direto no app em vez de trocar a senha.
-  if(event==='PASSWORD_RECOVERY'){
-    currentUser=session?session.user:null;
+  // O Supabase avisa PASSWORD_RECOVERY e LOGO DEPOIS manda a mesma sessao de
+  // novo (INITIAL_SESSION/SIGNED_IN) — por isso vale o sinal guardado ate a
+  // senha nova ser salva, e nao so o evento: antes, o segundo aviso abria o
+  // app por cima da tela de nova senha.
+  if(event==='PASSWORD_RECOVERY') LINK_DO_EMAIL.recuperacao=true;
+  if(LINK_DO_EMAIL.recuperacao && session && session.user && event!=='SIGNED_OUT'){
+    currentUser=session.user;
     abrirNovaSenha();
     return;
   }
+  // Renovacao do token (a cada hora) e troca de senha nao sao um login novo:
+  // recarregar os dados aqui trocaria o que esta na tela pela versao do
+  // servidor, por cima de mudancas que ainda nao subiram.
+  if((event==='TOKEN_REFRESHED'||event==='USER_UPDATED') && session && currentUser && currentUser.id===session.user.id
+     && document.getElementById('app').style.visibility==='visible'){
+    currentUser=session.user;
+    return;
+  }
   if(session&&session.user){
+    entrarComSessao(session);
+  }else{
+    currentUser=null;
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app').style.visibility='hidden';
+    if(typeof mostrarEtapaAuth==='function') mostrarEtapaAuth('auth-form-wrap');
+    setAuthLoading(false);
+    // Voltou de um link de e-mail vencido ou ja usado: explicar, em vez de
+    // largar a pessoa no login sem saber o que houve.
+    if(LINK_DO_EMAIL.erro && typeof avisarLinkVencido==='function') avisarLinkVencido();
+  }
+});
+
+// Carrega os dados da conta e abre o app. Tambem e o caminho depois de
+// trocar a senha pelo link do e-mail.
+function entrarComSessao(session){
     currentUser=session.user;
     // Separado de proposito: so falha AO CARREGAR os dados mostra a tela
     // "Nao conseguimos carregar seus dados". Um erro depois disso, ao
@@ -23,14 +52,7 @@ sb.auth.onAuthStateChange(function(event,session){
       console.error('loadUserData error:', err);
       mostrarFalhaDeCarga(err);
     });
-  }else{
-    currentUser=null;
-    document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('app').style.visibility='hidden';
-    if(typeof mostrarEtapaAuth==='function') mostrarEtapaAuth('auth-form-wrap');
-    setAuthLoading(false);
-  }
-});
+}
 
 // Abre o app com os dados ja carregados. Cada passo roda isolado: se um
 // falhar (uma tela com defeito, um arquivo velho no cache), os outros
@@ -61,6 +83,7 @@ function entrarNoApp(){
   passo('tarefas', function(){
     if (typeof atualizarTarefasRecorrentes === 'function' && atualizarTarefasRecorrentes()){ saveState(); renderHome(); }
   });
+  passo('imagens', function(){ if (typeof encolherImagensAntigas === 'function') encolherImagensAntigas(); });
   passo('sync', sincronizar);   // traz o que outro aparelho fez e envia o que ficou pendente
   // Amizades: selo de pedidos, meus numeros na vitrine e o convite que a
   // pessoa abriu (?amigo=) antes de entrar.
@@ -125,14 +148,30 @@ function toggleTarefaDia(chave){
   if(chave==='exercicio' && typeof exSincronizarDiaDeTreino==='function'){
     exSincronizarDiaDeTreino();
   }
-  var xp=xpDaTarefaDia(chave);
-  if(d[chave]) addXP(xp); else addXP(-xp);
+  pagarItemDoDia(chave, d[chave], xpDaTarefaDia(chave));
   atualizarStreak();
   if(typeof registrarItensDoDia==='function') registrarItensDoDia();
   saveState();
   renderHome();
   // A aba Exercicios mostra o mesmo check; se estiver aberta, acompanha.
   if(typeof renderExercicios==='function') renderExercicios();
+}
+// O XP de cada item do dia e pago uma vez so e devolvido pelo MESMO valor
+// ao desmarcar. Antes o desmarcar recalculava (e o dobro do Max podia mudar
+// no meio), e cada caminho pagava por conta propria — marcar e desmarcar,
+// ou registrar varios treinos, rendia XP sem fim.
+function pagarItemDoDia(chave, marcar, base){
+  var d=garantirDiario();
+  if(!d.xpPago) d.xpPago={};
+  if(marcar){
+    if(d.xpPago[chave]) return 0;
+    d.xpPago[chave]=addXP(base);
+    return d.xpPago[chave];
+  }
+  var pago=d.xpPago[chave];
+  delete d.xpPago[chave];
+  if(pago==null) return addXP(-base);   // dia marcado antes desta regra
+  return pago ? addXP(-pago, true) : 0;
 }
 function xpDaTarefaDia(chave){
   for(var i=0;i<TAREFAS_DIA.length;i++) if(TAREFAS_DIA[i].chave===chave) return TAREFAS_DIA[i].xp;
@@ -203,7 +242,7 @@ function renderHome(){
   document.getElementById('home-greeting').textContent=saud+(nome?', '+nome:'');
   document.getElementById('home-date').textContent=new Date().toLocaleDateString(idiomaAtual()==='en'?'en-US':'pt-BR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-avatar').innerHTML = (state.perfil&&state.perfil.avatar)
-    ? '<img src="'+state.perfil.avatar+'" alt="">'
+    ? '<img src="'+esc(state.perfil.avatar)+'" alt="">'
     : ticolino('feliz',48,true);
 
   // Streak e XP (reaproveita o XP dos Estudos)

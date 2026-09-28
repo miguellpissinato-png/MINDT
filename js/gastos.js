@@ -587,15 +587,20 @@ function saveGasto() {
 
   if(!desc){ toast('⚠️ Descreva o gasto — por exemplo, "mercado".'); return; }
   if(!valor||valor<=0){ toast('⚠️ O valor precisa ser um número maior que zero.'); return; }
+  if(!valorOk(valor)){ toast('⚠️ Esse valor é alto demais. O máximo é R$ 1 bilhão.'); return; }
   if(!data){ toast('⚠️ Escolha a data do gasto.'); return; }
 
   if(!state.gastos) state.gastos = [];
 
   if(_installmentOn) {
     var n = parseInt(document.getElementById('gasto-parcelas').value) || 2;
+    // Cada parcela vira um gasto: 100 mil parcelas travariam o app.
+    if(n < 2 || n > 120){ toast('⚠️ Parcelas: de 2 a 120.'); return; }
     var taxa = _jurosOn ? (parseFloat(document.getElementById('gasto-juros').value)||0) : 0;
+    if(!isFinite(taxa) || taxa < 0 || taxa > 100){ toast('⚠️ Juros: de 0% a 100% ao mês.'); return; }
     var tipo = document.getElementById('gasto-juros-tipo').value;
     var valorParcela = parseFloat(document.getElementById('gasto-valor-parcela').value) || (valor/n);
+    if(!valorOk(valorParcela)){ toast('⚠️ Confira o valor da parcela.'); return; }
     // Create one entry per installment
     // Parcela i = mesmo dia, i meses depois. Compra no dia 31 cai no ultimo
     // dia dos meses curtos: com setMonth, 31/01 + 1 mes virava 03/03 e a

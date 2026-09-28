@@ -119,10 +119,11 @@ function publicarPerfil(forcar){
     return;
   }
   _pubUltimo = Date.now(); _pubAssinatura = assinatura;
-  sb.from('perfis_publicos').update(dados).eq('user_id', amzEu()).then(function(r){
+  sb.from('perfis_publicos').update(dados).eq('user_id', amzEu())
+    .select('nome,cor,xp,nivel,ofensiva,paginas').maybeSingle().then(function(r){
     if(r.error){ _pubAssinatura = ''; console.warn('amizades: publicar falhou', r.error); return; }
-    Object.assign(AMZ.perfil, dados);
-    AMZ.perfil.nivel = Math.floor(dados.xp / 100) + 1;
+    // O servidor pode cortar numeros impossiveis; vale o que ele guardou.
+    Object.assign(AMZ.perfil, r.data || dados);
   });
 }
 
@@ -136,10 +137,16 @@ var AMZ_RESPOSTAS = {
   indisponivel:   'Esse Ticolino não está aceitando convites agora.',
   expirado:       '⏳ Esse link de convite venceu — ele vale 5 minutos. Peça um novo.',
   invalido:       'Esse convite não existe mais. Peça um novo.',
-  ative_primeiro: '🐹 Ative as amizades para mandar convites.'
+  ative_primeiro: '🐹 Ative as amizades para mandar convites.',
+  limite:         '⏳ Você mandou muitos pedidos hoje. Tente de novo amanhã.'
 };
 function amzFrase(codigo){ return AMZ_RESPOSTAS[codigo] || '⚠️ Não deu certo agora. Tente de novo em instantes.'; }
-function amzFalhou(e){ console.warn('amizades:', e); toast('⚠️ Sem conexão com o servidor. Tente de novo em instantes.'); }
+function amzFalhou(e){
+  console.warn('amizades:', e);
+  // Limite do servidor (ex.: 10 links vivos) nao e falta de conexao.
+  if(e && /limite/.test(e.message || '')){ toast('⏳ Você já tem muitos links abertos. Use um deles ou espere 5 minutos.'); return; }
+  toast('⚠️ Sem conexão com o servidor. Tente de novo em instantes.');
+}
 
 // ── Convite aberto por link ou QR (?amigo=CODIGO) ───────────────────────
 // O codigo e guardado ao abrir a pagina (a pessoa pode ainda nem estar
@@ -263,6 +270,7 @@ async function amzAtivar(){
     var r = await sb.rpc('ativar_amizades', { p_nick: nick, p_nome: (state.perfil && state.perfil.name) || '' });
     if(r.error) throw r.error;
     if(r.data === 'nick_em_uso'){ toast('Esse nick já está em uso. Tente outro.'); return; }
+    if(r.data === 'nick_recente'){ toast('Você trocou de nick há pouco. Dá para trocar de novo amanhã.'); return; }
     if(r.data === 'nick_invalido'){ toast('O nick precisa de 3 a 20 letras, números, ponto ou _.'); return; }
     await amzCarregar(true);
     publicarPerfil(true);
@@ -918,3 +926,22 @@ function cnhCompartilhar(){
   if(!CNH.link || !navigator.share) return;
   navigator.share({ title: 'Vem ser meu amigo no Mindt', text: 'Meu Ticolino quer te conhecer 🐹', url: amzLinkPara(CNH.link.codigo) }).catch(function(){});
 }
+
+// ── Clique repetido ─────────────────────────────────────────────────────
+// Toda acao que fala com o servidor ignora novos cliques na MESMA acao
+// (mesmo amigo, mesmo pedido) enquanto a anterior nao volta. Sem isso, dois
+// toques rapidos em "Enviar nozes" mandavam o presente duas vezes.
+function amzUmaVez(fn){
+  var rodando = {};
+  return async function(){
+    var chave = String(arguments[0] != null ? arguments[0] : (AMZ.amigoAberto && AMZ.amigoAberto.user_id) || '');
+    if(rodando[chave]) return;
+    rodando[chave] = true;
+    try { return await fn.apply(this, arguments); }
+    finally { delete rodando[chave]; }
+  };
+}
+['amzResponder', 'amzCutucar', 'amzDarNozes', 'amzAbandonar', 'amzBloquear', 'amzDesbloquear',
+ 'cnhUsarCodigo', 'cnhConvidar', 'cnhAceitarDe', 'cnhGerarLink'].forEach(function(n){
+  if(typeof window[n] === 'function') window[n] = amzUmaVez(window[n]);
+});

@@ -361,7 +361,10 @@ function timerFinished() {
   updateTimerDisplay();
   updateTimerRing();
   playAlertSound();
-  addXP(5);
+  var pagos = pomodorosPagosHoje(), ganhou = 0, aviso = '';
+  if (timerTotal < POMODORO_MIN_XP) aviso = ' Sessões a partir de 10 min valem XP.';
+  else if (pagos.n >= POMODORO_XP_POR_DIA) aviso = ' O XP de pomodoro de hoje já chegou no limite.';
+  else { pagos.n++; ganhou = addXP(5); }
   if (typeof registrarEstudo === 'function') registrarEstudo(Math.round(timerTotal / 60));
   todaySessions++;
   state.studyXP = studyXP;
@@ -369,7 +372,7 @@ function timerFinished() {
   state.sessionDate = new Date().toDateString();
   saveState();
   updateSessionDots();
-  toast('🎉 Sessão concluída! +5 XP');
+  toast('🎉 Sessão concluída!' + (ganhou ? ' +' + ganhou + ' XP' : aviso));
   setTimeout(function() {
     timerRemaining = timerTotal;
     document.getElementById('timer-label').textContent = 'Pronto para começar';
@@ -412,13 +415,17 @@ function playAlertSound() {
   } catch(e) {}
 }
 
-function addXP(amount) {
+// Devolve quanto XP entrou de fato — quem paga guarda esse valor para, ao
+// desfazer, tirar exatamente o mesmo (com exato=true, sem dobrar de novo).
+function addXP(amount, exato) {
   // O XP em dobro do Ticolino Max vale para tudo que da XP: pomodoro,
   // itens do dia e treinos. Dobrar aqui, na porta unica, evita ter que
   // lembrar de dobrar em cada um deles.
-  if (typeof xpEmDobro === 'function' && xpEmDobro()) amount = amount * 2;
+  if (!exato && typeof xpEmDobro === 'function' && xpEmDobro()) amount = amount * 2;
   var previousXP = studyXP;
-  studyXP += amount;
+  studyXP = Math.max(0, studyXP + amount);
+  amount = studyXP - previousXP;
+  if (!amount) return 0;
   // Passa tambem pelo historico: o studyXP e so o acumulado da vida toda, e
   // o Resumo de atividades precisa saber quanto entrou em cada dia.
   if (typeof registrarXP === 'function') registrarXP(amount);
@@ -430,6 +437,18 @@ function addXP(amount) {
     state.studyXP = studyXP;
     saveState();
   }
+  return amount;
+}
+
+// Pomodoro so paga XP se a sessao tiver tamanho de estudo de verdade e ate
+// um teto por dia. Sem isso, um timer de 1 segundo repetido virava XP
+// infinito.
+var POMODORO_MIN_XP = 10 * 60;     // segundos
+var POMODORO_XP_POR_DIA = 12;      // sessoes que pagam XP (12 x 25 min = 5 h)
+function pomodorosPagosHoje() {
+  var hoje = new Date().toDateString();
+  if (!state.xpPomodoro || state.xpPomodoro.data !== hoje) state.xpPomodoro = { data: hoje, n: 0 };
+  return state.xpPomodoro;
 }
 
 function updateXPDisplay() {
