@@ -145,7 +145,11 @@
    Liga com data-theme="light" no <html>.
    ═══════════════════════════════════════════════════════════════════════ */
 [data-theme="light"]{
-  color-scheme:light;
+  /* "light dark" (e nao so "light"): e assim que a pagina avisa ao
+     navegador que ja tem tema escuro. So com "light", o modo escuro
+     automatico do Chrome/Samsung Internet no Android repintava o tema claro
+     por cima — cores estranhas e o Ticolino sem olhos e bigodes. */
+  color-scheme:light dark;
 
   --accent:#AD5900;        /* >>> pacote: #C56800 dava 3,85:1 com texto branco. #AD5900 da 4,90 */
   --accent-bright:#C56800;

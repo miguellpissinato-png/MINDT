@@ -75,6 +75,7 @@ function amzCarregar(forcar){
       AMZ.carregando = null;
     }
     amzPintarSelo();
+    pintarAmizadesPerfil();
   })();
   return AMZ.carregando;
 }
@@ -231,16 +232,14 @@ function amzNickSugerido(){
 function amzTelaDesligada(){
   var nick = (AMZ.perfil && AMZ.perfil.nick) || amzNickSugerido();
   var itens = ['Seu Ticolino, com cor e roupinha', 'Nível e XP', 'Ofensiva', 'Páginas lidas'];
+  // O nick e o botao vem logo depois do convite: embaixo do cartao de
+  // explicacao eles caiam fora da tela num celular pequeno, e a pessoa
+  // achava que nao havia como ligar.
   return '<div class="amz-topo"><h2 class="page-title">Amizades</h2></div>'
     + '<div class="amz-desligada">'
-      + '<div class="amz-desl-tico">' + ticolino('feliz', 120) + '</div>'
+      + '<div class="amz-desl-tico">' + ticolino('feliz', 96) + '</div>'
       + '<h3 class="amz-desl-titulo">Amizades desligadas</h3>'
       + '<p class="amz-desl-texto">Ative para adicionar amigos, comparar o progresso e criar desafios juntos.</p>'
-      + '<div class="amz-card amz-vitrine">'
-        + '<div class="amz-rotulo">Se você ativar, seus amigos veem</div>'
-        + itens.map(function(t){ return '<div class="amz-check"><span aria-hidden="true">✓</span>' + t + '</div>'; }).join('')
-        + '<p class="amz-nota">Tudo aparece por padrão. Você escolhe o que mostrar em Privacidade, e dá para desligar as amizades a qualquer momento.</p>'
-      + '</div>'
       + '<label class="amz-rotulo" for="amz-nick">Seu nick</label>'
       + '<div class="amz-nick-campo"><span aria-hidden="true">@</span>'
         + '<input id="amz-nick" class="form-input" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false"'
@@ -248,6 +247,11 @@ function amzTelaDesligada(){
       + '<div class="amz-nick-estado" id="amz-nick-estado" aria-live="polite"></div>'
       + '<p class="amz-nota" id="amz-nick-nota">Vem do nome que você criou no app. Use de 3 a 20 letras, números, ponto ou _.</p>'
       + '<button type="button" class="btn btn-primary amz-bt-largo" id="amz-ativar" onclick="amzAtivar()">Ativar amizades</button>'
+      + '<div class="amz-card amz-vitrine">'
+        + '<div class="amz-rotulo">Se você ativar, seus amigos veem</div>'
+        + itens.map(function(t){ return '<div class="amz-check"><span aria-hidden="true">✓</span>' + t + '</div>'; }).join('')
+        + '<p class="amz-nota">Tudo aparece por padrão. Você escolhe o que mostrar em Privacidade, e dá para desligar as amizades a qualquer momento, aqui ou no Perfil.</p>'
+      + '</div>'
     + '</div>';
 }
 
@@ -938,6 +942,40 @@ function cnhCopiarLink(){
 function cnhCompartilhar(){
   if(!CNH.link || !navigator.share) return;
   navigator.share({ title: 'Vem ser meu amigo no Mindt', text: 'Meu Ticolino quer te conhecer 🐹', url: amzLinkPara(CNH.link.codigo) }).catch(function(){});
+}
+
+// ── A chave de Amizades no Perfil ───────────────────────────────────────
+// A aba tem a tela de ativar, mas quem procura "configuracoes" vai ao
+// Perfil. Aqui a chave mostra o estado; ligar leva a tela de ativacao (que
+// precisa do nick), desligar pede a mesma confirmacao da aba.
+function pintarAmizadesPerfil(){
+  var nota = document.getElementById('perfil-amz-nota');
+  if(!nota) return;
+  var chave = document.getElementById('perfil-amz-chave'), estado = document.getElementById('perfil-amz-estado');
+  var bts = document.getElementById('perfil-amz-bts');
+  if(!AMZ.carregado){
+    nota.textContent = AMZ.erro ? 'Não deu para carregar agora.' : 'Carregando…';
+    if(!AMZ.carregando) amzCarregar().then(pintarAmizadesPerfil);
+    return;
+  }
+  var on = amzAtivo();
+  nota.textContent = on
+    ? 'Ligadas como @' + AMZ.perfil.nick + '. Seus amigos veem seu Ticolino e o que você deixou em Privacidade.'
+    : 'Desligadas. Ligue para adicionar amigos, comparar o progresso e trocar nozes.';
+  if(chave){ chave.classList.toggle('on', on); chave.setAttribute('aria-checked', String(on)); chave.setAttribute('aria-label', on ? 'Desligar amizades' : 'Ligar amizades'); }
+  if(estado) estado.textContent = on ? 'Ligadas' : 'Desligadas';
+  if(bts) bts.hidden = !on;
+}
+function perfilAmizadesAlternar(){
+  if(!AMZ.carregado) return;
+  if(amzAtivo()){ amzConfirmarDesativar(); return; }
+  AMZ.tela = 'principal';
+  goToPage('amizades');
+  // Leva direto ao campo do nick e ao botao de ativar.
+  setTimeout(function(){
+    var bt = document.getElementById('amz-ativar');
+    if(bt && bt.scrollIntoView) bt.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, 120);
 }
 
 // ── Clique repetido ─────────────────────────────────────────────────────
