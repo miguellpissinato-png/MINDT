@@ -365,6 +365,9 @@ function timerFinished() {
   if (timerTotal < POMODORO_MIN_XP) aviso = ' Sessões a partir de 10 min valem XP.';
   else if (pagos.n >= POMODORO_XP_POR_DIA) aviso = ' O XP de pomodoro de hoje já chegou no limite.';
   else { pagos.n++; ganhou = addXP(5); }
+  // Sessao de verdade (10 min ou mais) fecha o item "Estudos" do dia.
+  var doItem = (timerTotal >= POMODORO_MIN_XP && typeof marcarItemPorAtividade === 'function') ? marcarItemPorAtividade('estudo') : 0;
+  if (doItem) { ganhou += doItem; aviso += ' Item de estudos do dia concluído.'; }
   if (typeof registrarEstudo === 'function') registrarEstudo(Math.round(timerTotal / 60));
   todaySessions++;
   state.studyXP = studyXP;
@@ -372,7 +375,7 @@ function timerFinished() {
   state.sessionDate = new Date().toDateString();
   saveState();
   updateSessionDots();
-  toast('🎉 Sessão concluída!' + (ganhou ? ' +' + ganhou + ' XP' : aviso));
+  toast('🎉 Sessão concluída!' + (ganhou ? ' +' + ganhou + ' XP.' : '') + aviso);
   setTimeout(function() {
     timerRemaining = timerTotal;
     document.getElementById('timer-label').textContent = 'Pronto para começar';

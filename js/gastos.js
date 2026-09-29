@@ -625,6 +625,8 @@ function saveGasto() {
       toast('💸 Gasto registrado!');
     }
   }
+  // Lancar um gasto de hoje (novo, nao edicao) fecha o item "Grana" do dia.
+  if(!editId && data === hojeStr() && typeof marcarItemPorAtividade === 'function') marcarItemPorAtividade('grana');
   saveState();
   closeModal('modal-add-gasto');
   // O saldo e os graficos da aba Geral dependem dos gastos: redesenhar so a

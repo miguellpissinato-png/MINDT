@@ -177,13 +177,53 @@ function xpDaTarefaDia(chave){
   for(var i=0;i<TAREFAS_DIA.length;i++) if(TAREFAS_DIA[i].chave===chave) return TAREFAS_DIA[i].xp;
   return 10;
 }
-// O streak sobe uma vez por dia, no primeiro item marcado.
+// A OFENSIVA (streak) sobe uma vez por dia, no primeiro item marcado, e
+// DESCE de volta se o dia ficar sem nenhum item: antes, marcar e desmarcar
+// guardava o dia na ofensiva sem nada feito. O estado de antes do dia fica
+// em s.antes justamente para esse desfazer.
 function atualizarStreak(){
+  if(!state.streak) state.streak={count:0,lastDay:null};
   var s=state.streak, hoje=hojeStr();
-  if(tarefasDoDiaFeitas()===0) return;
+  if(tarefasDoDiaFeitas()===0){
+    if(s.lastDay===hoje){
+      var a=s.antes;
+      if(a && a.lastDay!==hoje){ s.count=a.count||0; s.lastDay=a.lastDay||null; }
+      else { s.count=Math.max(0,(s.count||1)-1); s.lastDay=s.count?ontemStr():null; }
+      delete s.antes;
+    }
+    return;
+  }
   if(s.lastDay===hoje) return;
-  s.count = (s.lastDay===ontemStr()) ? s.count+1 : 1;
+  s.antes={count:s.count||0,lastDay:s.lastDay||null};
+  s.count = (s.lastDay===ontemStr()) ? (s.count||0)+1 : 1;
   s.lastDay=hoje;
+}
+
+// A ofensiva que vale AGORA. O numero guardado so muda quando algo e
+// marcado; quem pulou dias via a ofensiva antiga ate marcar o proximo item
+// (e ai ela "caia" para 1 de repente). Ofensiva viva e a que foi feita hoje
+// ou ontem; mais velha que isso, ja quebrou: 0.
+function ofensivaAtual(){
+  var s=state.streak;
+  if(!s || !s.lastDay || !s.count) return 0;
+  if(s.lastDay!==hojeStr() && s.lastDay!==ontemStr()) return 0;
+  return s.count;
+}
+
+// Fazer a atividade de verdade tambem fecha o item do dia: um pomodoro
+// fecha "Estudos", registrar paginas fecha "Leitura", lancar um gasto de
+// hoje fecha "Grana". Antes so o toque no item contava, e quem estudava
+// sem tocar nele perdia a ofensiva. So marca (nunca desmarca) e paga o XP
+// do item pelas mesmas regras do toque (uma vez por dia).
+function marcarItemPorAtividade(chave){
+  var d=garantirDiario();
+  if(d[chave]) return 0;
+  d[chave]=true;
+  var xp=pagarItemDoDia(chave, true, xpDaTarefaDia(chave));
+  atualizarStreak();
+  if(typeof registrarItensDoDia==='function') registrarItensDoDia();
+  if(typeof renderHome==='function' && document.getElementById('home-today-list')) renderHome();
+  return xp;
 }
 
 var TAREFAS_DIA=[
@@ -248,7 +288,7 @@ function renderHome(){
   // Streak e XP (reaproveita o XP dos Estudos)
   var xp=(typeof studyXP==='number'?studyXP:0);
   var nivel=Math.floor(xp/100)+1, noNivel=xp%100;
-  document.getElementById('home-streak').textContent=state.streak.count;
+  document.getElementById('home-streak').textContent=ofensivaAtual();
   document.getElementById('home-level').textContent=T('level')+' '+nivel;
   // O numero acompanha a barra: mesmo tempo, mesma curva. Ver contarAte().
   contarAte(document.getElementById('home-xp'), noNivel, function(v){ return v+'/100 XP'; });
