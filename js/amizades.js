@@ -39,7 +39,7 @@ function amzMeusNumeros(){
   var xp = (typeof studyXP === 'number') ? studyXP : 0;
   return {
     xp: xp, nivel: Math.floor(xp / 100) + 1,
-    ofensiva: (state.streak && state.streak.count) || 0,
+    ofensiva: (typeof ofensivaAtual === 'function') ? ofensivaAtual() : 0,
     paginas: amzPaginasLidas()
   };
 }

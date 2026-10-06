@@ -416,7 +416,7 @@ function relCapa(p){
     + '<div class="rel-corpo">'
       + '<div class="rel-metricas">'
         + relMetrica('Nível', est.nivel, relNum(est.xpTotal) + ' XP acumulados')
-        + relMetrica('Sequência', (state.streak && state.streak.count) || 0, 'dias seguidos ativos')
+        + relMetrica('Sequência', (typeof ofensivaAtual === 'function' ? ofensivaAtual() : 0), 'dias seguidos ativos')
         + relMetrica('Dias fechados', temHistorico ? fechados : '—',
             temHistorico ? 'de ' + dias + (dias === 1 ? ' dia' : ' dias') : 'sem histórico ainda')
         + relMetrica('Itens do dia', pct === null || !temHistorico ? '—' : pct + '%',

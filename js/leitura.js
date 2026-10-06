@@ -621,6 +621,8 @@ function registrarLeitura() {
   active.paginasLidas = Math.min(active.paginas, (active.paginasLidas||0) + novas);
   active.logLeitura = active.logLeitura || [];
   active.logLeitura.push({ data: new Date().toISOString(), paginas: novas });
+  // Ler de verdade fecha o item "Leitura" do dia (e conta na ofensiva).
+  if (typeof marcarItemPorAtividade === 'function') marcarItemPorAtividade('leitura');
 
   if(active.paginasLidas >= active.paginas) {
     active.lendoAgora = false;
