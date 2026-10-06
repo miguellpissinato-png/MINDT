@@ -1,13 +1,16 @@
 // TAREFAS — tarefas, seus filtros e checklists.
 
 // TASKS
+// Filtro escolhido nos chips. Ao entrar na aba volta para Pendentes (ver
+// nav.js); as outras repinturas (salvar, concluir) mantem o que esta ativo.
+var filtroTarefas = 'pending';
 function renderTasks(filter){
   if(!document.getElementById('tasks-grid')) return;
   // O ciclo pode ter chegado desde a ultima pintura. Idempotente.
   if(atualizarTarefasRecorrentes()) saveState();
   pintarContaRecorrentes();
   if(tarefasAba === 'rec') renderRecorrentes();
-  filter=filter||'all';updatePeriodStats('tasks');
+  filter=filter||filtroTarefas;filtroTarefas=filter;updatePeriodStats('tasks');
   var grid=document.getElementById('tasks-grid');
   // A recorrente que aguarda a proxima data nao aparece aqui — ela mora na
   // aba Recorrentes ate a hora dela chegar.
@@ -65,7 +68,7 @@ function seloDaTarefa(t){
   else txt = 'Andamento';
   return '<div class="'+cls+'" style="flex-shrink:0;margin-left:auto">'+txt+'</div>';
 }
-function filterTasks(type,el){document.querySelectorAll('#tasks-filter-row .filter-chip').forEach(function(c){c.classList.remove('active');});if(el)el.classList.add('active');renderTasks(type);}
+function filterTasks(type,el){document.querySelectorAll('#tasks-filter-row .filter-chip').forEach(function(c){c.classList.toggle('active', el ? c===el : c.getAttribute('onclick').indexOf("'"+type+"'")!==-1);});renderTasks(type);}
 
 function handleCardClick(type,id,event){
   if(event.target.type==='checkbox')return;

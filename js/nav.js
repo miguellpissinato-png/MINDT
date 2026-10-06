@@ -38,7 +38,7 @@ function goToPage(name){
   try {
   if(name==='home')renderHome();
   else if(name==='metas')renderMetas();
-  else if(name==='tarefas')renderTasks();
+  else if(name==='tarefas')filterTasks('pending');
   else if(name==='gastos')renderFinancas();
   else if(name==='estudos')renderEstudos();
   else if(name==='notas')renderNotas();
