@@ -270,3 +270,44 @@
 
 /* Chave de Amizades no Perfil */
 .perfil-amz-bts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ── Desafios ───────────────────────────────────────────────────────────
+   Cartao na aba (convite recebido, esperando, valendo, resultado) e o
+   contador de aposta no pop-up do amigo. Logica em js/amizades.js. */
+.amz-des{padding:12px;border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line)}
+.amz-des.pendente:not(.ativo){border-style:dashed}
+.amz-des.ativo{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.amz-des.venci{border-color:color-mix(in srgb,var(--success) 55%,var(--line))}
+.amz-des.recusado,.amz-des.cancelado,.amz-des.expirado{opacity:.75}
+.amz-des-topo{display:flex;align-items:center;gap:12px}
+.amz-des .amz-rosto{width:40px;height:40px}
+.amz-des-sub{white-space:normal;line-height:1.45;margin-top:2px}
+.amz-des-pote{display:inline-flex;align-items:center;gap:4px;flex:none;padding:4px 10px;border-radius:99px;
+  font-size:13px;font-weight:700;color:var(--accent-text);background:var(--accent-soft);font-variant-numeric:tabular-nums}
+.amz-des-pote svg,.amz-aposta-num svg,.amz-resumo-pote svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.amz-des-placar{display:flex;justify-content:space-between;gap:12px;margin-top:12px;font-variant-numeric:tabular-nums}
+.amz-des-v{font-size:15px;color:var(--text-2)}
+.amz-des-v::before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;background:var(--accent);vertical-align:middle}
+.amz-des-v.ele::before{display:none}
+.amz-des-v.ele::after{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;margin-left:6px;background:#4FA38A;vertical-align:middle}
+.amz-des-v.ganha{color:var(--text);font-weight:700}
+.amz-des-bts{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+.amz-aposta{display:flex;align-items:center;gap:10px}
+.amz-aposta .amz-icone-bt{position:static;width:44px;height:44px;flex:none;font-size:22px;font-weight:600;line-height:1;
+  border:1px solid var(--line-strong);border-radius:12px;background:var(--surface-2);color:var(--text)}
+.amz-aposta .amz-icone-bt:disabled{opacity:.4;cursor:not-allowed}
+.amz-aposta-num{flex:1;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:12px;
+  border:1px solid var(--line-strong);background:var(--surface-2);color:var(--accent-text)}
+.amz-aposta-num input{flex:1;min-width:0;width:100%;border:0;background:none;font:inherit;font-size:20px;font-weight:700;
+  color:var(--text);text-align:center;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
+.amz-aposta-num input::-webkit-outer-spin-button,.amz-aposta-num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.amz-aposta-num:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.amz-pilulas-aposta{margin-top:10px}
+.amz-aviso{margin:12px 0 0;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;text-align:left;
+  color:var(--text);background:color-mix(in srgb,var(--danger,#D9694A) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--danger,#D9694A) 45%,transparent)}
+.amz-resumo-pote{display:flex;align-items:center;gap:8px;color:var(--text)}
+.amz-resumo-pote svg{color:var(--accent-text)}
+.amz-resumo-pote b{color:var(--accent-text)}

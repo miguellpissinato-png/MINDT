@@ -17,7 +17,9 @@ var AMZ = {
   amigos: [], pedidos: [], bloqueados: [], saldo: null,
   tela: 'principal',     // 'principal' | 'privacidade'
   amigoAberto: null, popTela: 'principal', qtd: 3,
-  desTipo: 'leitura', desPeriodo: '1 semana'
+  desafios: [],          // meus_desafios(): abertos e os que fecharam ha ate 7 dias
+  desTipo: 'leitura', desPeriodo: '1 semana', desAposta: 10, desAviso: '',
+  desAberto: null, desApostaAceite: 0
 };
 
 function amzEu(){ return (typeof currentUser !== 'undefined' && currentUser) ? currentUser.id : null; }
@@ -54,6 +56,9 @@ function amzCarregar(forcar){
       if(r.error) throw r.error;
       AMZ.perfil = r.data || null;
       if(amzAtivo()){
+        // meus_desafios tambem fecha os desafios vencidos (e paga quem
+        // ganhou), por isso o saldo e lido depois dele.
+        var des = await sb.rpc('meus_desafios');
         var res = await Promise.all([
           sb.rpc('meus_amigos'),
           sb.rpc('minhas_solicitacoes'),
@@ -64,8 +69,11 @@ function amzCarregar(forcar){
         AMZ.amigos  = res[0].data || [];
         AMZ.pedidos = res[1].data || [];
         AMZ.saldo   = res[2].data ? res[2].data.saldo : 0;
+        // Desafio que nao carrega nao pode derrubar a aba inteira.
+        AMZ.desafios = (!des.error && Array.isArray(des.data)) ? des.data : (AMZ.desafios || []);
+        if(typeof nozDefinirSaldo === 'function') nozDefinirSaldo(AMZ.saldo);
       } else {
-        AMZ.amigos = []; AMZ.pedidos = [];
+        AMZ.amigos = []; AMZ.pedidos = []; AMZ.desafios = [];
       }
       AMZ.erro = null; AMZ.carregado = true;
     } catch(e) {
@@ -82,13 +90,13 @@ function amzCarregar(forcar){
 
 // Selinho com o numero de pedidos no menu e na barra do celular.
 function amzPintarSelo(){
-  var n = amzAtivo() ? AMZ.pedidos.length : 0;
+  var n = amzAtivo() ? AMZ.pedidos.length + amzDesafiosRecebidos().length : 0;
   ['nav-selo-amizades', 'mnav-selo-amizades'].forEach(function(id){
     var el = document.getElementById(id);
     if(!el) return;
     el.hidden = !n;
     el.textContent = n > 9 ? '9+' : String(n);
-    el.setAttribute('aria-label', n + (n === 1 ? ' pedido de amizade' : ' pedidos de amizade'));
+    el.setAttribute('aria-label', n + (n === 1 ? ' pedido esperando resposta' : ' pedidos esperando resposta'));
   });
 }
 
@@ -350,6 +358,8 @@ function amzTelaPrincipal(){
     }).join('') + '</div>';
   }
 
+  h += amzSecaoDesafios();
+
   h += '<h3 class="amz-secao">Seus amigos <span class="amz-conta">' + AMZ.amigos.length + '</span></h3>';
   if(!AMZ.amigos.length){
     h += '<div class="amz-vazio">' + AMZ_ICONES.pessoas
@@ -534,7 +544,7 @@ function amzPintarPop(acenar){
       + '<div class="amz-acoes">'
         + '<button type="button" onclick="amzCutucar()">' + AMZ_ICONES.mao + 'Cutucar</button>'
         + '<button type="button" onclick="amzPop(\'presente\')">' + AMZ_ICONES.presente + 'Presente</button>'
-        + '<button type="button" onclick="amzPop(\'desafio\')">' + AMZ_ICONES.espadas + 'Criar desafio</button>'
+        + '<button type="button" onclick="amzBotaoDesafio()">' + AMZ_ICONES.espadas + (amzDesafioCom(a.user_id) ? 'Ver desafio' : 'Criar desafio') + '</button>'
       + '</div>'
       + '<button type="button" class="btn btn-ghost amz-bt-largo" onclick="amzPop(\'abandonar\')">Abandonar amizade</button>'
       + '<button type="button" class="btn btn-danger amz-bt-largo" onclick="amzPop(\'bloquear\')">Bloquear esse ticolino</button>';
@@ -548,22 +558,47 @@ function amzPintarPop(acenar){
           return '<button type="button" class="amz-pilula" aria-pressed="' + (q === AMZ.qtd) + '" onclick="AMZ.qtd=' + q + ';amzPintarPop()"'
             + (q > saldo ? ' disabled' : '') + '>' + (q === 1 ? '1 noz' : q + ' nozes') + '</button>';
         }).join('') + '</div>'
-      + '<p class="amz-nota">' + (saldo ? 'Cada conta começou com 10 nozes. Em breve, as missões semanais e as tarefas concluídas dão mais.'
-                                        : 'Suas nozes acabaram. Em breve, as missões semanais e as tarefas concluídas dão mais.') + '</p>'
+      + '<p class="amz-nota">' + (saldo ? 'Ganhe mais nozes com os pacotes de XP em Estudos e vencendo desafios.'
+                                        : 'Suas nozes acabaram. Junte XP para abrir pacotes de nozes em Estudos.') + '</p>'
       + '<button type="button" class="btn btn-primary amz-bt-largo" onclick="amzDarNozes()"' + (AMZ.qtd > saldo ? ' disabled' : '') + '>'
         + 'Enviar ' + (AMZ.qtd === 1 ? '1 noz' : AMZ.qtd + ' nozes') + '</button>';
   } else if(t === 'desafio'){
-    var TIPOS = [['leitura', 'lê mais páginas', 'ler mais páginas'], ['estudo', 'estuda mais tempo', 'estudar mais tempo'],
-                 ['tarefas', 'faz mais tarefas', 'fizer mais tarefas'], ['treino', 'treina mais', 'treinar mais']];
-    var sel = TIPOS.find(function(x){ return x[0] === AMZ.desTipo; }) || TIPOS[0];
-    h = '<div class="amz-pop-cab">' + voltar + '<h3>Criar desafio <span class="amz-breve">em breve</span></h3>' + fechar + '</div>'
+    var saldoD = AMZ.saldo || 0, ap = AMZ.desAposta, tp = AMZ_DES_TIPOS[AMZ.desTipo] || AMZ_DES_TIPOS.leitura;
+    h = '<div class="amz-pop-cab">' + voltar + '<h3>Criar desafio</h3>' + fechar + '</div>'
       + '<div class="amz-vs">' + ticolino('feliz', 64) + '<span>vs</span>' + ticolino('feliz', 64, false, a.cor) + '</div>'
       + '<div class="amz-rotulo">Quem…</div><div class="amz-pilulas">'
-      + TIPOS.map(function(x){ return '<button type="button" class="amz-pilula" aria-pressed="' + (x[0] === AMZ.desTipo) + '" onclick="AMZ.desTipo=\'' + x[0] + '\';amzPintarPop()">' + x[1] + '</button>'; }).join('')
+      + Object.keys(AMZ_DES_TIPOS).map(function(k){
+          return '<button type="button" class="amz-pilula" aria-pressed="' + (k === AMZ.desTipo) + '" onclick="AMZ.desTipo=\'' + k + '\';amzPintarPop()">' + AMZ_DES_TIPOS[k].quem + '</button>';
+        }).join('')
       + '</div><div class="amz-rotulo">Duração</div><div class="abas amz-abas">'
       + ['1 semana', '1 mês'].map(function(d){ return '<button type="button" class="aba" aria-pressed="' + (d === AMZ.desPeriodo) + '" onclick="AMZ.desPeriodo=\'' + d + '\';amzPintarPop()">' + d + '</button>'; }).join('')
-      + '</div><div class="amz-resumo">Quem ' + sel[2] + ' em ' + AMZ.desPeriodo + ' vence. Começa quando ' + esc(primeiro) + ' aceitar.</div>'
-      + '<button type="button" class="btn btn-primary amz-bt-largo" onclick="toast(\'🐹 Os desafios chegam em breve — seu Ticolino já está treinando!\')">Enviar desafio</button>';
+      + '</div><div class="amz-rotulo">Sua aposta</div>'
+      + amzStepper('AMZ.desAposta', ap, 1, Math.max(1, Math.min(10000, saldoD)))
+      + '<div class="amz-pilulas amz-pilulas-aposta">' + [5, 10, 20, 50].map(function(q){
+          return '<button type="button" class="amz-pilula" aria-pressed="' + (q === ap) + '" onclick="AMZ.desAposta=' + q + ';AMZ.desAviso=\'\';amzPintarPop()"'
+            + (q > saldoD ? ' disabled' : '') + '>' + q + ' nozes</button>';
+        }).join('') + '</div>'
+      + '<p class="amz-nota">Você tem ' + nozTxtAmz(saldoD) + '. ' + esc(primeiro) + ' precisa apostar pelo menos o mesmo — ou mais.</p>'
+      + (AMZ.desAviso ? '<p class="amz-aviso" role="alert">' + esc(AMZ.desAviso) + '</p>' : '')
+      + '<div class="amz-resumo">Quem ' + tp.verbo + ' em ' + AMZ.desPeriodo + ' leva as duas apostas. '
+        + 'Começa no dia seguinte ao aceite; empate devolve as nozes.</div>'
+      + '<button type="button" class="btn btn-primary amz-bt-largo" onclick="amzCriarDesafio()"' + (ap > saldoD || ap < 1 ? ' disabled' : '') + '>'
+        + 'Desafiar por ' + nozTxtAmz(ap) + '</button>'
+      + (saldoD < 1 ? '<p class="amz-nota amz-centro">Você está sem nozes. Junte XP para abrir pacotes em Estudos.</p>' : '');
+  } else if(t === 'aceitar'){
+    var d = AMZ.desAberto, saldoA = AMZ.saldo || 0, apA = AMZ.desApostaAceite;
+    var tpA = AMZ_DES_TIPOS[d.tipo] || AMZ_DES_TIPOS.leitura, min = d.aposta_minima;
+    h = '<div class="amz-pop-cab"><h3>Desafio de ' + esc(primeiro) + '</h3>' + fechar + '</div>'
+      + '<div class="amz-vs">' + ticolino('feliz', 64) + '<span>vs</span>' + ticolino('feliz', 64, false, a.cor) + '</div>'
+      + '<div class="amz-resumo">Quem ' + tpA.verbo + ' em ' + (d.dias === 30 ? '1 mês' : '1 semana') + ' vence. '
+        + esc(primeiro) + ' apostou ' + nozTxtAmz(min) + '. Se você aceitar, começa amanhã.</div>'
+      + '<div class="amz-rotulo">Sua aposta</div>'
+      + amzStepper('AMZ.desApostaAceite', apA, min, Math.max(min, Math.min(10000, saldoA)))
+      + '<p class="amz-nota">Mínimo de ' + nozTxtAmz(min) + ', o mesmo que ' + esc(primeiro) + '. Você tem ' + nozTxtAmz(saldoA) + '.</p>'
+      + (saldoA < min ? '<p class="amz-aviso" role="alert">Você não tem nozes suficientes para cobrir essa aposta. Junte XP para abrir pacotes de nozes em Estudos.</p>' : '')
+      + '<div class="amz-resumo amz-resumo-pote">' + AMZ_ICONES.noz + 'Quem vencer leva <b>' + nozTxtAmz(min + apA) + '</b></div>'
+      + '<div class="amz-conf-bts"><button type="button" class="btn btn-ghost" onclick="amzResponderDesafio(\'' + d.id + '\',false)">Recusar</button>'
+      + '<button type="button" class="btn btn-primary" onclick="amzResponderDesafio(\'' + d.id + '\',true)"' + (saldoA < apA ? ' disabled' : '') + '>Aceitar</button></div>';
   } else {
     var ab = t === 'abandonar';
     h = fechar
@@ -604,12 +639,207 @@ async function amzDarNozes(){
   if(r.error){ amzFalhou(r.error); return; }
   if(r.data === 'ok'){
     AMZ.saldo = Math.max(0, (AMZ.saldo || 0) - q);
+    if(typeof nozDefinirSaldo === 'function') nozDefinirSaldo(AMZ.saldo);
     toast('🌰 ' + (q === 1 ? '1 noz enviada' : q + ' nozes enviadas') + ' para ' + amzPrimeiroNome(a) + '!');
     amzPop('principal');
   } else if(r.data === 'sem_saldo'){
     toast('Você não tem nozes suficientes.');
     amzCarregar(true).then(function(){ amzPintarPop(); });
   } else toast(amzFrase(r.data));
+}
+
+// ── Desafios ────────────────────────────────────────────────────────────
+// Regras no servidor (criar_desafio, responder_desafio, cancelar_desafio,
+// meus_desafios): saldo, apostas, inicio no dia seguinte, placar com teto
+// por dia e o pagamento de quem vence. Aqui so tela.
+var AMZ_DES_TIPOS = {
+  leitura: { quem: 'lê mais páginas',     verbo: 'ler mais páginas',
+             fmt: function(n){ return amzNum(n) + (n === 1 ? ' página' : ' páginas'); } },
+  estudo:  { quem: 'estuda mais tempo',   verbo: 'estudar mais tempo',
+             fmt: function(n){ n = n || 0; var h = Math.floor(n / 60), m = n % 60; return h ? h + ' h' + (m ? ' ' + m + ' min' : '') : m + ' min'; } },
+  treino:  { quem: 'treina mais',         verbo: 'treinar mais',
+             fmt: function(n){ return amzNum(n) + (n === 1 ? ' treino' : ' treinos'); } }
+};
+var AMZ_DES_RESPOSTAS = {
+  sem_saldo:       '🌰 Você não tem nozes suficientes para essa aposta.',
+  ja_existe:       '⚔️ Vocês já têm um desafio aberto. Terminem esse antes de começar outro.',
+  limite:          '⏳ Você já tem 10 desafios abertos. Espere algum terminar.',
+  nao_amigos:      'Vocês não são mais amigos.',
+  aposta_baixa:    'A aposta precisa ser pelo menos igual à do seu amigo.',
+  aposta_invalida: 'Escolha uma aposta entre 1 e 10.000 nozes.',
+  expirado:        '⏳ Esse desafio expirou: ficou 3 dias sem resposta. As nozes voltaram.',
+  nao_encontrado:  'Esse desafio já foi respondido ou cancelado.'
+};
+function amzFraseDes(c){ return AMZ_DES_RESPOSTAS[c] || amzFrase(c); }
+function nozTxtAmz(q){ q = Number(q) || 0; return amzNum(q) + (q === 1 ? ' noz' : ' nozes'); }
+function amzDesafiosRecebidos(){
+  return (AMZ.desafios || []).filter(function(d){ return d.estado === 'pendente' && !d.eu_criei; });
+}
+function amzDesafioCom(id){
+  return (AMZ.desafios || []).find(function(d){ return d.outro === id && (d.estado === 'pendente' || d.estado === 'ativo'); });
+}
+
+// Contador de aposta: menos, numero, mais. alvo e o campo de AMZ que guarda o valor.
+function amzStepper(alvo, valor, min, max){
+  return '<div class="amz-aposta">'
+    + '<button type="button" class="amz-icone-bt" onclick="amzMudarAposta(\'' + alvo + '\',-5,' + min + ',' + max + ')"' + (valor <= min ? ' disabled' : '') + ' aria-label="Diminuir aposta">−</button>'
+    + '<label class="amz-aposta-num">' + AMZ_ICONES.noz
+      + '<input type="number" inputmode="numeric" min="' + min + '" max="' + max + '" value="' + valor + '" aria-label="Nozes apostadas"'
+      + ' onchange="amzDigitarAposta(\'' + alvo + '\',this.value,' + min + ',' + max + ')"></label>'
+    + '<button type="button" class="amz-icone-bt" onclick="amzMudarAposta(\'' + alvo + '\',5,' + min + ',' + max + ')"' + (valor >= max ? ' disabled' : '') + ' aria-label="Aumentar aposta">+</button>'
+    + '</div>';
+}
+function amzPorAposta(alvo, v, min, max){
+  v = Math.round(Number(v) || 0);
+  v = Math.max(min, Math.min(max, v));
+  if(alvo === 'AMZ.desAposta') AMZ.desAposta = v; else AMZ.desApostaAceite = v;
+  AMZ.desAviso = '';
+  amzPintarPop();
+}
+function amzMudarAposta(alvo, passo, min, max){
+  var atual = alvo === 'AMZ.desAposta' ? AMZ.desAposta : AMZ.desApostaAceite;
+  // Do 1 para o 5, e dai de 5 em 5.
+  var v = passo > 0 ? (atual < 5 ? 5 : atual + passo) : (atual <= 5 ? atual - 1 : atual + passo);
+  amzPorAposta(alvo, v, min, max);
+}
+function amzDigitarAposta(alvo, v, min, max){ amzPorAposta(alvo, v, min, max); }
+
+function amzBotaoDesafio(){
+  var a = AMZ.amigoAberto; if(!a) return;
+  var d = amzDesafioCom(a.user_id);
+  if(d && d.estado === 'pendente' && !d.eu_criei){ amzAbrirDesafio(d.id); return; }
+  if(d){
+    closeModal('modal-amigo');
+    toast(d.estado === 'pendente' ? '⚔️ Seu desafio está esperando ' + amzPrimeiroNome(a) + ' responder.'
+                                  : '⚔️ Vocês já estão num desafio. O placar fica na aba Amizades.');
+    return;
+  }
+  var saldo = AMZ.saldo || 0;
+  AMZ.desAviso = '';
+  AMZ.desAposta = Math.max(1, Math.min(AMZ.desAposta || 10, saldo || 1));
+  amzPop('desafio');
+}
+
+async function amzCriarDesafio(){
+  var a = AMZ.amigoAberto; if(!a) return;
+  var q = AMZ.desAposta, dias = AMZ.desPeriodo === '1 mês' ? 30 : 7;
+  var r = await sb.rpc('criar_desafio', { p_para: a.user_id, p_tipo: AMZ.desTipo, p_dias: dias, p_aposta: q });
+  if(r.error){ amzFalhou(r.error); return; }
+  if(r.data === 'ok'){
+    AMZ.desAviso = '';
+    if(typeof nozDefinirSaldo === 'function') nozDefinirSaldo((AMZ.saldo || 0) - q);
+    closeModal('modal-amigo');
+    toast('⚔️ Desafio enviado para ' + amzPrimeiroNome(a) + '! Suas nozes ficam guardadas até o resultado.');
+    await amzCarregar(true); renderAmizades(true);
+    return;
+  }
+  AMZ.desAviso = r.data === 'saldo_amigo'
+    ? 'Seu amigo não possui nozes suficientes para participar desse desafio. Se quiser, refaça com uma aposta menor.'
+    : amzFraseDes(r.data);
+  if(r.data === 'sem_saldo') await amzCarregar(true);
+  amzPintarPop();
+}
+
+function amzAbrirDesafio(id){
+  var d = (AMZ.desafios || []).find(function(x){ return x.id === id; });
+  if(!d || d.estado !== 'pendente' || d.eu_criei) return;
+  AMZ.amigoAberto = AMZ.amigos.find(function(x){ return x.user_id === d.outro; })
+    || { user_id: d.outro, nome: d.nome, nick: d.nick, cor: d.cor };
+  AMZ.desAberto = d;
+  AMZ.desApostaAceite = d.aposta_minima;
+  AMZ.popTela = 'aceitar';
+  amzPintarPop(false);
+  openModal('modal-amigo');
+}
+
+async function amzResponderDesafio(id, aceitar){
+  var d = (AMZ.desafios || []).find(function(x){ return x.id === id; });
+  var aposta = aceitar ? AMZ.desApostaAceite : null;
+  var r = await sb.rpc('responder_desafio', { p_id: id, p_aceitar: !!aceitar, p_aposta: aposta });
+  if(r.error){ amzFalhou(r.error); return; }
+  var nome = d ? String(d.nome || '').split(/\s+/)[0] : 'seu amigo';
+  if(r.data === 'ok'){
+    closeModal('modal-amigo');
+    toast(aceitar ? '⚔️ Desafio aceito! Começa amanhã — bora!' : 'Desafio recusado. As nozes voltaram para ' + nome + '.');
+  } else {
+    toast(amzFraseDes(r.data));
+    if(r.data === 'expirado' || r.data === 'nao_encontrado') closeModal('modal-amigo');
+  }
+  await amzCarregar(true); renderAmizades(true);
+  if(r.data !== 'ok' && AMZ.popTela === 'aceitar' && AMZ.desAberto) amzPintarPop();
+}
+
+async function amzCancelarDesafio(id){
+  var d = (AMZ.desafios || []).find(function(x){ return x.id === id; });
+  var r = await sb.rpc('cancelar_desafio', { p_id: id });
+  if(r.error){ amzFalhou(r.error); return; }
+  toast(r.data === 'ok' ? 'Desafio cancelado. ' + (d ? 'Suas ' + nozTxtAmz(d.aposta_minha) + ' voltaram.' : '') : amzFraseDes(r.data));
+  await amzCarregar(true); renderAmizades(true);
+}
+
+function amzDiasEntre(a, b){
+  return Math.round((Date.parse(b + 'T12:00:00Z') - Date.parse(a + 'T12:00:00Z')) / 86400000);
+}
+
+function amzSecaoDesafios(){
+  var ds = AMZ.desafios || [];
+  if(!ds.length) return '';
+  var abertos = ds.filter(function(d){ return d.estado === 'pendente' || d.estado === 'ativo'; }).length;
+  return '<h3 class="amz-secao">Desafios' + (abertos ? ' <span class="amz-conta">' + abertos + '</span>' : '') + '</h3>'
+    + '<div class="amz-lista">' + ds.map(amzCartaoDesafio).join('') + '</div>';
+}
+
+function amzCartaoDesafio(d){
+  var tp = AMZ_DES_TIPOS[d.tipo] || AMZ_DES_TIPOS.leitura;
+  var nome = esc(d.nome || 'Amigo'), primeiro = esc(String(d.nome || 'Amigo').split(/\s+/)[0]);
+  var dur = d.dias === 30 ? '1 mês' : '1 semana';
+  var pote = (d.aposta_minha || 0) + (d.aposta_outro || 0);
+  var titulo = '', sub = '', corpo = '', bts = '', cls = d.estado;
+
+  if(d.estado === 'pendente' && !d.eu_criei){
+    var horas = Math.max(0, Math.round((Date.parse(d.expira_em) - Date.now()) / 3600000));
+    titulo = nome + ' te desafiou';
+    sub = 'Quem ' + tp.quem + ' · ' + dur + ' · apostou ' + nozTxtAmz(d.aposta_minima)
+      + ' · responda em ' + (horas >= 24 ? Math.round(horas / 24) + (Math.round(horas / 24) === 1 ? ' dia' : ' dias') : horas + ' h');
+    bts = '<button type="button" class="btn btn-ghost btn-sm" onclick="amzResponderDesafio(\'' + d.id + '\',false)">Recusar</button>'
+      + '<button type="button" class="btn btn-primary btn-sm" onclick="amzAbrirDesafio(\'' + d.id + '\')">Ver e aceitar</button>';
+  } else if(d.estado === 'pendente'){
+    titulo = 'Esperando ' + primeiro + ' responder';
+    sub = 'Quem ' + tp.quem + ' · ' + dur + ' · você apostou ' + nozTxtAmz(d.aposta_minha);
+    bts = '<button type="button" class="btn btn-ghost btn-sm" onclick="amzCancelarDesafio(\'' + d.id + '\')">Cancelar desafio</button>';
+  } else if(d.estado === 'ativo'){
+    var antes = d.hoje < d.inicio, depois = d.hoje > d.fim, faltam = amzDiasEntre(d.hoje, d.fim);
+    titulo = 'Você × ' + nome;
+    sub = (antes ? 'Começa amanhã' : depois ? 'Resultado sai hoje, ao meio-dia' : faltam === 0 ? 'Último dia' : 'Faltam ' + (faltam + 1) + ' dias')
+      + ' · quem ' + tp.quem;
+    if(!antes) corpo = '<div class="amz-des-placar">'
+      + '<span class="amz-des-v' + ((d.pontos_eu || 0) > (d.pontos_outro || 0) ? ' ganha' : '') + '">' + tp.fmt(d.pontos_eu || 0) + '</span>'
+      + '<span class="amz-des-v ele' + ((d.pontos_outro || 0) > (d.pontos_eu || 0) ? ' ganha' : '') + '">' + tp.fmt(d.pontos_outro || 0) + '</span>'
+      + '</div>' + amzBarraPlacar(d.pontos_eu || 0, d.pontos_outro || 0);
+  } else if(d.estado === 'encerrado'){
+    var placar = tp.fmt(d.pontos_eu || 0) + ' × ' + tp.fmt(d.pontos_outro || 0);
+    if(d.resultado === 'venci'){ titulo = 'Você venceu ' + nome + '!'; sub = '+' + nozTxtAmz(pote) + ' · ' + placar; cls += ' venci'; }
+    else if(d.resultado === 'perdi'){ titulo = nome + ' venceu'; sub = placar + ' · bora uma revanche?'; }
+    else { titulo = 'Empate com ' + nome; sub = placar + ' · cada um recebeu a aposta de volta'; }
+  } else {
+    titulo = d.estado === 'recusado' ? (d.eu_criei ? primeiro + ' recusou o desafio' : 'Você recusou o desafio de ' + primeiro)
+           : d.estado === 'expirado' ? 'Desafio com ' + primeiro + ' expirou'
+           : 'Desafio com ' + primeiro + ' cancelado';
+    sub = d.eu_criei ? 'Suas ' + nozTxtAmz(d.aposta_minha) + ' voltaram para a carteira.' : 'Ninguém perdeu nozes.';
+  }
+
+  return '<div class="amz-des ' + cls + '">'
+    + '<div class="amz-des-topo"><span class="amz-rosto">' + ticolino('feliz', 40, true, d.cor) + '</span>'
+      + '<div class="amz-item-txt"><div class="amz-item-nome">' + titulo + '</div>'
+      + '<div class="amz-item-sub amz-des-sub">' + sub + '</div></div>'
+      + (d.estado === 'ativo' ? '<span class="amz-des-pote" title="Quem vencer leva">' + AMZ_ICONES.noz + amzNum(pote) + '</span>' : '')
+    + '</div>' + corpo + (bts ? '<div class="amz-des-bts">' + bts + '</div>' : '')
+  + '</div>';
+}
+
+function amzBarraPlacar(eu, ele){
+  var tot = eu + ele, pct = tot > 0 ? Math.max(6, Math.min(94, Math.round(eu / tot * 100))) : 50;
+  return '<div class="amz-comp-barra"><i style="width:' + pct + '%"></i><b></b></div>';
 }
 
 async function amzAbandonar(){
@@ -993,6 +1223,7 @@ function amzUmaVez(fn){
   };
 }
 ['amzResponder', 'amzCutucar', 'amzDarNozes', 'amzAbandonar', 'amzBloquear', 'amzDesbloquear',
+ 'amzCriarDesafio', 'amzResponderDesafio', 'amzCancelarDesafio',
  'cnhUsarCodigo', 'cnhConvidar', 'cnhAceitarDe', 'cnhGerarLink'].forEach(function(n){
   if(typeof window[n] === 'function') window[n] = amzUmaVez(window[n]);
 });

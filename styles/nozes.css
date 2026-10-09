@@ -1,0 +1,142 @@
+/* NOZES — pacotes de nozes (Estudos), o pop-up do pacote com a animacao
+   de cada patamar e os contadores de nozes. Desenhos em js/nozes.js. */
+
+.noz-ico{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.noz-arte{display:block;width:100%;height:auto;overflow:hidden}
+
+/* ── Contadores ─────────────────────────────────────────────────────── */
+.estudos-noz{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--accent-text);
+  padding:6px 12px;border-radius:var(--radius-pill);background:var(--accent-soft)}
+.estudos-noz .noz-ico{width:15px;height:15px}
+.noz-chip{display:inline-flex;align-items:center;gap:6px;color:var(--accent-text);font-weight:700}
+.noz-chip .noz-ico{width:15px;height:15px}
+
+.perfil-nozes{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.perfil-nozes-num{display:inline-flex;align-items:baseline;gap:6px;font-size:26px;font-weight:700;color:var(--text);
+  font-variant-numeric:tabular-nums}
+.perfil-nozes-num .noz-ico{width:22px;height:22px;color:var(--accent-text);align-self:center}
+.perfil-nozes-num small{font-size:14px;font-weight:600;color:var(--text-2)}
+.perfil-nozes-bts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+
+/* A loja de cores reaproveita o destaque das cores; o texto encolhe em vez
+   de empurrar o botao para fora da caixa no celular. */
+.cores-destaque-txt{min-width:0}
+.cores-destaque-txt .btn{max-width:100%;white-space:normal}
+
+/* ── Estudos: o pacote da vez ───────────────────────────────────────── */
+.pac-destaque{display:flex;align-items:center;gap:24px;margin:14px 0;padding:18px 22px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg)}
+.pac-arte{flex:none;width:176px}
+.pac-info{flex:1;min-width:0}
+.pac-rot{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.pac-nome{font-size:20px;font-weight:700;color:var(--text);margin-top:2px;line-height:1.25}
+.pac-valor{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:15px;font-weight:700;color:var(--accent-text)}
+.pac-barra{margin:14px 0 6px}
+.pac-falta{font-size:13px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.pac-bt{margin-top:12px}
+.pac-carregando{margin:0;font-size:14px;color:var(--text-3)}
+
+/* A trilha: os sete patamares, do punhado a fabrica. */
+.pac-trilha{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.pac-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 6px 10px;
+  border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);text-align:center;min-width:0}
+.pac-tile.pac-atual{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.pac-tile-arte{display:block;width:100%;max-width:96px}
+.pac-tile.pac-bloq .pac-tile-arte{opacity:.38;filter:saturate(.35)}
+.pac-tile-nome{font-size:12.5px;font-weight:700;color:var(--text);line-height:1.2}
+.pac-tile-valor{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--accent-text)}
+.pac-tile-sub{font-size:11px;color:var(--text-3)}
+.pac-check{position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+  font-size:12px;background:var(--surface-2);border:1px solid var(--line);color:var(--success)}
+@media (max-width:900px){
+  /* No celular a trilha rola de lado dentro dela mesma (a pagina nao). */
+  .pac-trilha{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:112px;overflow-x:auto;
+    padding-bottom:6px;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  .pac-tile{scroll-snap-align:start}
+}
+@media (max-width:560px){
+  .pac-destaque{flex-direction:column;text-align:center;gap:10px;padding:16px}
+  .pac-arte{width:min(190px,62%)}
+  .pac-info{width:100%}
+}
+
+/* ── Pop-up do pacote ───────────────────────────────────────────────── */
+.pacote-overlay{position:fixed;inset:0;z-index:1990;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(4,8,4,.58)}
+.pacote-overlay[hidden]{display:none}
+.pacote-pop{position:relative;width:100%;max-width:380px;max-height:calc(100dvh - 40px);overflow:auto;
+  padding:26px 24px 18px;text-align:center;
+  background:var(--surface-1);border:1px solid var(--line-strong);border-radius:24px;box-shadow:var(--shadow-lg);
+  animation:popupZoomIn .45s var(--ease-out) both}
+.pacote-palco{width:min(100%,300px);margin:0 auto 10px;aspect-ratio:4/3}
+.pacote-rotulo{font-size:13px;font-weight:600;color:var(--text-3)}
+.pacote-titulo{margin:4px 0 0;font-size:22px;font-weight:700;color:var(--text);line-height:1.2;text-wrap:balance}
+.pacote-valor{display:inline-flex;align-items:center;gap:7px;margin-top:10px;font-size:19px;font-weight:700;color:var(--accent-text);
+  font-variant-numeric:tabular-nums}
+.pacote-valor .noz-ico{width:20px;height:20px}
+.pacote-overlay.coletado .pacote-valor{animation:nzValor .6s var(--ease-out) .2s both}
+.pacote-nota{margin:8px auto 16px;max-width:30ch;font-size:13px;line-height:1.5;color:var(--text-2)}
+.pacote-bt{width:100%;min-height:46px;justify-content:center}
+.pacote-depois{margin-top:6px;min-height:40px;padding:0 16px;border:0;background:none;font:inherit;font-size:14px;
+  color:var(--text-3);cursor:pointer}
+.pacote-depois:hover{color:var(--text)}
+.pacote-depois[hidden]{display:none}
+@keyframes nzValor{from{transform:scale(.6);opacity:0}60%{transform:scale(1.12);opacity:1}to{transform:scale(1)}}
+
+/* ── As animacoes (so com .anima, dentro do pop-up) ─────────────────────
+   Pecas que giram usam transform-box:view-box para o ponto de giro ficar
+   nas coordenadas do desenho (viewBox 240x180). */
+.noz-arte.anima .nz-cai{animation:nzCai .7s cubic-bezier(.3,.6,.4,1) calc(var(--d,0s) + .15s) both}
+@keyframes nzCai{0%{transform:translateY(-150px);opacity:0}45%{opacity:1}
+  60%{transform:translateY(5px)}78%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+
+/* Pote: a tampa desce depois das nozes. */
+.noz-arte.anima .nz-tampa{animation:nzTampa .55s var(--ease-out) 1.25s both}
+@keyframes nzTampa{0%{transform:translateY(-70px) rotate(-8deg);opacity:0}70%{transform:translateY(3px);opacity:1}
+  100%{transform:translateY(0)}}
+.noz-arte.anima .nz-tampa{transform-box:view-box;transform-origin:120px 40px}
+
+/* Cesta: pula duas vezes, as nozes saltam junto. */
+.noz-arte.anima .nz-cesta{transform-box:view-box;transform-origin:120px 160px;animation:nzCesta .8s ease-in-out .1s 2 both}
+@keyframes nzCesta{0%,100%{transform:translateY(0) scale(1)}18%{transform:translateY(3px) scale(1.04,.93)}
+  48%{transform:translateY(-16px) scale(.98,1.03)}75%{transform:translateY(0) scale(1.02,.97)}}
+.noz-arte.anima .nz-pula{animation:nzPula .8s ease-in-out calc(var(--d,0s) + .1s) 2 both}
+@keyframes nzPula{0%,100%{transform:translateY(0)}48%{transform:translateY(-22px)}}
+
+/* Caminhao: chega, vira a cacamba e as nozes vao para o chao. */
+.noz-arte.anima .nz-caminhao{animation:nzChega .9s var(--ease-out) both}
+@keyframes nzChega{from{transform:translateX(-110px)}to{transform:translateX(0)}}
+.noz-arte.anima .nz-cacamba{transform-box:view-box;transform-origin:46px 118px;animation:nzVira 2.3s ease-in-out .9s both}
+@keyframes nzVira{0%{transform:rotate(0)}30%,72%{transform:rotate(-34deg)}100%{transform:rotate(0)}}
+.noz-arte.anima .nz-escorrega{animation:nzEscorrega .65s ease-in calc(var(--d,0s) + 1.45s) forwards}
+@keyframes nzEscorrega{to{transform:translate(-96px,8px);opacity:0}}
+.noz-p4:not(.anima) .nz-chao{display:none}
+.noz-arte.anima .nz-despeja{animation:nzDespeja .55s cubic-bezier(.4,0,.8,.6) calc(var(--d,0s) + 1.75s) both}
+@keyframes nzDespeja{0%{transform:translate(26px,-58px);opacity:0}25%{opacity:1}
+  80%{transform:translate(0,2px)}100%{transform:translate(0,0);opacity:1}}
+
+/* Navio: navega ate o meio, balanca, e um conteiner cai no mar. */
+.noz-arte.anima .nz-navio{animation:nzNavega 2s var(--ease-out) both}
+@keyframes nzNavega{from{transform:translateX(-150px)}to{transform:translateX(0)}}
+.noz-arte.anima .nz-balanca{transform-box:view-box;transform-origin:120px 124px;animation:nzBalanca 2.6s ease-in-out infinite alternate}
+@keyframes nzBalanca{from{transform:rotate(-1.4deg) translateY(-1px)}to{transform:rotate(1.4deg) translateY(1.5px)}}
+.noz-arte.anima .nz-conteiner{transform-box:view-box;transform-origin:177px 82px;animation:nzConteiner 1.2s ease-in 2s forwards}
+@keyframes nzConteiner{0%{transform:none}25%{transform:translate(8px,-4px) rotate(14deg)}
+  100%{transform:translate(42px,64px) rotate(78deg);opacity:0}}
+.noz-arte.anima .nz-respingo{transform-box:view-box;transform-origin:214px 132px;animation:nzRespingo .9s ease-out 2.85s both}
+@keyframes nzRespingo{0%{transform:scale(.3);opacity:0}35%{transform:scale(1);opacity:1}100%{transform:scale(1.2) translateY(-4px);opacity:0}}
+.noz-arte.anima .nz-onda{animation:nzOnda 2.2s linear infinite}
+@keyframes nzOnda{from{transform:translateX(0)}to{transform:translateX(40px)}}
+
+/* Fabrica: fumaca subindo das chamines e nozes saindo na esteira. */
+.noz-arte .nz-fumaca{transform-box:fill-box;transform-origin:center}
+.noz-arte.anima .nz-fumaca{animation:nzFumaca 2.4s ease-out var(--d,0s) infinite both}
+@keyframes nzFumaca{0%{transform:translate(0,10px) scale(.4);opacity:0}20%{opacity:1}
+  100%{transform:translate(-10px,-36px) scale(1.8);opacity:0}}
+.noz-arte.anima .nz-esteira{animation:nzEsteira 2.1s linear var(--d,0s) infinite both}
+@keyframes nzEsteira{0%{transform:translateX(14px);opacity:0}15%,80%{opacity:1}100%{transform:translateX(-18px);opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  .noz-arte.anima *,.pacote-pop,.pacote-overlay.coletado .pacote-valor{animation:none!important}
+}
