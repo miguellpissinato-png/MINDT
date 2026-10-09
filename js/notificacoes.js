@@ -11,7 +11,7 @@
 
 var NOTIF = { lista: [], aberto: false, timer: null, iniciado: false };
 
-var NOTIF_ICONES = { pedido: '🐹', aceito: '🤝', cutucada: '👉', presente: '🌰', lembrete: '⏰', tarefa: '🔁', teste: '⏳', aviso: '📣' };
+var NOTIF_ICONES = { pedido: '🐹', aceito: '🤝', cutucada: '👉', presente: '🌰', desafio: '⚔️', lembrete: '⏰', tarefa: '🔁', teste: '⏳', aviso: '📣' };
 
 function notifIniciar(){
   if(NOTIF.iniciado) { notifCarregar(); return; }
@@ -34,7 +34,7 @@ async function notifCarregar(){
   if(NOTIF.aberto) notifPintarPainel();
   // Chegou algo de amizade? Atualiza o selo de pedidos e a lista.
   var mudou = NOTIF.lista.map(function(n){ return n.id; }).join() !== antes;
-  if(mudou && typeof amzCarregar === 'function' && NOTIF.lista.some(function(n){ return ['pedido', 'aceito'].indexOf(n.tipo) >= 0; })){
+  if(mudou && typeof amzCarregar === 'function' && NOTIF.lista.some(function(n){ return ['pedido', 'aceito', 'desafio', 'presente'].indexOf(n.tipo) >= 0; })){
     amzCarregar(true).then(function(){
       if(typeof amzPaginaAtiva === 'function' && amzPaginaAtiva('amizades')) renderAmizades(true);
     });
@@ -147,7 +147,7 @@ function notifAbrir(id){
   if(!n) return;
   notifMarcar([id]);
   notifAlternar(false);
-  if(['pedido', 'aceito', 'cutucada', 'presente'].indexOf(n.tipo) >= 0){
+  if(['pedido', 'aceito', 'cutucada', 'presente', 'desafio'].indexOf(n.tipo) >= 0){
     if(typeof AMZ !== 'undefined') AMZ.tela = 'principal';
     goToPage('amizades');
   } else if(n.tipo === 'lembrete' || n.tipo === 'tarefa'){

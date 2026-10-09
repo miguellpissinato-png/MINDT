@@ -392,23 +392,23 @@ var TICO_MOODS = {
 // bigodes clareiam (tw) — senao o rosto some no pelo.
 // xp = XP de estudo que libera a cor (substitui os antigos trofeus).
 var TICO_CORES = [
-  { id:'padrao',   nome:'Padrão',         xp:0,
+  { id:'padrao',   nome:'Padrão',         preco:0,
     v:{} },
-  { id:'cinza',    nome:'Cinza claro',    xp:50,
+  { id:'cinza',    nome:'Cinza claro',    preco:50,
     v:{tc:'#5F5A55',tf:'#F2B6B2',tp:'#D3D0CA',to:'#8E8983',tr:'#B7B3AC',tb:'#FBF9F5',tlc:'#8E8983',
        tbo:'#F2A8A8',tw:'#5F5A55',twop:'.5',tn:'#EE9AA0',tt:'#5F5A55',te:'#26211E',tea:'#26211E',tbm:'#E58C94',tpa:'#E8E0DB'} },
-  { id:'castanho', nome:'Castanho claro', xp:100,
+  { id:'castanho', nome:'Castanho claro', preco:100,
     v:{tc:'#6B432D',tf:'#F4ADA8',tp:'#D9A36F',to:'#9A6741',tr:'#C38B59',tb:'#FFF6E9',tlc:'#FFF1DC',
        tbo:'#F4A39C',tw:'#6B432D',twop:'.5',tn:'#EE9198',tt:'#6B432D',te:'#2B1D15',tea:'#2B1D15',tbm:'#E4868E',tpa:'#F2C49C'} },
-  { id:'marrom',   nome:'Marrom',         xp:200,
+  { id:'marrom',   nome:'Marrom',         preco:200,
     v:{tc:'#3B2417',tf:'#E9A5A1',tp:'#7B4F34',to:'#4B2D1C',tr:'#664029',tb:'#F2E0CA',tlc:'#EBCDA8',
        tbo:'#E99A95',tw:'#EBCDA8',twop:'.7',tn:'#EE9198',tt:'#4A2E1E',te:'#1A0F0A',tea:'#F3E2CD',tbm:'#E4868E',tpa:'#DDAE8C',
        teod:'inline',teo:'#F3E2CD'} },
-  { id:'preto',    nome:'Preto',          xp:350,
+  { id:'preto',    nome:'Preto',          preco:350,
     v:{tc:'#7A6D65',tf:'#E4A19E',tp:'#2E2927',to:'#1B1716',tr:'#453D39',tb:'#E7DED3',tlc:'#DDD5CB',
        tbo:'#D98C8C',tw:'#DDD5CB',twop:'.75',tn:'#EE9AA0',tt:'#3A302B',te:'#0E0B0A',tea:'#E8DFD4',tbm:'#E58C94',tpa:'#CFBEB1',
        teod:'inline',teo:'#E8DFD4'} },
-  { id:'listrado', nome:'Cinza listrado', xp:500,
+  { id:'listrado', nome:'Cinza listrado', preco:500,
     v:{tc:'#48443F',tf:'#EDB0AC',tp:'#8F8D8A',to:'#5E5B58',tr:'#7B7976',tb:'#F6F4F0',tlc:'#FFFFFF',
        tbo:'#EFA5A5',tw:'#F4F2EE',twop:'.75',tn:'#EE9AA0',tt:'#48443F',te:'#1D1A18',tea:'#F4F2EE',tbm:'#E58C94',tpa:'#DCD5D0',
        teod:'inline',teo:'#F4F2EE',tld:'inline',tl:'#FFFFFF'} }
@@ -417,13 +417,21 @@ function ticoCor(id){
   for (var i = 0; i < TICO_CORES.length; i++) if (TICO_CORES[i].id === id) return TICO_CORES[i];
   return TICO_CORES[0];
 }
-// A cor que a pessoa escolheu. So vale se ainda estiver liberada pelo XP —
-// um blob editado a mao nao destrava cor.
+// A pessoa tem essa cor? Vale a lista do servidor (cores_compradas, via
+// js/nozes.js); antes de ela chegar, a copia guardada no estado; e, para
+// quem ainda nao tem nem a copia, a regra antiga do XP (o servidor herdou
+// exatamente essas cores para quem ja as tinha liberado).
+function corTenho(id){
+  if(!id || id === 'padrao') return true;
+  var lista = (typeof NOZ !== 'undefined' && NOZ.cores) || (typeof state !== 'undefined' && state && state.coresCompradas);
+  if(Array.isArray(lista)) return lista.indexOf(id) !== -1;
+  var xp = (typeof studyXP === 'number') ? studyXP : 0;
+  return xp >= ticoCor(id).preco;
+}
+// A cor que a pessoa escolheu, se ela tiver essa cor.
 function minhaCorTico(){
   var id = (typeof state !== 'undefined' && state.perfil && state.perfil.cor) || 'padrao';
-  var c = ticoCor(id);
-  var xp = (typeof studyXP === 'number') ? studyXP : 0;
-  return c.xp > xp ? 'padrao' : c.id;
+  return corTenho(id) ? ticoCor(id).id : 'padrao';
 }
 function estiloCorTico(id){
   var v = ticoCor(id).v, css = '';

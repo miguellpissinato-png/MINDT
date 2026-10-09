@@ -1,4 +1,4 @@
-// ESTUDOS — pomodoro, XP/nivel, trofeus e confete.
+// ESTUDOS — pomodoro, XP/nivel, loja de cores e confete.
 
 // ESTUDOS
 function renderEstudos() {
@@ -51,126 +51,79 @@ function cancelInlineEdit() {
   document.getElementById('timer-label').textContent = timerRunning ? 'Estudando...' : 'Clique no tempo para editar';
 }
 
-// ─── CORES DO TICOLINO ──────────────────────────────────
-// Substituem os antigos trofeus: cada marco de XP de estudo libera uma cor
-// nova para o Ticolino (paletas em TICO_CORES, js/helpers.js). As funcoes
-// mantem os nomes de antes (renderTrophies, checkTrophyUnlock...) porque
-// sao chamadas de varios pontos do app.
+// ─── CORES DO TICOLINO (loja) e PACOTES DE NOZES ─────────
+// Os marcos de XP deixaram de liberar cores: agora dao pacotes de nozes
+// (js/nozes.js), e as cores sao compradas com nozes. Quem ja tinha uma cor
+// pelo XP antigo continua com ela (o servidor guardou). As funcoes mantem
+// os nomes de antes (renderTrophies, checkTrophyUnlock) porque sao
+// chamadas de varios pontos do app.
 
 var corEmVista = null;   // cor mostrada no destaque (a clicada na grade)
 
-function renderTrophies() {
+// soPintar: repinta sem pedir nada ao servidor (quem chama ja carregou).
+function renderTrophies(soPintar) {
+  if(!soPintar && typeof carregarNozes === 'function') carregarNozes();
+  if(typeof renderPacotes === 'function' && !soPintar) renderPacotes();
   var grid = document.getElementById('trophies-grid');
   if(!grid) return;
   var emUso = minhaCorTico();
   if(!corEmVista) corEmVista = emUso;
-  var liberadas = TICO_CORES.filter(function(c){ return studyXP >= c.xp; }).length;
-
-  var hCounter = document.getElementById('trophy-counter-text');
-  if(hCounter) hCounter.textContent = liberadas + ' / ' + TICO_CORES.length;
-  var xpEl = document.getElementById('cores-xp');
-  if(xpEl) xpEl.textContent = studyXP + ' XP de estudo';
+  var saldo = (typeof NOZ !== 'undefined' && NOZ.saldo != null) ? NOZ.saldo : null;
+  var cadeado = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
   // Destaque: a cor em vista, grande, com o que fazer com ela.
   var c = ticoCor(corEmVista);
-  var livre = studyXP >= c.xp, usando = c.id === emUso;
+  var minha = corTenho(c.id), usando = c.id === emUso;
   var dest = document.getElementById('cores-destaque');
   if(dest){
+    var falta = saldo == null ? 0 : Math.max(0, c.preco - saldo);
     dest.innerHTML =
       '<div class="cores-destaque-tico">' + ticolino('feliz', 120, false, c.id) + '</div>'
       + '<div class="cores-destaque-txt">'
         + '<div class="cores-destaque-nome">' + esc(c.nome) + '</div>'
-        + '<div class="cores-destaque-sub">' + (c.xp === 0 ? 'A cor de sempre do Ticolino.'
-            : livre ? 'Liberada com ' + c.xp + ' XP de estudo.'
-            : 'Faltam ' + (c.xp - studyXP) + ' XP de estudo para liberar.') + '</div>'
+        + '<div class="cores-destaque-sub">' + (!c.preco ? 'A cor de sempre do Ticolino.'
+            : minha ? 'Essa cor é sua.'
+            : 'Custa ' + nozTxt(c.preco) + (falta ? '. Faltam ' + nozTxt(falta) + '.' : '.')) + '</div>'
         + (usando ? '<div class="cores-em-uso">✓ Em uso</div>'
-            : livre ? '<button type="button" class="btn btn-primary" onclick="usarCorTico(\'' + c.id + '\')">Usar esta cor</button>'
-            : '<div class="cores-falta"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + c.xp + ' XP</div>')
+            : minha ? '<button type="button" class="btn btn-primary" onclick="usarCorTico(\'' + c.id + '\')">Usar esta cor</button>'
+            : falta ? '<div class="cores-falta">' + cadeado + 'Junte mais ' + nozTxt(falta) + '</div>'
+            : '<button type="button" class="btn btn-primary" onclick="comprarCor(\'' + c.id + '\')">'
+              + 'Comprar por ' + nozTxt(c.preco) + '</button>')
       + '</div>';
   }
 
   grid.innerHTML = TICO_CORES.map(function(t) {
-    var ok = studyXP >= t.xp, uso = t.id === emUso, vista = t.id === corEmVista;
+    var ok = corTenho(t.id), uso = t.id === emUso, vista = t.id === corEmVista;
     return '<button type="button" class="cor-card' + (ok ? '' : ' trancada') + (vista ? ' em-vista' : '') + '"'
       + ' aria-pressed="' + vista + '" onclick="verCorTico(\'' + t.id + '\')">'
       + (uso ? '<span class="cor-check" aria-label="Em uso">✓</span>' : '')
       + '<span class="cor-tico">' + ticolino('feliz', 64, false, t.id) + '</span>'
       + '<span class="cor-nome">' + esc(t.nome) + '</span>'
-      + '<span class="cor-estado">' + (uso ? 'Em uso' : ok ? 'Liberada'
-          : '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + t.xp + ' XP') + '</span>'
+      + '<span class="cor-estado">' + (uso ? 'Em uso' : ok ? 'Sua'
+          : cadeado + t.preco + ' nozes') + '</span>'
       + '</button>';
   }).join('');
 }
 
-function verCorTico(id){ corEmVista = id; renderTrophies(); }
+function verCorTico(id){ corEmVista = id; renderTrophies(true); }
 
 function usarCorTico(id){
   var c = ticoCor(id);
-  if(studyXP < c.xp) return;
+  if(!corTenho(c.id)) return;
   if(!state.perfil) state.perfil = {};
   state.perfil.cor = c.id;
+  corEmVista = c.id;
   saveState();
-  renderTrophies();
+  renderTrophies(true);
   updateXPDisplay();                       // rosto do menu lateral
   if(typeof renderHome === 'function') renderHome();
-  if(typeof publicarPerfil === 'function') publicarPerfil();
+  if(typeof publicarPerfil === 'function') publicarPerfil(true);
   toast('🐹 Ticolino agora está ' + c.nome.toLowerCase() + '!');
 }
 
-// ── Cor nova liberada? ──
-// O aviso sai UMA vez na vida por cor. Antes ele saia toda vez que o XP
-// cruzava o marco: desmarcar um item da Home tira XP, marcar de novo
-// devolve, e a mesma cor era "liberada" de novo a cada vai e volta.
-// A lista das ja anunciadas mora no estado (sincroniza entre aparelhos).
-// Quem ainda nao tem a lista ganha uma com as cores que o XP de antes ja
-// liberava — elas ja eram dela, nao sao novidade.
-function coresAnunciadas(xpAntes) {
-  if(!Array.isArray(state.coresAnunciadas)) {
-    state.coresAnunciadas = TICO_CORES.filter(function(c){ return c.xp > 0 && xpAntes >= c.xp; })
-      .map(function(c){ return c.id; });
-  }
-  return state.coresAnunciadas;
-}
-
-function checkTrophyUnlock(previousXP) {
-  var nova = null, vistas = coresAnunciadas(previousXP);
-  TICO_CORES.forEach(function(c) {
-    if(c.xp > 0 && studyXP >= c.xp && vistas.indexOf(c.id) === -1) {
-      vistas.push(c.id);
-      nova = c;
-    }
-  });
-  if(nova) {
-    // O valor e guardado AGORA, nao lido depois do atraso: duas cores
-    // liberadas em sequencia nao podem disputar a mesma variavel.
-    setTimeout(function() { showTrophyPopup(nova); }, 1200);
-  }
-}
-
-function showTrophyPopup(cor) {
-  if(!cor) return;
-  var overlay = document.getElementById('trophy-popup-overlay');
-  var nameEl = document.getElementById('popup-trophy-name');
-  var modelEl = document.getElementById('popup-trophy-model');
-  if(!overlay || !nameEl || !modelEl) return;
-  nameEl.textContent = cor.nome;
-  modelEl.innerHTML = ticolino('feliz', 120, false, cor.id);
-  corEmVista = cor.id;
-  overlay.classList.remove('show');
-  void overlay.offsetWidth; // reflow
-  overlay.classList.add('show');
-  document.getElementById('confetti-canvas').style.display = 'block';
-  launchConfetti();
-}
-
-function closeTrophyPopup() {
-  var overlay = document.getElementById('trophy-popup-overlay');
-  if(overlay) overlay.classList.remove('show');
-  var canvas = document.getElementById('confetti-canvas');
-  if(canvas) { canvas.style.display = 'none'; stopConfetti(); }
-  renderTrophies();
-  var section = document.querySelector('.estudos-trophy-section');
-  if(section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// Todo ganho de XP passa por aqui: confere se um pacote de nozes ficou pronto.
+function checkTrophyUnlock() {
+  if(typeof nozConferirPronto === 'function') nozConferirPronto();
 }
 
 // ── Confetti ──
@@ -259,7 +212,6 @@ var studyLevel = 1;
 // Load XP from state
 function loadStudyXP() {
   if (state.studyXP !== undefined) studyXP = state.studyXP;
-  coresAnunciadas(studyXP);   // cria a lista ja com o que esta liberado
   if (state.todaySessions !== undefined) {
     var today = new Date().toDateString();
     if (state.sessionDate === today) todaySessions = state.todaySessions;
@@ -433,8 +385,8 @@ function addXP(amount, exato) {
   // o Resumo de atividades precisa saber quanto entrou em cada dia.
   if (typeof registrarXP === 'function') registrarXP(amount);
   updateXPDisplay();
-  checkTrophyUnlock(previousXP);
-  renderTrophies();
+  checkTrophyUnlock();
+  if (typeof renderPacotes === 'function') renderPacotes();
   // persist XP
   if(state) {
     state.studyXP = studyXP;

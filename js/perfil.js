@@ -6,6 +6,7 @@ function renderPerfil(){
   montarHorasLembrete();
   if(typeof pintarLembrete==='function') pintarLembrete();
   if(typeof pintarAmizadesPerfil==='function') pintarAmizadesPerfil();
+  if(typeof carregarNozes==='function') carregarNozes();   // saldo do bloco "Suas nozes"
   document.getElementById('perfil-name-display').textContent=state.perfil.name||'Meu Nome';
   document.getElementById('perfil-name-input').value=state.perfil.name||'';
   document.getElementById('perfil-email-display').textContent=currentUser?currentUser.email:'';
