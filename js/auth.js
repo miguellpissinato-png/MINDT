@@ -135,7 +135,8 @@ function pintarLembrar(){
 // selo "M" e o estado da caixa "Lembrar de mim".
 document.addEventListener('DOMContentLoaded', function(){
   var av = document.getElementById('auth-avatar');
-  if (av && typeof ticolino === 'function') av.innerHTML = ticolino('feliz', 46, true);
+  // O logo do Mindt: a cabeca do Ticolino sobre laranja, igual nos dois temas.
+  if (av) av.innerHTML = '<img src="icons/icon-192.png" alt="" width="64" height="64">';
   pintarLembrarLogin();
   pintarLembrar();
 });

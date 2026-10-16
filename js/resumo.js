@@ -21,55 +21,66 @@ function renderResumo(){
   for(var i = 0; i < botoes.length; i++){
     botoes[i].setAttribute('aria-pressed', String(tipos[i] === relPeriodoAtual));
   }
-  var sub = document.getElementById('res-subtitulo');
-  if(sub) sub.textContent = 'Tudo que você moveu ' + RES_QUANDO[relPeriodoAtual] + ', num lugar só';
-
   var ta = relTarefas(p), me = relMetas(p), ga = relGastos(p);
+
+  // O numero grande: quanto das tarefas criadas no periodo ja foi feito.
+  // Uma recorrente conta cada conclusao, entao o teto e 100%.
+  var pct = ta.criadas ? Math.min(100, Math.round(ta.feitas / ta.criadas * 100)) : (ta.feitas ? 100 : 0);
+  var DO_PERIODO = {semana:'desta semana', mes:'de ' + REL_MESES[p.inicio.getMonth()], ano:'de ' + p.inicio.getFullYear()};
+  texto('res-hero', pct + '%');
+  var sub = document.getElementById('res-subtitulo');
+  if(sub) sub.textContent = ta.criadas || ta.feitas
+    ? 'das tarefas ' + DO_PERIODO[relPeriodoAtual] + ' concluídas'
+    : 'Nenhuma tarefa ' + RES_QUANDO[relPeriodoAtual] + ' ainda';
 
   texto('res-total-tasks', ta.criadas);
   texto('res-nota-tasks',  p.intervalo);
   texto('res-done-tasks',  ta.feitas);
   texto('res-nota-done',   ta.abertas + ' ainda em aberto');
   texto('res-total-metas', me.ativas);
-  texto('res-nota-metas',  me.vencendo ? me.vencendo + ' vence' + (me.vencendo > 1 ? 'm' : '') + ' no período'
-                                       : 'nenhuma vence no período');
+  texto('res-nota-metas',  me.vencendo ? me.vencendo + ' meta' + (me.vencendo > 1 ? 's vencem' : ' vence') + ' no período'
+                                       : 'nenhuma meta vence no período');
   texto('res-gastos',      moeda(ga.total));
   texto('res-nota-gastos', ga.lancamentos + (ga.lancamentos === 1 ? ' lançamento' : ' lançamentos'));
 
-  // Pendencias: tarefas em aberto, com o prazo quando houver.
+  // Pendencias: tarefas em aberto, com o prazo em palavras. O ponto fica
+  // vermelho no que ja venceu e laranja no que vence hoje.
   var pend = document.getElementById('res-pendencias');
   if(pend){
+    var hoje = hojeStr();
     pend.innerHTML = ta.lista.length
       ? ta.lista.map(function(t){
-          var prazo = t.deadline || t.prazo || '';
-          return '<div class="res-pend-item">'
-            + '<span class="res-pend-ponto"></span>'
+          var prazo = typeof prazoEmPalavras === 'function' ? prazoEmPalavras(t) : (t.deadline || '');
+          var tom = !t.deadline ? '' : t.deadline < hoje ? ' atrasada' : t.deadline === hoje ? ' hoje' : '';
+          return '<button type="button" class="res-pend-item' + tom + '" onclick="goToPage(\'tarefas\')">'
+            + '<span class="res-pend-ponto" aria-hidden="true"></span>'
             + '<span class="res-pend-nome">' + esc(t.name || '') + '</span>'
-            + (prazo ? '<span class="res-pend-prazo">' + esc(prazo) + '</span>' : '')
-            + '</div>';
+            + (prazo ? '<span class="res-pend-prazo">' + esc(prazo.replace(/^Vence hoje$/, 'hoje')) + '</span>' : '')
+            + '</button>';
         }).join('')
-      : '<div class="res-pend-vazio">' + T('semPendencias') + '</div>';
+      : '<p class="md-meta">' + T('semPendencias') + '</p>';
   }
 
   var mp = document.getElementById('res-metas-progress');
   if(mp){
     mp.innerHTML = me.lista.length
       ? me.lista.map(function(m){
-          return '<div class="group-bar-item"><div class="group-bar-header">'
-            + '<span>' + esc(m.nome) + '</span><span>' + m.pct + '%</span></div>'
-            + '<div class="progress-bar-track"><div class="progress-bar-fill" style="width:' + m.pct + '%"></div></div>'
+          return '<div class="res-meta"><div class="res-meta-topo">'
+            + '<span>' + esc(m.nome) + '</span><b class="md-num">' + m.pct + '%</b></div>'
+            + mdBarra(m.pct, '', 'md-pb--sm')
             + '</div>';
         }).join('')
-      : '<div style="color:var(--text-muted);font-size:13px">Nenhuma meta ainda.</div>';
+      : '<p class="md-meta">Nenhuma meta ainda.</p>';
   }
 
   var np = document.getElementById('res-notas-preview');
   if(np){
-    np.innerHTML = state.notas.slice(0, 4).map(function(n){
-      return '<div class="nota-card" style="flex:0 0 160px;cursor:pointer" onclick="goToPage(\'notas\')">'
-        + '<div class="nota-title">' + esc(n.title) + '</div>'
-        + '<div class="nota-body">' + esc(n.body || '') + '</div></div>';
-    }).join('') || '<div style="color:var(--text-muted);font-size:13px">Nenhuma nota ainda.</div>';
+    np.innerHTML = state.notas.slice(0, 3).map(function(n){
+      return '<button type="button" class="res-nota" onclick="goToPage(\'notas\')">'
+        + '<span class="res-nota-tit">' + esc(n.title || 'Sem título') + '</span>'
+        + (n.body ? '<span class="md-meta">' + esc(n.body) + '</span>' : '')
+        + '</button>';
+    }).join('') || '<p class="md-meta">Nenhuma nota ainda.</p>';
   }
 }
 

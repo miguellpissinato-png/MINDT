@@ -1,14 +1,52 @@
 // NAV — troca de paginas (desktop e mobile).
 
-// NAV
-document.querySelectorAll('.nav-item').forEach(function(el){
-  el.addEventListener('click',function(){
-    var page=el.dataset.page;
-    if(!page) return;   // o botao de tema mora no menu mas nao e pagina
-    goToPage(page);
-    document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===page);});
+// NAV — cinco destinos (Design System 2). Cada pagina pertence a um grupo;
+// o menu acende o grupo e as abas do cabecalho levam as paginas de dentro.
+// Tocar num grupo volta para a ultima pagina vista nele.
+var NAV_GRUPO = {
+  home: 'hoje',
+  tarefas: 'rotina', agenda: 'rotina', exercicios: 'rotina', notas: 'rotina',
+  gastos: 'dinheiro',
+  metas: 'evolucao', estudos: 'evolucao', leitura: 'evolucao', resumo: 'evolucao',
+  perfil: 'voce', amizades: 'voce', conhecer: 'voce'
+};
+var NAV_INICIO = { hoje: 'home', rotina: 'tarefas', dinheiro: 'gastos', evolucao: 'metas', voce: 'perfil' };
+var navUltima = {};
+var NAV_ROTULO = {
+  tarefas: 'Tarefas', agenda: 'Agenda', exercicios: 'Exercícios', notas: 'Notas',
+  metas: 'Metas', estudos: 'Estudos', leitura: 'Leitura', resumo: 'Resumo',
+  perfil: 'Perfil', amizades: 'Amizades'
+};
+
+// As abas do grupo no topo de cada cabecalho (<nav class="md-gt" data-abas>).
+function montarAbasGrupo(){
+  document.querySelectorAll('.md-gt[data-abas]').forEach(function(nav){
+    var g = nav.dataset.abas;
+    nav.innerHTML = Object.keys(NAV_ROTULO).filter(function(p){ return NAV_GRUPO[p] === g; }).map(function(p){
+      return '<button type="button" data-pagina="' + p + '" onclick="goToPage(\'' + p + '\')">' + NAV_ROTULO[p] + '</button>';
+    }).join('');
   });
+}
+montarAbasGrupo();
+
+// Ticolinos fixos dos pop-ups (livro terminado, leitura abandonada). Os
+// pop-ups ficam depois dos scripts no index.html, entao espera a pagina.
+function pintarTicosDosModais(){
+  document.querySelectorAll('[data-tico-modal]').forEach(function(el){
+    if(!el.firstChild) el.innerHTML = ticolino(el.dataset.ticoModal, 96);
+  });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pintarTicosDosModais);
+else pintarTicosDosModais();
+
+function goToGrupo(grupo){
+  var pagina = navUltima[grupo] || NAV_INICIO[grupo];
+  if(pagina) goToPage(pagina);
+}
+document.querySelectorAll('[data-grupo]').forEach(function(el){
+  el.addEventListener('click', function(){ goToGrupo(el.dataset.grupo); });
 });
+
 // Ligada so durante a pintura que vem de uma navegacao. E o que distingue
 // "a lista chegou" de "a pessoa mexeu na lista" — ver marcarEntradaDaGrade().
 var chegandoNaPagina = false;
@@ -18,21 +56,28 @@ function goToPage(name){
   // escondidas primeiro e o erro vinha depois — tela em branco.
   if(!document.getElementById('page-'+name)) return;
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.getElementById('page-'+name).classList.add('active');
-  // "Conhecer novos Ticolinos" e uma pagina de dentro de Amizades.
-  var noMenu = name === 'conhecer' ? 'amizades' : name;
-  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
-  // A barra de baixo do celular tambem: sem isto, chegar numa pagina por um
-  // botao (e nao pela barra) deixava a aba anterior acesa.
-  document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.page===noMenu);});
-  // A barra rola para o lado (sao muitas abas): a acesa entra na tela.
-  var acesa = document.querySelector('.mobile-nav-item.active');
-  if(acesa && acesa.parentNode && acesa.parentNode.scrollWidth > acesa.parentNode.clientWidth){
-    var barra = acesa.parentNode, l = acesa.offsetLeft, r = l + acesa.offsetWidth;
-    if(l < barra.scrollLeft) barra.scrollLeft = l - 8;
-    else if(r > barra.scrollLeft + barra.clientWidth) barra.scrollLeft = r - barra.clientWidth + 8;
-  }
+  var pg = document.getElementById('page-'+name);
+  pg.classList.add('active');
+  // O menu (lateral e de baixo) acende o grupo da pagina, mesmo quando se
+  // chega nela por um botao e nao pelo menu.
+  var grupo = NAV_GRUPO[name] || 'hoje';
+  if(name !== 'conhecer') navUltima[grupo] = name;
+  document.querySelectorAll('[data-grupo]').forEach(function(n){
+    var on = n.dataset.grupo === grupo;
+    n.classList.toggle('active', on);
+    if(on) n.setAttribute('aria-current', 'page'); else n.removeAttribute('aria-current');
+  });
+  // As abas do cabecalho (as paginas do grupo) marcam a pagina aberta.
+  pg.querySelectorAll('.md-gt [data-pagina]').forEach(function(b){
+    var on = b.dataset.pagina === (name === 'conhecer' ? 'amizades' : name);
+    if(on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
   document.body.classList.toggle('na-home', name === 'home');
+  // O Ticolino do cabecalho (data-tico="humor") e desenhado aqui: ele usa a
+  // cor que a pessoa escolheu, que pode ter mudado desde a ultima visita.
+  pg.querySelectorAll('[data-tico]').forEach(function(el){
+    el.innerHTML = ticolino(el.dataset.tico, parseInt(el.dataset.ticoTam, 10) || 100);
+  });
   chegandoNaPagina = true;
   if(typeof notifAlternar === 'function' && typeof NOTIF !== 'undefined' && NOTIF.aberto) notifAlternar(false);
   try {
@@ -63,60 +108,10 @@ function goToPage(name){
   // A faixa do teste muda por pagina (discreta so aparece na Home).
   if(typeof pintarFaixaTeste === 'function') pintarFaixaTeste();
 }
-function mobileNav(el,page){document.querySelectorAll('.mobile-nav-item').forEach(function(n){n.classList.remove('active');});el.classList.add('active');goToPage(page);}
 
 
-// ═══════════════════════════════════════════════════════════════════════
-// GAVETA DO MENU NO CELULAR
-//
-// No desktop a barra lateral esta sempre la e abre no hover. No celular ela
-// ficava escondida e as opcoes que so existem nela — tema, nivel, rotulos —
-// nao tinham como ser alcancadas. Agora ela vira gaveta: um botao abre, um
-// toque fora fecha.
-// ═══════════════════════════════════════════════════════════════════════
-
-function menuAberto(){
-  return document.body.classList.contains('menu-aberto');
+// O rosto do Ticolino no destino "Voce" acompanha a cor escolhida.
+function pintarRostoMenu(){
+  if(typeof ticolino !== 'function') return;
+  document.querySelectorAll('.nav-voce-rosto').forEach(function(el){ el.innerHTML = ticolino('feliz', 30, true); });
 }
-
-function abrirMenu(){
-  document.body.classList.add('menu-aberto');
-  var b = document.getElementById('btn-menu');
-  if (b) { b.setAttribute('aria-expanded','true'); b.setAttribute('aria-label', T('fecharMenu')); }
-  // Leva o foco para o primeiro item, senao quem usa teclado ou leitor de
-  // tela abre a gaveta e continua preso no conteudo atras dela.
-  var primeiro = document.querySelector('#sidebar .nav-item');
-  if (primeiro && primeiro.focus) primeiro.focus();
-}
-
-function fecharMenu(){
-  if (!menuAberto()) return;
-  document.body.classList.remove('menu-aberto');
-  var b = document.getElementById('btn-menu');
-  if (b) {
-    b.setAttribute('aria-expanded','false');
-    b.setAttribute('aria-label', T('abrirMenu'));
-    b.focus();   // devolve o foco a quem abriu
-  }
-}
-
-function alternarMenu(){
-  if (menuAberto()) fecharMenu(); else abrirMenu();
-}
-
-// Escolher uma pagina fecha a gaveta — ninguem quer fechar na mao depois.
-document.addEventListener('click', function(e){
-  if (!menuAberto()) return;
-  if (e.target.closest('#sidebar .nav-item')) fecharMenu();
-});
-
-// Esc fecha, como em qualquer painel sobreposto.
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape' && menuAberto()) fecharMenu();
-});
-
-// Ao voltar para a largura de desktop a barra ja aparece sozinha; deixar a
-// classe ligada manteria o fundo escurecido por cima da tela.
-window.addEventListener('resize', function(){
-  if (window.innerWidth > 768) fecharMenu();
-});

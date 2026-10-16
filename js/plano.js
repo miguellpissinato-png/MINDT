@@ -460,15 +460,16 @@ var PLANO_MARCAS = {
 
 // ─── Abas do Perfil ────────────────────────────────────────────────────
 
+// O plano abre no lugar do resto do perfil, com um "Voltar ao perfil".
 function perfilAba(qual){
   var conta = qual !== 'assinaturas';
   document.getElementById('perfil-conta').hidden = !conta;
   document.getElementById('perfil-assinaturas').hidden = conta;
-  var botoes = document.querySelectorAll('#page-perfil .aba');
-  for(var i = 0; i < botoes.length; i++){
-    botoes[i].setAttribute('aria-pressed', String((i === 0) === conta));
-  }
+  var wrap = document.getElementById('perfil-assinaturas-wrap');
+  if(wrap) wrap.hidden = conta;
   if(!conta) renderAssinaturas();
+  var main = document.getElementById('main');
+  if(main) main.scrollTop = 0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -487,6 +488,8 @@ function perfilAba(qual){
 var TRAVAS_DINHEIRO = [
   {id:'metrica-maior-cat', compacta:true},
   {id:'metrica-media',     compacta:true},
+  {id:'fin-cats', titulo:'Para onde vai o seu dinheiro?',
+    texto:'Cada categoria com o quanto pesa no seu mês, num relance.'},
   {id:'gastos-pizza-painel', titulo:'Para onde vai o seu dinheiro?',
     texto:'O gráfico por categoria mostra, num relance, o que mais pesa no seu mês.'},
   {id:'ganhos-dash', titulo:'De onde vem o seu dinheiro?',
@@ -524,13 +527,13 @@ function trancarBloco(el, trancar, t){
   tr.className = 'tranca';
   if(t.compacta){
     tr.innerHTML = '<button type="button" class="tranca-chip" onclick="mostrarLimite(\'financas\')">'
-      + '<span aria-hidden="true">🔒</span> Pro</button>';
+      + (typeof ico === 'function' ? ico('lock', 14, 2.2) : '') + ' Pro</button>';
   }else{
     // Quem viu isso no teste gratis ouve outra frase: nao e novidade, e algo
     // que ela ja usou e continua ali.
     var jaViu = testeAcabou();
     tr.innerHTML = '<div class="tranca-caixa">'
-      + '<div class="tranca-icone" aria-hidden="true">🔒</div>'
+      + '<div class="tranca-icone" aria-hidden="true">' + (typeof ico === 'function' ? ico('lock', 22, 2) : '') + '</div>'
       + '<div class="tranca-titulo">' + esc(t.titulo) + '</div>'
       + '<p class="tranca-texto">' + esc(jaViu
           ? 'Você usou isso no teste grátis. Continua tudo aqui, com os seus dados — é só destravar.'

@@ -21,10 +21,11 @@ function renderLeitura() {
   renderHeroBook();
   renderBookshelf();
   updateResumoBar();
-  setupScrollEffect();
+  pintarNumerosLeitura();
+  pintarLombadas();
 }
 
-// ── HERO BOOK ──
+// ── LENDO AGORA (cabecalho) ──
 function renderHeroBook() {
   var active = (state.livros||[]).find(function(l){ return l.lendoAgora && !l.abandonado; });
   var emptyEl = document.getElementById('leitura-empty-state');
@@ -32,48 +33,70 @@ function renderHeroBook() {
   if(!emptyEl || !activeEl) return;
 
   if(!active) {
-    emptyEl.style.display = 'flex';
+    emptyEl.style.display = '';
     activeEl.style.display = 'none';
     return;
   }
   emptyEl.style.display = 'none';
-  activeEl.style.display = 'flex';
-
-  var coverImg = document.getElementById('leitura-book-cover-img');
-  if(active.cover) {
-    coverImg.src = active.cover;
-    coverImg.style.display = 'block';
-  } else {
-    coverImg.style.display = 'none';
-  }
-  document.getElementById('leitura-book-title-display').textContent = active.titulo || '';
-  document.getElementById('leitura-book-author-display').textContent = active.autor || '';
-  document.getElementById('leitura-book-genre-display').textContent = active.genero || '';
+  activeEl.style.display = '';
 
   var pagesRead = active.paginasLidas || 0;
-  var total = parseInt(active.paginas) || 1;
-  var pct = Math.min(100, Math.round((pagesRead / total) * 100));
-  document.getElementById('leitura-pages-read').textContent = pagesRead + ' páginas lidas';
-  document.getElementById('leitura-pct-display').textContent = pct + '%';
-  document.getElementById('leitura-progress-bar').style.width = pct + '%';
-  document.getElementById('leitura-pages-total').textContent = 'de ' + total + ' páginas';
+  var total = parseInt(active.paginas) || 0;
+  var pct = total ? Math.min(100, Math.round((pagesRead / total) * 100)) : 0;
+  document.getElementById('leitura-book-title-display').textContent = active.titulo || '';
+  var sub = [];
+  if(active.autor) sub.push(active.autor);
+  sub.push(total ? 'pág. ' + pagesRead.toLocaleString('pt-BR') + ' de ' + total.toLocaleString('pt-BR') : pagesRead + ' páginas lidas');
+  document.getElementById('leitura-book-author-display').textContent = sub.join(' · ');
+  document.getElementById('leitura-barra').innerHTML = mdBarra(pct, pct + '%', 'md-pb--lg md-pb--header');
 }
 
-// ── SCROLL EFFECT ──
-function setupScrollEffect() {
-  var main = document.getElementById('main');
-  var hero = document.getElementById('leitura-hero-card');
-  if(!main || !hero) return;
-  function onScroll() {
-    if(main.scrollTop > 80) {
-      hero.classList.add('scrolled');
-    } else {
-      hero.classList.remove('scrolled');
-    }
-  }
-  main.removeEventListener('scroll', main._leituraScroll);
-  main._leituraScroll = onScroll;
-  main.addEventListener('scroll', onScroll);
+// Os tres numeros: livros lidos, paginas lidas e a media de paginas por dia
+// nos ultimos 30 dias (do registro de leitura de cada livro).
+function pintarNumerosLeitura() {
+  var el = document.getElementById('lt-lidos');
+  if(!el) return;
+  var livros = state.livros || [];
+  var lidos = livros.filter(livroConcluido).length;
+  var paginas = livros.reduce(function(soma, l){
+    var total = parseInt(l.paginas) || 0;
+    return soma + ((l.jaLeu && !l.paginasLidas) ? total : Math.min(total || Infinity, l.paginasLidas || 0));
+  }, 0);
+  var desde = Date.now() - 30 * 86400000, noMes = 0;
+  livros.forEach(function(l){
+    (l.logLeitura || []).forEach(function(r){ if(new Date(r.data).getTime() >= desde) noMes += r.paginas || 0; });
+  });
+  el.textContent = lidos.toLocaleString('pt-BR');
+  document.getElementById('lt-paginas').textContent = paginas.toLocaleString('pt-BR');
+  document.getElementById('lt-media').textContent = Math.round(noMes / 30) + ' pág';
+}
+
+// A estante do cartao: as lombadas dos livros mais recentes, de alturas
+// diferentes (pelo numero de paginas). A ultima, tracejada, adiciona.
+var LOMBADA_CORES = ['var(--area-leitura-solid)','var(--area-estudos-solid)','var(--area-metas-solid)','var(--area-dinheiro-solid)','var(--brand)','var(--area-exercicio-solid)'];
+function pintarLombadas() {
+  var box = document.getElementById('lt-lombadas');
+  if(!box) return;
+  var livros = (state.livros || []).slice(-7);
+  box.innerHTML = livros.map(function(l, i){
+    var pag = parseInt(l.paginas) || 250;
+    var alt = Math.max(70, Math.min(100, Math.round(62 + pag / 12)));
+    var cor = LOMBADA_CORES[i % LOMBADA_CORES.length];
+    var estado = livroConcluido(l) ? 'concluído' : l.abandonado ? 'abandonado' : livroPct(l) + '% lido';
+    return '<button type="button" class="lt-lombada' + (l.lendoAgora && !l.abandonado ? ' lendo' : '') + (l.abandonado ? ' parado' : '') + '"'
+      + ' style="height:' + alt + 'px;background:' + cor + '" data-id="' + l.id + '"'
+      + ' aria-label="' + esc(l.titulo || 'Livro') + ', ' + estado + '" title="' + esc(l.titulo || '') + '"><i></i></button>';
+  }).join('')
+    + '<button type="button" class="lt-lombada lt-lombada--nova" onclick="abrirNovoLivro()" aria-label="Adicionar livro" title="Adicionar livro">'
+    + ico('plus', 18, 2.4) + '</button>';
+}
+function ltVerTodos() {
+  var sec = document.getElementById('leitura-shelf-section'), bt = document.getElementById('lt-ver-todos');
+  if(!sec) return;
+  var abrir = sec.hidden;
+  sec.hidden = !abrir;
+  if(bt){ bt.textContent = abrir ? 'Fechar' : 'Ver todos'; bt.setAttribute('aria-expanded', abrir ? 'true' : 'false'); }
+  if(abrir && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── ESTANTE (grade de capas) ──
@@ -212,7 +235,7 @@ function showShelfPopup(e, id) {
   // O ouvinte esta no document, entao e.currentTarget e o proprio document —
   // era dai que vinha o erro "getBoundingClientRect is not a function". O
   // cartao tem que ser procurado a partir de e.target.
-  var bookEl = (e.target && e.target.closest) ? e.target.closest('.livro-card') : null;
+  var bookEl = (e.target && e.target.closest) ? e.target.closest('.livro-card,.lt-lombada') : null;
   var rect = bookEl ? bookEl.getBoundingClientRect()
                     : {left:e.clientX||0, top:e.clientY||0,
                        bottom:e.clientY||0, width:0, height:0};
@@ -656,7 +679,7 @@ function updateResumoBar() {
   if(el) {
     var total = (state.livros||[]).length;
     var concluidos = (state.livros||[]).filter(function(l){ return l.concluido; }).length;
-    el.textContent = total + ' livros · ' + concluidos + ' concluídos';
+    el.textContent = total + (total === 1 ? ' livro' : ' livros') + ' na estante · ' + concluidos + (concluidos === 1 ? ' concluído' : ' concluídos');
   }
 }
 
@@ -735,7 +758,7 @@ document.addEventListener('click', function(e) {
   var addBook = e.target.closest ? e.target.closest('[data-addbook]') : null;
   if(addBook) { abrirNovoLivro(); return; }
   // Toque/clique no cartao
-  var book = e.target.closest ? e.target.closest('.livro-card') : null;
+  var book = e.target.closest ? e.target.closest('.livro-card,.lt-lombada') : null;
   if(book && book.dataset.id) {
     showShelfPopup(e, book.dataset.id);
     return;

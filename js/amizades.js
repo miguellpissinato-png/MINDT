@@ -197,8 +197,7 @@ function renderAmizades(semRecarregar){
   catch(e){
     console.error('amizades: desenho falhou', e);
     var raiz = document.getElementById('amz-raiz');
-    if(raiz) raiz.innerHTML = '<div class="amz-topo"><h2 class="page-title">Amizades</h2></div>'
-      + '<div class="amz-vazio"><p>Não deu para mostrar suas amizades agora.</p>'
+    if(raiz) raiz.innerHTML = '<div class="amz-vazio"><p>Não deu para mostrar suas amizades agora.</p>'
       + '<p class="amz-nota">' + esc(String((e && e.message) || e).slice(0, 160)) + '</p>'
       + '<button type="button" class="btn btn-ghost" onclick="AMZ.erro=null;amzCarregar(true).then(function(){renderAmizades(true);})">Tentar de novo</button></div>';
   }
@@ -206,6 +205,7 @@ function renderAmizades(semRecarregar){
 function renderAmizadesSemRede(semRecarregar){
   var raiz = document.getElementById('amz-raiz');
   if(!raiz) return;
+  amzCabecalho();
   if(!AMZ.carregado){
     raiz.innerHTML = AMZ.erro ? amzTelaErro() : '<div class="amz-carregando">Carregando suas amizades…</div>';
     if(!AMZ.erro || !semRecarregar){
@@ -222,6 +222,24 @@ function renderAmizadesSemRede(semRecarregar){
   if(!semRecarregar){
     amzCarregar(true).then(function(){ if(amzPaginaAtiva('amizades')) renderAmizades(true); });
   }
+}
+
+// O cabecalho de marca (fixo no index.html) muda conforme a tela: a
+// contagem de amigos e os atalhos de convite so aparecem com tudo ligado.
+function amzCabecalho(){
+  var hero = document.getElementById('amz-hero'), sub = document.getElementById('amz-sub');
+  var bts = document.getElementById('amz-hdr-bts'), priv = document.getElementById('amz-bt-priv');
+  if(!hero) return;
+  var principal = AMZ.carregado && amzAtivo() && AMZ.tela !== 'privacidade';
+  var n = (AMZ.amigos || []).length;
+  hero.hidden = !principal;
+  hero.textContent = n + (n === 1 ? ' amigo' : ' amigos');
+  bts.hidden = !principal;
+  priv.hidden = !principal;
+  sub.textContent = !AMZ.carregado ? (AMZ.erro ? 'Não deu para carregar agora.' : 'Carregando…')
+    : !amzAtivo() ? 'Desligadas. Ligue para evoluir junto com os amigos.'
+    : AMZ.tela === 'privacidade' ? 'Você escolhe o que os outros veem.'
+    : 'Evoluir junto é mais fácil.';
 }
 
 function amzTelaErro(){
@@ -243,9 +261,7 @@ function amzTelaDesligada(){
   // O nick e o botao vem logo depois do convite: embaixo do cartao de
   // explicacao eles caiam fora da tela num celular pequeno, e a pessoa
   // achava que nao havia como ligar.
-  return '<div class="amz-topo"><h2 class="page-title">Amizades</h2></div>'
-    + '<div class="amz-desligada">'
-      + '<div class="amz-desl-tico">' + ticolino('feliz', 96) + '</div>'
+  return '<div class="amz-desligada md-card">'
       + '<h3 class="amz-desl-titulo">Amizades desligadas</h3>'
       + '<p class="amz-desl-texto">Ative para adicionar amigos, comparar o progresso e criar desafios juntos.</p>'
       + '<label class="amz-rotulo" for="amz-nick">Seu nick</label>'
@@ -254,10 +270,10 @@ function amzTelaDesligada(){
         + ' value="' + esc(nick) + '" oninput="amzConferirNick()" aria-describedby="amz-nick-estado amz-nick-nota"></div>'
       + '<div class="amz-nick-estado" id="amz-nick-estado" aria-live="polite"></div>'
       + '<p class="amz-nota" id="amz-nick-nota">Vem do nome que você criou no app. Use de 3 a 20 letras, números, ponto ou _.</p>'
-      + '<button type="button" class="btn btn-primary amz-bt-largo" id="amz-ativar" onclick="amzAtivar()">Ativar amizades</button>'
-      + '<div class="amz-card amz-vitrine">'
+      + '<button type="button" class="md-btn md-btn--primary md-btn--block" id="amz-ativar" onclick="amzAtivar()">Ativar amizades</button>'
+      + '<div class="amz-vitrine">'
         + '<div class="amz-rotulo">Se você ativar, seus amigos veem</div>'
-        + itens.map(function(t){ return '<div class="amz-check"><span aria-hidden="true">✓</span>' + t + '</div>'; }).join('')
+        + itens.map(function(t){ return '<div class="amz-check">' + ico('check', 16, 2.6) + t + '</div>'; }).join('')
         + '<p class="amz-nota">Tudo aparece por padrão. Você escolhe o que mostrar em Privacidade, e dá para desligar as amizades a qualquer momento, aqui ou no Perfil.</p>'
       + '</div>'
     + '</div>';
@@ -322,62 +338,59 @@ var AMZ_ICONES = {
 
 function amzTelaPrincipal(){
   var p = AMZ.perfil, n = amzMeusNumeros();
-  var cor = ticoCor((typeof minhaCorTico === 'function') ? minhaCorTico() : 'padrao');
   var noNivel = n.xp % 100;
-  var h = '<div class="amz-topo"><h2 class="page-title">Amizades</h2>'
-    + '<button type="button" class="btn btn-primary" onclick="goToPage(\'conhecer\')">Conhecer novos Ticolinos</button></div>';
-
-  h += '<div class="amz-card amz-eu">'
-    + '<button type="button" class="amz-olho" onclick="amzAbrirPrivacidade()" aria-label="Privacidade: o que os amigos veem" title="Privacidade">' + AMZ_ICONES.olho + '</button>'
-    + '<div class="amz-eu-tico">' + ticolino('feliz', 120) + '</div>'
-    + '<div class="amz-eu-nome">' + esc((state.perfil && state.perfil.name) || p.nick) + '</div>'
-    + '<div class="amz-eu-nick">@' + esc(p.nick) + '</div>'
-    + '<div class="amz-chips"><span class="amz-chip">Cor ' + esc(cor.nome) + '</span>'
-      + '<span class="amz-chip">Roupinhas em breve</span>'
-      + '<span class="amz-chip amz-chip-noz">' + AMZ_ICONES.noz + amzNum(AMZ.saldo) + (AMZ.saldo === 1 ? ' noz' : ' nozes') + '</span></div>'
-    + '<div class="amz-stats">'
-      + '<div><b>' + n.nivel + '</b><span>Nível</span></div>'
-      + '<div><b>' + n.ofensiva + (n.ofensiva === 1 ? ' dia' : ' dias') + '</b><span>Ofensiva</span></div>'
-      + '<div><b>' + amzNum(n.paginas) + '</b><span>Páginas</span></div>'
-    + '</div>'
-    + '<div class="amz-xp"><span class="amz-xp-val">' + amzNum(n.xp) + ' XP</span><span>' + (100 - noNivel) + ' XP pro nível ' + (n.nivel + 1) + '</span></div>'
-    + '<div class="progress-bar-track"><div class="progress-bar-fill" style="width:' + noNivel + '%"></div></div>'
-  + '</div>';
+  var h = '';
 
   if(AMZ.pedidos.length){
-    h += '<h3 class="amz-secao">Solicitações <span class="amz-conta">' + AMZ.pedidos.length + '</span></h3><div class="amz-lista">';
+    h += '<h3 class="amz-secao">Solicitações <span class="amz-conta">' + AMZ.pedidos.length + '</span></h3><div class="amz-lista md-lista">';
     h += AMZ.pedidos.map(function(s){
       var origem = { pesquisa: 'chegou pela pesquisa', link: 'chegou pelo link', qr: 'chegou pelo QR code' }[s.origem] || '';
       return '<div class="amz-item amz-pedido">'
         + '<span class="amz-rosto">' + ticolino('feliz', 44, true, s.cor) + '</span>'
         + '<div class="amz-item-txt"><div class="amz-item-nome">' + esc(s.nome || '@' + s.nick) + '</div>'
-        + '<div class="amz-item-sub">@' + esc(s.nick) + ' · ' + origem + '</div></div>'
+        + '<div class="amz-item-sub">@' + esc(s.nick) + (origem ? ' · ' + origem : '') + '</div></div>'
         + '<button type="button" class="amz-icone-bt" onclick="amzResponder(\'' + s.id + '\',false)" aria-label="Recusar pedido de ' + esc(s.nome || s.nick) + '">' + AMZ_ICONES.x + '</button>'
-        + '<button type="button" class="btn btn-ghost amz-bt-aceitar" onclick="amzResponder(\'' + s.id + '\',true)">Aceitar</button>'
+        + '<button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="amzResponder(\'' + s.id + '\',true)">Aceitar</button>'
       + '</div>';
+    }).join('') + '</div>';
+  }
+
+  // Os amigos: um cartao por amigo, com o rosto do Ticolino dele e a ofensiva.
+  if(!AMZ.amigos.length){
+    h += '<div class="amz-vazio md-card">' + AMZ_ICONES.pessoas
+      + '<p>Nenhum amigo por aqui ainda. Mande um convite ou mostre seu QR code.</p>'
+      + '<button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="cnhAba(\'qr\');goToPage(\'conhecer\')">Mostrar meu QR code</button></div>';
+  } else {
+    h += '<div class="amz-frs">' + AMZ.amigos.map(function(a){
+      var nome = a.nome || '@' + a.nick;
+      var sub = [];
+      if(a.nivel != null) sub.push('nível ' + a.nivel);
+      if(a.ofensiva != null) sub.push(a.ofensiva + (a.ofensiva === 1 ? ' dia' : ' dias') + ' de ofensiva');
+      return '<button type="button" class="amz-fr" onclick="amzAbrirAmigo(\'' + a.user_id + '\')" aria-label="' + esc(nome + (sub.length ? ', ' + sub.join(', ') : '')) + '">'
+        + '<span class="amz-fr-rosto">' + ticolino('feliz', 44, true, a.cor) + '</span>'
+        + '<span class="amz-fr-nome">' + esc(amzPrimeiroNome(a)) + '</span>'
+        + (a.ofensiva != null ? '<span class="amz-fr-of">' + icoChama(13) + a.ofensiva + '</span>'
+            : a.nivel != null ? '<span class="amz-fr-of amz-fr-nv">Nível ' + a.nivel + '</span>' : '')
+      + '</button>';
     }).join('') + '</div>';
   }
 
   h += amzSecaoDesafios();
 
-  h += '<h3 class="amz-secao">Seus amigos <span class="amz-conta">' + AMZ.amigos.length + '</span></h3>';
-  if(!AMZ.amigos.length){
-    h += '<div class="amz-vazio">' + AMZ_ICONES.pessoas
-      + '<p>Nenhum amigo por aqui ainda. Mande um convite ou mostre seu QR code.</p>'
-      + '<button type="button" class="btn btn-ghost" onclick="cnhAba(\'qr\');goToPage(\'conhecer\')">Mostrar meu QR code</button></div>';
-  } else {
-    h += '<div class="amz-lista">' + AMZ.amigos.map(function(a){
-      var sub = [];
-      if(a.nivel != null) sub.push('Nível ' + a.nivel);
-      if(a.ofensiva != null) sub.push(a.ofensiva + (a.ofensiva === 1 ? ' dia' : ' dias') + ' de ofensiva');
-      return '<div class="amz-item amz-amigo" onclick="amzAbrirAmigo(\'' + a.user_id + '\')">'
-        + '<span class="amz-rosto">' + ticolino('feliz', 44, true, a.cor) + '</span>'
-        + '<div class="amz-item-txt"><div class="amz-item-nome">' + esc(a.nome || '@' + a.nick) + '</div>'
-        + '<div class="amz-item-sub">' + esc(sub.length ? sub.join(' · ') : '@' + a.nick) + '</div></div>'
-        + '<button type="button" class="amz-icone-bt amz-mais" onclick="event.stopPropagation();amzAbrirAmigo(\'' + a.user_id + '\')" aria-label="Abrir ' + esc(a.nome || a.nick) + '">' + AMZ_ICONES.mais + '</button>'
-      + '</div>';
-    }).join('') + '</div>';
-  }
+  // Como os amigos te veem (o que a Privacidade deixa aparecer).
+  h += '<div class="md-card amz-eu">'
+    + '<div class="est-cartao-topo"><span class="est-cartao-tit">Como seus amigos te veem</span>'
+      + '<button type="button" class="md-link-bt" onclick="amzAbrirPrivacidade()">Privacidade</button></div>'
+    + '<div class="amz-eu-linha"><span class="amz-rosto">' + ticolino('feliz', 44, true) + '</span>'
+      + '<div class="amz-item-txt"><div class="amz-item-nome">' + esc((state.perfil && state.perfil.name) || p.nick) + '</div>'
+      + '<div class="amz-item-sub">@' + esc(p.nick) + ' · ' + AMZ_ICONES.noz + nozTxtAmz(AMZ.saldo) + '</div></div></div>'
+    + '<div class="amz-stats">'
+      + '<div><b class="md-num">' + n.nivel + '</b><span>Nível</span></div>'
+      + '<div><b class="md-num">' + n.ofensiva + (n.ofensiva === 1 ? ' dia' : ' dias') + '</b><span>Ofensiva</span></div>'
+      + '<div><b class="md-num">' + amzNum(n.paginas) + '</b><span>Páginas</span></div>'
+    + '</div>'
+    + mdBarra(noNivel, amzNum(n.xp) + ' XP · ' + (100 - noNivel) + ' pro nível ' + (n.nivel + 1), 'md-pb--lg')
+  + '</div>';
   return h;
 }
 
@@ -424,8 +437,8 @@ function amzTelaPrivacidade(){
   if(p.mostra_ofensiva) previa.push(n.ofensiva + ' dias de ofensiva');
   if(p.mostra_paginas) previa.push(amzNum(n.paginas) + ' páginas');
   var h = '<div class="amz-topo amz-topo-voltar">'
-      + '<button type="button" class="amz-icone-bt" onclick="amzFecharPrivacidade()" aria-label="Voltar para Amizades">' + AMZ_ICONES.voltar + '</button>'
-      + '<h2 class="page-title">Privacidade</h2></div>'
+      + '<button type="button" class="md-link-bt amz-voltar" onclick="amzFecharPrivacidade()">' + AMZ_ICONES.voltar + 'Amizades</button>'
+      + '<h2 class="amz-priv-tit">Privacidade</h2></div>'
     + '<p class="amz-desl-texto amz-esq">Escolha o que outros Ticolinos veem. Por padrão, tudo aparece.</p>'
     + '<div class="amz-rotulo">Seus amigos veem</div>'
     + AMZ_CHAVES.filter(function(c){ return c[0] === 'vistos'; }).map(chave).join('')
@@ -786,7 +799,7 @@ function amzSecaoDesafios(){
   if(!ds.length) return '';
   var abertos = ds.filter(function(d){ return d.estado === 'pendente' || d.estado === 'ativo'; }).length;
   return '<h3 class="amz-secao">Desafios' + (abertos ? ' <span class="amz-conta">' + abertos + '</span>' : '') + '</h3>'
-    + '<div class="amz-lista">' + ds.map(amzCartaoDesafio).join('') + '</div>';
+    + '<div class="amz-lista amz-desafios">' + ds.map(amzCartaoDesafio).join('') + '</div>';
 }
 
 function amzCartaoDesafio(d){

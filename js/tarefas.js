@@ -10,53 +10,114 @@ function renderTasks(filter){
   if(atualizarTarefasRecorrentes()) saveState();
   pintarContaRecorrentes();
   if(tarefasAba === 'rec') renderRecorrentes();
-  filter=filter||filtroTarefas;filtroTarefas=filter;updatePeriodStats('tasks');
+  filter=filter||filtroTarefas;filtroTarefas=filter;
+  var feitas = updatePeriodStats('tasks');
+  pintarCabecalhoTarefas(feitas);
   var grid=document.getElementById('tasks-grid');
   // A recorrente que aguarda a proxima data nao aparece aqui — ela mora na
   // aba Recorrentes ate a hora dela chegar.
   var list=state.tasks.filter(function(t){return tarefaVisivel(t);});
-  if(filter==='pending')list=list.filter(function(t){return !t.done;});
+  var hoje = hojeStr();
+  if(filter==='pending'){
+    // Pendentes, e as que foram feitas hoje no fim (dá para desfazer).
+    list=list.filter(function(t){ return !t.done || diaDe(t.completedAt) === hoje; });
+  }
   if(filter==='done')list=list.filter(function(t){return t.done;});
   if(filter==='recent')list.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
   if(list.length===0){
-    grid.innerHTML = estadoVazio('preguicoso', T('semTarefas'),
-      '<button class="btn btn-primary btn-sm" onclick="abrirNovaTarefa()">+ ' + T('novaTarefa') + '</button>');
+    grid.innerHTML = estadoVazio('preguicoso', filter==='done' ? 'Nenhuma tarefa concluída ainda.' : T('semTarefas'),
+      filter==='done' ? '' : '<button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="abrirNovaTarefa()">' + ico('plus',18,2.4) + T('novaTarefa') + '</button>');
     return;
   }
   marcarEntradaDaGrade(grid);
-  grid.innerHTML=list.map(function(t){
-    var chkSvg='<svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>';
-    var inlineChecklist='';
-    if(t.checklist&&t.checklist.length){
-      inlineChecklist='<div class="task-inline-checklist" onclick="event.stopPropagation()" data-taskid="'+t.id+'">'
-        +t.checklist.map(function(ci,idx2){
-          var cid='tcl-'+t.id+'-'+idx2;
-          return '<div class="task-inline-check-item">'
-            +'<input type="checkbox" class="task-cl-cb" data-tid="'+t.id+'" data-idx="'+idx2+'" id="'+cid+'" '+(ci.done?'checked':'')+'>'
-            +'<label for="'+cid+'">'+esc(ci.text)+'</label>'
-            +'</div>';
-        }).join('')+'</div>';
-    }
-    return '<div class="task-card'+(deleteMode.type==='tasks'?' selection-mode':'')+'" data-id="'+t.id+'" onclick="handleCardClick(\'task\',\''+t.id+'\',event)">'
-      +'<input type="checkbox" class="select-checkbox" onchange="toggleSelect(\''+t.id+'\',this)">'
-      +'<div class="task-card-header">'
-        +'<div class="task-card-check'+(t.done?' done':'')+'" onclick="event.stopPropagation();quickCompleteTask(\''+t.id+'\')" title="Concluir">'+chkSvg+'</div>'
-        +'<div class="task-card-main">'
-          +'<div class="task-card-title'+(t.done?' done':'')+'">'+esc(t.name)+'</div>'
-          +(t.desc?'<div class="task-card-desc">'+esc(t.desc)+'</div>':'')
-        +'</div>'
-        +seloDaTarefa(t)
-      +'</div>'
-      +'<div class="task-card-meta">'
-        +(t.recorrencia
-          ? '<span class="task-card-date task-card-rec">🔁 '+esc(regraEmPalavras(t.recorrencia))+'</span>'
-          : (t.deadline?'<span class="task-card-date">📅 '+esc(t.deadline)+'</span>':''))
-        +(t.group?'<span class="task-card-date">📁 '+esc(t.group)+'</span>':'')
-        +(t.budget?'<span class="task-card-date">💰 R$'+parseFloat(t.budget).toFixed(0)+'</span>':'')
-      +'</div>'
-      +inlineChecklist
-      +'</div>';
-  }).join('');;
+  var sel = deleteMode.type==='tasks';
+  var linha = function(t){ return linhaDeTarefa(t, sel); };
+  var html;
+  if(filter==='pending' || filter==='all'){
+    // Agrupada pelo prazo, como o dia se organiza.
+    var grupos = [['atrasadas','Atrasadas'],['hoje','Para hoje'],['semana','Esta semana'],['depois','Mais tarde'],['semdata','Sem prazo'],['feitas', filter==='all' ? 'Concluídas' : 'Feitas hoje']];
+    var por = {};
+    list.forEach(function(t){ var g = grupoDaTarefa(t, hoje); (por[g] = por[g] || []).push(t); });
+    html = grupos.filter(function(g){ return por[g[0]]; }).map(function(g){
+      var itens = por[g[0]];
+      if(g[0] !== 'feitas' && g[0] !== 'semdata') itens.sort(function(a,b){ return String(a.deadline||'').localeCompare(String(b.deadline||'')); });
+      return '<div class="md-lista-gh' + (g[0]==='atrasadas' ? ' gh-alerta' : '') + '">' + g[1] + '</div>' + itens.map(linha).join('');
+    }).join('');
+  } else {
+    html = list.map(linha).join('');
+  }
+  grid.innerHTML = '<div class="md-lista tk-lista">' + html + '</div>';
+}
+
+function diaDe(iso){
+  if(!iso) return '';
+  var d = new Date(iso);
+  return isNaN(d) ? '' : d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function grupoDaTarefa(t, hoje){
+  if(t.done) return 'feitas';
+  if(estadoDaRecorrencia(t) === 'atrasada') return 'atrasadas';
+  if(!t.deadline) return 'semdata';
+  if(t.deadline < hoje) return 'atrasadas';
+  if(t.deadline === hoje) return 'hoje';
+  var lim = new Date(hoje + 'T12:00:00'); lim.setDate(lim.getDate() + 6);
+  return t.deadline <= diaDe(lim.toISOString()) ? 'semana' : 'depois';
+}
+// "Vence hoje", "Domingo", "12/11" — o prazo do jeito que se fala.
+function prazoEmPalavras(t){
+  if(t.recorrencia) return 'Repete: ' + regraEmPalavras(t.recorrencia);
+  if(!t.deadline) return '';
+  var hoje = hojeStr();
+  if(t.deadline === hoje) return 'Vence hoje';
+  if(t.deadline < hoje){
+    var dias = Math.round((new Date(hoje+'T12:00:00') - new Date(t.deadline+'T12:00:00')) / 86400000);
+    return dias === 1 ? 'Venceu ontem' : 'Venceu há ' + dias + ' dias';
+  }
+  var d = new Date(t.deadline + 'T12:00:00'), lim = new Date(hoje + 'T12:00:00');
+  var em = Math.round((d - lim) / 86400000);
+  if(em === 1) return 'Amanhã';
+  if(em < 7){ var w = d.toLocaleDateString('pt-BR', {weekday:'long'}); return w.charAt(0).toUpperCase() + w.slice(1).replace('-feira',''); }
+  return pad(d.getDate()) + '/' + pad(d.getMonth()+1);
+}
+function linhaDeTarefa(t, sel){
+  var dinheiro = !!(t.budget && parseFloat(t.budget) > 0);
+  var area = t.done ? 'a-neutro' : (dinheiro ? 'a-dinheiro' : 'a-tarefas');
+  var icone = dinheiro ? 'gastos' : (t.recorrencia ? 'repetir' : 'tarefas');
+  var prazo = prazoEmPalavras(t), alerta = !t.done && /^Venc/.test(prazo);
+  var partes = [];
+  if(t.done) partes.push(diaDe(t.completedAt) === hojeStr() ? 'Feita hoje' : 'Concluída');
+  else if(prazo) partes.push(prazo);
+  if(dinheiro) partes.push(moeda(parseFloat(t.budget)));
+  if(t.group && !t.done) partes.push(t.group);
+  var cl = (t.checklist || []);
+  if(cl.length) partes.push(cl.filter(function(c){ return c.done; }).length + ' de ' + cl.length + ' itens');
+  var tile = t.img
+    ? '<span class="md-tile md-tile--sm tk-img"><img src="' + esc(t.img) + '" alt=""></span>'
+    : '<span class="md-tile md-tile--sm ' + area + '">' + ico(icone, 18) + '</span>';
+  return '<div class="md-lista-item tk' + (t.done ? ' feita' : '') + (sel ? ' selection-mode' : '') + '" data-id="' + t.id + '" onclick="handleCardClick(\'task\',\'' + t.id + '\',event)">'
+    + '<input type="checkbox" class="select-checkbox" aria-label="Selecionar ' + esc(t.name) + '" onchange="toggleSelect(\'' + t.id + '\',this)">'
+    + tile
+    + '<span class="md-row-txt"><span class="tk-nome">' + esc(t.name) + '</span>'
+    + (partes.length ? '<span class="tk-sub' + (alerta ? ' alerta' : '') + '">' + esc(partes.join(' · ')) + '</span>' : '')
+    + '</span>'
+    + '<button type="button" class="md-check md-check--sm' + (t.done ? ' md-check--on' : '') + '" aria-label="' + (t.done ? 'Reabrir ' : 'Concluir ') + esc(t.name) + '"'
+    + ' onclick="event.stopPropagation();quickCompleteTask(\'' + t.id + '\')">' + ico('check', 16, 3) + '</button>'
+    + '</div>';
+}
+
+// O numero do cabecalho: o que vence hoje (e o atrasado).
+function pintarCabecalhoTarefas(feitas){
+  var el = document.getElementById('tasks-hero');
+  if(!el) return;
+  var hoje = hojeStr(), lim = new Date(hoje + 'T12:00:00'); lim.setDate(lim.getDate() + 6);
+  var fimSemana = diaDe(lim.toISOString());
+  var abertas = state.tasks.filter(function(t){ return !t.done && tarefaVisivel(t); });
+  var praHoje = abertas.filter(function(t){ return t.deadline && t.deadline <= hoje; }).length;
+  var semana = abertas.filter(function(t){ return t.deadline && t.deadline <= fimSemana; }).length;
+  el.textContent = praHoje + ' pra hoje';
+  var feitasHoje = feitas ? feitas.day : 0;
+  document.getElementById('tasks-hero-sub').textContent =
+    semana + ' na semana · ' + feitasHoje + (feitasHoje === 1 ? ' concluída hoje' : ' concluídas hoje');
 }
 // Selo de estado do cartao. "Tarefa atrasada" so existe para recorrente: e
 // a que passou do proprio ciclo sem ser feita — em vez de gerar uma copia.
@@ -68,7 +129,12 @@ function seloDaTarefa(t){
   else txt = 'Andamento';
   return '<div class="'+cls+'" style="flex-shrink:0;margin-left:auto">'+txt+'</div>';
 }
-function filterTasks(type,el){document.querySelectorAll('#tasks-filter-row .filter-chip').forEach(function(c){c.classList.toggle('active', el ? c===el : c.getAttribute('onclick').indexOf("'"+type+"'")!==-1);});renderTasks(type);}
+function filterTasks(type,el){
+  document.querySelectorAll('#tasks-filter-row [data-filtro]').forEach(function(c){
+    c.setAttribute('aria-pressed', c.dataset.filtro === type ? 'true' : 'false');
+  });
+  renderTasks(type);
+}
 
 function handleCardClick(type,id,event){
   if(event.target.type==='checkbox')return;

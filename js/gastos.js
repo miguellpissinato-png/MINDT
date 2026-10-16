@@ -259,10 +259,21 @@ var gastosCalFilter = null;
 function setGastosFiltro(tipo, el) {
   gastosFiltro = tipo;
   gastosCalFilter = null;
-  document.querySelectorAll('.gastos-filter-btn').forEach(function(b){b.classList.remove('active');});
-  if(el) el.classList.add('active');
+  var sel = document.getElementById('fin-periodo');
+  if(sel) sel.value = tipo;
   document.getElementById('gastos-cal-picker').style.display = 'none';
   renderGastos();
+}
+// O seletor de periodo do cabecalho (Design System 2). "Escolher mes"
+// abre o calendario que ja existia.
+function finEscolherPeriodo(v){
+  if(v === 'custom'){
+    var el = document.getElementById('gastos-cal-picker');
+    el.style.display = 'block';
+    document.getElementById('cal-filter-year').value = new Date().getFullYear();
+    return;
+  }
+  setGastosFiltro(v);
 }
 
 function toggleGastosCal() {
@@ -276,7 +287,6 @@ function applyCalFilter() {
   var year = parseInt(document.getElementById('cal-filter-year').value);
   gastosCalFilter = { month: month === '' ? null : parseInt(month), year: year };
   gastosFiltro = 'custom';
-  document.querySelectorAll('.gastos-filter-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('gastos-cal-picker').style.display = 'none';
   renderGastos();
 }
@@ -309,6 +319,92 @@ function getGastosFiltrados() {
   return lista;
 }
 
+// Nome do periodo filtrado, para o cabecalho e o comentario.
+function nomeDoPeriodoGastos(){
+  var now = new Date();
+  var MES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  if(gastosCalFilter) return gastosCalFilter.month === null ? 'em ' + gastosCalFilter.year : 'em ' + MES[gastosCalFilter.month] + (gastosCalFilter.year !== now.getFullYear() ? ' de ' + gastosCalFilter.year : '');
+  return { mes: 'em ' + MES[now.getMonth()], semana: 'nos últimos 7 dias', hoje: 'hoje', ano: 'em ' + now.getFullYear(), all: 'desde o início' }[gastosFiltro] || '';
+}
+// Entradas do mesmo periodo (para o "livres").
+function ganhosNoPeriodo(){
+  var now = new Date();
+  return (state.ganhos || []).filter(function(g){
+    var d = new Date(g.data + 'T12:00:00');
+    if(gastosCalFilter) return d.getFullYear() === gastosCalFilter.year && (gastosCalFilter.month === null || d.getMonth() === gastosCalFilter.month);
+    if(gastosFiltro === 'mes') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    if(gastosFiltro === 'ano') return d.getFullYear() === now.getFullYear();
+    if(gastosFiltro === 'all') return true;
+    return false;   // semana e hoje: entrada nao tem esse recorte
+  });
+}
+// Icone da categoria pelo nome (as categorias nao guardam icone).
+function iconeDaCategoria(nome){
+  var n = String(nome || '').toLowerCase();
+  if(/comid|mercad|aliment|restaur|ifood|lanche|padar|feira/.test(n)) return 'carrinho';
+  if(/transp|uber|carro|gasol|onibus|ônibus|combust|metr/.test(n)) return 'transporte';
+  if(/casa|alugu|condom|luz|água|agua|intern/.test(n)) return 'home';
+  if(/lazer|cinema|show|viag|passeio|jogo/.test(n)) return 'star';
+  if(/estud|curso|livro|faculd|escola/.test(n)) return 'estudos';
+  if(/saúd|saud|farm|médic|medic|academ/.test(n)) return 'halter';
+  return 'gastos';
+}
+function pintarCabecalhoGastos(lista, total){
+  // O seletor mostra o nome do mes e o ano, como no desenho ("Outubro").
+  var agora = new Date(), om = document.getElementById('fin-periodo-mes'), oa = document.getElementById('fin-periodo-ano');
+  if(om){ var nm = agora.toLocaleDateString('pt-BR', {month:'long'}); om.textContent = nm.charAt(0).toUpperCase() + nm.slice(1); }
+  if(oa) oa.textContent = String(agora.getFullYear());
+  var rot = document.getElementById('fin-hero-rot');
+  if(!rot || finAba !== 'gastos') { pintarCategoriasGastos(lista, total); return; }
+  rot.textContent = 'Gastos ' + nomeDoPeriodoGastos();
+  var entrou = somaValores(ganhosNoPeriodo()), livre = document.getElementById('fin-livres');
+  if(livre){
+    livre.hidden = !(entrou > 0);
+    if(entrou > 0) livre.textContent = (entrou - total >= 0 ? moeda(entrou - total) + ' livres' : moeda(total - entrou) + ' acima do que entrou');
+  }
+  pintarCategoriasGastos(lista, total);
+}
+function pintarCategoriasGastos(lista, total){
+  var el = document.getElementById('fin-cats');
+  if(!el) return;
+  var por = {};
+  lista.forEach(function(g){ var k = g.categoriaId || '__none__'; (por[k] = por[k] || { n: 0, v: 0 }); por[k].n++; por[k].v += parseFloat(g.valor) || 0; });
+  var chaves = Object.keys(por).sort(function(a,b){ return por[b].v - por[a].v; });
+  var com = document.getElementById('fin-comentario');
+  if(!chaves.length){
+    el.innerHTML = '';
+    if(com) com.innerHTML = ticolino('rico', 54) + '<span class="md-tc-txt">' + ((state.gastos||[]).length
+      ? 'Nenhum gasto ' + nomeDoPeriodoGastos() + '. Troque o período lá em cima para ver os outros.'
+      : 'Nenhum gasto lançado ainda. Toque em Gasto para começar.') + '</span>';
+    return;
+  }
+  el.innerHTML = chaves.map(function(k){
+    var cat = getCat(k), cor = cat ? corDaCategoria(cat) : corParaTema(COR_OUTROS);
+    var nome = cat ? cat.nome : 'Sem categoria', pct = total ? Math.round(por[k].v / total * 100) : 0;
+    return '<div class="md-cat" style="--cat:' + cor + '">'
+      + '<span class="md-tile md-cat-ic">' + ico(iconeDaCategoria(nome), 20) + '</span>'
+      + '<span class="md-cat-corpo"><span class="md-cat-linha"><span class="md-cat-nome">' + esc(nome) + '</span><span class="md-cat-nome md-num">' + moeda(por[k].v) + '</span></span>'
+      + '<span class="md-cat-linha md-meta"><span>' + por[k].n + ' ' + T(por[k].n === 1 ? 'lancamento' : 'lancamentos') + '</span><span class="md-num">' + pct + '%</span></span>'
+      + '<span class="md-pb md-pb--sm"><span class="md-pb-fill" style="width:' + pct + '%;background:' + cor + '"></span></span></span></div>';
+  }).join('');
+  // A divisao por categoria e do Ticolino Pro (o mesmo que tranca o grafico):
+  // no Free o comentario fala so do que todo mundo ve.
+  if(com && typeof temRecurso === 'function' && !temRecurso('financas')){
+    com.innerHTML = ticolino('rico', 54) + '<span class="md-tc-txt">' + esc(lista.length + (lista.length === 1 ? ' gasto ' : ' gastos ') + nomeDoPeriodoGastos() + ', média de ' + moeda(total / lista.length) + ' cada.') + '</span>';
+    return;
+  }
+  if(com){
+    var topo = chaves[0], cat = getCat(topo), nomeTopo = cat ? cat.nome : 'Sem categoria';
+    var pctTopo = total ? Math.round(por[topo].v / total * 100) : 0;
+    var frase = nomeTopo + ' é ' + pctTopo + '% dos gastos ' + nomeDoPeriodoGastos() + '.';
+    if(gastosFiltro === 'mes' && !gastosCalFilter){
+      var hoje = new Date(), fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate(), faltam = fim - hoje.getDate();
+      frase += faltam ? ' Faltam ' + faltam + (faltam === 1 ? ' dia' : ' dias') + ' para o mês fechar.' : ' Último dia do mês.';
+    }
+    com.innerHTML = ticolino('rico', 54) + '<span class="md-tc-txt">' + esc(frase) + '</span>';
+  }
+}
+
 function renderGastos(){
   if(!document.getElementById('gastos-total')) return;
   if(!state.gastos) state.gastos = [];
@@ -316,9 +412,14 @@ function renderGastos(){
 
   var lista = getGastosFiltrados();
   var total = lista.reduce(function(s,g){return s+parseFloat(g.valor||0);},0);
-  document.getElementById('gastos-total').textContent = moeda(total);
-  var ct = document.getElementById('gastos-count-txt');
-  if (ct) ct.textContent = lista.length + ' ' + T(lista.length === 1 ? 'lancamento' : 'lancamentos');
+  // O cabecalho e de quem esta na aba de gastos; nas outras ele mostra
+  // entradas ou o total (pintarCabecalhoFinancas, em financas.js).
+  var abaGastos = typeof finAba === 'undefined' || finAba === 'gastos';
+  if (abaGastos) {
+    document.getElementById('gastos-total').textContent = moeda(total);
+    var ct = document.getElementById('gastos-count-txt');
+    if (ct) ct.textContent = lista.length + ' ' + T(lista.length === 1 ? 'lancamento' : 'lancamentos');
+  }
 
   // Maior categoria do periodo e media por lancamento (design system).
   var porCat = {};
@@ -338,6 +439,8 @@ function renderGastos(){
   }
   var elMed = document.getElementById('gastos-media');
   if (elMed) elMed.textContent = moeda(lista.length ? total / lista.length : 0);
+
+  pintarCabecalhoGastos(lista, total);
 
   var ptl = document.getElementById('pizza-total-label');
   if(ptl) pintarTotalDaRosquinha(ptl, total);

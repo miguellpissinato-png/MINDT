@@ -71,8 +71,14 @@ function updateGroupFilters(){
   var container=document.getElementById('metas-filter-row');if(!container)return;
   container.querySelectorAll('.group-filter-chip').forEach(function(c){c.remove();});
   state.grupos.forEach(function(g){
-    var chip=document.createElement('div');chip.className='filter-chip group-filter-chip';chip.textContent='📁 '+g;
-    var gCopy=g;chip.addEventListener('click',function(){document.querySelectorAll('#metas-filter-row .filter-chip').forEach(function(c){c.classList.remove('active');});chip.classList.add('active');renderMetas('all',gCopy);});
+    var chip=document.createElement('button');
+    chip.type='button'; chip.className='md-chip md-chip--leve group-filter-chip'; chip.textContent=g;
+    chip.dataset.grupo=g;
+    chip.setAttribute('aria-pressed', (typeof grupoMetas!=='undefined' && grupoMetas===g) ? 'true' : 'false');
+    var gCopy=g;chip.addEventListener('click',function(){
+      container.querySelectorAll('[aria-pressed]').forEach(function(c){c.setAttribute('aria-pressed','false');});
+      chip.setAttribute('aria-pressed','true');renderMetas('all',gCopy);
+    });
     container.appendChild(chip);
   });
 }
@@ -94,6 +100,7 @@ function updatePeriodStats(type){
   var de=document.getElementById(type+'-done-day');if(de)de.textContent=day;
   var we=document.getElementById(type+'-done-week');if(we)we.textContent=week;
   var me=document.getElementById(type+'-done-month');if(me)me.textContent=month;
+  return {day:day, week:week, month:month};
 }
 
 // MODALS
@@ -214,7 +221,10 @@ function dataISO(v){
   return t.slice(0, 10);
 }
 function calcProgress(m){if(!m.checklist||!m.checklist.length)return m.progress||0;var done=m.checklist.filter(function(c){return c.done;}).length;return Math.round((done/m.checklist.length)*100);}
-function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2800);}
+// O redesenho nao usa emoji na interface: o simbolo que muitos avisos trazem
+// na frente cai aqui, num lugar so, em vez de mexer em cada chamada.
+var EMOJI_NA_FRENTE = /^(?:[\u2190-\u21FF\u2300-\u23FF\u2600-\u27BF\u2B00-\u2BFF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDC00-\uDFFF]|[\uFE0F\u200D\s])+/;
+function toast(msg){var el=document.getElementById('toast');el.textContent=String(msg).replace(EMOJI_NA_FRENTE,'');el.classList.add('show');setTimeout(function(){el.classList.remove('show');},2800);}
 
 // BACKGROUND
 (function(){
@@ -251,11 +261,12 @@ function openDetail(type,id){
   document.getElementById('detail-title').textContent=item.name;
   document.getElementById('detail-body').textContent=item.desc||'Sem descrição.';
   var iw=document.getElementById('detail-img-wrap');
-  iw.innerHTML=item.img?'<img src="'+item.img+'" style="width:100%;height:100%;object-fit:cover">':(type==='meta'?'🎯':'✅');
-  var gc=document.getElementById('detail-group-chip');gc.textContent=item.group?'📁 '+item.group:'';gc.style.display=item.group?'':'none';
-  document.getElementById('detail-date-created').textContent='📅 '+formatDate(item.createdAt);
-  var dc=document.getElementById('detail-deadline-chip');dc.textContent=item.deadline?'⏰ '+item.deadline:'';dc.style.display=item.deadline?'':'none';
-  var bc=document.getElementById('detail-budget-chip');bc.textContent=item.budget?'💰 R$ '+parseFloat(item.budget).toFixed(2):'';bc.style.display=item.budget?'':'none';
+  iw.innerHTML=item.img?'<img src="'+item.img+'" style="width:100%;height:100%;object-fit:cover">':ico(type==='meta'?'metas':'tarefas',40,1.8);
+  iw.classList.toggle('sem-img', !item.img);
+  var gc=document.getElementById('detail-group-chip');gc.textContent=item.group?item.group:'';gc.style.display=item.group?'':'none';
+  document.getElementById('detail-date-created').textContent='Criada em '+formatDate(item.createdAt);
+  var dc=document.getElementById('detail-deadline-chip');dc.textContent=item.deadline?'Prazo '+item.deadline:'';dc.style.display=item.deadline?'':'none';
+  var bc=document.getElementById('detail-budget-chip');bc.textContent=item.budget?moeda(parseFloat(item.budget)):'';bc.style.display=item.budget?'':'none';
   var cw=document.getElementById('detail-checklist-wrap');
   if(type==='meta'&&item.checklist&&item.checklist.length>0){
     cw.style.display='';
@@ -265,7 +276,7 @@ function openDetail(type,id){
     updateDetailProgress(item);
   }else{cw.style.display='none';}
   var cb2=document.getElementById('detail-complete-btn');
-  cb2.textContent=item.done?'↩ Reabrir':'✓ Concluir';
+  cb2.textContent=item.done?'Reabrir':'Concluir';
   cb2.className=item.done?'btn btn-ghost':'btn btn-success';
   document.getElementById('detail-page-btn').onclick=function(){goToPage(type==='meta'?'metas':'tarefas');closeModal('modal-detail');};
   openModal('modal-detail');
@@ -592,7 +603,7 @@ var observadorNumero = (typeof ResizeObserver === 'function')
 
 // Os numeros que ocupam um cartao inteiro. Os de lista ja tem reticencia.
 var SEL_NUMERO_GRANDE = '.big-metric .value:not(.value-texto),.stat-value,'
-                      + '.tico-quick-value,.gasto-group-total,.total-banner-value';
+                      + '.tico-quick-value,.gasto-group-total,.total-banner-value,.md-hdr-hero';
 function encaixarNumeros(raiz){
   var alvo = raiz || document;
   alvo.querySelectorAll(SEL_NUMERO_GRANDE).forEach(function(el){
@@ -721,9 +732,99 @@ document.addEventListener('DOMContentLoaded', function(){
 // Estado vazio do design system: mascote sobre um brilho suave, frase curta
 // e uma acao opcional. Um lugar so, para as telas nao divergirem.
 function estadoVazio(humor, frase, acaoHtml){
-  return '<div class="estado-vazio">'
-    + '<div class="estado-vazio-mascote">' + ticolino(humor || 'preguicoso', 120) + '</div>'
+  // Design System 2: um Ticolino por tela, e ele ja esta no cabecalho. O
+  // vazio e so a frase e o que fazer.
+  return '<div class="estado-vazio md-vazio">'
     + '<p>' + frase + '</p>'
     + (acaoHtml || '')
     + '</div>';
+}
+
+
+// ─── ICONES DO DESIGN SYSTEM 2 ─────────────────────────────────────────
+// Tracos Feather 24x24 sem preenchimento, copiados do "Mindt Design System
+// 2" (componente Icon). Chama e noz sao os dois unicos preenchidos.
+var ICONES = {
+  // Usados pelo app alem dos do sistema
+  usuarios: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
+  lua: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  relogio: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  presente: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  repetir: '<path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  mais3: '<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',
+  olho: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  mapa: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  corrida: '<circle cx="13" cy="4" r="2"/><path d="M7 21l3-6 3 2v5M10 15l-2-4 5-3 3 4h4"/>',
+  pegada: '<path d="M8 3c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5zM16 9c2 0 3 2 3 5s-1 5-3 5-3-2-3-5 1-5 3-5z"/>',
+  home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  metas: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  tarefas: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  gastos: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  agenda: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  resumo: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  estudos: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  leitura: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  notas: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
+  perfil: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  chevronLeft: '<polyline points="15 18 9 12 15 6"/>',
+  chevronRight: '<polyline points="9 18 15 12 9 6"/>',
+  chevronDown: '<polyline points="6 9 12 15 18 9"/>',
+  search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>',
+  lock: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  pause: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>',
+  reset: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  halter: '<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>',
+  carrinho: '<path d="M6 6h15l-2 9H8L6 3H3"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/>',
+  transporte: '<path d="M5 17h14M6 17l1.5-6h9L18 17M8 11l1.5-4h5L16 11"/><circle cx="8" cy="19" r="1.4"/><circle cx="16" cy="19" r="1.4"/>',
+  ganho: '<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',
+  banco: '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>',
+  bau: '<path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/><rect x="10" y="9" width="4" height="5" rx="1"/>',
+  aviao: '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+  qr: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 18h3v3"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+  };
+
+function ico(nome, tam, traco){
+  var d = ICONES[nome];
+  if(!d) return '';
+  tam = tam || 20;
+  return '<svg class="md-ico" viewBox="0 0 24 24" width="' + tam + '" height="' + tam + '" stroke-width="' + (traco || 2) + '" aria-hidden="true">' + d + '</svg>';
+}
+function icoChama(tam){
+  tam = tam || 16;
+  return '<svg class="md-chama" viewBox="0 0 24 24" width="' + tam + '" height="' + tam + '" aria-hidden="true"><path fill="currentColor" d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z"/></svg>';
+}
+function icoNoz(tam){
+  tam = tam || 16;
+  return '<svg class="md-noz-ico" viewBox="0 0 24 24" width="' + tam + '" height="' + tam + '" aria-hidden="true">'
+    + '<path class="casca" d="M4.5 10.5c0-3.6 3.3-6 7.5-6s7.5 2.4 7.5 6z"/>'
+    + '<path class="miolo" d="M6.5 10.5h11c0 5.2-2.8 9-5.5 10.5-2.7-1.5-5.5-5.3-5.5-10.5z"/></svg>';
+}
+// Barra de progresso com reflexo. O rotulo (opcional) aparece duas vezes:
+// em tinta escura por baixo e recortado na cor de cima da parte cheia, para
+// ler bem dos dois lados da divisa.
+function mdBarra(pct, rotulo, extra){
+  pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
+  var r = rotulo ? esc(rotulo) : '';
+  return '<span class="md-pb ' + (extra || '') + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"'
+    + (r ? ' aria-label="' + r + '"' : '') + '>'
+    + '<span class="md-pb-fill" style="width:' + pct + '%"></span>'
+    + (r ? '<em aria-hidden="true">' + r + '</em><em class="md-pb-in" aria-hidden="true" style="clip-path:inset(0 ' + (100 - pct) + '% 0 0)">' + r + '</em>' : '')
+    + '</span>';
 }

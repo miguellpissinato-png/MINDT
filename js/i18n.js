@@ -13,8 +13,8 @@ var TEXTOS = {
   fecharMenu:{pt:'Fechar menu',en:'Close menu'},
   deQuatroConcluidos:{pt:'de 4 concluídos',en:'of 4 done'},
   treinosSemana:{pt:'Treinos na semana',en:'Workouts this week'},
-  tag_exercicio:{pt:'EXERCÍCIO',en:'EXERCISE'},
-  day_exercicio:{pt:'Exercício do dia concluído',en:"Today's exercise done"},
+  tag_exercicio:{pt:'Exercício',en:'Exercise'},
+  day_exercicio:{pt:'Exercício do dia',en:"Today's exercise"},
   venceEsteMes:{pt:'vence este mês',en:'due this month'},
   vencemEsteMes:{pt:'vencem este mês',en:'due this month'},
   metasAtivas:{pt:'Metas ativas',en:'Active goals'},
@@ -42,9 +42,9 @@ var TEXTOS = {
   item:{pt:'item',en:'item'}, items:{pt:'itens',en:'items'},
   objective:{pt:'Objetivo',en:'Goal'},
   nothingRunning:{pt:'Sem itens em andamento',en:'Nothing in progress'},
-  tag_leitura:{pt:'LEITURA',en:'READING'},
-  tag_estudo:{pt:'ESTUDOS',en:'STUDY'},
-  tag_grana:{pt:'GRANA',en:'MONEY'},
+  tag_leitura:{pt:'Leitura',en:'Reading'},
+  tag_estudo:{pt:'Estudos',en:'Study'},
+  tag_grana:{pt:'Dinheiro',en:'Money'},
   day_leitura:{pt:'20 minutos de leitura',en:'20 minutes of reading'},
   day_estudo:{pt:'1 pomodoro de estudo',en:'1 study pomodoro'},
   day_grana:{pt:'Lançar os gastos do dia',en:"Log today's spending"},
@@ -268,8 +268,8 @@ function alternarIdioma(){ definirIdioma(idiomaAtual() === 'pt' ? 'en' : 'pt'); 
 // ═══════════════════════════════════════════════════════════════════════
 // TEMA CLARO / ESCURO
 //
-// O escuro e o padrao e a estetica definitiva; o claro e alternativo.
-// Toda a troca acontece nos tokens de cor (styles/main.css): os
+// O claro (cabecalho laranja) e o padrao; o escuro (verde copa) vale para
+// quem escolheu. Toda a troca acontece nos tokens de cor (styles/ds2.css): os
 // componentes leem so nomes semanticos, entao basta o atributo no <html>.
 //
 // A leitura inicial acontece no <head>, antes da primeira pintura, para
@@ -288,18 +288,28 @@ function definirTema(tema){
 
   // A barra do navegador no celular acompanha o fundo do app.
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', claro ? '#F2EEDA' : '#12140E');
+  if (meta) meta.setAttribute('content', claro ? '#EB7D00' : '#2C5745');   // a cor do cabecalho
 
-  // Estado visual dos dois controles (menu lateral e Perfil).
-  document.querySelectorAll('[data-tema-opt]').forEach(function(el){
-    el.classList.toggle('on', el.getAttribute('data-tema-opt') === (claro ? 'light' : 'dark'));
-  });
-  var b = document.getElementById('tema-btn');
-  if (b) b.setAttribute('aria-label', T(claro ? 'temaEscuro' : 'temaClaro'));
+  pintarControlesTema();
 
   // O canvas de fundo pinta com valores fixos; precisa ser redesenhado.
   if (typeof redesenharFundo === 'function') redesenharFundo();
 }
+
+// Estado visual dos dois controles (menu lateral e Perfil). Roda tambem ao
+// abrir o app: o tema vem do script do <head>, sem passar por definirTema.
+function pintarControlesTema(){
+  var claro = temaAtual() === 'light';
+  document.querySelectorAll('[data-tema-opt]').forEach(function(el){
+    var on = el.getAttribute('data-tema-opt') === (claro ? 'light' : 'dark');
+    el.classList.toggle('on', on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  var b = document.getElementById('tema-btn');
+  if (b) b.setAttribute('aria-label', T(claro ? 'temaEscuro' : 'temaClaro'));
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pintarControlesTema);
+else pintarControlesTema();
 
 function alternarTema(){
   definirTema(temaAtual() === 'light' ? 'dark' : 'light');

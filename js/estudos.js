@@ -6,7 +6,24 @@ function renderEstudos() {
   updateTimerDisplay();
   updateTimerRing();
   updateSessionDots();
-  renderTrophies();
+  pintarBotoesTimer();
+}
+
+// Botoes e Ticolino do timer (Design System 2). O Ticolino mostra o estado:
+// focado estudando, tranquilo parado, orgulhoso quando a sessao termina.
+function pintarBotoesTimer(rotulo, humor){
+  var ini = document.getElementById('timer-start-btn'), pau = document.getElementById('timer-pause-btn');
+  if(ini) ini.innerHTML = ico('play', 18, 2.4) + (rotulo || (timerRemaining < timerTotal && timerRemaining > 0 ? 'Continuar' : 'Iniciar sessão'));
+  if(pau) pau.innerHTML = ico('pause', 18, 2.4) + 'Pausar';
+  var t = document.getElementById('est-tico');
+  if(t) t.innerHTML = ticolino(humor || (timerRunning ? 'focado' : 'tranquilo'), 72);
+}
+function marcarPreset(el){
+  document.querySelectorAll('.timer-preset-btn').forEach(function(b){
+    var on = b === el;
+    b.classList.toggle('active', on);
+    if(b.hasAttribute('aria-pressed')) b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
 }
 
 // Timer inline edit
@@ -19,7 +36,7 @@ function startInlineEdit() {
   inp.style.display = 'block';
   inp.focus();
   inp.select();
-  document.getElementById('timer-label').textContent = 'Digite mm:ss e pressione Enter';
+  document.getElementById('timer-label').textContent = 'Digite mm:ss e Enter';
 }
 
 function applyInlineEdit() {
@@ -37,7 +54,7 @@ function applyInlineEdit() {
   if(total > 0) {
     timerTotal = total;
     timerRemaining = total;
-    document.querySelectorAll('.timer-preset-btn').forEach(function(b){b.classList.remove('active');});
+    marcarPreset(null);
   }
   cancelInlineEdit();
   updateTimerDisplay();
@@ -48,7 +65,7 @@ function applyInlineEdit() {
 function cancelInlineEdit() {
   document.getElementById('timer-display').style.display = 'block';
   document.getElementById('timer-inline-input').style.display = 'none';
-  document.getElementById('timer-label').textContent = timerRunning ? 'Estudando...' : 'Clique no tempo para editar';
+  document.getElementById('timer-label').textContent = timerRunning ? 'Estudando…' : 'Toque para editar';
 }
 
 // ─── CORES DO TICOLINO (loja) e PACOTES DE NOZES ─────────
@@ -75,32 +92,37 @@ function renderTrophies(soPintar) {
   var c = ticoCor(corEmVista);
   var minha = corTenho(c.id), usando = c.id === emUso;
   var dest = document.getElementById('cores-destaque');
+  var prox = document.getElementById('cores-proxima');
+  if(prox){
+    var aComprar = TICO_CORES.filter(function(t){ return t.preco && !corTenho(t.id); });
+    prox.textContent = aComprar.length ? 'próxima: ' + nozTxt(aComprar[0].preco) : 'todas são suas';
+  }
   if(dest){
     var falta = saldo == null ? 0 : Math.max(0, c.preco - saldo);
     dest.innerHTML =
-      '<div class="cores-destaque-tico">' + ticolino('feliz', 120, false, c.id) + '</div>'
+      '<div class="cores-destaque-tico">' + ticolino('feliz', 72, false, c.id) + '</div>'
       + '<div class="cores-destaque-txt">'
         + '<div class="cores-destaque-nome">' + esc(c.nome) + '</div>'
         + '<div class="cores-destaque-sub">' + (!c.preco ? 'A cor de sempre do Ticolino.'
             : minha ? 'Essa cor é sua.'
             : 'Custa ' + nozTxt(c.preco) + (falta ? '. Faltam ' + nozTxt(falta) + '.' : '.')) + '</div>'
-        + (usando ? '<div class="cores-em-uso">✓ Em uso</div>'
-            : minha ? '<button type="button" class="btn btn-primary" onclick="usarCorTico(\'' + c.id + '\')">Usar esta cor</button>'
+        + (usando ? '<div class="cores-em-uso">' + ico('check', 16, 2.4) + 'Em uso</div>'
+            : minha ? '<button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="usarCorTico(\'' + c.id + '\')">Usar esta cor</button>'
             : falta ? '<div class="cores-falta">' + cadeado + 'Junte mais ' + nozTxt(falta) + '</div>'
-            : '<button type="button" class="btn btn-primary" onclick="comprarCor(\'' + c.id + '\')">'
+            : '<button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="comprarCor(\'' + c.id + '\')">'
               + 'Comprar por ' + nozTxt(c.preco) + '</button>')
       + '</div>';
   }
 
+  // A fileira de cores: o rosto do Ticolino em cada cor; as que faltam
+  // comprar levam um cadeado no canto.
   grid.innerHTML = TICO_CORES.map(function(t) {
     var ok = corTenho(t.id), uso = t.id === emUso, vista = t.id === corEmVista;
-    return '<button type="button" class="cor-card' + (ok ? '' : ' trancada') + (vista ? ' em-vista' : '') + '"'
-      + ' aria-pressed="' + vista + '" onclick="verCorTico(\'' + t.id + '\')">'
-      + (uso ? '<span class="cor-check" aria-label="Em uso">✓</span>' : '')
-      + '<span class="cor-tico">' + ticolino('feliz', 64, false, t.id) + '</span>'
-      + '<span class="cor-nome">' + esc(t.nome) + '</span>'
-      + '<span class="cor-estado">' + (uso ? 'Em uso' : ok ? 'Sua'
-          : cadeado + t.preco + ' nozes') + '</span>'
+    return '<button type="button" class="cor-card' + (ok ? '' : ' trancada') + (vista ? ' em-vista' : '') + (uso ? ' em-uso' : '') + '"'
+      + ' aria-pressed="' + vista + '" onclick="verCorTico(\'' + t.id + '\')"'
+      + ' aria-label="' + esc(t.nome) + (uso ? ', em uso' : ok ? ', sua' : ', ' + nozTxt(t.preco)) + '">'
+      + '<span class="cor-tico">' + ticolino('feliz', 34, true, t.id) + '</span>'
+      + (ok ? '' : '<span class="cor-cadeado">' + cadeado + '</span>')
       + '</button>';
   }).join('');
 }
@@ -224,13 +246,13 @@ function loadStudyXP() {
 
 function setTimerPreset(minutes, el) {
   if (timerRunning) return;
-  document.querySelectorAll('.timer-preset-btn').forEach(function(b) { b.classList.remove('active'); });
-  el.classList.add('active');
+  marcarPreset(el);
   timerTotal = minutes * 60;
   timerRemaining = timerTotal;
   document.getElementById('custom-timer-wrap').style.display = 'none';
   updateTimerDisplay();
   updateTimerRing();
+  pintarBotoesTimer();
 }
 
 function openCustomTimer() {
@@ -248,7 +270,7 @@ function applyCustomTimer() {
   if (total < 1) { toast('⚠️ Preencha os minutos ou os segundos do timer.'); return; }
   timerTotal = total;
   timerRemaining = total;
-  document.querySelectorAll('.timer-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+  marcarPreset(document.querySelector('.est-preset-ed'));
   document.getElementById('custom-timer-wrap').style.display = 'none';
   updateTimerDisplay();
   updateTimerRing();
@@ -262,7 +284,8 @@ function startTimer() {
   timerBaseRemaining = timerRemaining;
   document.getElementById('timer-start-btn').style.display = 'none';
   document.getElementById('timer-pause-btn').style.display = 'inline-flex';
-  document.getElementById('timer-label').textContent = 'Estudando...';
+  document.getElementById('timer-label').textContent = 'Estudando…';
+  pintarBotoesTimer();
   timerInterval = setInterval(function() {
     var elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
     timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
@@ -285,9 +308,9 @@ function pauseTimer() {
   timerRunning = false;
   timerStartedAt = null;
   document.getElementById('timer-start-btn').style.display = 'inline-flex';
-  document.getElementById('timer-start-btn').textContent = '▶ Continuar';
   document.getElementById('timer-pause-btn').style.display = 'none';
   document.getElementById('timer-label').textContent = 'Pausado';
+  pintarBotoesTimer('Continuar', 'pausa');
   updateTimerDisplay();
   updateTimerRing();
 }
@@ -297,18 +320,18 @@ function resetTimer() {
   timerRunning = false;
   timerRemaining = timerTotal;
   document.getElementById('timer-start-btn').style.display = 'inline-flex';
-  document.getElementById('timer-start-btn').textContent = '▶ Iniciar';
   document.getElementById('timer-pause-btn').style.display = 'none';
   document.getElementById('timer-label').textContent = 'Pronto para começar';
   updateTimerDisplay();
   updateTimerRing();
+  pintarBotoesTimer('Iniciar sessão');
 }
 
 function timerFinished() {
   document.getElementById('timer-start-btn').style.display = 'inline-flex';
-  document.getElementById('timer-start-btn').textContent = '▶ Iniciar';
   document.getElementById('timer-pause-btn').style.display = 'none';
-  document.getElementById('timer-label').textContent = '✅ Sessão concluída!';
+  document.getElementById('timer-label').textContent = 'Sessão concluída!';
+  pintarBotoesTimer('Iniciar sessão', 'orgulhoso');
   timerRemaining = 0;
   updateTimerDisplay();
   updateTimerRing();
@@ -329,10 +352,12 @@ function timerFinished() {
   updateSessionDots();
   toast('🎉 Sessão concluída!' + (ganhou ? ' +' + ganhou + ' XP.' : '') + aviso);
   setTimeout(function() {
+    if (timerRunning) return;
     timerRemaining = timerTotal;
     document.getElementById('timer-label').textContent = 'Pronto para começar';
     updateTimerDisplay();
     updateTimerRing();
+    pintarBotoesTimer('Iniciar sessão');
   }, 3000);
 }
 
@@ -344,7 +369,7 @@ function updateTimerDisplay() {
 }
 
 function updateTimerRing() {
-  var circumference = 553;
+  var circumference = 578;   // 2 x pi x 92, o raio do anel
   var ring = document.getElementById('timer-ring-fill'); if(!ring) return;
   var progress = timerRemaining / timerTotal;
   var offset = circumference * (1 - progress);
@@ -412,15 +437,15 @@ function updateXPDisplay() {
   var xpInLevel = studyXP % xpPerLevel;
   var pct = (xpInLevel / xpPerLevel) * 100;
   var el = document.getElementById('estudos-xp-display');
-  if (el) el.textContent = studyXP + ' XP';
-  var xl = document.getElementById('xp-total-label');
-  if (xl) xl.textContent = studyXP + ' XP';
-  var fill = document.getElementById('xp-bar-fill');
-  if (fill) fill.style.width = pct + '%';
+  if (el) el.textContent = studyXP.toLocaleString('pt-BR');
   var lv = document.getElementById('xp-level');
   if (lv) lv.textContent = studyLevel;
-  var nx = document.getElementById('xp-next');
-  if (nx) nx.textContent = xpPerLevel - xpInLevel;
+  var xh = document.getElementById('est-xp-hoje');
+  if (xh) {
+    var linha = (state.historico && typeof hojeStr === 'function') ? state.historico[hojeStr()] : null;
+    xh.textContent = ((linha && linha.x) || 0).toLocaleString('pt-BR');
+  }
+  pintarLinhaEstudos();
 
   // Cartao de nivel no pe do menu lateral (design system).
   var nn = document.getElementById('nav-nivel-nome');
@@ -430,22 +455,18 @@ function updateXPDisplay() {
     if (nx2) nx2.textContent = T('level') + ' ' + studyLevel + ' · ' + studyXP + ' XP';
     var nf = document.getElementById('nav-nivel-fill');
     if (nf) nf.style.width = pct + '%';
+    if (typeof pintarRostoMenu === 'function') pintarRostoMenu();
     var nr = document.getElementById('nav-nivel-rosto');
     if (nr) nr.innerHTML = ticolino('feliz', 34, true);
   }
 }
 
-function updateSessionDots() {
-  var dots = document.getElementById('timer-sessions-dots');
-  if (!dots) return;
-  dots.innerHTML = '';
-  for (var i = 0; i < todaySessions; i++) {
-    var dot = document.createElement('div');
-    dot.className = 'session-dot';
-    dot.title = 'Sessão ' + (i + 1);
-    dots.appendChild(dot);
-  }
-  if (todaySessions === 0) {
-    dots.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">Nenhuma sessão ainda</span>';
-  }
+// Sessoes de hoje e quanto falta para o proximo nivel, numa linha so.
+function pintarLinhaEstudos() {
+  var el = document.getElementById('est-linha');
+  if (!el) return;
+  var falta = 100 - (studyXP % 100);
+  el.textContent = (todaySessions ? todaySessions + (todaySessions === 1 ? ' sessão hoje' : ' sessões hoje') : 'Nenhuma sessão hoje')
+    + ' · faltam ' + falta + ' XP para o nível ' + (studyLevel + 1);
 }
+function updateSessionDots() { pintarLinhaEstudos(); }
