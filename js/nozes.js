@@ -238,16 +238,20 @@ function renderPacotes(){
   var ganho = nozGanhoLocal(), feito = Math.max(0, Math.min(passo, ganho - ant));
   var pronto = ganho >= marco, pct = Math.round(feito / passo * 100);
 
-  dest.innerHTML = '<div class="pac-arte">' + nozArte(p) + '</div>'
-    + '<div class="pac-info">'
-      + '<div class="pac-rot">' + (pronto ? 'Pacote pronto!' : 'Próximo pacote') + '</div>'
-      + '<div class="pac-nome">' + esc(n > 6 ? 'Mais um lote da fábrica' : NOZ_PATAMARES[p].nome) + '</div>'
-      + '<div class="pac-valor">' + NOZ_ICONE + nozTxt(nozValor(n)) + '</div>'
-      + '<div class="progress-bar-track pac-barra" role="progressbar" aria-valuemin="0" aria-valuemax="' + passo + '" aria-valuenow="' + feito + '" aria-label="XP para o próximo pacote">'
-        + '<div class="progress-bar-fill" style="width:' + pct + '%"></div></div>'
-      + '<div class="pac-falta">' + (pronto ? 'Toque para abrir e guardar as nozes.'
-          : 'Faltam ' + (passo - feito).toLocaleString('pt-BR') + ' XP · ' + feito.toLocaleString('pt-BR') + ' de ' + passo.toLocaleString('pt-BR')) + '</div>'
-      + (pronto ? '<button type="button" class="btn btn-primary pac-bt" onclick="nozAbrirPacote()">Abrir pacote</button>' : '')
+  // Cartao compacto (Design System 2): a barra do XP ate o pacote e, ao
+  // lado, o desenho dele pequeno. O desenho grande fica no pop-up.
+  var topo = document.getElementById('pac-valor-topo');
+  if(topo) topo.textContent = '+' + nozTxt(nozValor(n));
+  dest.innerHTML = '<div class="pac-info">'
+      + '<div class="pac-linha">'
+        + (typeof mdBarra === 'function'
+            ? mdBarra(pct, feito.toLocaleString('pt-BR') + ' / ' + passo.toLocaleString('pt-BR') + ' XP', 'pac-barra')
+            : '')
+        + '<span class="pac-arte">' + nozArte(p) + '</span>'
+      + '</div>'
+      + '<div class="pac-falta">' + esc(n > 6 ? 'Mais um lote da fábrica' : NOZ_PATAMARES[p].nome) + ' · '
+        + (pronto ? 'pronto para abrir!' : 'faltam ' + (passo - feito).toLocaleString('pt-BR') + ' XP') + '</div>'
+      + (pronto ? '<button type="button" class="md-btn md-btn--primary md-btn--block pac-bt" onclick="nozAbrirPacote()">Abrir pacote</button>' : '')
     + '</div>';
 
   trilha.innerHTML = NOZ_PATAMARES.map(function(t, i){
@@ -259,7 +263,7 @@ function renderPacotes(){
             : estado === 'pac-feito' ? 'Coletado'
             : (50 * Math.pow(2, i)).toLocaleString('pt-BR') + ' XP';   // o que esse pacote pede
     return '<div class="pac-tile ' + estado + '">'
-      + (estado === 'pac-feito' ? '<span class="pac-check" aria-hidden="true">✓</span>' : '')
+      + (estado === 'pac-feito' ? '<span class="pac-check" aria-hidden="true">' + (typeof ico === 'function' ? ico('check', 13, 2.6) : '✓') + '</span>' : '')
       + '<span class="pac-tile-arte">' + nozArte(i) + '</span>'
       + '<span class="pac-tile-nome">' + t.curto + '</span>'
       + '<span class="pac-tile-valor">' + NOZ_ICONE + nozValor(i) + (fabrica ? '+' : '') + '</span>'

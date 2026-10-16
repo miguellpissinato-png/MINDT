@@ -80,6 +80,7 @@ function renderAgenda() {
   if(!document.getElementById('page-agenda')) return;
   if(!state.eventos) state.eventos = [];
   if(!state.contatos) state.contatos = [];
+  if(!agendaSelectedDay) agendaSelectedDay = hojeStr();
   renderIconGrid();
   renderCalendar();
   renderUpcoming();
@@ -289,6 +290,8 @@ function renderUpcoming() {
     .sort(function(a,b){ return new Date(a.data) - new Date(b.data); })
     .slice(0,8);
 
+  renderAgendaLista();
+  renderSemanaAgenda();
   if(!upcoming.length) {
     el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Nenhum evento próximo.</div>';
     return;
@@ -308,6 +311,100 @@ function renderUpcoming() {
       + '</div>'
       + '</div>';
   }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DESIGN SYSTEM 2 — faixa da semana no cabecalho e a lista do dia
+// (Hoje / Amanha / Proximos). O calendario do mes continua na aba "Mes".
+// ═══════════════════════════════════════════════════════════════════════
+var DIAS_CURTOS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+var agendaModoAtual = 'lista';
+
+function agendaModo(m){
+  agendaModoAtual = m === 'mes' ? 'mes' : 'lista';
+  document.getElementById('agenda-lista').hidden = agendaModoAtual !== 'lista';
+  document.getElementById('agenda-mes').hidden = agendaModoAtual !== 'mes';
+  document.getElementById('agenda-ver-lista').setAttribute('aria-pressed', agendaModoAtual === 'lista');
+  document.getElementById('agenda-ver-mes').setAttribute('aria-pressed', agendaModoAtual === 'mes');
+  if(agendaModoAtual === 'mes'){ renderCalendar(); if(agendaSelectedDay) renderPainelDia(agendaSelectedDay); }
+}
+
+function dataLocal(str){ var p = str.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function strDeData(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+
+function renderSemanaAgenda(){
+  var el = document.getElementById('agenda-semana');
+  if(!el) return;
+  var sel = dataLocal(agendaSelectedDay || hojeStr()), hoje = hojeStr();
+  var dom = new Date(sel); dom.setDate(sel.getDate() - sel.getDay());
+  var comEvento = {};
+  (state.eventos || []).forEach(function(e){ comEvento[e.data] = true; });
+  var html = '', naSemana = 0;
+  for(var i = 0; i < 7; i++){
+    var d = new Date(dom); d.setDate(dom.getDate() + i);
+    var ds = strDeData(d);
+    if(comEvento[ds]) naSemana += (state.eventos || []).filter(function(e){ return e.data === ds; }).length;
+    html += '<button type="button" class="md-week-day' + (ds === agendaSelectedDay ? ' md-week-day--on' : '') + (ds === hoje ? ' hoje' : '') + '"'
+      + (ds === hoje ? ' aria-current="date"' : '') + ' aria-pressed="' + (ds === agendaSelectedDay) + '" onclick="agendaEscolherDia(\'' + ds + '\')"'
+      + ' aria-label="' + d.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'}) + (comEvento[ds] ? ', com evento' : '') + '">'
+      + '<small>' + DIAS_CURTOS[i] + '</small><b>' + d.getDate() + '</b><i' + (comEvento[ds] ? ' class="md-week-dot"' : '') + '></i></button>';
+  }
+  el.innerHTML = html;
+  var mes = sel.toLocaleDateString('pt-BR', {month:'long', year:'numeric'}).replace(' de ', ' ');
+  var sub = document.getElementById('agenda-hdr-sub');
+  if(sub) sub.textContent = mes.charAt(0).toUpperCase() + mes.slice(1) + ' · ' + naSemana + (naSemana === 1 ? ' evento esta semana' : ' eventos esta semana');
+}
+
+function agendaEscolherDia(ds){
+  agendaSelectedDay = ds;
+  var d = dataLocal(ds);
+  agendaMonth = d.getMonth(); agendaYear = d.getFullYear();
+  renderSemanaAgenda();
+  renderAgendaLista();
+  if(agendaModoAtual === 'mes'){ updateAgendaHeader(); renderCalendar(); renderPainelDia(ds); }
+}
+
+// Bloco de data: a cor diz a importancia (alta e o laranja solido).
+var AG_TOM = { alta: 'ag-solido', media: 'a-metas', baixa: 'a-estudos', padrao: 'a-exercicio' };
+function cartaoEvento(ev){
+  var d = dataLocal(ev.data);
+  var hora = ev.horaInicio ? ev.horaInicio + (ev.horaFim ? ' – ' + ev.horaFim : '') : 'O dia todo';
+  var meta = [hora]; if(ev.obs) meta.push(ev.obs);
+  return '<button type="button" class="md-ev" onclick="openEventoDetalhe(\'' + ev.id + '\')">'
+    + '<span class="md-ev-data ' + (AG_TOM[ev.importancia] || AG_TOM.padrao) + '"><small>' + DIAS_CURTOS[d.getDay()] + '</small><b>' + d.getDate() + '</b></span>'
+    + '<span class="md-ev-txt"><span class="md-ev-titulo">' + esc(ev.nome || '') + '</span><span class="md-meta">' + esc(meta.join(' · ')) + '</span></span>'
+    + '</button>';
+}
+
+function renderAgendaLista(){
+  var el = document.getElementById('agenda-lista');
+  if(!el) return;
+  var hoje = hojeStr(), sel = agendaSelectedDay || hoje;
+  var ordem = function(a, b){ return (a.data + (a.horaInicio || '00:00')).localeCompare(b.data + (b.horaInicio || '00:00')); };
+  var evs = (state.eventos || []).slice().sort(ordem);
+  var doDia = evs.filter(function(e){ return e.data === sel; });
+  var amanhaD = dataLocal(sel); amanhaD.setDate(amanhaD.getDate() + 1);
+  var amanha = strDeData(amanhaD);
+  var doAmanha = evs.filter(function(e){ return e.data === amanha; });
+  var depois = evs.filter(function(e){ return e.data > amanha; }).slice(0, 8);
+  var rotulo = sel === hoje ? 'Hoje' : dataLocal(sel).toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'short'}).replace('.', '');
+  var html = '<span class="md-grupo">' + esc(rotulo) + '</span>';
+
+  if(sel === hoje){
+    var agora = new Date(), hhmm = pad(agora.getHours()) + ':' + pad(agora.getMinutes());
+    var faltam = doDia.filter(function(e){ return !e.horaInicio || (e.horaFim || e.horaInicio) > hhmm; });
+    var passou = doDia.filter(function(e){ return e.horaInicio && (e.horaFim || e.horaInicio) <= hhmm; });
+    if(faltam.length) html += faltam.map(cartaoEvento).join('');
+    else html += '<div class="md-tc">' + ticolino('sonolento', 60) + '<span class="md-tc-txt"><b>Nada mais por hoje.</b>'
+      + (passou.length ? (passou.length === 1 ? 'O compromisso de ' + esc(passou[0].nome) + ' já passou. Pode descansar.' : 'Os compromissos de hoje já passaram. Pode descansar.')
+                       : 'Nenhum compromisso marcado. Dia livre.') + '</span></div>';
+  } else {
+    html += doDia.length ? doDia.map(cartaoEvento).join('')
+      : '<div class="md-tc">' + ticolino('sonolento', 60) + '<span class="md-tc-txt"><b>Nada marcado.</b>Toque em Evento para adicionar.</span></div>';
+  }
+  if(doAmanha.length) html += '<span class="md-grupo">' + (sel === hoje ? 'Amanhã' : 'No dia seguinte') + '</span>' + doAmanha.map(cartaoEvento).join('');
+  if(depois.length) html += '<span class="md-grupo">Próximos</span>' + depois.map(cartaoEvento).join('');
+  el.innerHTML = html;
 }
 
 // ── ICON GRID ──

@@ -9,11 +9,52 @@ function renderPerfil(){
   if(typeof carregarNozes==='function') carregarNozes();   // saldo do bloco "Suas nozes"
   document.getElementById('perfil-name-display').textContent=state.perfil.name||'Meu Nome';
   document.getElementById('perfil-name-input').value=state.perfil.name||'';
-  document.getElementById('perfil-email-display').textContent=currentUser?currentUser.email:'';
-  if(state.perfil.avatar){document.getElementById('avatar-img').src=state.perfil.avatar;document.getElementById('avatar-img').style.display='';document.getElementById('avatar-emoji').style.display='none';}
+  pintarCabecalhoPerfil();
   var list=document.getElementById('grupos-list');
-  if(!state.grupos.length){list.innerHTML='<li style="color:var(--text-muted);font-size:13px;padding:10px 0">Nenhum grupo ainda. Grupos servem para juntar metas e tarefas de um mesmo assunto.</li>';return;}
-  list.innerHTML=state.grupos.map(function(g,i){return '<li class="grupo-item"><span class="grupo-name">📁 '+esc(g)+'</span><div class="grupo-actions"><div class="icon-btn danger" onclick="deleteGrupo('+i+')">🗑</div></div></li>';}).join('');
+  if(!state.grupos.length){list.innerHTML='<li class="md-lista-item md-meta">Nenhum grupo ainda. Grupos servem para juntar metas e tarefas de um mesmo assunto.</li>';return;}
+  list.innerHTML=state.grupos.map(function(g,i){
+    return '<li class="md-lista-item grupo-item"><span class="pf-li-ic">'+ico('list',18,2)+'</span><span class="grupo-name">'+esc(g)+'</span>'
+      +'<button type="button" class="md-btn md-btn--secondary md-btn--icon md-btn--sm pf-grupo-x" onclick="deleteGrupo('+i+')" aria-label="Excluir o grupo '+esc(g)+'">'+ico('trash',18,2)+'</button></li>';
+  }).join('');
+}
+
+// Cabecalho e numeros do Perfil (Design System 2): foto ou Ticolino, o selo
+// do plano, @nick e desde quando a pessoa usa o Mindt, e os quatro numeros.
+function pintarCabecalhoPerfil(){
+  var img=document.getElementById('avatar-img'), tico=document.getElementById('avatar-emoji');
+  if(state.perfil.avatar){ img.src=state.perfil.avatar; img.style.display=''; tico.style.display='none'; }
+  else { img.style.display='none'; tico.style.display=''; tico.innerHTML=ticolino('orgulhoso',124); }
+
+  var plano = typeof planoAtivo==='function' ? planoAtivo() : 'free';
+  var selo=document.getElementById('pf-plano');
+  if(selo){ selo.hidden = plano==='free'; selo.textContent = plano==='max' ? 'MAX' : 'PRO'; }
+  var pn=document.getElementById('pf-plano-nome');
+  if(pn && typeof PLANOS!=='undefined' && PLANOS[plano]) pn.textContent=PLANOS[plano].nome;
+
+  var partes=[];
+  var nick = (typeof AMZ!=='undefined' && AMZ.perfil && AMZ.perfil.nick) ? '@'+AMZ.perfil.nick : (currentUser ? currentUser.email : '');
+  if(nick) partes.push(nick);
+  if(currentUser && currentUser.created_at){
+    var d=new Date(currentUser.created_at);
+    if(!isNaN(d)) partes.push('no Mindt desde ' + d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}));
+  }
+  document.getElementById('perfil-email-display').textContent=partes.join(' · ');
+
+  var of = typeof ofensivaAtual==='function' ? ofensivaAtual() : ((state.streak && state.streak.count) || 0);
+  texto('pf-ofensiva', of + (of===1 ? ' dia' : ' dias'));
+  var xp = typeof studyXP!=='undefined' ? studyXP : (state.studyXP||0);
+  texto('pf-xp', xp.toLocaleString('pt-BR'));
+  var nivel = Math.floor(xp/100)+1;
+  texto('pf-nivel', 'Nível ' + nivel);
+  texto('pf-nivel-sub', 'faltam ' + (100 - xp%100) + ' XP');
+  var ics={'pf-ic-chama':icoChama(18),'pf-ic-xp':ico('star',18,2.2),'pf-ic-noz':(typeof NOZ_ICONE!=='undefined'?NOZ_ICONE:''),'pf-ic-nivel':ico('trophy',18,2.2)};
+  Object.keys(ics).forEach(function(id){ var el=document.getElementById(id); if(el && !el.firstChild) el.innerHTML=ics[id]; });
+  document.querySelectorAll('#page-perfil [data-ico]').forEach(function(el){ if(!el.firstChild) el.innerHTML=ico(el.dataset.ico,18,2); });
+}
+function pfIrAjustes(){
+  perfilAba('conta');
+  var el=document.getElementById('pf-ajustes');
+  if(el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function deleteGrupo(idx){
   var name=state.grupos[idx];

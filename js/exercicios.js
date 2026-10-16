@@ -251,7 +251,12 @@ function renderExercicios(){
 
   // Cabecalho
   var xp=(typeof studyXP==='number'?studyXP:0), nivel=Math.floor(xp/100)+1;
-  document.getElementById('ex-sub').textContent='Nível '+nivel+' · +'+EX_XP+' XP no primeiro treino do dia';
+  // Cabecalho (Design System 2): dias treinados na semana contra a meta.
+  var segH=exSegunda(new Date()), fimH=new Date(segH.getTime()); fimH.setDate(segH.getDate()+6);
+  var naSemana=exDiasTreinados(segH,fimH);
+  document.getElementById('ex-hero').textContent=naSemana+' de '+e.metaSemanal;
+  document.getElementById('ex-sub').textContent='dias treinados na semana · meta: '+e.metaSemanal;
+  exPintarSemana(segH);
   document.getElementById('ex-mes').textContent=
     new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   document.getElementById('ex-dia-btn').style.display = d.exercicio?'none':'';
@@ -259,9 +264,38 @@ function renderExercicios(){
 
   exPintarDias();
   exPintarDistribuicao();
+  exPintarCaixas(naSemana);
   exPintarCronometro();
   exPintarModalidades();
   exPintarPainel();
+}
+
+// A semana no cabecalho: um circulo por dia (feito, hoje, passou, falta).
+function exPintarSemana(seg){
+  var el=document.getElementById('ex-semana');
+  if(!el) return;
+  var hoje=exISO(new Date()), feitos=0;
+  el.innerHTML=EX_DIAS.map(function(nome,i){
+    var dia=new Date(seg.getTime()); dia.setDate(seg.getDate()+i);
+    var iso=exISO(dia), on=exTemTreino(iso);
+    if(on) feitos++;
+    var est = on ? 'done' : (iso===hoje ? 'today' : (iso>hoje ? 'future' : 'off'));
+    return '<span class="md-wp-day md-wp-day--'+est+'"><span class="md-wp-dot md-wp-dot--'+est+'">'+(on?ico('check',18,3):'')+'</span>'+esc(nome.slice(0,3))+'</span>';
+  }).join('');
+  el.setAttribute('aria-label', feitos+' de 7 dias com treino nesta semana');
+}
+
+// As tres caixas do cronometro: tempo de hoje, treinos na semana, XP.
+function exPintarCaixas(naSemana){
+  var e=garantirExercicios(), hoje=exISO(new Date());
+  var seg=e.treinos.filter(function(t){ return t.data===hoje; }).reduce(function(s,t){ return s+(t.dur||0); },0);
+  var cx=document.getElementById('ex-cx-hoje');
+  if(!cx) return;
+  cx.textContent=Math.round(seg/60)+' min';
+  document.getElementById('ex-cx-semana').textContent=naSemana;
+  var d=garantirDiario(), pago=d.exercicio && d.xpPago && d.xpPago.exercicio;
+  document.getElementById('ex-cx-xp').textContent=pago ? 'Feito' : '+'+EX_XP;
+  document.getElementById('ex-cx-xp-rot').textContent=pago ? 'XP de hoje já veio' : 'XP no 1º treino';
 }
 
 // Cartao "Dias treinados" — numero, barrinhas e nota do periodo.
@@ -364,12 +398,12 @@ function exPintarCronometro(){
   else { humor=tipo.humor; fala='Aperta iniciar quando começar. O Ticolino treina junto.'; }
 
   var tico=document.getElementById('ex-tico');
-  if(tico.dataset.humor!==humor){ tico.innerHTML=ticolino(humor,124); tico.dataset.humor=humor; }
+  if(tico.dataset.humor!==humor){ tico.innerHTML=ticolino(humor,100); tico.dataset.humor=humor; }
   tico.classList.toggle('pulando', rodando);
   document.getElementById('ex-tico-fala').textContent=fala;
 
   document.getElementById('ex-btn-iniciar').style.display  = rodando?'none':'';
-  document.getElementById('ex-btn-iniciar').textContent    = emAndamento?'▶ Continuar':'▶ Iniciar treino';
+  document.getElementById('ex-btn-iniciar').textContent    = emAndamento?'Continuar':'Iniciar treino';
   document.getElementById('ex-btn-pausar').style.display   = rodando?'':'none';
   document.getElementById('ex-btn-finalizar').style.display= emAndamento?'':'none';
   document.getElementById('ex-btn-resetar').style.display  = emAndamento?'':'none';
@@ -389,7 +423,7 @@ function exPintarCronometro(){
 function exPintarModalidades(){
   var e=garantirExercicios();
   document.getElementById('ex-mods').innerHTML=e.modalidades.map(function(m){
-    return '<button class="filter-chip'+(m.id===e.ativa?' active':'')+'" onclick="exTrocarModalidade(\''+m.id+'\')">'+
+    return '<button type="button" class="md-chip" aria-pressed="'+(m.id===e.ativa)+'" onclick="exTrocarModalidade(\''+m.id+'\')">'+
            esc(m.nome)+'</button>';
   }).join('');
 }

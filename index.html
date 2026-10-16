@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="ds2">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +7,20 @@
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#12140E">
+<meta name="theme-color" content="#EB7D00">
 <!-- O app tem os dois temas. Sem isto, o modo escuro forcado de alguns
      navegadores repinta a pagina por cima (cores e Ticolino estranhos). -->
 <meta name="color-scheme" content="dark light">
 <script>
 // Le o tema salvo antes de qualquer pintura. Fica inline de proposito: um
 // arquivo externo chegaria depois do primeiro quadro e a tela piscaria.
-(function(){try{
-  if(localStorage.getItem('mindt-tema')==='light'){
-    document.documentElement.setAttribute('data-theme','light');
-    var m=document.querySelector('meta[name="theme-color"]');
-    if(m)m.setAttribute('content','#F2EEDA');
-  }
-}catch(e){}})();
+// O claro (cabecalho laranja) e o padrao; o escuro so vale para quem
+// escolheu. A barra do navegador acompanha a cor do cabecalho.
+(function(){var escuro=false;try{escuro=localStorage.getItem('mindt-tema')==='dark';}catch(e){}
+  if(!escuro) document.documentElement.setAttribute('data-theme','light');
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.setAttribute('content',escuro?'#2C5745':'#EB7D00');
+})();
 </script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/amizades.css">
 <link rel="stylesheet" href="styles/nozes.css">
+<link rel="stylesheet" href="styles/ds2.css">
 </head>
 <body class="na-home">
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
@@ -293,7 +294,7 @@
 
   <div class="auth-card">
     <div class="auth-avatar" id="auth-avatar"></div>
-    <div class="auth-logo-text">Mindt</div>
+    <div class="auth-logo-text">mindt<b>.</b></div>
     <div class="auth-subtitle" id="auth-subtitle">Organize sua vida</div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</button>
@@ -362,30 +363,18 @@
 </div>
 
 <div id="app" style="visibility:hidden">
-  <!-- Gaveta do menu no celular: o botao abre a barra lateral, que no
-       desktop fica sempre visivel. -->
-  <button id="btn-menu" onclick="alternarMenu()" aria-label="Abrir menu"
-          aria-controls="sidebar" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-      <path d="M3 6h18M3 12h18M3 18h18"/>
-    </svg>
-  </button>
-  <div id="menu-fundo" onclick="fecharMenu()" aria-hidden="true"></div>
-
-  <nav id="sidebar">
-    <div class="sidebar-logo"><div class="logo-icon">M</div><span class="logo-text">Mindt</span></div>
+  <!-- MENU — cinco destinos (Design System 2): Hoje, Rotina, Dinheiro,
+       Evolucao e Voce. No computador e o menu lateral; no celular, a barra
+       de abas de baixo. As paginas de cada grupo ficam nas abas do
+       cabecalho de cada tela (js/nav.js). -->
+  <nav id="sidebar" aria-label="Principal">
+    <div class="sidebar-logo"><img src="icons/icon-192.png" alt="" width="38" height="38"><span class="logo-text">mindt<b>.</b></span></div>
     <div class="nav-lista">
-    <div class="nav-item active" data-page="home"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span class="nav-label">Home</span></div>
-    <div class="nav-item" data-page="metas"><div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><span class="nav-label">Metas</span></div>
-    <div class="nav-item" data-page="tarefas"><div class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="nav-label">Tarefas</span></div>
-    <div class="nav-item" data-page="gastos"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span class="nav-label">Dinheiro</span></div>
-    <div class="nav-item" data-page="agenda"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="nav-label">Agenda</span></div>
-    <div class="nav-item" data-page="resumo"><div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="nav-label">Resumo</span></div>
-    <div class="nav-item" data-page="estudos"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span class="nav-label">Estudos</span></div>
-    <div class="nav-item" data-page="exercicios"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></div><span class="nav-label">Exercícios</span></div>
-    <div class="nav-item" data-page="leitura"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><span class="nav-label">Leitura</span></div>
-    <div class="nav-item" data-page="notas"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="nav-label">Notas</span></div>
-    <div class="nav-item" data-page="amizades"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span class="nav-label">Amizades</span><span class="nav-selo" id="nav-selo-amizades" hidden></span></div>
+    <button type="button" class="nav-item" data-grupo="hoje"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-label">Hoje</span></button>
+    <button type="button" class="nav-item" data-grupo="rotina"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-label">Rotina</span></button>
+    <button type="button" class="nav-item" data-grupo="dinheiro"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="nav-label">Dinheiro</span></button>
+    <button type="button" class="nav-item" data-grupo="evolucao"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-label">Evolução</span></button>
+    <button type="button" class="nav-item" data-grupo="voce"><span class="nav-icon"><span class="nav-voce-rosto" aria-hidden="true"></span><span class="nav-selo" id="nav-selo-amizades" hidden></span></span><span class="nav-label">Você</span></button>
     </div>
     <div class="nav-rodape">
     <div class="sidebar-divider"></div>
@@ -406,38 +395,28 @@
       </div>
       <div class="progress-bar-track nav-nivel-barra"><div class="progress-bar-fill" id="nav-nivel-fill" style="width:0%"></div></div>
     </div>
-    <div class="nav-item nav-perfil" data-page="perfil"><div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Perfil</span></div>
-  </div>
   </nav>
 
-  <div id="mobile-nav">
-    <div class="mobile-nav-item active" data-page="home" onclick="mobileNav(this,'home')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="m-label">Home</div></div>
-    <div class="mobile-nav-item" data-page="metas" onclick="mobileNav(this,'metas')"><div class="m-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="m-label">Metas</div></div>
-    <div class="mobile-nav-item" data-page="tarefas" onclick="mobileNav(this,'tarefas')"><div class="m-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="m-label">Tarefas</div></div>
-    <div class="mobile-nav-item" data-page="gastos" onclick="mobileNav(this,'gastos')"><div class="m-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="m-label">Dinheiro</div></div>
-    <div class="mobile-nav-item" data-page="agenda" onclick="mobileNav(this,'agenda')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="m-label">Agenda</div></div>
-    <div class="mobile-nav-item" data-page="resumo" onclick="mobileNav(this,'resumo')"><div class="m-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="m-label">Resumo</div></div>
-    <div class="mobile-nav-item" data-page="estudos" onclick="mobileNav(this,'estudos')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="m-label">Estudos</div></div>
-    <div class="mobile-nav-item" data-page="exercicios" onclick="mobileNav(this,'exercicios')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></div><div class="m-label">Exercícios</div></div>
-    <div class="mobile-nav-item" data-page="leitura" onclick="mobileNav(this,'leitura')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="m-label">Leitura</div></div>
-    <div class="mobile-nav-item" data-page="notas" onclick="mobileNav(this,'notas')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="m-label">Notas</div></div>
-    <div class="mobile-nav-item" data-page="amizades" onclick="mobileNav(this,'amizades')"><div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-selo" id="mnav-selo-amizades" hidden></span></div><div class="m-label">Amizades</div></div>
-    <div class="mobile-nav-item" data-page="perfil" onclick="mobileNav(this,'perfil')"><div class="m-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="m-label">Perfil</div></div>
-  </div>
+  <nav id="mobile-nav" aria-label="Principal">
+    <button type="button" class="mobile-nav-item" data-grupo="hoje"><span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="m-label">Hoje</span></button>
+    <button type="button" class="mobile-nav-item" data-grupo="rotina"><span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="m-label">Rotina</span></button>
+    <button type="button" class="mobile-nav-item" data-grupo="dinheiro"><span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="m-label">Dinheiro</span></button>
+    <button type="button" class="mobile-nav-item" data-grupo="evolucao"><span class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="m-label">Evolução</span></button>
+    <button type="button" class="mobile-nav-item" data-grupo="voce"><span class="m-icon"><span class="nav-voce-rosto" aria-hidden="true"></span><span class="nav-selo" id="mnav-selo-amizades" hidden></span></span><span class="m-label">Você</span></button>
+  </nav>
 
   <main id="main">
     <!-- Faixa do teste gratis. Pintada por pintarFaixaTeste() em js/plano.js. -->
     <div class="faixa-teste" id="faixa-teste" role="status" hidden></div>
     <section class="page active" id="page-home">
-      <!-- A floresta do Ticolino. Preenchida por montarFloresta() em js/floresta.js;
-           fica vazia no HTML para nao pesar o carregamento inicial. -->
-      <div class="floresta" id="floresta" aria-hidden="true"></div>
-      <div class="tico-home-head">
-        <div>
-          <div class="tico-date" id="home-date"></div>
-          <div class="tico-greeting" id="home-greeting">Olá</div>
-        </div>
-        <div class="home-acoes">
+      <!-- HOJE — cabecalho de marca com o anel do dia (Design System 2).
+           Pintada por renderHome() em js/home.js. -->
+      <header class="md-hdr hoje-hdr">
+        <div class="md-hdr-top hoje-topo">
+          <img class="hoje-logo" src="icons/icon-192.png" alt="Mindt" width="34" height="34">
+          <span class="hoje-cnt" title="Ofensiva: dias seguidos"><svg class="md-chama" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z"/></svg><span id="home-streak">0</span><span class="md-sr"> dias de ofensiva</span></span>
+          <span class="hoje-cnt" title="Suas nozes"><svg class="md-noz-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="casca" d="M4.5 10.5c0-3.6 3.3-6 7.5-6s7.5 2.4 7.5 6z"/><path class="miolo" d="M6.5 10.5h11c0 5.2-2.8 9-5.5 10.5-2.7-1.5-5.5-5.3-5.5-10.5z"/></svg><span class="noz-saldo-num">—</span><span class="md-sr"> nozes</span></span>
+          <button type="button" class="hoje-nivel" id="home-level" onclick="goToPage('estudos')">Nível 1</button>
           <div class="sino-wrap">
             <button type="button" class="sino-bt" id="sino-bt" onclick="notifAlternar()" aria-haspopup="dialog"
                     aria-expanded="false" aria-controls="sino-painel" aria-label="Notificações">
@@ -446,111 +425,103 @@
             </button>
             <div class="sino-painel" id="sino-painel" role="dialog" aria-label="Notificações" hidden></div>
           </div>
-          <button class="tico-avatar-btn" onclick="goToPage('perfil')" id="home-avatar" aria-label="Perfil"></button>
         </div>
-      </div>
-
-      <div class="home-dupla">
-      <div class="tico-card tico-card-blue" id="home-streak-card">
-        <div class="tico-streak-row">
-          <div>
-            <div class="tico-streak-num" id="home-streak">0</div>
-            <div class="tico-streak-label" data-i18n="streak">dias seguidos</div>
-          </div>
-          <div style="text-align:right">
-            <div class="tico-level" id="home-level">Nível 1</div>
-            <div class="tico-xp-text" id="home-xp">0/100 XP</div>
-          </div>
-        </div>
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="home-xp-bar" style="width:0%"></div></div>
-      </div>
-
-      <div class="tico-card tico-card-cream tico-msg-card">
-        <div id="home-tico"></div>
         <div>
-          <div class="tico-msg" id="home-tico-msg"></div>
-          <div class="home-quote" id="daily-quote"></div>
+          <div class="md-hdr-sub hoje-data" id="home-date"></div>
+          <h1 class="md-hdr-title" id="home-greeting">Olá</h1>
+        </div>
+        <div class="hoje-dia">
+          <div class="md-hdr-text">
+            <span class="md-hdr-kicker">Seu dia</span>
+            <span class="hoje-num md-num" id="home-dia-num">0 de 4</span>
+            <span class="hoje-frase" id="home-tico-msg"></span>
+            <span class="md-hdr-sub" id="home-dia-sub"></span>
+          </div>
+          <div class="hoje-anel" id="home-anel" role="img" aria-label="Anel do dia"></div>
+        </div>
+      </header>
+
+      <div class="md-in hoje-in">
+        <div class="hoje-col">
+          <div class="md-sec"><h2 data-i18n="today">Hoje</h2><span class="hoje-falta" id="home-today-count"></span></div>
+          <div class="hoje-lista" id="home-today-list"></div>
+        </div>
+        <div class="hoje-col">
+          <div class="hoje-minis">
+            <button type="button" class="hoje-mini a-dinheiro" onclick="goToPage('gastos')">
+              <span class="md-label md-a-txt" id="home-gastos-rotulo">Dinheiro</span>
+              <span class="hoje-mini-val md-num" id="home-stat-gastos">R$ 0,00</span>
+              <span id="home-gastos-barra"></span>
+              <span class="md-meta" id="home-stat-gastos-sub"></span>
+            </button>
+            <button type="button" class="hoje-mini a-exercicio" onclick="goToPage('exercicios')">
+              <span class="md-label md-a-txt">Treinos · semana</span>
+              <span class="hoje-mini-val md-num" id="home-stat-treinos">0 de 5</span>
+              <span id="home-treinos-barra"></span>
+              <span class="md-meta" id="home-stat-treinos-sub"></span>
+            </button>
+          </div>
+
+          <div class="hoje-andamento">
+            <div class="md-sec"><h2 data-i18n="inProgress">Em andamento</h2><span class="md-meta" id="home-task-count">0 itens</span></div>
+            <div class="hoje-andamento-lista" id="home-tasks-scroll"></div>
+          </div>
+          <p class="hoje-frase-dia" id="daily-quote"></p>
         </div>
       </div>
-      </div>
-
-      <div class="tico-section-head">
-        <div class="section-title" data-i18n="today">Hoje</div>
-        <div class="tico-count" id="home-today-count">0/3</div>
-      </div>
-      <div class="tico-today-list" id="home-today-list"></div>
-
-      <div class="tico-quick-row">
-        <button class="tico-card tico-quick" onclick="goToPage('gastos')">
-          <div class="tico-quick-label" data-i18n="spentMonth">Gastos do mês</div>
-          <div class="tico-quick-linha">
-            <span class="tico-quick-value" id="home-stat-gastos">R$0</span>
-            <span class="tico-quick-delta" id="home-stat-gastos-sub"></span>
-          </div>
-        </button>
-        <button class="tico-card tico-quick" onclick="goToPage('exercicios')">
-          <div class="tico-quick-label" data-i18n="treinosSemana">Treinos na semana</div>
-          <div class="tico-quick-linha">
-            <span class="tico-quick-value" id="home-stat-treinos">0</span>
-            <span class="tico-quick-delta" id="home-stat-treinos-sub"></span>
-          </div>
-        </button>
-      </div>
-
-      <div class="floating-island">
-        <div class="island-header">
-          <span class="island-title" data-i18n="inProgress">Em andamento</span>
-          <div class="island-header-right">
-            <span id="home-task-count">0 itens</span>
-            <div class="scroll-arrows">
-              <button class="scroll-arrow left" onclick="scrollTasks(-1)" aria-label="Anterior">&#8249;</button>
-              <button class="scroll-arrow right" onclick="scrollTasks(1)" aria-label="Próximo">&#8250;</button>
-            </div>
-          </div>
-        </div>
-        <div class="tasks-scroll-wrap">
-          <div class="tasks-scroll" id="home-tasks-scroll"></div>
-        </div>
-      </div>
-      <div style="display:none"><span id="home-stat-tasks">0</span></div>
+      <div hidden><span id="home-stat-tasks">0</span></div>
     </section>
 
     <section class="page" id="page-metas">
-      <div class="page-header">
-        <h2 class="page-title">Metas</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="startDelete('metas')">🗑 Excluir</button>
-          <button class="btn btn-ghost btn-sm" onclick="startEdit('metas')">✏️ Editar</button>
-          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-meta')">+ Nova meta</button>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="evolucao" aria-label="Evolução"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Metas</h1>
+            <span class="md-hdr-hero md-num" id="metas-hero">0 ativas</span>
+            <span class="md-hdr-sub" id="metas-hero-sub"></span>
+          </div>
+          <span class="md-hdr-tico" data-tico="orgulhoso" data-tico-tam="100"></span>
         </div>
+        <div class="md-hdr-acoes">
+          <button type="button" class="md-btn md-btn--header" onclick="openModal('modal-add-meta')"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova meta</button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" onclick="startEdit('metas')" aria-label="Editar metas" title="Editar"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" onclick="startDelete('metas')" aria-label="Excluir metas" title="Excluir"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+        </div>
+      </header>
+      <div class="md-in">
+        <div class="md-ferramentas">
+          <div class="md-chips" id="metas-filter-row" role="group" aria-label="Filtrar metas">
+            <button type="button" class="md-chip md-chip--leve" data-filtro="all" aria-pressed="true" onclick="filterMetas('all',this)">Todas</button>
+            <button type="button" class="md-chip md-chip--leve" data-filtro="recent" aria-pressed="false" onclick="filterMetas('recent',this)">Recentes</button>
+            <button type="button" class="md-chip md-chip--leve" data-filtro="old" aria-pressed="false" onclick="filterMetas('old',this)">Antigas</button>
+          </div>
+        </div>
+        <div class="md-goals" id="metas-grid"></div>
       </div>
-      <div class="period-stats">
-        <div class="period-chip"><div class="period-chip-label">Hoje</div><div class="period-chip-value" id="metas-done-day">0</div></div>
-        <div class="period-chip"><div class="period-chip-label">Semana</div><div class="period-chip-value" id="metas-done-week">0</div></div>
-        <div class="period-chip"><div class="period-chip-label">Mês</div><div class="period-chip-value" id="metas-done-month">0</div></div>
-      </div>
-      <div class="filter-row" id="metas-filter-row">
-        <div class="filter-chip active" onclick="filterMetas('all',this)">Todas</div>
-        <div class="filter-chip" onclick="filterMetas('recent',this)">Recentes</div>
-        <div class="filter-chip" onclick="filterMetas('old',this)">Antigas</div>
-      </div>
-      <div class="cards-grid" id="metas-grid"></div>
     </section>
 
     <section class="page" id="page-tarefas">
-      <div class="page-header">
-        <h2 class="page-title">Tarefas</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" id="tasks-btn-excluir" onclick="startDelete('tasks')">🗑 Excluir</button>
-          <button class="btn btn-ghost btn-sm" id="tasks-btn-editar" onclick="startEdit('tasks')">✏️ Editar</button>
-          <button class="btn btn-primary btn-sm" onclick="abrirNovaTarefa()">+ Nova tarefa</button>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="rotina" aria-label="Rotina"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Tarefas</h1>
+            <span class="md-hdr-hero md-num" id="tasks-hero">0 pra hoje</span>
+            <span class="md-hdr-sub" id="tasks-hero-sub"></span>
+          </div>
+          <span class="md-hdr-tico" data-tico="focado" data-tico-tam="100"></span>
         </div>
-      </div>
+        <div class="md-hdr-acoes"><button type="button" class="md-btn md-btn--header" onclick="abrirNovaTarefa()"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova tarefa</button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" id="tasks-btn-editar" onclick="startEdit('tasks')" aria-label="Editar tarefas" title="Editar"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" id="tasks-btn-excluir" onclick="startDelete('tasks')" aria-label="Excluir tarefas" title="Excluir"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div>
+      </header>
 
+      <div class="md-in">
       <!-- DUAS TELAS: a lista do dia a dia e as tarefas que se repetem -->
-      <div class="abas tarefas-abas" role="group" aria-label="Telas de tarefas">
-        <button type="button" class="aba" id="tarefas-tab-lista" aria-pressed="true" onclick="setTarefasAba('lista')">Tarefas</button>
-        <button type="button" class="aba" id="tarefas-tab-rec" aria-pressed="false" onclick="setTarefasAba('rec')">Recorrentes <span class="aba-conta" id="tarefas-rec-conta"></span></button>
+      <div class="md-seg" role="group" aria-label="Telas de tarefas">
+        <button type="button" id="tarefas-tab-lista" aria-pressed="true" onclick="setTarefasAba('lista')">Tarefas</button>
+        <button type="button" id="tarefas-tab-rec" aria-pressed="false" onclick="setTarefasAba('rec')">Recorrentes <span class="aba-conta" id="tarefas-rec-conta"></span></button>
       </div>
 
       <div id="tarefas-aba-rec" hidden>
@@ -558,81 +529,59 @@
         <div id="rec-lista"></div>
       </div>
 
-      <div id="tarefas-aba-lista">
-      <div class="period-stats">
-        <div class="period-chip"><div class="period-chip-label">Hoje</div><div class="period-chip-value" id="tasks-done-day">0</div></div>
-        <div class="period-chip"><div class="period-chip-label">Semana</div><div class="period-chip-value" id="tasks-done-week">0</div></div>
-        <div class="period-chip"><div class="period-chip-label">Mês</div><div class="period-chip-value" id="tasks-done-month">0</div></div>
+      <div id="tarefas-aba-lista" class="md-coluna">
+        <div class="md-ferramentas">
+          <div class="md-chips" id="tasks-filter-row" role="group" aria-label="Filtrar tarefas">
+            <button type="button" class="md-chip md-chip--leve" data-filtro="pending" aria-pressed="true" onclick="filterTasks('pending',this)">Pendentes</button>
+            <button type="button" class="md-chip md-chip--leve" data-filtro="done" aria-pressed="false" onclick="filterTasks('done',this)">Concluídas</button>
+            <button type="button" class="md-chip md-chip--leve" data-filtro="all" aria-pressed="false" onclick="filterTasks('all',this)">Todas</button>
+            <button type="button" class="md-chip md-chip--leve" data-filtro="recent" aria-pressed="false" onclick="filterTasks('recent',this)">Recentes</button>
+          </div>
+        </div>
+        <div id="tasks-grid"></div>
       </div>
-      <div class="filter-row" id="tasks-filter-row">
-        <div class="filter-chip" onclick="filterTasks('all',this)">Todas</div>
-        <div class="filter-chip active" onclick="filterTasks('pending',this)">Pendentes</div>
-        <div class="filter-chip" onclick="filterTasks('done',this)">Concluídas</div>
-        <div class="filter-chip" onclick="filterTasks('recent',this)">Recentes</div>
-      </div>
-      <div class="cards-grid" id="tasks-grid"></div>
       </div>
     </section>
 
     <section class="page" id="page-gastos">
-      <div class="page-header">
-        <h2 class="page-title">Dinheiro</h2>
-        <div class="fin-acoes-wrap">
-          <div class="fin-acoes" id="fin-acoes-gastos">
-            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-categoria')">⚙️ Categorias</button>
-            <button class="btn btn-primary btn-sm" onclick="openModal_addGasto()">+ Novo gasto</button>
+      <header class="md-hdr fin-hdr">
+        <div class="fin-hdr-topo">
+          <nav class="md-gt fin-abas" id="fin-abas" aria-label="Telas da área de dinheiro">
+            <button type="button" id="fin-tab-gastos" aria-pressed="true" onclick="setFinAba('gastos')">Gastos</button>
+            <button type="button" id="fin-tab-ganhos" aria-pressed="false" onclick="setFinAba('ganhos')">Ganhos</button>
+            <button type="button" id="fin-tab-geral" aria-pressed="false" onclick="setFinAba('geral')">Geral</button>
+          </nav>
+          <label class="fin-periodo" id="fin-periodo-wrap"><span class="md-sr">Período</span>
+            <select id="fin-periodo" onchange="finEscolherPeriodo(this.value)">
+              <option value="mes" id="fin-periodo-mes">Este mês</option><option value="semana">7 dias</option><option value="hoje">Hoje</option>
+              <option value="ano" id="fin-periodo-ano">Este ano</option><option value="all">Tudo</option><option value="custom">Outro…</option>
+            </select><svg class="md-ico" viewBox="0 0 24 24" width="15" height="15" stroke-width="2.4" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></label>
+        </div>
+        <div class="fin-hero">
+          <span class="fin-hero-rot" id="fin-hero-rot">Gastos do mês</span>
+          <span class="md-hdr-hero md-hdr-hero--xl md-num" id="gastos-total">R$ 0,00</span>
+          <div class="fin-pilulas">
+            <span class="fin-pil fin-pil--ink md-num" id="fin-livres" hidden></span>
+            <span class="fin-pil md-num" id="gastos-count-txt">0 lançamentos</span>
           </div>
-          <div class="fin-acoes" id="fin-acoes-ganhos" style="display:none">
-            <button class="btn btn-ghost btn-sm" onclick="abrirModalInstituicao()">🏦 Nova instituição</button>
-          </div>
-          <div class="fin-acoes" id="fin-acoes-geral" style="display:none"></div>
         </div>
-      </div>
+        <div class="fin-acoes" id="fin-acoes-gastos" hidden></div>
+        <div class="fin-acoes" id="fin-acoes-ganhos" hidden></div>
+        <div class="fin-acoes" id="fin-acoes-geral" hidden></div>
+      </header>
 
-      <!-- AS TRÊS TELAS: GASTOS, GANHOS E GERAL -->
-      <div class="abas fin-abas" id="fin-abas" role="group" aria-label="Telas da área de dinheiro">
-        <button type="button" class="aba" id="fin-tab-gastos" aria-pressed="true" onclick="setFinAba('gastos')">Gastos</button>
-        <button type="button" class="aba" id="fin-tab-ganhos" aria-pressed="false" onclick="setFinAba('ganhos')">Ganhos</button>
-        <button type="button" class="aba" id="fin-tab-geral" aria-pressed="false" onclick="setFinAba('geral')">Geral</button>
-      </div>
-
-      <div id="fin-aba-gastos">
-
-      <!-- TRES METRICAS (design system: total em destaque + duas de apoio) -->
-      <div class="gastos-metricas">
-        <div class="big-metric metrica-destaque">
-          <div class="label" data-i18n="totalSpent">Total gasto</div>
-          <div class="value" id="gastos-total">R$ 0,00</div>
-          <div class="delta" id="gastos-count-txt">0 lançamentos</div>
-        </div>
-        <div class="big-metric" id="metrica-maior-cat">
-          <div class="label" data-i18n="biggestCategory">Maior categoria</div>
-          <div class="value value-sm value-texto" id="gastos-maior-cat">—</div>
-          <div class="delta" id="gastos-maior-val"></div>
-        </div>
-        <div class="big-metric" id="metrica-media">
-          <div class="label" data-i18n="avgPerEntry">Média por lançamento</div>
-          <div class="value value-sm" id="gastos-media">R$ 0,00</div>
-        </div>
-      </div>
-
-      <!-- CARD PRINCIPAL: filtros + lançamentos -->
-      <div class="glass painel" style="margin-bottom:20px">
-
-        <!-- BARRA DE FILTROS -->
-        <div class="gastos-filter-bar" style="margin-bottom:20px">
-          <button class="gastos-filter-btn active" onclick="setGastosFiltro('mes',this)">Este mês</button>
-          <button class="gastos-filter-btn" onclick="setGastosFiltro('semana',this)">Esta semana</button>
-          <button class="gastos-filter-btn" onclick="setGastosFiltro('hoje',this)">Hoje</button>
-          <button class="gastos-filter-btn" onclick="setGastosFiltro('ano',this)">Este ano</button>
-          <button class="gastos-filter-btn" onclick="setGastosFiltro('all',this)">Todos</button>
-          <button class="gastos-cal-btn" onclick="toggleGastosCal()" title="Filtrar por data">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </button>
+      <div class="md-in">
+      <div id="fin-aba-gastos" class="md-coluna">
+        <div class="fin-atalhos">
+          <button type="button" class="fin-atalho" onclick="openModal_addGasto()"><span class="fin-atalho-ic fin-atalho-ic--cheio"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2.6" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>Gasto</button>
+          <button type="button" class="fin-atalho" onclick="setFinAba('ganhos');abrirModalGanho()"><span class="fin-atalho-ic"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2.2" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg></span>Ganho</button>
+          <button type="button" class="fin-atalho" onclick="setFinAba('ganhos')"><span class="fin-atalho-ic"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2.2" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg></span>Bancos</button>
+          <button type="button" class="fin-atalho" onclick="openModal('modal-add-categoria')"><span class="fin-atalho-ic"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2.2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>Categorias</button>
         </div>
 
+        <div class="md-tc" id="fin-comentario"></div>
         <!-- CALENDÁRIO CUSTOM -->
-        <div id="gastos-cal-picker" style="display:none;background:rgba(83,34,162,0.1);border:1px solid rgba(122,69,212,0.25);border-radius:12px;padding:16px;margin-bottom:16px">
+        <div id="gastos-cal-picker" class="md-card" style="display:none">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
             <div class="form-group" style="margin:0">
               <label class="form-label">Mês</label>
@@ -655,10 +604,15 @@
           </div>
         </div>
 
+
+        <div class="md-sec"><h2>Por categoria</h2><button type="button" class="md-link" onclick="document.getElementById('fin-lancamentos').scrollIntoView({behavior:'smooth',block:'start'})">Lançamentos</button></div>
+        <div class="fin-cats" id="fin-cats"></div>
+
+        <div class="md-card fin-lanc" id="fin-lancamentos">
         <!-- LANÇAMENTOS COLAPSÁVEIS -->
-        <div class="section-title" style="margin:0 0 12px 0">Lançamentos</div>
+        <h3 class="fin-lanc-tit">Lançamentos</h3>
         <div id="gastos-lista">
-          <div class="empty-state"><div class="empty-icon">💸</div><p>Nenhum gasto registrado ainda.</p></div>
+          <p class="md-meta">Nenhum gasto registrado ainda.</p>
         </div>
 
       </div>
@@ -683,8 +637,8 @@
         <div class="section-title" style="margin:0 0 14px 0">Previsto em metas e tarefas</div>
         <div id="gastos-groups-bars" style="margin-bottom:16px"></div>
         <div class="tab-bar" style="margin-bottom:16px">
-          <button class="tab-btn active" onclick="switchGastosTab('metas-tab',this)">📌 Metas</button>
-          <button class="tab-btn" onclick="switchGastosTab('tasks-tab',this)">✅ Tarefas</button>
+          <button class="tab-btn active" onclick="switchGastosTab('metas-tab',this)">Metas</button>
+          <button class="tab-btn" onclick="switchGastosTab('tasks-tab',this)">Tarefas</button>
         </div>
         <div id="metas-tab"><div id="gastos-metas-list"></div></div>
         <div id="tasks-tab" style="display:none"><div id="gastos-tasks-list"></div></div>
@@ -774,6 +728,7 @@
 
       </div>
 
+      </div><!-- /md-in -->
     </section>
 
     <!-- MODAL ADICIONAR GASTO -->
@@ -971,235 +926,184 @@
     </div>
 
     <section class="page" id="page-resumo">
-      <div class="page-header res-header">
-        <div>
-          <h2 class="page-title">Resumo</h2>
-          <div class="res-sub" id="res-subtitulo">Tudo que você moveu neste mês, num lugar só</div>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="evolucao" aria-label="Evolução"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Resumo</h1>
+            <span class="md-hdr-hero md-hdr-hero--xl md-num" id="res-hero">0%</span>
+            <span class="md-hdr-sub" id="res-subtitulo"></span>
+          </div>
+          <span class="md-hdr-tico" data-tico="orgulhoso" data-tico-tam="104"></span>
         </div>
         <div class="res-acoes">
-          <div class="abas" role="group" aria-label="Período do resumo">
+          <div class="md-seg md-seg--header" role="group" aria-label="Período do resumo">
             <button type="button" class="aba" aria-pressed="false" onclick="resTrocarPeriodo('semana')">Semana</button>
             <button type="button" class="aba" aria-pressed="true" onclick="resTrocarPeriodo('mes')">Mês</button>
             <button type="button" class="aba" aria-pressed="false" onclick="resTrocarPeriodo('ano')">Ano</button>
           </div>
-          <button type="button" class="res-relatorio-btn" id="res-relatorio-btn" onclick="relAbrirModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h10l4 4v12a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h7M8 17h5"/></svg>
-            Resumo de atividades
+          <button type="button" class="md-btn md-btn--header md-btn--sm res-relatorio-btn" id="res-relatorio-btn" onclick="relAbrirModal()">
+            <svg class="md-ico" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" aria-hidden="true"><path d="M5 4h10l4 4v12a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M14 4v5h5M8 13h7M8 17h5"/></svg>
+            Relatório
           </button>
         </div>
+      </header>
+
+      <div class="md-in">
+        <div class="md-rcs md-rcs--2">
+          <div class="md-rc t-brand"><span>Tarefas criadas</span><b class="md-num" id="res-total-tasks">0</b></div>
+          <div class="md-rc t-ink"><span>Concluídas</span><b class="md-num" id="res-done-tasks">0</b></div>
+          <div class="md-rc t-metas"><span>Metas ativas</span><b class="md-num" id="res-total-metas">0</b></div>
+          <div class="md-rc t-dinheiro"><span>Gastos</span><b class="md-num" id="res-gastos">R$ 0</b></div>
+        </div>
+        <p class="md-meta res-notas-linha"><span id="res-nota-tasks"></span> · <span id="res-nota-done"></span> · <span id="res-nota-metas"></span> · <span id="res-nota-gastos"></span></p>
+
+        <div class="md-card res-cartao">
+          <span class="est-cartao-tit">Progresso das metas</span>
+          <div id="res-metas-progress" class="res-metas"></div>
+        </div>
+
+        <div class="md-card res-cartao">
+          <span class="est-cartao-tit" data-i18n="pendencias">Pendências</span>
+          <div id="res-pendencias" class="res-pendencias"></div>
+        </div>
+
+        <div class="md-card res-cartao">
+          <div class="est-cartao-topo"><span class="est-cartao-tit">Notas recentes</span><button type="button" class="md-link-bt" onclick="goToPage('notas')">Ver notas</button></div>
+          <div id="res-notas-preview" class="res-notas"></div>
+        </div>
       </div>
-      <div class="resumo-grid">
-        <div class="big-metric glass"><div class="value" id="res-total-tasks">0</div><div class="label">Tarefas criadas</div><div class="res-nota" id="res-nota-tasks"></div></div>
-        <div class="big-metric glass"><div class="value" id="res-done-tasks">0</div><div class="label">Concluídas</div><div class="res-nota" id="res-nota-done"></div></div>
-        <div class="big-metric glass"><div class="value" id="res-total-metas">0</div><div class="label">Metas ativas</div><div class="res-nota" id="res-nota-metas"></div></div>
-        <div class="big-metric glass"><div class="value" id="res-gastos">R$0</div><div class="label">Total em gastos</div><div class="res-nota" id="res-nota-gastos"></div></div>
-      </div>
-      <div class="section-title">Progresso das metas</div>
-      <div id="res-metas-progress" style="margin-bottom:28px"></div>
-      <div class="section-title" data-i18n="pendencias">Pendências</div>
-      <div id="res-pendencias" class="res-pendencias"></div>
-      <div class="section-title">Notas recentes</div>
-      <div id="res-notas-preview" style="display:flex;gap:12px;flex-wrap:wrap"></div>
     </section>
 
     
     <section class="page" id="page-estudos">
-      <div class="page-header">
-        <h2 class="page-title">Estudos</h2>
-        <div style="display:flex;align-items:center;gap:16px">
-          <div class="estudos-noz" id="estudos-noz" title="Suas nozes">
+      <header class="md-hdr est-hdr">
+        <nav class="md-gt" data-abas="evolucao" aria-label="Evolução"></nav>
+        <div class="md-hdr-top">
+          <h1 class="md-hdr-title">Estudos</h1>
+          <span class="est-nozes" id="estudos-noz" title="Suas nozes">
             <svg class="noz-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.5 0 8 3 8 7H4c0-4 3.5-7 8-7z"/><path d="M5 10c0 6 3 11 7 11s7-5 7-11"/><path d="M12 3v2"/></svg>
             <span class="noz-saldo-num">—</span> <span class="noz-saldo-rot">nozes</span>
-          </div>
-          <div class="estudos-xp-badge" id="estudos-xp-badge">
-            <span>⭐</span>
-            <span id="estudos-xp-display">0 XP</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="estudos-full-layout">
-
-        <!-- TIMER -->
-        <div class="estudos-timer-card glass">
-          <div class="timer-presets">
-            <button class="timer-preset-btn active" onclick="setTimerPreset(25,this)">25 min</button>
-            <button class="timer-preset-btn" onclick="setTimerPreset(45,this)">45 min</button>
-            <button class="timer-preset-btn" onclick="setTimerPreset(60,this)">60 min</button>
-            <button class="timer-preset-btn" onclick="setTimerPreset(90,this)">90 min</button>
-            <button class="timer-preset-btn" onclick="openCustomTimer()">✎ Customizar</button>
-          </div>
-
-          <div class="timer-main-area">
-            <div class="timer-display-wrap">
-              <svg class="timer-ring" viewBox="0 0 200 200">
-                <defs><linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FF9420"/><stop offset="100%" style="stop-color:#D06A00"/></linearGradient></defs>
-                <circle class="timer-ring-bg" cx="100" cy="100" r="88"/>
-                <circle class="timer-ring-fill" id="timer-ring-fill" cx="100" cy="100" r="88"/>
-              </svg>
-              <div class="timer-display-inner">
-                <div class="timer-time" id="timer-display" onclick="startInlineEdit()" title="Clique para editar">25:00</div>
-                <input class="timer-time-input" id="timer-inline-input" type="text" placeholder="25:00" onblur="applyInlineEdit()" onkeydown="if(event.key==='Enter')applyInlineEdit();if(event.key==='Escape')cancelInlineEdit()" style="display:none">
-                <div class="timer-label" id="timer-label">Clique no tempo para editar</div>
-              </div>
-            </div>
-
-            <div class="timer-side-panel">
-              <div class="timer-controls">
-                <button class="btn btn-primary" id="timer-start-btn" onclick="startTimer()">▶ Iniciar</button>
-                <button class="btn btn-ghost" id="timer-pause-btn" onclick="pauseTimer()" style="display:none">⏸ Pausar</button>
-                <button class="btn btn-ghost" onclick="resetTimer()">↺ Resetar</button>
-              </div>
-
-              <div id="custom-timer-wrap" style="display:none">
-                <div class="two-col">
-                  <div class="form-group"><label class="form-label">Minutos</label><input class="form-input" id="custom-minutes" type="number" min="1" max="180" value="30"></div>
-                  <div class="form-group"><label class="form-label">Segundos</label><input class="form-input" id="custom-seconds" type="number" min="0" max="59" value="0"></div>
-                </div>
-                <button class="btn btn-primary btn-sm" onclick="applyCustomTimer()">Aplicar</button>
-              </div>
-
-              <div class="xp-bar-wrap">
-                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-size:12px;color:var(--text-muted)">XP acumulado</span>
-                  <span style="font-size:12px;font-weight:600;color:var(--purple-light)" id="xp-total-label">0 XP</span>
-                </div>
-                <div class="progress-bar-track"><div class="progress-bar-fill" id="xp-bar-fill" style="width:0%"></div></div>
-                <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-muted)">
-                  <span>Nível <span id="xp-level">1</span></span>
-                  <span><span id="xp-next">100</span> XP para o próximo</span>
-                </div>
-              </div>
-
-              <div class="timer-sessions">
-                <div class="timer-sessions-label">Sessões hoje</div>
-                <div class="timer-sessions-dots" id="timer-sessions-dots"></div>
-              </div>
-            </div>
-          </div>
+          </span>
         </div>
 
-      </div>
-    
-      <!-- PACOTES DE NOZES (no lugar dos marcos de XP). Pintados por
-           renderPacotes() (js/nozes.js). -->
-      <div class="estudos-trophy-section" id="pacotes-secao">
-        <div class="trophy-section-header">
-          <div>
-            <div class="trophy-section-title">Pacotes de nozes</div>
-            <div class="cores-sub">Cada pacote pede o dobro de XP do anterior e vale 50 nozes a mais.</div>
+        <!-- Timer: o anel esvazia conforme o tempo passa. -->
+        <div class="est-anel">
+          <svg class="timer-ring" viewBox="0 0 206 206" aria-hidden="true">
+            <circle class="est-anel-disco" cx="103" cy="103" r="92"/>
+            <circle class="timer-ring-bg" cx="103" cy="103" r="92"/>
+            <circle class="timer-ring-fill" id="timer-ring-fill" cx="103" cy="103" r="92" transform="rotate(-90 103 103)"/>
+          </svg>
+          <div class="est-anel-dentro">
+            <span class="est-anel-tico" id="est-tico"></span>
+            <button type="button" class="timer-time md-num" id="timer-display" onclick="startInlineEdit()" aria-label="Editar o tempo">25:00</button>
+            <input class="timer-time-input md-num" id="timer-inline-input" type="text" inputmode="numeric" placeholder="25:00" aria-label="Tempo em minutos e segundos" onblur="applyInlineEdit()" onkeydown="if(event.key==='Enter')applyInlineEdit();if(event.key==='Escape')cancelInlineEdit()" style="display:none">
+            <span class="timer-label" id="timer-label" aria-live="polite">Toque para editar</span>
           </div>
         </div>
-        <div class="pac-destaque" id="pac-destaque"></div>
-        <div class="pac-trilha" id="pac-trilha"></div>
-      </div>
-
-      <!-- CORES DO TICOLINO — agora compradas com nozes. -->
-      <div class="estudos-trophy-section" id="cores-secao">
-        <div class="trophy-section-header">
-          <div>
-            <div class="trophy-section-title">Cores do Ticolino</div>
-            <div class="cores-sub">Use suas nozes para dar uma cor nova ao seu Ticolino.</div>
-          </div>
-          <div class="noz-chip"><svg class="noz-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.5 0 8 3 8 7H4c0-4 3.5-7 8-7z"/><path d="M5 10c0 6 3 11 7 11s7-5 7-11"/><path d="M12 3v2"/></svg><span class="noz-saldo-num">—</span></div>
+        <div class="est-presets" role="group" aria-label="Duração da sessão">
+          <button type="button" class="timer-preset-btn active" aria-pressed="true" onclick="setTimerPreset(25,this)">25</button>
+          <button type="button" class="timer-preset-btn" aria-pressed="false" onclick="setTimerPreset(45,this)">45</button>
+          <button type="button" class="timer-preset-btn" aria-pressed="false" onclick="setTimerPreset(60,this)">60</button>
+          <button type="button" class="timer-preset-btn" aria-pressed="false" onclick="setTimerPreset(90,this)">90</button>
+          <button type="button" class="timer-preset-btn est-preset-ed" aria-label="Outro tempo" onclick="openCustomTimer()"><svg class="md-ico" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
         </div>
-        <div class="cores-destaque" id="cores-destaque"></div>
-        <div class="cores-grid" id="trophies-grid"></div>
-      </div>
+      </header>
 
+      <div class="md-in">
+        <div id="custom-timer-wrap" class="md-card est-custom" style="display:none">
+          <div class="two-col">
+            <div class="form-group"><label class="form-label" for="custom-minutes">Minutos</label><input class="form-input" id="custom-minutes" type="number" min="1" max="180" value="30"></div>
+            <div class="form-group"><label class="form-label" for="custom-seconds">Segundos</label><input class="form-input" id="custom-seconds" type="number" min="0" max="59" value="0"></div>
+          </div>
+          <button type="button" class="md-btn md-btn--primary md-btn--sm" onclick="applyCustomTimer()">Aplicar</button>
+        </div>
+
+        <div class="est-botoes">
+          <button type="button" class="md-btn md-btn--primary" id="timer-start-btn" onclick="startTimer()"></button>
+          <button type="button" class="md-btn md-btn--secondary" id="timer-pause-btn" onclick="pauseTimer()" style="display:none"></button>
+          <button type="button" class="md-btn md-btn--secondary md-btn--icon" onclick="resetTimer()" aria-label="Recomeçar o tempo"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        </div>
+
+        <div class="md-rcs">
+          <div class="md-rc t-brand"><span>XP total</span><b class="md-num" id="estudos-xp-display">0</b></div>
+          <div class="md-rc t-estudos"><span>Nível</span><b class="md-num" id="xp-level">1</b></div>
+          <div class="md-rc t-ink"><span>XP hoje</span><b class="md-num" id="est-xp-hoje">0</b></div>
+        </div>
+        <p class="md-meta est-linha" id="est-linha"></p>
+
+        <!-- PACOTES DE NOZES. Pintados por renderPacotes() (js/nozes.js). -->
+        <div class="md-card est-cartao" id="pacotes-secao">
+          <div class="est-cartao-topo"><span class="est-cartao-tit">Próximo pacote de nozes</span><span class="md-meta" id="pac-valor-topo"></span></div>
+          <div class="pac-destaque" id="pac-destaque"></div>
+          <details class="est-mais">
+            <summary>Ver os 7 pacotes</summary>
+            <p class="md-meta">Cada pacote pede o dobro de XP do anterior e vale 50 nozes a mais.</p>
+            <div class="pac-trilha" id="pac-trilha"></div>
+          </details>
+        </div>
+
+        <!-- CORES DO TICOLINO, compradas com nozes. -->
+        <div class="md-card est-cartao" id="cores-secao">
+          <div class="est-cartao-topo"><span class="est-cartao-tit">Cores do Ticolino</span><span class="md-meta" id="cores-proxima"></span></div>
+          <div class="cores-grid" id="trophies-grid" role="group" aria-label="Cores do Ticolino"></div>
+          <div class="cores-destaque" id="cores-destaque"></div>
+        </div>
+      </div>
     </section>
 
 
 
     <!-- ─────── EXERCÍCIOS ─────── -->
     <section class="page" id="page-exercicios">
-
-      <div class="page-header ex-header">
-        <div>
-          <div class="ex-eyebrow" id="ex-mes"></div>
-          <h2 class="page-title">Exercícios</h2>
-          <div class="ex-sub" id="ex-sub"></div>
-        </div>
-        <div>
-          <button class="btn btn-primary btn-sm" id="ex-dia-btn" onclick="exConcluirDia()">Concluir exercício do dia</button>
-          <span class="ex-badge ex-badge-ok" id="ex-dia-ok" style="display:none">Exercício do dia concluído</span>
-        </div>
-      </div>
-
-      <div class="ex-topo">
-        <!-- Dias treinados -->
-        <div class="glass ex-card">
-          <div class="ex-card-topo">
-            <div class="ex-rotulo">Dias treinados</div>
-            <div class="filter-row" id="ex-periodos">
-              <button class="filter-chip active" data-periodo="Semana" onclick="exPeriodo='Semana';exPintarDias()">Semana</button>
-              <button class="filter-chip" data-periodo="Mês" onclick="exPeriodo='Mês';exPintarDias()">Mês</button>
-              <button class="filter-chip" data-periodo="Ano" onclick="exPeriodo='Ano';exPintarDias()">Ano</button>
-            </div>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="rotina" aria-label="Rotina"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Exercícios</h1>
+            <span class="md-hdr-hero md-num" id="ex-hero">0 de 5</span>
+            <span class="md-hdr-sub" id="ex-sub"></span>
           </div>
-          <div class="ex-numero-linha">
-            <span class="ex-numero" id="ex-dias-valor">0</span>
-            <span class="ex-numero-nota" id="ex-dias-total">de 7 dias</span>
-          </div>
-          <div class="ex-strip" id="ex-strip"></div>
-          <div class="ex-nota" id="ex-dias-nota"></div>
+          <span class="md-hdr-tico ex-tico" id="ex-tico"></span>
         </div>
+        <div class="md-wp" id="ex-semana" role="img" aria-label="Treinos da semana"></div>
+        <div class="md-hdr-acoes">
+          <button type="button" class="md-btn md-btn--header" id="ex-dia-btn" onclick="exConcluirDia()">Concluir exercício do dia</button>
+          <span class="ex-dia-ok" id="ex-dia-ok" style="display:none">Exercício do dia concluído</span>
+        </div>
+        <span hidden id="ex-mes"></span>
+      </header>
 
-        <!-- Você treina mais -->
-        <div class="glass ex-card">
-          <div class="ex-rotulo">Você treina mais</div>
-          <div class="ex-destaque" id="ex-top-nome">—</div>
-          <div class="ex-nota" id="ex-top-nota"></div>
-          <div class="ex-distrib" id="ex-distrib"></div>
-        </div>
+      <div class="md-in">
+      <!-- Modalidades -->
+      <div class="ex-mods-linha">
+        <div class="md-chips ex-mods" id="ex-mods" role="group" aria-label="Modalidade"></div>
+        <button type="button" class="md-chip ex-nova" onclick="exAbrirNovaModalidade()" aria-label="Nova modalidade"><svg class="md-ico" viewBox="0 0 24 24" width="16" height="16" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button type="button" class="md-link-bt" onclick="exApagarModalidade()" title="Apagar modalidade atual">Apagar</button>
       </div>
 
       <!-- Cronômetro do treino -->
-      <div class="glass ex-cron">
-        <div class="ex-card-topo">
-          <div class="ex-rotulo">Cronômetro do treino</div>
-          <span class="ex-badge" id="ex-cron-mod"></span>
+      <div class="md-card md-card--tactile ex-cron">
+        <span class="md-label ex-cron-rot">Cronômetro · <span id="ex-cron-mod"></span></span>
+        <div class="ex-cron-tempo md-num" id="ex-cron-tempo">0:00</div>
+        <div class="ex-cron-label" id="ex-cron-label">Pronto para começar</div>
+        <div class="ex-caixas">
+          <div class="ex-caixa"><b class="md-num" id="ex-cx-hoje">0 min</b><small>hoje</small></div>
+          <div class="ex-caixa"><b class="md-num" id="ex-cx-semana">0</b><small>treinos na semana</small></div>
+          <div class="ex-caixa"><b class="md-num" id="ex-cx-xp">+5</b><small id="ex-cx-xp-rot">XP ao fim</small></div>
         </div>
-        <div class="ex-cron-corpo">
-          <div class="ex-anel-wrap">
-            <svg class="timer-ring ex-anel" viewBox="0 0 200 200">
-              <!-- Gradiente proprio: o do Estudos vive num <svg> dentro de uma
-                   pagina escondida, e a referencia nem sempre resolve de la. -->
-              <defs><linearGradient id="exGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF9420"/><stop offset="100%" stop-color="#D06A00"/></linearGradient></defs>
-              <circle class="timer-ring-bg" cx="100" cy="100" r="88"/>
-              <circle class="timer-ring-fill" id="ex-anel-fill" cx="100" cy="100" r="88"/>
-            </svg>
-            <div class="ex-anel-inner">
-              <div class="ex-cron-tempo" id="ex-cron-tempo">0:00</div>
-              <div class="ex-cron-label" id="ex-cron-label">Pronto para começar</div>
-            </div>
-          </div>
-          <div class="ex-cron-lado">
-            <div class="ex-tico" id="ex-tico"></div>
-            <div class="ex-cron-texto">
-              <div class="ex-fala" id="ex-tico-fala"></div>
-              <div class="ex-cron-botoes">
-                <button class="btn btn-primary" id="ex-btn-iniciar" onclick="exIniciarTreino()">▶ Iniciar treino</button>
-                <button class="btn btn-secondary" id="ex-btn-pausar" onclick="exPausarTreino()" style="display:none">⏸ Pausar</button>
-                <button class="btn btn-primary" id="ex-btn-finalizar" onclick="exFinalizarTreino()" style="display:none">✓ Finalizar treino</button>
-                <button class="btn btn-ghost" id="ex-btn-resetar" onclick="exResetarTreino()" style="display:none">↺ Resetar</button>
-              </div>
-              <div class="ex-resumo" id="ex-resumo" style="display:none">
-                <span id="ex-resumo-txt"></span>
-                <span class="ex-resumo-xp" id="ex-resumo-xp"></span>
-              </div>
-            </div>
-          </div>
+        <div class="ex-cron-botoes">
+          <button type="button" class="md-btn md-btn--primary md-btn--block" id="ex-btn-iniciar" onclick="exIniciarTreino()">Iniciar treino</button>
+          <button type="button" class="md-btn md-btn--secondary" id="ex-btn-pausar" onclick="exPausarTreino()" style="display:none">Pausar</button>
+          <button type="button" class="md-btn md-btn--primary" id="ex-btn-finalizar" onclick="exFinalizarTreino()" style="display:none">Finalizar treino</button>
+          <button type="button" class="md-btn md-btn--secondary" id="ex-btn-resetar" onclick="exResetarTreino()" style="display:none">Resetar</button>
         </div>
-      </div>
-
-      <!-- Modalidades -->
-      <div class="ex-mods-linha">
-        <span class="ex-risco"></span>
-        <div class="filter-row" id="ex-mods"></div>
-        <button class="ex-nova" onclick="exAbrirNovaModalidade()">+ Nova modalidade</button>
-        <button class="icon-btn" onclick="exApagarModalidade()" title="Apagar modalidade atual" aria-label="Apagar modalidade atual">✕</button>
-        <span class="ex-risco"></span>
+        <div class="ex-resumo" id="ex-resumo" style="display:none">
+          <span id="ex-resumo-txt"></span>
+          <span class="ex-resumo-xp" id="ex-resumo-xp"></span>
+        </div>
+        <p class="md-meta ex-fala" id="ex-tico-fala"></p>
+        <svg hidden aria-hidden="true"><circle id="ex-anel-fill" cx="0" cy="0" r="1"/></svg>
       </div>
 
       <!-- Academia ───────────────────────── -->
@@ -1208,18 +1112,18 @@
           <div class="section-title">Rotina da semana</div>
           <button class="ex-link" onclick="exAbrirRotina()">Editar rotina</button>
         </div>
-        <div class="glass ex-lista" id="ex-rotina"></div>
+        <div class="md-card ex-lista" id="ex-rotina"></div>
       </div>
 
       <!-- Corrida ────────────────────────── -->
       <div id="ex-painel-corrida" style="display:none">
         <div class="ex-dupla">
-          <div class="glass ex-card ex-card-hero">
+          <div class="md-card ex-card ex-card-hero">
             <div class="ex-rotulo">Recorde de percurso</div>
             <div class="ex-numero" id="ex-recorde">—</div>
             <div class="ex-nota" id="ex-recorde-data"></div>
           </div>
-          <div class="glass ex-card ex-card-acao">
+          <div class="md-card ex-card ex-card-acao">
             <div>
               <div class="ex-rotulo">No mês</div>
               <div class="ex-destaque" id="ex-km-mes">0,0 km</div>
@@ -1234,7 +1138,7 @@
 
       <!-- Caminhada ────────────────────── -->
       <div id="ex-painel-caminhada" style="display:none">
-        <div class="glass ex-card">
+        <div class="md-card ex-card">
           <div class="ex-card-topo">
             <div>
               <div class="ex-rotulo">Meta diária</div>
@@ -1255,7 +1159,7 @@
           <div class="section-title">Circuito</div>
           <button class="ex-link" onclick="exAbrirCircuito()">Adicionar exercício</button>
         </div>
-        <div class="glass ex-lista" id="ex-circuito"></div>
+        <div class="md-card ex-lista" id="ex-circuito"></div>
       </div>
 
       <!-- Modalidade sem painel próprio (ex: Luta): só o cronômetro acima. -->
@@ -1263,140 +1167,169 @@
         <div class="empty-inline">Esta modalidade usa só o cronômetro.</div>
       </div>
 
+      <div class="ex-topo">
+        <!-- Dias treinados -->
+        <div class="md-card ex-card">
+          <div class="ex-card-topo">
+            <div class="ex-rotulo">Dias treinados</div>
+            <div class="filter-row" id="ex-periodos">
+              <button class="filter-chip active" data-periodo="Semana" onclick="exPeriodo='Semana';exPintarDias()">Semana</button>
+              <button class="filter-chip" data-periodo="Mês" onclick="exPeriodo='Mês';exPintarDias()">Mês</button>
+              <button class="filter-chip" data-periodo="Ano" onclick="exPeriodo='Ano';exPintarDias()">Ano</button>
+            </div>
+          </div>
+          <div class="ex-numero-linha">
+            <span class="ex-numero" id="ex-dias-valor">0</span>
+            <span class="ex-numero-nota" id="ex-dias-total">de 7 dias</span>
+          </div>
+          <div class="ex-strip" id="ex-strip"></div>
+          <div class="ex-nota" id="ex-dias-nota"></div>
+        </div>
+
+        <!-- Você treina mais -->
+        <div class="md-card ex-card">
+          <div class="ex-rotulo">Você treina mais</div>
+          <div class="ex-destaque" id="ex-top-nome">—</div>
+          <div class="ex-nota" id="ex-top-nota"></div>
+          <div class="ex-distrib" id="ex-distrib"></div>
+        </div>
+      </div>
+      </div>
     </section>
 
     <!-- ─────── AGENDA ─────── -->
     <section class="page" id="page-agenda">
-
-      <!-- TOOLBAR -->
-      <div class="agenda-toolbar">
-        <div class="agenda-toolbar-left">
-          <button class="agenda-tool-btn" onclick="openModal('modal-criar-evento')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Criar evento
-          </button>
-          <button class="agenda-tool-btn" onclick="openGerenciarEventos()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            Gerenciar eventos
-          </button>
-        </div>
-        <div class="agenda-toolbar-right">
-          <div class="agenda-view-toggle">
-            <button class="agenda-view-btn active" id="view-mes" onclick="setAgendaView('mes',this)">Mês</button>
-            <button class="agenda-view-btn" id="view-semana" onclick="setAgendaView('semana',this)">Semana</button>
-            <button class="agenda-view-btn" id="view-dia" onclick="setAgendaView('dia',this)">Dia</button>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="rotina" aria-label="Rotina"></nav>
+        <div class="ag-topo">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Agenda</h1>
+            <span class="md-hdr-sub" id="agenda-hdr-sub"></span>
           </div>
+          <button type="button" class="md-btn md-btn--header" onclick="resetEventoForm();if(agendaSelectedDay)document.getElementById('evento-data').value=agendaSelectedDay;openModal('modal-criar-evento')"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Evento</button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" onclick="openGerenciarEventos()" aria-label="Gerenciar eventos" title="Gerenciar eventos"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
         </div>
-      </div>
+        <div class="md-week" id="agenda-semana" role="group" aria-label="Dias da semana"></div>
+      </header>
 
+      <div class="md-in">
+        <div class="md-seg" role="group" aria-label="Como ver a agenda">
+          <button type="button" id="agenda-ver-lista" aria-pressed="true" onclick="agendaModo('lista')">Próximos</button>
+          <button type="button" id="agenda-ver-mes" aria-pressed="false" onclick="agendaModo('mes')">Mês</button>
+        </div>
+
+        <div id="agenda-lista" class="md-coluna"></div>
+
+        <div id="agenda-mes" hidden>
       <!-- CALENDAR HEADER -->
-      <div class="agenda-cal-header">
-        <div class="agenda-nav-btns">
-          <button class="agenda-nav-btn" onclick="moveAgenda(-1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <button class="agenda-nav-btn" onclick="goToToday()">Hoje</button>
-          <button class="agenda-nav-btn" onclick="moveAgenda(1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-        <div class="agenda-current-label" id="agenda-current-label">Janeiro 2026</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <select class="agenda-month-sel" id="agenda-month-sel" onchange="jumpAgendaMonth()">
-            <option value="0">Janeiro</option><option value="1">Fevereiro</option>
-            <option value="2">Março</option><option value="3">Abril</option>
-            <option value="4">Maio</option><option value="5">Junho</option>
-            <option value="6">Julho</option><option value="7">Agosto</option>
-            <option value="8">Setembro</option><option value="9">Outubro</option>
-            <option value="10">Novembro</option><option value="11">Dezembro</option>
-          </select>
-          <input class="agenda-year-inp" id="agenda-year-inp" type="number" value="2026" onchange="jumpAgendaMonth()">
-        </div>
-      </div>
+          <div class="agenda-cal-header">
+            <div class="agenda-nav-btns">
+              <button class="agenda-nav-btn" onclick="moveAgenda(-1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="agenda-nav-btn" onclick="goToToday()">Hoje</button>
+              <button class="agenda-nav-btn" onclick="moveAgenda(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div class="agenda-current-label" id="agenda-current-label">Janeiro 2026</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select class="agenda-month-sel" id="agenda-month-sel" onchange="jumpAgendaMonth()">
+                <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+                <option value="2">Março</option><option value="3">Abril</option>
+                <option value="4">Maio</option><option value="5">Junho</option>
+                <option value="6">Julho</option><option value="7">Agosto</option>
+                <option value="8">Setembro</option><option value="9">Outubro</option>
+                <option value="10">Novembro</option><option value="11">Dezembro</option>
+              </select>
+              <input class="agenda-year-inp" id="agenda-year-inp" type="number" value="2026" onchange="jumpAgendaMonth()">
+            </div>
+          </div>
 
-      <!-- GRADE + PAINEL DO DIA, lado a lado no desktop -->
-      <div class="agenda-layout">
-      <div class="agenda-glass-card" id="agenda-calendar-wrap">
-        <!-- DOW headers -->
-        <div class="agenda-dow-row">
-          <div class="agenda-dow">Dom</div><div class="agenda-dow">Seg</div>
-          <div class="agenda-dow">Ter</div><div class="agenda-dow">Qua</div>
-          <div class="agenda-dow">Qui</div><div class="agenda-dow">Sex</div>
-          <div class="agenda-dow">Sáb</div>
+          <!-- GRADE + PAINEL DO DIA, lado a lado no desktop -->
+          <div class="agenda-layout">
+          <div class="agenda-glass-card" id="agenda-calendar-wrap">
+            <!-- DOW headers -->
+            <div class="agenda-dow-row">
+              <div class="agenda-dow">Dom</div><div class="agenda-dow">Seg</div>
+              <div class="agenda-dow">Ter</div><div class="agenda-dow">Qua</div>
+              <div class="agenda-dow">Qui</div><div class="agenda-dow">Sex</div>
+              <div class="agenda-dow">Sáb</div>
+            </div>
+            <div class="agenda-grid" id="agenda-grid"></div>
+          </div>
+
+          <!-- UPCOMING EVENTS SIDEBAR -->
+          <div class="agenda-upcoming" id="agenda-upcoming">
+            <div class="section-title" style="margin:0 0 12px 0" id="agenda-painel-titulo">Próximos eventos</div>
+            <div id="agenda-upcoming-list"></div>
+          </div>
+          </div>
+
         </div>
-        <div class="agenda-grid" id="agenda-grid"></div>
       </div>
-
-      <!-- UPCOMING EVENTS SIDEBAR -->
-      <div class="agenda-upcoming" id="agenda-upcoming">
-        <div class="section-title" style="margin:0 0 12px 0" id="agenda-painel-titulo">Próximos eventos</div>
-        <div id="agenda-upcoming-list"></div>
-      </div>
-      </div>
-
     </section>
 
     <!-- ─────── LEITURA ─────── -->
     <section class="page" id="page-leitura">
-
-      <!-- CURRENT BOOK HERO -->
-      <div class="leitura-hero-wrap" id="leitura-hero-wrap">
-        <div class="leitura-hero-card glass" id="leitura-hero-card">
-          <!-- No book reading -->
-          <div id="leitura-empty-state" style="display:flex;flex-direction:column;align-items:center;gap:0">
-            <div class="leitura-add-btn" id="leitura-add-btn" onclick="abrirNovoLivro()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span class="leitura-add-label">O que você está lendo?</span>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="evolucao" aria-label="Evolução"></nav>
+        <h1 class="md-hdr-title">Leitura</h1>
+        <!-- Lendo agora (pintado por renderHeroBook) -->
+        <div id="leitura-active-book" class="lt-atual" style="display:none">
+          <div class="md-hdr-main">
+            <div class="md-hdr-text">
+              <span class="md-hdr-kicker">Lendo agora</span>
+              <span class="lt-titulo" id="leitura-book-title-display"></span>
+              <span class="md-hdr-sub" id="leitura-book-author-display"></span>
             </div>
+            <span class="md-hdr-tico" data-tico="lendo" data-tico-tam="100"></span>
           </div>
-          <!-- Active book reading -->
-          <div id="leitura-active-book" style="display:none;width:100%;align-items:center;flex-direction:column;gap:20px">
-            <div class="leitura-book-cover-wrap">
-              <img id="leitura-book-cover-img" alt="" data-vazia="1" alt="capa" class="leitura-book-cover">
-              <div class="leitura-book-spine"></div>
+          <div id="leitura-barra"></div>
+          <div class="md-hdr-acoes">
+            <button type="button" class="md-btn md-btn--header" onclick="openModal('modal-registrar-leitura')"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registrar leitura</button>
+            <button type="button" class="md-btn md-btn--header md-btn--icon lt-ic" onclick="editarLivroAtivo()" aria-label="Editar livro" title="Editar livro"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+            <button type="button" class="md-btn md-btn--header md-btn--icon lt-ic" onclick="openAbandonarLeitura()" aria-label="Abandonar leitura" title="Abandonar leitura"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          </div>
+        </div>
+        <!-- Nenhum livro aberto -->
+        <div id="leitura-empty-state" class="lt-atual">
+          <div class="md-hdr-main">
+            <div class="md-hdr-text">
+              <span class="md-hdr-kicker">Nenhum livro aberto</span>
+              <span class="lt-titulo">O que você está lendo?</span>
             </div>
-            <div class="leitura-book-meta">
-              <div class="leitura-book-title" id="leitura-book-title-display"></div>
-              <div class="leitura-book-author" id="leitura-book-author-display"></div>
-              <div class="leitura-book-genre-badge" id="leitura-book-genre-display"></div>
-            </div>
-            <div class="leitura-progress-wrap">
-              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px">
-                <span id="leitura-pages-read">0 páginas lidas</span>
-                <span id="leitura-pct-display">0%</span>
-              </div>
-              <div class="progress-bar-track" style="height:8px;border-radius:99px">
-                <div class="progress-bar-fill" id="leitura-progress-bar" style="width:0%;border-radius:99px"></div>
-              </div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;text-align:right" id="leitura-pages-total"></div>
-            </div>
-            <div style="display:flex;gap:10px;width:100%;justify-content:center;flex-wrap:wrap">
-              <button class="btn btn-primary btn-sm" onclick="openModal('modal-registrar-leitura')">📖 Registrar leitura</button>
-              <button class="btn btn-ghost btn-sm" onclick="editarLivroAtivo()" style="border-color:var(--line-strong);color:var(--text-dim)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Editar
-              </button>
-              <button class="btn btn-sm" onclick="openAbandonarLeitura()" style="background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger-text)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                Abandonar
-              </button>
-            </div>
+            <span class="md-hdr-tico" data-tico="lendo" data-tico-tam="100"></span>
+          </div>
+          <div class="md-hdr-acoes">
+            <button type="button" class="md-btn md-btn--header" id="leitura-add-btn" onclick="abrirNovoLivro()"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar livro</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="md-in">
+        <div class="md-rcs">
+          <div class="md-rc t-leitura"><span>Lidos</span><b class="md-num" id="lt-lidos">0</b></div>
+          <div class="md-rc t-ink"><span>Páginas</span><b class="md-num" id="lt-paginas">0</b></div>
+          <div class="md-rc t-brand"><span>Média/dia</span><b class="md-num" id="lt-media">0</b></div>
+        </div>
+
+        <!-- ESTANTE: as lombadas dos livros mais recentes -->
+        <div class="md-card lt-estante">
+          <div class="est-cartao-topo">
+            <span class="est-cartao-tit">Estante</span>
+            <button type="button" class="md-link-bt" id="lt-ver-todos" aria-expanded="false" aria-controls="leitura-shelf-section" onclick="ltVerTodos()">Ver todos</button>
+          </div>
+          <div class="lt-lombadas" id="lt-lombadas"></div>
+          <span class="lt-prateleira" aria-hidden="true"></span>
+          <div class="lt-rodape">
+            <span class="md-meta" id="resumo-livros-count"></span>
+            <button type="button" class="md-link-bt" onclick="openResumoLeitura()">Resumo de leitura</button>
           </div>
         </div>
 
-        <!-- RESUMO BAR -->
-        <div class="leitura-resumo-bar" id="leitura-resumo-bar">
-          <div style="display:flex;align-items:center;gap:10px;flex:1">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" width="16" height="16" style="color:var(--text-muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
-            <span style="font-size:13px;color:var(--text-dim)">Resumo de leitura</span>
-            <span style="font-size:11px;color:var(--text-muted)" id="resumo-livros-count"></span>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="openResumoLeitura()">Ver resumo</button>
-        </div>
-      </div>
-
-      <!-- BOOKSHELF -->
-      <div class="leitura-shelf-section" id="leitura-shelf-section">
+      <!-- ESTANTE COMPLETA (capas, busca e filtros), aberta por "Ver todos" -->
+      <div class="leitura-shelf-section md-card" id="leitura-shelf-section" hidden>
         <div class="shelf-top-bar">
           <div class="shelf-search-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1422,88 +1355,145 @@
         <!-- GRADE DE CAPAS -->
         <div class="estante-grid" id="estante-grid"></div>
       </div>
-
+      </div>
     </section>
 
     <section class="page" id="page-notas">
-      <div class="page-header">
-        <h2 class="page-title">Notas</h2>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost btn-sm" onclick="startDelete('notas')">🗑 Excluir</button>
-          <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-nota')">+ Nova nota</button>
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="rotina" aria-label="Rotina"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Notas</h1>
+            <span class="md-hdr-sub" id="notas-sub"></span>
+          </div>
+          <span class="md-hdr-tico" data-tico="lendo" data-tico-tam="80"></span>
         </div>
+        <div class="nt-busca-linha">
+          <label class="nt-busca"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="md-sr">Buscar nas notas</span>
+            <input type="search" id="notas-busca" placeholder="Buscar nas notas" oninput="renderNotas()" autocomplete="off"></label>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" onclick="openModal('modal-add-nota')" aria-label="Nova nota" title="Nova nota"><svg class="md-ico" viewBox="0 0 24 24" width="22" height="22" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button type="button" class="md-btn md-btn--header md-btn--icon" onclick="startDelete('notas')" aria-label="Excluir notas" title="Excluir"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+        </div>
+      </header>
+      <div class="md-in">
+        <div class="notas-board" id="notas-board"></div>
       </div>
-      <div class="notas-board" id="notas-board"></div>
     </section>
 
     <!-- AMIZADES — montada por js/amizades.js (desligada, principal ou privacidade). -->
     <section class="page" id="page-amizades">
-      <div id="amz-raiz" class="amz-raiz" aria-live="polite"></div>
+      <header class="md-hdr">
+        <div class="md-hdr-top">
+          <nav class="md-gt" data-abas="voce" aria-label="Você"></nav>
+          <button type="button" class="md-btn md-btn--header md-btn--icon amz-hdr-ic" id="amz-bt-priv" onclick="amzAbrirPrivacidade()" aria-label="Privacidade: o que os amigos veem" title="Privacidade" hidden><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Amizades</h1>
+            <span class="md-hdr-hero md-num" id="amz-hero" hidden></span>
+            <span class="md-hdr-sub" id="amz-sub">Evoluir junto é mais fácil.</span>
+          </div>
+          <span class="md-hdr-tico" data-tico="animado" data-tico-tam="96"></span>
+        </div>
+        <div class="amz-hdr-bts" id="amz-hdr-bts" hidden>
+          <button type="button" class="md-btn md-btn--header" onclick="cnhAba('qr');goToPage('conhecer')"><svg class="md-ico" viewBox="0 0 24 24" width="17" height="17" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>QR</button>
+          <button type="button" class="md-btn md-btn--header" onclick="cnhAba('pesquisa');goToPage('conhecer')"><svg class="md-ico" viewBox="0 0 24 24" width="17" height="17" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Nick</button>
+          <button type="button" class="md-btn md-btn--header" onclick="cnhAba('link');goToPage('conhecer')"><svg class="md-ico" viewBox="0 0 24 24" width="17" height="17" stroke-width="2.2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>
+        </div>
+      </header>
+      <div class="md-in">
+        <div id="amz-raiz" class="amz-raiz" aria-live="polite"></div>
+      </div>
     </section>
 
     <!-- CONHECER NOVOS TICOLINOS — convite por QR, pesquisa e link de 5 min. -->
     <section class="page" id="page-conhecer">
-      <div class="cnh-layout">
-        <div class="cnh-lado">
-          <button type="button" class="cnh-voltar" onclick="goToPage('amizades')">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Amizades
+      <header class="md-hdr">
+        <div class="md-hdr-top">
+          <button type="button" class="md-btn md-btn--header md-btn--sm cnh-voltar" onclick="goToPage('amizades')">
+            <svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Amizades
           </button>
-          <h2 class="page-title cnh-titulo">Conhecer novos Ticolinos</h2>
-          <p class="cnh-sub">Mostre seu QR code, mande um link ou procure alguém pelo nick.</p>
-          <div class="abas cnh-abas" role="group" aria-label="Como convidar">
-            <button type="button" class="aba" data-cnh="qr" aria-pressed="true" onclick="cnhAba('qr')">QR code</button>
-            <button type="button" class="aba" data-cnh="pesquisa" aria-pressed="false" onclick="cnhAba('pesquisa')">Pesquisar</button>
-            <button type="button" class="aba" data-cnh="link" aria-pressed="false" onclick="cnhAba('link')">Link</button>
-          </div>
-          <div id="cnh-painel" class="cnh-painel"></div>
         </div>
-        <div class="cnh-cena" id="cnh-cena" aria-hidden="true"></div>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Conhecer novos Ticolinos</h1>
+            <span class="md-hdr-sub">Mostre seu QR code, mande um link ou procure alguém pelo nick.</span>
+          </div>
+          <span class="md-hdr-tico" data-tico="acenando" data-tico-tam="84"></span>
+        </div>
+        <div class="md-seg md-seg--header cnh-abas" role="group" aria-label="Como convidar">
+          <button type="button" class="aba" data-cnh="qr" aria-pressed="true" onclick="cnhAba('qr')">QR code</button>
+          <button type="button" class="aba" data-cnh="pesquisa" aria-pressed="false" onclick="cnhAba('pesquisa')">Pesquisar</button>
+          <button type="button" class="aba" data-cnh="link" aria-pressed="false" onclick="cnhAba('link')">Link</button>
+        </div>
+      </header>
+      <div class="md-in">
+        <div class="cnh-layout">
+          <div class="cnh-lado">
+            <div id="cnh-painel" class="cnh-painel"></div>
+          </div>
+          <div class="cnh-cena" id="cnh-cena" aria-hidden="true"></div>
+        </div>
       </div>
     </section>
 
     <section class="page" id="page-perfil">
-      <div class="page-header res-header">
-        <div>
-          <h2 class="page-title">Perfil</h2>
-          <div class="res-sub" id="perfil-sub">Sua conta, seu plano e o que ele libera.</div>
+      <header class="md-hdr pf-hdr">
+        <div class="md-hdr-top">
+          <nav class="md-gt" data-abas="voce" aria-label="Você"></nav>
+          <button type="button" class="md-btn md-btn--header md-btn--icon pf-ic" onclick="pfIrAjustes()" aria-label="Preferências" title="Preferências"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
         </div>
-        <div class="abas" role="group" aria-label="Seções do perfil">
-          <button type="button" class="aba" aria-pressed="true" onclick="perfilAba('conta')">Conta</button>
-          <button type="button" class="aba" aria-pressed="false" onclick="perfilAba('assinaturas')">Assinaturas</button>
+        <div class="pf-quem">
+          <!-- Com foto, a foto; sem foto, o Ticolino. Tocar troca a foto. -->
+          <button type="button" class="avatar-wrap pf-avatar" onclick="document.getElementById('avatar-input').click()" aria-label="Trocar foto do perfil">
+            <span id="avatar-emoji" class="pf-avatar-tico"></span><img id="avatar-img" alt="" data-vazia="1" style="display:none">
+          </button>
+          <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatarChange(event)">
+          <div class="pf-nome-linha"><span class="pf-nome" id="perfil-name-display">Meu Nome</span><span class="pf-plano" id="pf-plano" hidden></span></div>
+          <span class="md-hdr-sub" id="perfil-email-display"></span>
         </div>
+      </header>
+
+      <div class="md-in">
+      <!-- Assinaturas: aberta pela linha "Seu plano" (perfilAba). -->
+      <div id="perfil-assinaturas-wrap" hidden>
+        <button type="button" class="md-link-bt pf-voltar" onclick="perfilAba('conta')"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Voltar ao perfil</button>
+        <div id="perfil-assinaturas" hidden></div>
       </div>
 
-      <div id="perfil-assinaturas" hidden></div>
+      <div id="perfil-conta" class="pf-conta">
+        <span class="md-label pf-rot">Resumo</span>
+        <div class="md-stats">
+          <div class="md-stat"><span class="md-tile md-tile--sm a-tarefas" id="pf-ic-chama"></span><span><b class="md-num" id="pf-ofensiva">0 dias</b><small>ofensiva</small></span></div>
+          <div class="md-stat"><span class="md-tile md-tile--sm a-estudos" id="pf-ic-xp"></span><span><b class="md-num" id="pf-xp">0</b><small>XP total</small></span></div>
+          <button type="button" class="md-stat pf-stat-bt" id="perfil-nozes-bloco" onclick="nozIrPara('pacotes-secao')" aria-label="Suas nozes: ver os pacotes">
+            <span class="md-tile md-tile--sm a-metas" id="pf-ic-noz"></span><span><b class="md-num"><span class="noz-saldo-num">—</span></b><small class="noz-saldo-rot">nozes</small></span></button>
+          <div class="md-stat"><span class="md-tile md-tile--sm a-dinheiro" id="pf-ic-nivel"></span><span><b class="md-num" id="pf-nivel">Nível 1</b><small id="pf-nivel-sub"></small></span></div>
+        </div>
 
-      <div id="perfil-conta">
-      <!-- NOZES — o saldo, com atalho para os pacotes e a loja de cores. -->
-      <div class="tico-lang-block" id="perfil-nozes-bloco">
-        <div class="form-label">Suas nozes</div>
-        <div class="perfil-nozes">
-          <div class="perfil-nozes-num"><svg class="noz-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.5 0 8 3 8 7H4c0-4 3.5-7 8-7z"/><path d="M5 10c0 6 3 11 7 11s7-5 7-11"/><path d="M12 3v2"/></svg><span class="noz-saldo-num">—</span> <small class="noz-saldo-rot">nozes</small></div>
-          <div class="perfil-nozes-bts">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="nozIrPara('pacotes-secao')">Pacotes</button>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="nozIrPara('cores-secao')">Cores do Ticolino</button>
+        <div class="md-lista pf-lista">
+          <button type="button" class="md-lista-item" onclick="openModal('modal-edit-perfil')"><span class="pf-li-ic" data-ico="edit"></span>Editar perfil<span class="pf-li-fim" data-ico="chevronRight"></span></button>
+          <button type="button" class="md-lista-item" onclick="perfilAba('assinaturas')"><span class="pf-li-ic" data-ico="star"></span>Seu plano<span class="pf-li-val" id="pf-plano-nome"></span><span class="pf-li-fim" data-ico="chevronRight"></span></button>
+          <button type="button" class="md-lista-item" onclick="nozIrPara('cores-secao')"><span class="pf-li-ic" data-ico="presente"></span>Cores do Ticolino<span class="pf-li-fim" data-ico="chevronRight"></span></button>
+        </div>
+
+        <span class="md-label pf-rot" id="pf-ajustes">Preferências</span>
+        <div class="md-lista pf-ajustes">
+          <div class="tico-lang-block pf-linha">
+            <div class="form-label" data-i18n="tema">Tema</div>
+            <div class="tico-lang-switch">
+              <button data-tema-opt="light" onclick="definirTema('light')" data-i18n="claro">Claro</button>
+              <button data-tema-opt="dark" onclick="definirTema('dark')" data-i18n="escuro">Escuro</button>
+            </div>
           </div>
-        </div>
-        <p class="lembrete-nota">Ganhe nozes juntando XP e vencendo desafios. Use para comprar cores e apostar com os amigos.</p>
-      </div>
-      <div class="tico-lang-block">
-        <div class="form-label" data-i18n="tema">Tema</div>
-        <div class="tico-lang-switch">
-          <button data-tema-opt="dark" class="on" onclick="definirTema('dark')" data-i18n="escuro">Escuro</button>
-          <button data-tema-opt="light" onclick="definirTema('light')" data-i18n="claro">Claro</button>
-        </div>
-      </div>
-      <div class="tico-lang-block">
-        <div class="form-label" data-i18n="language">Idioma</div>
-        <div class="tico-lang-switch">
-          <button data-lang-opt="pt" class="on" onclick="definirIdioma('pt')">Português</button>
-          <button data-lang-opt="en" onclick="definirIdioma('en')">English</button>
-        </div>
-      </div>
-
-      <div class="tico-lang-block" id="lembrete-bloco">
+          <div class="tico-lang-block pf-linha">
+            <div class="form-label" data-i18n="language">Idioma</div>
+            <div class="tico-lang-switch">
+              <button data-lang-opt="pt" class="on" onclick="definirIdioma('pt')">Português</button>
+              <button data-lang-opt="en" onclick="definirIdioma('en')">English</button>
+            </div>
+          </div>
+      <div class="tico-lang-block pf-linha" id="lembrete-bloco">
         <div class="lembrete-topo">
           <div>
             <div class="form-label" style="margin:0">Lembretes diários</div>
@@ -1543,10 +1533,7 @@
         </p>
       </div>
 
-      <!-- LEMBRAR DE MIM — a mesma chave do login, do lado de ca.
-           Usa as classes do bloco de lembretes de proposito: as duas linhas
-           sao o mesmo tipo de ajuste e tem que se parecer. -->
-      <div class="tico-lang-block" id="lembrar-bloco">
+      <div class="tico-lang-block pf-linha" id="lembrar-bloco">
         <div class="lembrete-topo">
           <div>
             <div class="form-label" style="margin:0">Lembrar de mim</div>
@@ -1562,9 +1549,7 @@
         </div>
       </div>
 
-      <!-- AMIZADES — liga e desliga daqui tambem, nao so pela aba. Pintado
-           por pintarAmizadesPerfil() (js/amizades.js). -->
-      <div class="tico-lang-block" id="amizades-bloco">
+      <div class="tico-lang-block pf-linha" id="amizades-bloco">
         <div class="lembrete-topo">
           <div>
             <div class="form-label" style="margin:0">Amizades</div>
@@ -1584,21 +1569,15 @@
         </div>
       </div>
 
-      <div class="perfil-hero glass">
-        <div class="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          <span id="avatar-emoji">👤</span><img id="avatar-img" alt="" data-vazia="1" style="display:none">
         </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatarChange(event)">
-        <div>
-          <div class="perfil-name" id="perfil-name-display">Meu Nome</div>
-          <div class="perfil-sub" id="perfil-email-display"></div>
-          <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="openModal('modal-edit-perfil')">✏️ Editar nome</button>
+
+        <div class="est-cartao-topo pf-grupos-topo"><span class="md-label pf-rot">Grupos</span><button type="button" class="md-link-bt" onclick="openModal('modal-add-grupo')">Novo grupo</button></div>
+        <ul class="grupos-list md-lista" id="grupos-list"></ul>
+
+        <div class="md-lista pf-lista">
+          <button type="button" class="md-lista-item pf-sair" onclick="confirmLogout()"><span class="pf-li-ic" data-ico="logout"></span>Sair da conta</button>
         </div>
       </div>
-      <div class="section-title">Grupos</div>
-      <div style="display:flex;gap:8px;margin-bottom:16px"><button class="btn btn-primary btn-sm" onclick="openModal('modal-add-grupo')">+ Novo grupo</button></div>
-      <ul class="grupos-list" id="grupos-list"></ul>
-      <div style="margin-top:32px"><button class="btn btn-danger" onclick="confirmLogout()">↩ Sair da conta</button></div>
       </div>
     </section>
   </main>
@@ -1609,7 +1588,7 @@
   <div class="modal modal-wide">
     <div class="modal-close" onclick="closeModal('modal-add-meta')">✕</div>
     <div class="modal-title">Nova meta</div>
-    <div class="upload-area" onclick="document.getElementById('meta-img-input').click()"><div style="font-size:32px">🖼</div><p>Clique para imagem de capa</p><input type="file" id="meta-img-input" accept="image/*" style="display:none" onchange="previewImg(event,'meta-img-preview','meta-preview-img')"></div>
+    <div class="upload-area" onclick="document.getElementById('meta-img-input').click()"><div class="upload-ic"><svg class="md-ico" viewBox="0 0 24 24" width="30" height="30" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div><p>Clique para imagem de capa</p><input type="file" id="meta-img-input" accept="image/*" style="display:none" onchange="previewImg(event,'meta-img-preview','meta-preview-img')"></div>
     <div id="meta-img-preview" style="display:none;margin-top:10px;border-radius:10px;overflow:hidden;height:120px"><img id="meta-preview-img" alt="" data-vazia="1" style="width:100%;height:100%;object-fit:cover"></div>
     <div class="form-group" style="margin-top:16px"><label class="form-label">Nome</label><input class="form-input" id="meta-name" placeholder="Ex: Aprender violão"></div>
     <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="meta-desc" placeholder="Descreva sua meta..."></textarea></div>
@@ -1632,7 +1611,7 @@
   <div class="modal modal-wide">
     <div class="modal-close" onclick="closeModal('modal-add-task')">✕</div>
     <div class="modal-title" id="task-modal-title">Nova tarefa</div>
-    <div class="upload-area" onclick="document.getElementById('task-img-input').click()"><div style="font-size:32px">🖼</div><p>Clique para adicionar imagem</p><input type="file" id="task-img-input" accept="image/*" style="display:none" onchange="previewImg(event,'task-img-preview','task-preview-img')"></div>
+    <div class="upload-area" onclick="document.getElementById('task-img-input').click()"><div class="upload-ic"><svg class="md-ico" viewBox="0 0 24 24" width="30" height="30" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div><p>Clique para adicionar imagem</p><input type="file" id="task-img-input" accept="image/*" style="display:none" onchange="previewImg(event,'task-img-preview','task-preview-img')"></div>
     <div id="task-img-preview" style="display:none;margin-top:10px;border-radius:10px;overflow:hidden;height:120px"><img id="task-preview-img" alt="" data-vazia="1" style="width:100%;height:100%;object-fit:cover"></div>
     <div class="form-group" style="margin-top:16px"><label class="form-label">Nome</label><input class="form-input" id="task-name" placeholder="Ex: Revisar relatório"></div>
     <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="task-desc" placeholder="Descreva a tarefa..."></textarea></div>
@@ -1740,9 +1719,9 @@
 
 <div class="modal-overlay" id="modal-detail">
   <div class="modal modal-wide">
-    <div class="modal-edit-icon" onclick="editCurrentDetail()">✏️</div>
+    <button type="button" class="modal-edit-icon" onclick="editCurrentDetail()" aria-label="Editar"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
     <div class="modal-close" onclick="closeModal('modal-detail')">✕</div>
-    <div class="detail-img" id="detail-img-wrap">🎯</div>
+    <div class="detail-img" id="detail-img-wrap"></div>
     <div class="modal-title" id="detail-title"></div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
       <span class="chip" id="detail-group-chip"></span>
@@ -1757,21 +1736,21 @@
       <div class="progress-bar-wrap" style="margin-top:12px"><div class="progress-bar-track"><div class="progress-bar-fill" id="detail-progress-fill" style="width:0%"></div></div><div class="progress-label" id="detail-progress-label">0%</div></div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-success" id="detail-complete-btn" onclick="completeDetail()">✓ Concluir</button>
-      <button class="btn btn-danger" onclick="requestDeleteDetail()">🗑 Excluir</button>
-      <button class="btn btn-ghost" id="detail-page-btn">↗ Ver página</button>
+      <button class="btn btn-success" id="detail-complete-btn" onclick="completeDetail()">Concluir</button>
+      <button class="btn btn-danger" onclick="requestDeleteDetail()">Excluir</button>
+      <button class="btn btn-ghost" id="detail-page-btn">Ver página</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-nota-detail">
   <div class="modal modal-sm">
-    <div class="modal-edit-icon" onclick="editCurrentNota()">✏️</div>
+    <button type="button" class="modal-edit-icon" onclick="editCurrentNota()" aria-label="Editar nota"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
     <div class="modal-close" onclick="closeModal('modal-nota-detail')">✕</div>
     <div class="modal-title" id="nota-detail-title"></div>
     <div class="detail-body" id="nota-detail-body"></div>
     <div style="font-size:11px;color:var(--text-muted);margin-top:8px" id="nota-detail-date"></div>
-    <div class="modal-actions"><button class="btn btn-danger" onclick="deleteCurrentNota()">🗑 Excluir</button></div>
+    <div class="modal-actions"><button class="btn btn-danger" onclick="deleteCurrentNota()">Excluir</button></div>
   </div>
 </div>
 
@@ -1921,7 +1900,7 @@
 
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal modal-sm">
-    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-icon" id="confirm-icon" aria-hidden="true"></div>
     <div class="modal-title" style="text-align:center" id="confirm-title">Confirmar</div>
     <p class="confirm-text" id="confirm-body"></p>
     <div class="modal-actions" style="justify-content:center;margin-top:20px">
@@ -1985,8 +1964,8 @@
         <div class="form-group">
           <label class="form-label">Capa do livro</label>
           <div style="display:flex;gap:8px;margin-bottom:8px">
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('livro-cover-input').click()">📁 Do dispositivo</button>
-            <button class="btn btn-ghost btn-sm" onclick="openWebImageSearch()">🔍 Buscar na web</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('livro-cover-input').click()">Do dispositivo</button>
+            <button class="btn btn-ghost btn-sm" onclick="openWebImageSearch()">Buscar na web</button>
           </div>
           <input type="file" id="livro-cover-input" accept="image/*" style="display:none" onchange="previewLivroCover(event)">
           <div id="livro-cover-preview" style="display:none;width:100%;height:160px;border-radius:10px;overflow:hidden;position:relative">
@@ -1994,7 +1973,7 @@
             <button onclick="clearLivroCover()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px">✕</button>
           </div>
           <div id="livro-cover-empty" class="upload-area" onclick="document.getElementById('livro-cover-input').click()" style="margin-top:4px">
-            <div style="font-size:32px">📚</div>
+            <div class="upload-ic"><svg class="md-ico" viewBox="0 0 24 24" width="30" height="30" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
             <p>Clique para adicionar a capa</p>
           </div>
         </div>
@@ -2089,7 +2068,7 @@
     <div class="modal-overlay" id="modal-finalizar-livro">
       <div class="modal" style="max-width:380px;text-align:center">
         <div class="modal-close" onclick="cancelarFinalizarLivro()">✕</div>
-        <div style="font-size:64px;margin:16px 0 8px">🎉</div>
+        <div class="md-modal-tico" data-tico-modal="orgulhoso"></div>
         <div class="modal-title" style="text-align:center">Marcar como lido?</div>
         <p style="font-size:13px;color:var(--text-2);margin-bottom:10px;line-height:1.6">
           <strong id="finalizar-livro-titulo" style="color:var(--text)"></strong>
@@ -2125,7 +2104,7 @@
     <div class="modal-overlay" id="modal-abandonar-leitura">
       <div class="modal" style="max-width:360px;text-align:center">
         <div class="modal-close" onclick="closeModal('modal-abandonar-leitura')">✕</div>
-        <div style="font-size:64px;margin:16px 0 8px">😢</div>
+        <div class="md-modal-tico" data-tico-modal="triste"></div>
         <div class="modal-title" style="text-align:center">Quer realmente abandonar essa história?</div>
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">O livro ficará na sua estante marcado como abandonado. Você poderá retomá-lo quando quiser.</p>
         <div class="modal-actions" style="justify-content:center">
@@ -2145,10 +2124,10 @@
         <div id="resumo-period-select" style="display:block">
           <p style="font-size:14px;color:var(--text-dim);margin-bottom:20px">De qual período você deseja seu resumo?</p>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-            <button class="btn btn-ghost" onclick="gerarResumo('hoje')">📅 Hoje</button>
-            <button class="btn btn-ghost" onclick="gerarResumo('semana')">📆 Esta semana</button>
-            <button class="btn btn-ghost" onclick="gerarResumo('mes')">🗓 Este mês</button>
-            <button class="btn btn-ghost" onclick="gerarResumo('ano')">📊 Este ano</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('hoje')">Hoje</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('semana')">Esta semana</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('mes')">Este mês</button>
+            <button class="btn btn-ghost" onclick="gerarResumo('ano')">Este ano</button>
           </div>
         </div>
 
@@ -2219,9 +2198,9 @@
           <div class="form-group">
             <label class="form-label">Importância</label>
             <select class="form-select" id="evento-importancia">
-              <option value="padrao">🔵 Padrão</option>
-              <option value="media">🟡 Média</option>
-              <option value="alta">🔴 Alta</option>
+              <option value="padrao">Padrão</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
             </select>
           </div>
         </div>
@@ -2256,7 +2235,7 @@
               </select>
               <button class="btn btn-ghost btn-sm" onclick="addParticipanteEvento()">+ Adicionar</button>
             </div>
-            <button class="btn btn-ghost btn-sm" style="margin-top:8px;font-size:11px" onclick="openModal('modal-contatos')">👥 Adicionar pessoas na sua lista</button>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px;font-size:11px" onclick="openModal('modal-contatos')">Adicionar pessoas na sua lista</button>
           </div>
         </div>
 
@@ -2314,9 +2293,9 @@
         <div class="modal-close" onclick="closeModal('modal-gerenciar-eventos')">✕</div>
         <div class="modal-title">Gerenciar eventos</div>
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-          <button class="btn btn-danger btn-sm" onclick="excluirEventosSelecionados()">🗑 Excluir selecionados</button>
-          <button class="btn btn-ghost btn-sm" onclick="editarProximoSelecionado()">✏️ Editar selecionados</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleSelecionarTodos()">☑ Selecionar todos</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirEventosSelecionados()">Excluir selecionados</button>
+          <button class="btn btn-ghost btn-sm" onclick="editarProximoSelecionado()">Editar selecionados</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleSelecionarTodos()">Selecionar todos</button>
         </div>
         <div id="gerenciar-lista"></div>
       </div>

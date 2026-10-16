@@ -123,6 +123,9 @@ function setFinAba(nome){
     var bt = document.getElementById('fin-tab-' + n);
     if(bt) bt.setAttribute('aria-pressed', n === nome ? 'true' : 'false');
   });
+  // O seletor de periodo so vale para os gastos.
+  var per = document.getElementById('fin-periodo-wrap');
+  if(per) per.hidden = nome !== 'gastos';
   // Os graficos que medem a propria largura so sabem o tamanho depois que a
   // secao aparece — desenhar antes pintaria num elemento de 0px.
   renderFinancas();
@@ -136,6 +139,31 @@ function renderFinancas(){
   renderGastos();
   renderGanhos();
   renderGeral();
+  pintarCabecalhoFinancas();
+}
+
+// O numero do cabecalho segue a aba: gastos do periodo, entradas do mes ou
+// o total que a pessoa tem.
+function pintarCabecalhoFinancas(){
+  var rot = document.getElementById('fin-hero-rot'), val = document.getElementById('gastos-total');
+  var cont = document.getElementById('gastos-count-txt'), livre = document.getElementById('fin-livres');
+  if(!rot || !val) return;
+  if(finAba === 'gastos') return;   // renderGastos ja pintou
+  var agora = new Date();
+  if(finAba === 'ganhos'){
+    var doMes = state.ganhos.filter(function(g){ var d = new Date(g.data + 'T12:00:00'); return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear(); });
+    rot.textContent = 'Entradas em ' + agora.toLocaleDateString('pt-BR', {month:'long'});
+    val.textContent = moeda(somaValores(doMes));
+    if(cont) cont.textContent = doMes.length + (doMes.length === 1 ? ' entrada' : ' entradas');
+    if(livre){ livre.hidden = false; livre.textContent = state.instituicoes.length + (state.instituicoes.length === 1 ? ' instituição' : ' instituições'); }
+  } else {
+    var saldo = totalGanhos() - totalGastos();
+    rot.textContent = 'Total que você tem';
+    val.textContent = moeda(saldo);
+    if(cont) cont.textContent = (state.gastos.length + state.ganhos.length) + ' lançamentos';
+    if(livre){ livre.hidden = false; livre.textContent = '+ ' + moeda(totalGanhos()) + ' em entradas'; }
+  }
+  if(typeof encaixarNumeros === 'function') encaixarNumeros(document.getElementById('page-gastos'));
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -313,7 +341,10 @@ function renderInstChips(){
       + '<span class="inst-chip-nome">' + esc(i.nome) + '</span>'
       + '<span class="inst-chip-valor">' + moeda(totalInstituicao(i.id)) + '</span>'
       + '</button>';
-  }).join('');
+  }).join('')
+    // O "Nova instituicao" morava no cabecalho antigo; agora fica no fim da fila.
+    + '<button type="button" class="inst-chip inst-chip-nova" onclick="abrirModalInstituicao()" aria-label="Nova instituição">'
+    + ico('plus', 18, 2.4) + '<span class="inst-chip-nome">Nova</span></button>';
 }
 
 // ─── Historico: lista agrupada pelas origens que o usuario cadastrou ────

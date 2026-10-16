@@ -244,21 +244,30 @@ var TAREFAS_DIA=[
 // Agora os botoes sao construidos uma vez e so o estado troca neles. O
 // retorno visual passa a ser possivel, o foco fica onde estava, e o leitor
 // de tela passa a anunciar "marcado"/"nao marcado" em vez de so "botao".
+// Cada item do dia tem a cor e o icone da sua area (Design System 2).
+var AREA_DO_ITEM = {
+  leitura:   { area: 'a-leitura',   icone: 'leitura' },
+  estudo:    { area: 'a-estudos',   icone: 'estudos' },
+  grana:     { area: 'a-dinheiro',  icone: 'gastos' },
+  exercicio: { area: 'a-exercicio', icone: 'halter' }
+};
+
 function pintarItensDoDia(d){
   var lista = document.getElementById('home-today-list');
   if(!lista) return;
   var idioma = (typeof idiomaAtual==='function') ? idiomaAtual() : 'pt';
   // Reconstroi so quando nao ha o que reaproveitar: primeira pintura ou
-  // troca de idioma.
+  // troca de idioma. Assim o check anima ao marcar (o botao nao e recriado).
   if(lista.children.length !== TAREFAS_DIA.length || lista.dataset.idioma !== idioma){
     lista.dataset.idioma = idioma;
     lista.innerHTML = TAREFAS_DIA.map(function(t){
-      return '<button type="button" class="tico-today-item" role="switch" aria-checked="false"'+
+      var a = AREA_DO_ITEM[t.chave] || { area: 'a-neutro', icone: 'check' };
+      return '<button type="button" class="md-row ' + a.area + '" role="switch" aria-checked="false"'+
         ' onclick="toggleTarefaDia(\''+t.chave+'\')">'+
-        '<span class="tico-check" aria-hidden="true"></span>'+
-        '<span class="tico-today-info"><span class="tico-today-tag">'+T('tag_'+t.chave)+'</span>'+
-        '<span class="tico-today-label">'+T('day_'+t.chave)+'</span></span>'+
-        '<span class="tico-today-xp">+'+t.xp+' XP</span></button>';
+        '<span class="md-tile ' + a.area + '">' + ico(a.icone, 22) + '</span>'+
+        '<span class="md-row-txt"><span class="md-label"></span>'+
+        '<span class="md-row-titulo">'+T('day_'+t.chave)+'</span></span>'+
+        '<span class="md-check" aria-hidden="true">' + ico('check', 18, 3) + '</span></button>';
     }).join('');
   }
   TAREFAS_DIA.forEach(function(t,i){
@@ -266,53 +275,81 @@ function pintarItensDoDia(d){
     if(!btn) return;
     var on = !!d[t.chave];
     btn.setAttribute('aria-checked', on ? 'true' : 'false');
-    var c = btn.querySelector('.tico-check');
-    if(c) c.classList.toggle('on', on);
+    btn.classList.toggle('feito', on);
+    var c = btn.querySelector('.md-check');
+    if(c) c.classList.toggle('md-check--on', on);
+    var rot = btn.querySelector('.md-label');
+    if(rot) rot.textContent = T('tag_'+t.chave) + ' · ' + (on ? 'feito' : '+' + t.xp + ' XP');
   });
+}
+
+// O anel do dia: uma parte por item, acesa quando o item fecha. O Ticolino
+// mora no meio e muda de humor com o dia.
+function anelDoDia(feitos, total){
+  var R = 62, C = 70, gap = 7 * Math.PI / 180, partes = '';
+  for(var i = 0; i < total; i++){
+    var a0 = -Math.PI / 2 + i * 2 * Math.PI / total + gap / 2;
+    var a1 = -Math.PI / 2 + (i + 1) * 2 * Math.PI / total - gap / 2;
+    var x0 = (C + R * Math.cos(a0)).toFixed(2), y0 = (C + R * Math.sin(a0)).toFixed(2);
+    var x1 = (C + R * Math.cos(a1)).toFixed(2), y1 = (C + R * Math.sin(a1)).toFixed(2);
+    partes += '<path class="' + (i < feitos ? 'on' : '') + '" d="M' + x0 + ' ' + y0 + ' A' + R + ' ' + R + ' 0 0 1 ' + x1 + ' ' + y1 + '"/>';
+  }
+  return '<svg viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="50" class="hoje-anel-disco"/>'
+    + '<g fill="none" stroke-width="12" stroke-linecap="round">' + partes + '</g></svg>'
+    + '<span class="hoje-anel-tico">' + ticolino(ticoHumorDoDia(), 80) + '</span>';
 }
 
 function renderHome(){
   if(!document.getElementById('home-today-list')) return;
-  var d=garantirDiario(), feitos=tarefasDoDiaFeitas();
+  var d=garantirDiario(), feitos=tarefasDoDiaFeitas(), total=TAREFAS_DIA.length;
 
   // Saudação e data
   var hora=new Date().getHours();
   var saud = hora<12 ? T('goodMorning') : (hora<18 ? T('goodAfternoon') : T('goodEvening'));
   var nome=(state.perfil&&state.perfil.name)||'';
-  document.getElementById('home-greeting').textContent=saud+(nome?', '+nome:'');
-  document.getElementById('home-date').textContent=new Date().toLocaleDateString(idiomaAtual()==='en'?'en-US':'pt-BR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('home-avatar').innerHTML = (state.perfil&&state.perfil.avatar)
-    ? '<img src="'+esc(state.perfil.avatar)+'" alt="">'
-    : ticolino('feliz',48,true);
+  var primeiro = nome.trim().split(/\s+/)[0];
+  document.getElementById('home-greeting').textContent=saud+(primeiro?', '+primeiro:'');
+  var data=new Date().toLocaleDateString(idiomaAtual()==='en'?'en-US':'pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('home-date').textContent=data.charAt(0).toUpperCase()+data.slice(1);
 
-  // Streak e XP (reaproveita o XP dos Estudos)
+  // Topo: ofensiva, nozes (pintadas por js/nozes.js) e nivel.
   var xp=(typeof studyXP==='number'?studyXP:0);
-  var nivel=Math.floor(xp/100)+1, noNivel=xp%100;
+  var nivel=Math.floor(xp/100)+1;
   document.getElementById('home-streak').textContent=ofensivaAtual();
   document.getElementById('home-level').textContent=T('level')+' '+nivel;
-  // O numero acompanha a barra: mesmo tempo, mesma curva. Ver contarAte().
-  contarAte(document.getElementById('home-xp'), noNivel, function(v){ return v+'/100 XP'; });
-  document.getElementById('home-xp-bar').style.width=noNivel+'%';
 
-  // Ticolino e sua fala
-  document.getElementById('home-tico').innerHTML=ticolino(ticoHumorDoDia(),56);
-  document.getElementById('home-tico-msg').textContent =
-    feitos===0 ? T('msgStart') : (feitos>=4 ? T('msgDone') : T('msgMid'));
+  // Seu dia: o numero, a fala do Ticolino e o anel.
+  document.getElementById('home-dia-num').textContent=feitos+' de '+total;
+  var frases = feitos===0 ? T('msgStart') : (feitos>=total ? T('msgDone') : T('msgMid'));
+  var partes = String(frases).split('. ');
+  document.getElementById('home-tico-msg').textContent = partes[0] + (partes.length > 1 ? '.' : '');
+  document.getElementById('home-dia-sub').textContent = partes.slice(1).join('. ');
+  var anel=document.getElementById('home-anel');
+  anel.innerHTML=anelDoDia(feitos,total);
+  anel.setAttribute('aria-label', feitos+' de '+total+' itens do dia feitos');
 
   // Lista do dia
-  document.getElementById('home-today-count').textContent=feitos+' '+T('deQuatroConcluidos');
+  var xpFalta = TAREFAS_DIA.reduce(function(s,t){ return s + (d[t.chave] ? 0 : t.xp); }, 0);
+  document.getElementById('home-today-count').textContent = xpFalta ? '+'+xpFalta+' XP para fechar o anel' : 'Anel fechado';
   pintarItensDoDia(d);
 
-  // Cartoes rapidos.
-  // Este cartao somava o campo 'budget' de metas e tarefas e nunca lia
-  // state.gastos — mostrava R$0 para quem tinha lancamentos. Agora soma os
-  // gastos do mes corrente, que e o que o rotulo promete.
+  // Dinheiro do mes: o que saiu e quanto isso e do que entrou.
   var hoje=new Date(), mes=hoje.getMonth(), ano=hoje.getFullYear();
-  var gastoMes=(state.gastos||[]).filter(function(g){
-    var d=new Date(g.data+'T12:00:00');
-    return d.getMonth()===mes && d.getFullYear()===ano;
-  }).reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0);
+  var doMesFn=function(lista){ return (lista||[]).filter(function(g){
+    var dd=new Date(g.data+'T12:00:00');
+    return dd.getMonth()===mes && dd.getFullYear()===ano;
+  }); };
+  var gastosMes=doMesFn(state.gastos), ganhosMes=doMesFn(state.ganhos);
+  var soma=function(l){ return l.reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0); };
+  var gastoMes=soma(gastosMes), entrouMes=soma(ganhosMes);
+  var mesCurto=hoje.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
+  document.getElementById('home-gastos-rotulo').textContent='Dinheiro · '+mesCurto;
   document.getElementById('home-stat-gastos').textContent=moeda(gastoMes);
+  var pctG = entrouMes>0 ? Math.round(gastoMes/entrouMes*100) : 0;
+  document.getElementById('home-gastos-barra').innerHTML = mdBarra(Math.min(100,pctG), '', 'md-pb--sm t-dinheiro');
+  document.getElementById('home-stat-gastos-sub').textContent = entrouMes>0
+    ? pctG+'% do que entrou'
+    : gastosMes.length+' '+T(gastosMes.length===1?'lancamento':'lancamentos');
 
   // Treinos da semana. Le o mesmo historico da aba Exercicios.
   var seg = (typeof exSegunda==='function') ? exSegunda(new Date()) : null;
@@ -322,19 +359,10 @@ function renderHome(){
     treinosSemana = exDiasTreinados(seg, fim);
     metaSemanal = state.exercicios.metaSemanal || 5;
   }
-  document.getElementById('home-stat-treinos').textContent=treinosSemana;
-  var st=document.getElementById('home-stat-treinos-sub');
-  if(st) st.textContent='Meta: '+metaSemanal+' dias';
-
-  // Sub-rotulos dos dois atalhos (design system): quantos lancamentos no mes
-  // e quantas metas vencem neste mes.
-  var doMes=(state.gastos||[]).filter(function(g){
-    var d=new Date(g.data+'T12:00:00');
-    return d.getMonth()===mes && d.getFullYear()===ano;
-  }).length;
-  var sg=document.getElementById('home-stat-gastos-sub');
-  if(sg) sg.textContent=doMes+' '+T(doMes===1?'lancamento':'lancamentos');
-
+  document.getElementById('home-stat-treinos').textContent=treinosSemana+' de '+metaSemanal;
+  document.getElementById('home-treinos-barra').innerHTML = mdBarra(metaSemanal ? treinosSemana/metaSemanal*100 : 0, '', 'md-pb--sm t-exercicio');
+  var faltaT = Math.max(0, metaSemanal - treinosSemana);
+  document.getElementById('home-stat-treinos-sub').textContent = faltaT ? 'faltam '+faltaT+(faltaT===1?' dia':' dias') : 'meta da semana batida';
 
   // Em andamento (mantido do app original)
   // A tarefa recorrente que espera a proxima data nao esta "em andamento".
@@ -347,28 +375,15 @@ function renderHome(){
 
   var scroll=document.getElementById('home-tasks-scroll');
   if(all.length===0){
-    scroll.innerHTML='<div class="empty-inline">'+T('nothingRunning')+'</div>';
-    ajustarSetasCarrossel();
+    scroll.innerHTML='<p class="md-meta hoje-vazio">'+T('nothingRunning')+'</p>';
     return;
   }
-  scroll.innerHTML=all.map(function(item){
-    return '<div class="task-mini" onclick="openDetail(\''+item._type+'\',\''+item.id+'\')">'+
-      '<div class="task-mini-img">'+(item.img?'<img src="'+item.img+'">':'<div class="default-icon">✓</div>')+'</div>'+
-      '<div class="task-mini-label">'+T('objective')+'</div>'+
-      '<div class="task-mini-title">'+esc(item.name)+'</div>'+
-      '<div class="task-mini-desc">'+esc(item.desc||'')+'</div></div>';
+  scroll.innerHTML=all.slice(0,12).map(function(item){
+    var meta = item._type==='meta';
+    return '<button type="button" class="hoje-and ' + (meta ? 'a-metas' : 'a-tarefas') + '" onclick="openDetail(\''+item._type+'\',\''+item.id+'\')">'+
+      '<span class="md-tile md-tile--sm ' + (meta ? 'a-metas' : 'a-tarefas') + '">' + ico(meta ? 'metas' : 'tarefas', 18) + '</span>'+
+      '<span class="md-row-txt"><span class="md-label md-a-txt">'+(meta ? 'Meta' : 'Tarefa')+'</span>'+
+      '<span class="hoje-and-titulo">'+esc(item.name)+'</span></span></button>';
   }).join('');
-  ajustarSetasCarrossel();
 }
 
-// As setas do carrossel so aparecem quando ha conteudo alem da largura visivel.
-function ajustarSetasCarrossel(){
-  var scroll=document.getElementById('home-tasks-scroll');
-  if(!scroll) return;
-  var precisa = scroll.scrollWidth > scroll.clientWidth + 4;
-  document.querySelectorAll('.scroll-arrows .scroll-arrow').forEach(function(b){
-    b.hidden = !precisa;
-  });
-}
-window.addEventListener('resize', ajustarSetasCarrossel);
-function scrollTasks(dir){document.getElementById('home-tasks-scroll').scrollBy({left:dir*200,behavior:'smooth'});}
