@@ -75,11 +75,13 @@ var PLANO_RECURSOS = [
   {chave:'tarefas',    de:'free', rotuloFree:'20 tarefas liberadas', rotulo:'Tarefas ilimitadas'},
   {chave:'metas',      de:'free', rotuloFree:'20 metas liberadas',   rotulo:'Metas ilimitadas'},
   {chave:'abas',       de:'free', rotulo:'Acesso a todas as abas'},
+  // As cores do Ticolino sao de todos os planos: cada um compra as suas com
+  // as nozes que junta (js/nozes.js). Nenhum plano libera cor de graca.
+  {chave:'skins',      de:'free', rotulo:'Cores do Ticolino com nozes'},
   {chave:'lembretes',  de:'pro',  rotulo:'Lembretes diários'},
   {chave:'financas',   de:'pro',  rotulo:'Gráficos e médias do Dinheiro'},
   {chave:'xpDobro',    de:'max',  rotulo:'XP em dobro'},
   {chave:'relatorios', de:'max',  rotulo:'Relatórios'},
-  {chave:'skins',      de:'max',  rotulo:'Skins do Ticolino',     breve:true},
   {chave:'temas',      de:'max',  rotulo:'Temas do aplicativo',   breve:true}
 ];
 
@@ -260,8 +262,8 @@ function planoConfirmar(qual){
   document.getElementById('assinar-total').textContent = p.preco;
   document.getElementById('assinar-cobranca').textContent = p.preco + ' por mês';
   document.getElementById('assinar-ganho').textContent = qual === 'max'
-    ? 'Você libera tudo do Pro, o XP em dobro e os relatórios. As skins do Ticolino e os temas do aplicativo entram assim que ficarem prontos.'
-    : 'Você libera tarefas e metas ilimitadas. Os lembretes de tarefas entram assim que ficarem prontos.';
+    ? 'Você libera tudo do Pro, o XP em dobro e os relatórios. Os temas do aplicativo entram assim que ficarem prontos.'
+    : 'Você libera tarefas e metas ilimitadas, os lembretes diários e os gráficos e médias do Dinheiro.';
   var botao = document.getElementById('assinar-ok');
   botao.disabled = false;
   botao.textContent = 'Ir para o pagamento';

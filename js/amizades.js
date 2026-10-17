@@ -257,7 +257,7 @@ function amzNickSugerido(){
 
 function amzTelaDesligada(){
   var nick = (AMZ.perfil && AMZ.perfil.nick) || amzNickSugerido();
-  var itens = ['Seu Ticolino, com cor e roupinha', 'Nível e XP', 'Ofensiva', 'Páginas lidas'];
+  var itens = ['Seu Ticolino, com a cor dele', 'Nível e XP', 'Ofensiva', 'Páginas lidas'];
   // O nick e o botao vem logo depois do convite: embaixo do cartao de
   // explicacao eles caiam fora da tela num celular pequeno, e a pessoa
   // achava que nao havia como ligar.
@@ -416,7 +416,7 @@ function amzAbrirPrivacidade(){
 function amzFecharPrivacidade(){ AMZ.tela = 'principal'; renderAmizades(true); }
 
 var AMZ_CHAVES = [
-  ['vistos', 'mostra_cor',      'Cor e roupinha do Ticolino'],
+  ['vistos', 'mostra_cor',      'Cor do Ticolino'],
   ['vistos', 'mostra_nivel',    'Nível e XP'],
   ['vistos', 'mostra_ofensiva', 'Ofensiva'],
   ['vistos', 'mostra_paginas',  'Páginas lidas'],
