@@ -434,11 +434,29 @@ function opcoesTempo(sel){
 
 // Cada linha do editor e montada com DOM (nao com texto da pessoa dentro
 // de HTML), e o valor vai nos campos pela propriedade .value.
+var _pdSeq = 0;   // ids dos campos: unicos mesmo depois de tirar linhas
+
+// Dias (fora o dia aberto) em que esta materia ja esta no plano.
+function diasDaMateria(materia, menos){
+  var k = chaveMateria(materia), dias = [];
+  if(!k) return dias;
+  garantirPlano().forEach(function(p){
+    if(p.dia !== menos && chaveMateria(p.materia) === k && dias.indexOf(p.dia) < 0) dias.push(p.dia);
+  });
+  return dias.sort();
+}
+
 function linhaEditor(p){
-  var n = document.querySelectorAll('#pd-lista .pd-item').length + 1;
+  var n = ++_pdSeq;
   var div = document.createElement('div');
   div.className = 'pd-item';
+  var eram = p ? diasDaMateria(p.materia, pdDia) : [];
   if(p && p.id) div.dataset.id = p.id;
+  // Como a linha estava ao abrir: decide o que repassar aos outros dias.
+  if(p){
+    div.dataset.orig = JSON.stringify({ materia: p.materia, min: p.min, inicio: p.inicio || '', topico: p.topico || '' });
+    div.dataset.eram = eram.join(',');
+  }
   div.innerHTML =
       '<div class="pd-linha">'
     +   '<div class="form-group pd-mat"><label class="form-label" for="pd-m' + n + '">Matéria</label>'
@@ -450,7 +468,22 @@ function linhaEditor(p){
     +   '<div class="form-group"><label class="form-label" for="pd-h' + n + '">Começa</label><input class="form-input" id="pd-h' + n + '" type="time"></div>'
     + '</div>'
     + '<div class="form-group"><label class="form-label" for="pd-t' + n + '">Tópico <span class="pd-opc">opcional</span></label>'
-    +   '<input class="form-input" id="pd-t' + n + '" maxlength="' + TOPICO_MAX + '" placeholder="Ex.: Freud, terapia cognitivo-comportamental"></div>';
+    +   '<input class="form-input" id="pd-t' + n + '" maxlength="' + TOPICO_MAX + '" placeholder="Ex.: Freud, terapia cognitivo-comportamental"></div>'
+    + '<div class="pd-repete">'
+    +   '<span class="form-label" id="pd-r' + n + '">Dias</span>'
+    +   '<div class="pd-rdias" role="group" aria-labelledby="pd-r' + n + '">'
+    +     DIAS_LETRA.map(function(l, i){
+            var aqui = i === pdDia;
+            return '<button type="button" class="pd-rdia" data-d="' + i + '" aria-pressed="' + (aqui || eram.indexOf(i) >= 0) + '"'
+              + (aqui ? ' disabled aria-label="' + DIAS_SEMANA[i] + ', o dia aberto"' : ' aria-label="' + DIAS_SEMANA[i] + '"')
+              + ' onclick="pdAlternarDia(this)">' + l + '</button>';
+          }).join('')
+    +   '</div>'
+    +   '<div class="pd-ratalhos">'
+    +     '<button type="button" class="md-link-bt" onclick="pdDiasAtalho(this,1)">Todo dia</button>'
+    +     '<button type="button" class="md-link-bt" onclick="pdDiasAtalho(this,0)">Seg a sex</button>'
+    +   '</div>'
+    + '</div>';
   if(p){
     div.querySelector('#pd-m' + n).value = p.materia || '';
     div.querySelector('#pd-h' + n).value = p.inicio || '';
@@ -473,9 +506,24 @@ function pdTirar(bt){
   if(!document.querySelectorAll('#pd-lista .pd-item').length) pdAdicionar();
 }
 
+// Dias em que a materia da linha se repete. O dia aberto fica sempre marcado.
+function pdAlternarDia(bt){
+  if(bt.disabled) return;
+  bt.setAttribute('aria-pressed', bt.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+}
+// todos = 1: os 7 dias. todos = 0: segunda a sexta (o dia aberto continua).
+function pdDiasAtalho(bt, todos){
+  var item = bt.closest('.pd-item');
+  if(!item) return;
+  item.querySelectorAll('.pd-rdia').forEach(function(c){
+    var d = parseInt(c.dataset.d, 10);
+    if(!c.disabled) c.setAttribute('aria-pressed', String(todos === 1 || d <= 4));
+  });
+}
+
 // Le os campos do dia aberto. Devolve null (e avisa) se algo esta errado.
 function pdLerDia(){
-  var itens = [], erro = null;
+  var linhas = [], erro = null;
   document.querySelectorAll('#pd-lista .pd-item').forEach(function(div){
     var campos = div.querySelectorAll('input, select');
     var materia = textoLimpo(campos[0].value, MATERIA_MAX);
@@ -485,30 +533,93 @@ function pdLerDia(){
       min: parseInt(campos[1].value, 10), inicio: campos[2].value, topico: campos[3].value
     });
     if(!e){ erro = 'Confira o tempo de ' + materia + '.'; return; }
-    itens.push(e);
+    var orig = null;
+    try { orig = div.dataset.orig ? JSON.parse(div.dataset.orig) : null; } catch(x){ orig = null; }
+    var dias = [];
+    div.querySelectorAll('.pd-rdia[aria-pressed="true"]').forEach(function(c){
+      var d = parseInt(c.dataset.d, 10);
+      if(d >= 0 && d <= 6 && d !== pdDia) dias.push(d);
+    });
+    var eram = (div.dataset.eram || '').split(',').map(Number).filter(function(d){ return d >= 0 && d <= 6 && d !== pdDia; });
+    linhas.push({ e: e, dias: dias, eram: (div.dataset.eram ? eram : []), orig: orig });
   });
   if(erro){ toast(erro); return null; }
-  return itens;
+  return linhas;
 }
 
-function pdGravarDia(){
-  var itens = pdLerDia();
-  if(!itens) return false;
-  var outros = garantirPlano().filter(function(p){ return p.dia !== pdDia; });
-  if(outros.length + itens.length > PLANO_MAX){
-    toast('O plano da semana tem espaço para ' + PLANO_MAX + ' matérias.');
-    return false;
+// Leva a materia de uma linha aos outros dias marcados nela.
+//   Dia novo: recebe uma copia (tempo, horario e topico).
+//   Dia que ja tinha: so muda o que a pessoa mudou agora. Assim o topico
+//     proprio de cada dia (Freud na segunda, Jung na quarta) nao se perde.
+//   Dia desmarcado que tinha: a materia sai de la.
+// Devolve os dias que nao tinham vaga.
+function pdRepetir(L, outros, manter){
+  var o = L.orig || { materia: L.e.materia, min: L.e.min, inicio: L.e.inicio || '', topico: L.e.topico || '' };
+  var kOrig = chaveMateria(o.materia), kNova = chaveMateria(L.e.materia);
+  var mudou = {
+    materia: L.e.materia !== o.materia, min: L.e.min !== o.min,
+    inicio: (L.e.inicio || '') !== o.inicio, topico: (L.e.topico || '') !== o.topico
+  };
+  var semVaga = [];
+  for(var d = 0; d < 7; d++){
+    if(d === pdDia) continue;
+    var quer = L.dias.indexOf(d) >= 0, tinha = L.eram.indexOf(d) >= 0, i = -1;
+    for(var j = 0; j < outros.length; j++){
+      var k = chaveMateria(outros[j].materia);
+      if(outros[j].dia === d && (k === kOrig || k === kNova)){ i = j; break; }
+    }
+    if(!quer){ if(tinha && i >= 0) outros.splice(i, 1); continue; }
+    if(i >= 0){
+      var a = outros[i], tudo = !tinha;
+      var n = itemDoPlano({
+        id: a.id, dia: d,
+        materia: (tudo || mudou.materia) ? L.e.materia : a.materia,
+        min:     (tudo || mudou.min)     ? L.e.min     : a.min,
+        inicio:  (tudo || mudou.inicio)  ? L.e.inicio  : a.inicio,
+        topico:  (tudo || mudou.topico)  ? L.e.topico  : a.topico
+      });
+      if(n) outros[i] = manter(n);
+    } else {
+      var ocupados = outros.filter(function(p){ return p.dia === d; }).length;
+      if(ocupados >= 8){ semVaga.push(d); continue; }
+      var c = itemDoPlano({ id: uid(), dia: d, materia: L.e.materia, min: L.e.min, inicio: L.e.inicio, topico: L.e.topico });
+      if(c) outros.push(c);
+    }
   }
+  return semVaga;
+}
+
+var _pdAviso = '';
+
+function pdGravarDia(){
+  _pdAviso = '';
+  var linhas = pdLerDia();
+  if(!linhas) return false;
+  var plano = garantirPlano();
   // Mantem o objeto (e o id) de quem nao mudou: o sync so marca o que mudou.
   var antigos = {};
-  garantirPlano().forEach(function(p){ antigos[p.id] = p; });
-  var novos = itens.map(function(e){
+  plano.forEach(function(p){ antigos[p.id] = p; });
+  function manter(e){
     var a = antigos[e.id];
     if(a && a.dia === e.dia && a.materia === e.materia && a.min === e.min && (a.inicio || '') === (e.inicio || '') && (a.topico || '') === (e.topico || '')) return a;
     delete e._upd;
     return e;
+  }
+  var doDia = linhas.map(function(L){ return manter(L.e); });
+  var outros = plano.filter(function(p){ return p.dia !== pdDia; });
+  var semVaga = [];
+  linhas.forEach(function(L){
+    pdRepetir(L, outros, manter).forEach(function(d){ if(semVaga.indexOf(d) < 0) semVaga.push(d); });
   });
-  state.planoEstudos = _planoRef = outros.concat(novos);
+  if(outros.length + doDia.length > PLANO_MAX){
+    toast('O plano da semana tem espaço para ' + PLANO_MAX + ' matérias.');
+    return false;
+  }
+  state.planoEstudos = _planoRef = outros.concat(doDia);
+  if(semVaga.length){
+    _pdAviso = semVaga.sort().map(function(d){ return DIAS_CURTOS[d]; }).join(', ')
+      + (semVaga.length === 1 ? ' já tem' : ' já têm') + ' 8 matérias. Lá não entrou nada novo.';
+  }
   return true;
 }
 
@@ -520,6 +631,7 @@ function pdTrocarDia(i){
   if(!pdGravarDia()) return;
   saveState();
   repintarPlano();
+  if(_pdAviso) toast(_pdAviso);
   pdDia = i;
   pintarEditorPlano();
 }
@@ -530,5 +642,5 @@ function pdSalvar(){
   closeModal('modal-plano-dia');
   if(typeof garantirBlocoEstudos === 'function') garantirBlocoEstudos();
   repintarPlano();
-  toast('Plano salvo.');
+  toast(_pdAviso ? 'Plano salvo. ' + _pdAviso : 'Plano salvo.');
 }

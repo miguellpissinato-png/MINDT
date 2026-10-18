@@ -219,6 +219,17 @@
 .pd-tirar:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .pd-opc{text-transform:none;letter-spacing:0;font-weight:400}
 .pd-add{margin-bottom:6px}
+/* Dias em que a materia da linha se repete (cor de destaque, para nao
+   confundir com os chips do topo, que escolhem o dia que esta aberto). */
+.pd-repete{display:flex;flex-direction:column;gap:6px;padding-top:2px}
+.pd-repete .form-label{margin:0}
+.pd-rdias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.pd-rdia{all:unset;box-sizing:border-box;cursor:pointer;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-sans);font-size:13px;font-weight:700;background:var(--track);color:var(--ink-2);-webkit-tap-highlight-color:transparent}
+.pd-rdia[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.pd-rdia:disabled{cursor:default;box-shadow:inset 0 0 0 2px var(--ink)}
+.pd-rdia:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pd-ratalhos{display:flex;gap:4px;margin-left:-10px}
 
 /* Heroi em frase (quadro sem nada planejado): menor que o numero. */
 .md-hdr-hero.qd-hero-txt{font-size:32px;letter-spacing:-.03em}
