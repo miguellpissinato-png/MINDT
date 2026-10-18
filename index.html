@@ -35,6 +35,7 @@
 <link rel="stylesheet" href="styles/ds2.css">
 <link rel="stylesheet" href="styles/atalhos.css">
 <link rel="stylesheet" href="styles/quadro.css">
+<link rel="stylesheet" href="styles/mural.css">
 </head>
 <body class="na-home">
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
@@ -552,10 +553,13 @@
         <div class="md-hdr-acoes">
           <button type="button" class="md-btn md-btn--header" onclick="abrirAdicionarBloco()"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Bloco</button>
           <button type="button" class="md-btn md-btn--header" id="qd-organizar" onclick="alternarOrganizarQuadro()" aria-pressed="false" hidden>Organizar</button>
+          <button type="button" class="md-btn md-btn--header" id="qd-modo" onclick="alternarModoQuadro()" hidden>Ver como lista</button>
         </div>
       </header>
       <div class="md-in">
         <div class="qd-blocos" id="qd-blocos"></div>
+        <!-- Mural livre no computador (js/mural.js) -->
+        <div class="qd-mural" id="qd-mural" hidden></div>
       </div>
     </section>
 
@@ -1981,6 +1985,30 @@
   </div>
 </div>
 
+<!-- ─────── MURAL: paineis (js/mural.js) ─────── -->
+<div class="modal-overlay" id="modal-paineis">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="pn-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-paineis')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="pn-titulo">Painéis</div>
+    <p class="md-meta">Cada painel é um mural. Os blocos com dados ficam no Principal.</p>
+    <div class="pn-lista" id="pn-lista" role="radiogroup" aria-label="Escolher painel"></div>
+    <div class="pn-sec" id="pn-editar" hidden>
+      <div class="pn-linha">
+        <div class="form-group"><label class="form-label" for="pn-nome">Nome deste painel</label><input class="form-input" id="pn-nome" maxlength="30" autocomplete="off"></div>
+        <button type="button" class="md-btn md-btn--secondary" onclick="renomearPainel()">Renomear</button>
+      </div>
+      <button type="button" class="btn btn-danger pn-apagar" onclick="pedirApagarPainel()">Apagar este painel</button>
+    </div>
+    <div class="pn-sec">
+      <div class="pn-linha" id="pn-novo-wrap">
+        <div class="form-group"><label class="form-label" for="pn-novo">Novo painel</label><input class="form-input" id="pn-novo" maxlength="30" placeholder="Ex.: Faculdade" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();criarPainel();}"></div>
+        <button type="button" class="md-btn md-btn--primary" onclick="criarPainel()">Criar</button>
+      </div>
+      <p class="md-meta" id="pn-cheio" hidden>Já são 8 painéis além do Principal. Apague um para criar outro.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ─────── PLANO DE ESTUDOS: editar um dia (js/estudos-plano.js) ─────── -->
 <div class="modal-overlay" id="modal-plano-dia">
   <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="pd-titulo">
@@ -2045,6 +2073,7 @@
 <script src="js/estudos-plano.js"></script>
 <script src="js/quadro.js"></script>
 <script src="js/atalhos.js"></script>
+<script src="js/mural.js"></script>
 <script src="js/amizades.js"></script>
 <script src="js/nozes.js"></script>
 <script src="js/notificacoes.js"></script>

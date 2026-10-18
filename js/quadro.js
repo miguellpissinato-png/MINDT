@@ -177,6 +177,27 @@ function renderQuadro(){
   var tico = document.getElementById('qd-tico');
   if(tico) tico.innerHTML = ticolino(r.total && r.feitos * 2 >= r.total ? 'orgulhoso' : 'focado', 96);
 
+  // Computador: o mural livre (js/mural.js). Celular: a coluna de blocos.
+  var mural = typeof muralAtivo === 'function' && muralAtivo();
+  var modo = document.getElementById('qd-modo');
+  if(modo){
+    modo.hidden = !(typeof telaLarga === 'function' && telaLarga());
+    modo.innerHTML = mural ? ico('list', 18, 2.2) + 'Ver como lista' : ico('quadro', 18, 2.2) + 'Ver mural';
+  }
+  document.getElementById('page-quadro').classList.toggle('qd-modo-mural', mural);
+  var caixaMural = document.getElementById('qd-mural');
+  box.hidden = mural;
+  if(caixaMural) caixaMural.hidden = !mural;
+  if(mural){
+    quadroOrganizando = false;
+    document.getElementById('qd-organizar').hidden = true;
+    document.getElementById('page-quadro').classList.remove('qd-org');
+    document.getElementById('qd-sub').textContent = (r.total ? r.feitos + ' de ' + r.total + ' itens da semana feitos. ' : '')
+      + 'Solte post-its, textos e listas onde quiser e ligue tudo com setas.';
+    renderMural();
+    return;
+  }
+
   var org = document.getElementById('qd-organizar');
   if(org){
     org.hidden = !blocos.length;
@@ -190,12 +211,13 @@ function renderQuadro(){
       + '<p>Seu quadro está vazio. O modelo <b>Semana de estudos</b> já vem com plano de estudos, lista da semana e rotina. Ou escolha os blocos um a um.</p>'
       + '<button type="button" class="md-btn md-btn--primary" onclick="aplicarModeloSemana()">' + ico('estudos', 18, 2.2) + 'Usar o modelo</button>'
       + '<button type="button" class="md-btn md-btn--secondary" onclick="abrirAdicionarBloco()">' + ico('plus', 18, 2.4) + 'Escolher blocos</button>'
-      + '</div>';
+      + '</div>' + (typeof htmlMuralNaLista === 'function' ? htmlMuralNaLista() : '');
     return;
   }
 
   _materiasNaTela = [];
   box.innerHTML = blocos.map(function(b, i){ return htmlBloco(b, i, blocos.length); }).join('')
+    + (typeof htmlMuralNaLista === 'function' ? htmlMuralNaLista() : '')
     + (blocos.length < QUADRO_MAX
       ? '<button type="button" class="qd-add" onclick="abrirAdicionarBloco()">' + ico('plus', 18, 2.6) + 'Adicionar bloco</button>'
       : '<p class="md-meta qd-cheio">O quadro tem espaço para ' + QUADRO_MAX + ' blocos.</p>');

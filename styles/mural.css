@@ -1,0 +1,159 @@
+/* MURAL (Quadro no computador) — js/mural.js
+   Design System 2: fundo pontilhado em tom de cartao, itens com borda de
+   2px e base tatil, barra de ferramentas escura embaixo (como a navegacao),
+   cor so onde significa algo (post-it, area do bloco). Tudo por token. */
+
+/* ── Cabecalho mais baixo no modo mural: o espaco e do mural ─────────── */
+.qd-modo-mural #qd-hero{display:none}
+.qd-modo-mural .md-hdr{padding-bottom:16px}
+.qd-modo-mural #qd-tico svg,.qd-modo-mural #qd-tico img{width:64px;height:auto}
+#qd-modo[hidden],#qd-mural[hidden]{display:none}
+
+/* ── Area do mural ─────────────────────────────────────────────────────── */
+.mu{position:relative;height:calc(100vh - 210px);height:calc(100dvh - 210px);min-height:520px;border-radius:24px;border:2px solid var(--line);
+  background-color:var(--card-muted);background-image:radial-gradient(var(--line) 1.5px,transparent 1.5px);background-size:22px 22px;
+  overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;outline:none;cursor:default}
+.mu.arrastando{cursor:grabbing}
+.mu[data-ferr="postit"],.mu[data-ferr="texto"],.mu[data-ferr="lista"],.mu[data-ferr="seta"]{cursor:crosshair}
+.mu[data-ferr="postit"] .mu-el,.mu[data-ferr="texto"] .mu-el,.mu[data-ferr="lista"] .mu-el,.mu[data-ferr="seta"] .mu-el{cursor:crosshair}
+.mu-mundo{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0}
+
+/* ── Itens ─────────────────────────────────────────────────────────────── */
+.mu-el{position:absolute;box-sizing:border-box;outline:none;color:var(--ink)}
+.mu-el.sel{outline:2px solid var(--ink);outline-offset:5px}
+.mu-el:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
+.mu-txt{white-space:pre-wrap;overflow-wrap:anywhere}
+
+.mu-postit{display:flex;flex-direction:column;padding:16px;border-radius:14px;font-size:16px;font-weight:600;line-height:1.38;
+  box-shadow:var(--tactile-block);cursor:grab}
+/* O corte fica no texto, nao no post-it: a alca de tamanho fica para fora. */
+.mu-postit .mu-txt{flex:1;min-height:0;overflow:hidden}
+.mu-postit .mu-txt:empty::before{content:'Escreva aqui';opacity:.45}
+
+.mu-texto{padding:2px 6px;font-weight:700;letter-spacing:-.02em;line-height:1.15;cursor:grab}
+.mu-t-p{font-size:16px;font-weight:600;letter-spacing:0;line-height:1.4}
+.mu-t-m{font-size:26px}
+.mu-t-g{font-size:44px;letter-spacing:-.035em}
+
+.mu-lista{display:flex;flex-direction:column;gap:6px;padding:12px 14px;background:var(--card);border:2px solid var(--line);border-bottom-width:5px;
+  border-radius:18px;cursor:grab}
+.mu-lista-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-height:28px}
+.mu-lista-tit{flex:1;min-width:0;font-size:16px;font-weight:700;overflow-wrap:anywhere}
+.mu-li{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mu-li-i{display:flex;align-items:center;gap:8px;min-height:34px;font-size:14px}
+.mu-li-t{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.35}
+.mu-li-i.feito .mu-li-t{color:var(--ink-2);text-decoration:line-through}
+.mu-li-x{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-2);opacity:0}
+.mu-li-i:hover .mu-li-x,.mu-lista.sel .mu-li-x,.mu-li-x:focus-visible{opacity:1}
+.mu-li-x:hover{background:var(--track);color:var(--ink)}
+.mu-li-x:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
+.mu-li-add{all:unset;box-sizing:border-box;cursor:pointer;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px 0 6px;
+  border-radius:10px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.mu-li-add:hover{background:var(--track);color:var(--ink)}
+.mu-li-add:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
+
+.mu-bloco > .qd-blk{width:100%}
+.mu-bloco .qd-blk-h{cursor:grab}
+.mu-bloco .qd-blk-h button{cursor:pointer}
+
+.mu-el.editando{cursor:text}
+.mu-edit{all:unset;box-sizing:border-box;display:block;width:100%;min-height:1.3em;font:inherit;color:inherit;letter-spacing:inherit;line-height:inherit;
+  white-space:pre-wrap;overflow-wrap:anywhere;cursor:text;-webkit-user-select:text;user-select:text;resize:none;overflow:hidden}
+.mu-edit::placeholder{color:inherit;opacity:.45}
+.mu-postit .mu-edit{height:100%}
+
+/* Alca de tamanho do item selecionado */
+.mu-alca{position:absolute;right:-11px;bottom:-11px;width:18px;height:18px;box-sizing:border-box;border-radius:6px;background:var(--card);
+  border:2px solid var(--ink);cursor:nwse-resize;z-index:2}
+.mu-texto .mu-alca,.mu-lista .mu-alca,.mu-bloco .mu-alca{bottom:auto;top:calc(50% - 9px);cursor:ew-resize}
+
+/* ── Setas ─────────────────────────────────────────────────────────────── */
+/* Setas por baixo dos itens: clicar num item sempre pega o item; a seta e
+   clicavel no espaco entre eles (e as pontas encostam na borda). */
+.mu-setas{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0}
+.mu-seta{fill:none;stroke:var(--ink-2);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.mu-seta-g.sel .mu-seta{stroke:var(--ink);stroke-width:3}
+.mu-seta-hit{fill:none;stroke:transparent;stroke-width:18;pointer-events:stroke;cursor:pointer}
+.mu[data-ferr]:not([data-ferr="mover"]) .mu-seta-hit{pointer-events:none}
+.mu-ponta{fill:var(--card);stroke:var(--ink);stroke-width:2.5;pointer-events:all;cursor:move}
+
+/* ── Painel (canto de cima) ───────────────────────────────────────────── */
+.mu-topo{position:absolute;left:14px;top:14px;z-index:2}
+.mu-painel-bt{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;height:40px;max-width:280px;padding:0 12px;
+  border-radius:13px;background:var(--card);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--ink)}
+.mu-painel-bt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mu-painel-bt:hover{background:var(--card-muted)}
+.mu-painel-bt:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+/* ── Barra do item selecionado ─────────────────────────────────────────── */
+.mu-ctx{position:absolute;z-index:3;display:flex;align-items:center;gap:4px;padding:5px;border-radius:14px;background:var(--card);border:2px solid var(--line);
+  box-shadow:0 4px 0 var(--line)}
+.mu-ctx[hidden]{display:none}
+.mu-ctx-sep{width:2px;align-self:stretch;margin:4px 2px;border-radius:2px;background:var(--line)}
+.mu-ctx-bt{all:unset;box-sizing:border-box;cursor:pointer;min-width:34px;height:34px;padding:0 8px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--ink)}
+.mu-ctx-bt:hover{background:var(--track)}
+.mu-ctx-bt[aria-pressed="true"]{background:var(--chip-on);color:var(--on-chip-on)}
+.mu-ctx-bt--perigo{color:var(--danger)}
+.mu-ctx-bt:focus-visible,.mu-cor:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
+/* Sem all:unset: a cor de fundo vem da classe pt--<cor> (quadro.css). */
+.mu-cor{-webkit-appearance:none;appearance:none;padding:0;box-sizing:border-box;cursor:pointer;width:26px;height:26px;margin:0 2px;border-radius:99px;border:2px solid var(--line)}
+.mu-cor[aria-pressed="true"]{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+
+/* ── Ferramentas (embaixo, no meio) e zoom ─────────────────────────────── */
+.mu-ferr{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:2;display:flex;gap:4px;padding:6px;border-radius:18px;
+  background:var(--brand-ink);box-shadow:var(--tactile-ink)}
+.mu-fb{all:unset;box-sizing:border-box;cursor:pointer;min-width:64px;height:54px;padding:0 10px;border-radius:13px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;font-family:var(--font-sans);font-size:11px;font-weight:600;color:var(--on-brand-ink)}
+.mu-fb[hidden]{display:none}
+.mu-fb svg{color:var(--brand-ink-hi)}
+.mu-fb:hover{background:color-mix(in srgb,var(--on-brand-ink) 10%,transparent)}
+.mu-fb[aria-pressed="true"]{background:var(--brand-shade);color:var(--on-brand)}
+.mu-fb[aria-pressed="true"] svg{color:var(--on-brand)}
+.mu-fb:focus-visible{outline:3px solid var(--on-brand-ink);outline-offset:2px}
+.mu-zoom{position:absolute;right:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:2px;padding:4px;border-radius:14px;background:var(--card);
+  border:2px solid var(--line)}
+.mu-zoom button{all:unset;box-sizing:border-box;cursor:pointer;min-width:34px;height:34px;padding:0 4px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--ink)}
+.mu-zoom button:hover{background:var(--track)}
+.mu-zoom button:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
+.mu-zoom-v{min-width:52px}
+
+/* ── Mural vazio ──────────────────────────────────────────────────────── */
+.mu-dica{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);max-width:380px;display:flex;flex-direction:column;gap:6px;padding:18px 20px;
+  border-radius:18px;background:var(--card);border:2px dashed var(--control-line);text-align:center;font-size:14px;line-height:1.45;color:var(--ink-2);pointer-events:none}
+.mu-dica[hidden]{display:none}
+.mu-dica > b{font-size:16px;color:var(--ink)}
+.mu-dica span b{color:var(--ink)}
+
+/* ── Modal de paineis ─────────────────────────────────────────────────── */
+.pn-lista{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.pn-op{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:16px;background:var(--card);
+  border:2px solid var(--line);font-family:var(--font-sans)}
+.pn-op:hover{background:var(--card-muted)}
+.pn-op:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pn-op i{flex:none;width:20px;height:20px;box-sizing:border-box;border-radius:99px;border:2px solid var(--control-line)}
+.pn-op[aria-checked="true"]{border-color:var(--ink)}
+.pn-op[aria-checked="true"] i{border:6px solid var(--ink)}
+.pn-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.pn-txt b{font-size:15px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pn-linha{display:flex;gap:8px;align-items:flex-end}
+.pn-linha .form-group{flex:1;min-width:0;margin-bottom:0}
+.pn-sec{margin-top:14px;padding-top:14px;border-top:2px solid var(--line)}
+.pn-sec[hidden],.pn-sec > [hidden]{display:none}
+.pn-apagar{margin-top:10px}
+
+/* ── O mural em lista (celular ou "Ver como lista") ───────────────────── */
+.mu-nl-paineis{margin:-2px 0 2px}
+.mu-nl{display:flex;flex-direction:column;gap:10px}
+.mu-nl-pt{cursor:default;min-height:0}
+.mu-nl-pt:hover{transform:none}
+.mu-nl-tx{margin:0;font-weight:700;letter-spacing:-.02em;line-height:1.2;overflow-wrap:anywhere;white-space:pre-wrap}
+.mu-nl-tx.mu-t-g{font-size:28px}
+.mu-nl-tx.mu-t-m{font-size:20px}
+.mu-nl-lista{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:14px;background:var(--card-muted)}
+.mu-nl-lista > b{font-size:15px}
+.mu-nl-nota{margin:2px 0 0}
+
+@media (prefers-reduced-motion:reduce){ .mu-fb,.mu-ctx-bt{transition:none} }
