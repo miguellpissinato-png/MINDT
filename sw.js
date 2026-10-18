@@ -7,7 +7,7 @@
 // Para publicar uma versao nova, mude o VERSAO abaixo. O app avisa o usuario
 // e troca quando ele aceitar.
 
-var VERSAO = 'mindt-v57';
+var VERSAO = 'mindt-v58';
 
 var ARQUIVOS = [
   './',
@@ -18,6 +18,8 @@ var ARQUIVOS = [
   './styles/amizades.css',
   './styles/nozes.css',
   './styles/ds2.css',
+  './styles/atalhos.css',
+  './styles/quadro.css',
   './img/toca.svg',
   './js/config.js',
   './js/helpers.js',
@@ -44,6 +46,9 @@ var ARQUIVOS = [
   './js/estudos.js',
   './js/exercicios.js',
   './js/leitura.js',
+  './js/estudos-plano.js',
+  './js/quadro.js',
+  './js/atalhos.js',
   './js/amizades.js',
   './js/nozes.js',
   './js/notificacoes.js',

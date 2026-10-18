@@ -21,7 +21,9 @@
 //
 // Nada aqui apaga dado sem que exista uma marca de exclusao mais recente.
 
-var COLECOES = ['metas','tasks','notas','gastos','categorias','livros','eventos','contatos','ganhos','instituicoes'];
+// planoEstudos, sessoesEstudo e quadro: js/estudos-plano.js e js/quadro.js.
+var COLECOES = ['metas','tasks','notas','gastos','categorias','livros','eventos','contatos','ganhos','instituicoes',
+                'planoEstudos','sessoesEstudo','quadro'];
 
 var revLocal = null;      // updated_at do servidor que conhecemos
 var sombra = null;        // ultimo estado sincronizado, para comparacao

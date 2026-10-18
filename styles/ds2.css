@@ -574,13 +574,7 @@ button.md-lista-item:focus-visible{outline:3px solid var(--ink);outline-offset:-
 .hoje-anel-tico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-top:4px}
 .hoje-falta{font-size:13px;font-weight:600;color:var(--accent-ink);text-align:right}
 .hoje-lista{display:flex;flex-direction:column;gap:10px}
-.hoje-minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
-.hoje-mini{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:2px solid var(--line);border-radius:var(--radius-card);padding:12px 14px;
-  display:flex;flex-direction:column;gap:6px;min-width:0;font-family:var(--font-sans);color:var(--ink)}
-.hoje-mini:hover{border-color:var(--line-strong)}
-.hoje-mini:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-.hoje-mini-val{font-size:20px;font-weight:600;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hoje-mini .md-meta{font-size:11px}
+/* Os cartoes de baixo (antes .hoje-mini) agora sao os atalhos: styles/atalhos.css */
 .hoje-andamento{display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .hoje-andamento-lista{display:flex;flex-direction:column;gap:8px}
 .hoje-and{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--card);border:2px solid var(--line);
