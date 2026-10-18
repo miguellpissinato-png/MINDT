@@ -7,6 +7,8 @@ function renderEstudos() {
   updateTimerRing();
   updateSessionDots();
   pintarBotoesTimer();
+  // Plano da semana e a materia do timer (js/estudos-plano.js).
+  if(typeof renderPlanoEstudos === 'function') renderPlanoEstudos();
 }
 
 // Botoes e Ticolino do timer (Design System 2). O Ticolino mostra o estado:
@@ -344,12 +346,15 @@ function timerFinished() {
   var doItem = (timerTotal >= POMODORO_MIN_XP && typeof marcarItemPorAtividade === 'function') ? marcarItemPorAtividade('estudo') : 0;
   if (doItem) { ganhou += doItem; aviso += ' Item de estudos do dia concluído.'; }
   if (typeof registrarEstudo === 'function') registrarEstudo(Math.round(timerTotal / 60));
+  // Sessao de verdade com materia escolhida conta no plano da semana.
+  if (timerTotal >= POMODORO_MIN_XP && typeof registrarSessaoMateria === 'function') registrarSessaoMateria(Math.round(timerTotal / 60));
   todaySessions++;
   state.studyXP = studyXP;
   state.todaySessions = todaySessions;
   state.sessionDate = new Date().toDateString();
   saveState();
   updateSessionDots();
+  if (typeof renderPlanoEstudos === 'function') renderPlanoEstudos();
   toast('🎉 Sessão concluída!' + (ganhou ? ' +' + ganhou + ' XP.' : '') + aviso);
   setTimeout(function() {
     if (timerRunning) return;

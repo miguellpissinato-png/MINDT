@@ -1,0 +1,71 @@
+/* ATALHOS DA HOME e CHAMADO DO TICOLINO (js/atalhos.js)
+   Design System 2: cartoes com borda de 2px e base de 5px (tateis), cor
+   so onde ela significa a area, nenhuma cor solta (tudo por token). */
+
+/* ── Cartoes vivos ─────────────────────────────────────────────────────── */
+.at-sec{margin-top:10px}
+.at-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lv{box-sizing:border-box;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:164px;padding:12px 12px 12px 14px;
+  background:var(--card);color:var(--ink);border:2px solid var(--line);border-bottom-width:5px;border-radius:var(--radius-card-lg)}
+.lv-top{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:28px}
+.lv-top .md-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lv-ico{width:28px;height:28px;border-radius:9px}
+.lv-ico svg{width:16px;height:16px}
+.lv-val{all:unset;box-sizing:border-box;cursor:pointer;font-family:var(--font-sans);font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.2;
+  color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:6px}
+.lv-val:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.lv-val:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.lv-meta{font-size:12px;line-height:1.35;color:var(--ink-2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.lv-bt{all:unset;box-sizing:border-box;cursor:pointer;margin-top:auto;min-height:38px;padding:0 10px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;gap:6px;font-family:var(--font-sans);font-size:13px;font-weight:600;text-align:center;
+  background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);
+  transition:transform 90ms ease,box-shadow 90ms ease;-webkit-tap-highlight-color:transparent}
+.lv-bt svg{width:14px;height:14px;fill:currentColor}
+.lv-bt--pri{background:var(--action);color:var(--on-action);border:0;box-shadow:var(--tactile-action)}
+.lv-bt:active{transform:translateY(3px);box-shadow:none}
+.lv-bt:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.lv .md-pb{margin:2px 0}
+/* Mini semana do cartao do Quadro */
+.at-sem{display:flex;gap:3px}
+.at-sem i{flex:1;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10px;font-weight:700;
+  background:var(--track);color:var(--ink-2)}
+.at-sem i.ok{background:var(--accent);color:var(--on-accent)}
+.at-sem i.hoje{box-sizing:border-box;border:2px solid var(--ink);color:var(--ink)}
+.at-sem i.ok.hoje{color:var(--on-accent)}
+.at-add{all:unset;box-sizing:border-box;cursor:pointer;grid-column:1 / -1;min-height:46px;border-radius:14px;border:2px dashed var(--control-line);
+  display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--ink-2)}
+.at-add:hover{background:var(--card-muted)}
+.at-add:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:360px){ .lv-val{font-size:17px} .lv{padding:10px} }
+
+/* ── Chamado do Ticolino, dentro do cabecalho ─────────────────────────── */
+.hoje-chamado{display:flex;flex-direction:column;gap:4px;padding:12px 12px 12px 14px;border-radius:18px;background:var(--brand-veil);color:var(--on-brand);
+  animation:hcEntra .32s var(--ease-out,cubic-bezier(.16,1,.3,1)) both}
+.hoje-chamado[hidden]{display:none}
+.hc-tit{font-size:15px;font-weight:700;line-height:1.3}
+.hc-sub{font-size:13px;line-height:1.4;color:var(--on-brand-2)}
+.hc-acoes{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.hc-ir svg{width:16px;height:16px;fill:currentColor}
+.hc-nao{all:unset;cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--on-brand);padding:10px 6px;border-radius:10px}
+.hc-nao:hover{background:var(--brand-veil)}
+.hc-nao:focus-visible{outline:3px solid var(--on-brand);outline-offset:2px}
+.hoje-chamado.saindo{animation:hcSai .22s ease both}
+@keyframes hcEntra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes hcSai{to{opacity:0;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){ .hoje-chamado,.hoje-chamado.saindo{animation:none} .lv-bt{transition:none} .lv-bt:active{transform:none} }
+
+/* ── Modal: personalizar atalhos ──────────────────────────────────────── */
+.at-conta{margin:-10px 0 14px}
+.at-grupo{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 8px}
+.at-lista{display:flex;flex-direction:column;gap:8px}
+.at-ed,.at-disp{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;background:var(--card);border:2px solid var(--line);
+  border-bottom-width:4px;border-radius:16px;min-width:0}
+.at-disp{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;cursor:pointer;background:var(--card-muted);
+  border:2px solid var(--line);border-radius:16px;font-family:var(--font-sans)}
+.at-disp:hover:not(:disabled){background:var(--card)}
+.at-disp:disabled{opacity:.5;cursor:not-allowed}
+.at-disp:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.at-ed-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.at-ed-txt b{font-size:15px;font-weight:600;color:var(--ink)}
+.at-ed-txt span{font-size:12px;color:var(--ink-2);line-height:1.35}
+@media (min-width:769px){ .hoje-chamado{max-width:640px} }

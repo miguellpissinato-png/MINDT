@@ -333,36 +333,11 @@ function renderHome(){
   document.getElementById('home-today-count').textContent = xpFalta ? '+'+xpFalta+' XP para fechar o anel' : 'Anel fechado';
   pintarItensDoDia(d);
 
-  // Dinheiro do mes: o que saiu e quanto isso e do que entrou.
-  var hoje=new Date(), mes=hoje.getMonth(), ano=hoje.getFullYear();
-  var doMesFn=function(lista){ return (lista||[]).filter(function(g){
-    var dd=new Date(g.data+'T12:00:00');
-    return dd.getMonth()===mes && dd.getFullYear()===ano;
-  }); };
-  var gastosMes=doMesFn(state.gastos), ganhosMes=doMesFn(state.ganhos);
-  var soma=function(l){ return l.reduce(function(s,g){return s+(parseFloat(g.valor)||0);},0); };
-  var gastoMes=soma(gastosMes), entrouMes=soma(ganhosMes);
-  var mesCurto=hoje.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
-  document.getElementById('home-gastos-rotulo').textContent='Dinheiro · '+mesCurto;
-  document.getElementById('home-stat-gastos').textContent=moeda(gastoMes);
-  var pctG = entrouMes>0 ? Math.round(gastoMes/entrouMes*100) : 0;
-  document.getElementById('home-gastos-barra').innerHTML = mdBarra(Math.min(100,pctG), '', 'md-pb--sm t-dinheiro');
-  document.getElementById('home-stat-gastos-sub').textContent = entrouMes>0
-    ? pctG+'% do que entrou'
-    : gastosMes.length+' '+T(gastosMes.length===1?'lancamento':'lancamentos');
-
-  // Treinos da semana. Le o mesmo historico da aba Exercicios.
-  var seg = (typeof exSegunda==='function') ? exSegunda(new Date()) : null;
-  var treinosSemana = 0, metaSemanal = 5;
-  if(seg && state.exercicios){
-    var fim=new Date(seg.getTime()); fim.setDate(seg.getDate()+6);
-    treinosSemana = exDiasTreinados(seg, fim);
-    metaSemanal = state.exercicios.metaSemanal || 5;
-  }
-  document.getElementById('home-stat-treinos').textContent=treinosSemana+' de '+metaSemanal;
-  document.getElementById('home-treinos-barra').innerHTML = mdBarra(metaSemanal ? treinosSemana/metaSemanal*100 : 0, '', 'md-pb--sm t-exercicio');
-  var faltaT = Math.max(0, metaSemanal - treinosSemana);
-  document.getElementById('home-stat-treinos-sub').textContent = faltaT ? 'faltam '+faltaT+(faltaT===1?' dia':' dias') : 'meta da semana batida';
+  // Os cartoes de atalho (antes eram so Dinheiro e Treinos, fixos) e o
+  // chamado do Ticolino moram em js/atalhos.js. Cada um isolado: um erro num
+  // deles nao pode deixar o resto da Home sem pintar.
+  try { if(typeof renderAtalhos==='function') renderAtalhos(); } catch(e){ console.error('home — atalhos:', e); }
+  try { if(typeof renderChamado==='function') renderChamado(); } catch(e){ console.error('home — chamado:', e); }
 
   // Em andamento (mantido do app original)
   // A tarefa recorrente que espera a proxima data nao esta "em andamento".

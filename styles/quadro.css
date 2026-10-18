@@ -1,0 +1,225 @@
+/* QUADRO (Rotina) e PLANO DE ESTUDOS — js/quadro.js e js/estudos-plano.js
+   Design System 2: blocos com borda de 2px e base de 5px, cor de area so
+   no icone e no rotulo, sem degrade, sem sombra difusa, sem faixa lateral. */
+
+/* Com o Quadro, Rotina tem 5 abas: numa tela de 390px elas quebravam em
+   duas linhas. Ficam numa linha so, com rolagem de lado se faltar espaco. */
+.md-gt[data-abas]{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
+.md-gt[data-abas]::-webkit-scrollbar{display:none}
+.md-gt[data-abas] button{flex:none;white-space:nowrap}
+@media (max-width:420px){ .md-gt[data-abas]{gap:2px} .md-gt[data-abas] button{padding:6px 10px} }
+
+/* ── Botao de icone compartilhado (quadro e modais) ───────────────────── */
+.qd-ic{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:38px;height:38px;border-radius:12px;display:inline-flex;align-items:center;
+  justify-content:center;color:var(--ink);background:var(--card-muted);border:2px solid var(--line)}
+.qd-ic:hover:not(:disabled){background:var(--track)}
+.qd-ic:disabled{opacity:.35;cursor:not-allowed}
+.qd-ic:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.qd-ic--sm{width:30px;height:30px;border-radius:9px;border-width:0;background:transparent;color:var(--ink-2)}
+.qd-ic--sm:hover:not(:disabled){background:var(--track);color:var(--ink)}
+.qd-ic--perigo{color:var(--danger)}
+
+/* ── Pagina ───────────────────────────────────────────────────────────── */
+.qd-blocos{display:flex;flex-direction:column;gap:12px}
+@media (min-width:960px){
+  .qd-blocos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+  .qd-blk--estudos,.qd-blk--semana{grid-row:span 2}
+  .qd-add,.qd-cheio,.qd-vazio{grid-column:1 / -1}
+}
+.qd-blk{box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px;background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-bottom-width:5px;border-radius:var(--radius-card-lg)}
+.qd-blk-h{display:flex;align-items:center;gap:10px;min-height:38px}
+.qd-blk-h h2{flex:1;min-width:0;margin:0;font-size:15px;font-weight:600;line-height:1.3}
+.qd-org-bts{display:flex;gap:6px}
+.qd-blk-c{display:flex;flex-direction:column;gap:10px;min-width:0}
+.qd-add{all:unset;box-sizing:border-box;cursor:pointer;min-height:50px;border-radius:16px;border:2px dashed var(--control-line);display:flex;
+  align-items:center;justify-content:center;gap:8px;font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--ink-2)}
+.qd-add:hover{background:var(--card-muted)}
+.qd-add:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.qd-cheio{text-align:center}
+.qd-vazio .md-btn{width:100%;max-width:340px}
+.qd-org .qd-blk{border-style:dashed;border-bottom-style:solid}
+#qd-organizar[aria-pressed="true"]{background:var(--ring-disc);color:var(--ink);box-shadow:none}
+
+/* ── Plano de estudos (bloco do Quadro e cartao de Estudos) ───────────── */
+.pl-lista{display:flex;flex-direction:column;gap:2px}
+.pl-l{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:start;padding:4px 6px 4px 4px;border-radius:12px}
+.pl-l--hoje{background:var(--area-estudos-soft)}
+.pl-d{all:unset;cursor:pointer;box-sizing:border-box;min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;
+  font-family:var(--font-sans);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.pl-l--hoje .pl-d{color:var(--ink)}
+.pl-d:hover{background:var(--track)}
+.pl-d:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pl-ms{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pl-m{display:flex;align-items:center;gap:8px;min-height:40px;min-width:0}
+.pl-m-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.pl-s{font-size:14px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-t{font-size:12px;line-height:1.35;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-m.ok .pl-s{color:var(--ink-2)}
+.pl-q{font-variant-numeric:tabular-nums}
+.pl-m .md-check{margin-left:0}
+.pl-play{all:unset;cursor:pointer;box-sizing:border-box;flex:none;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;
+  justify-content:center;background:var(--action);color:var(--on-action);box-shadow:0 3px 0 var(--action-shade);transition:transform 90ms ease,box-shadow 90ms ease}
+.pl-play svg{width:14px;height:14px;fill:currentColor}
+.pl-play:active{transform:translateY(3px);box-shadow:none}
+.pl-play:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pl-futuro{flex:none;width:28px}
+.pl-livre-bt{all:unset;cursor:pointer;align-self:flex-start;min-height:40px;display:inline-flex;align-items:center;gap:6px;padding:0 8px;margin-left:-8px;font-family:var(--font-sans);font-size:13px;color:var(--ink-2);border-radius:10px}
+.pl-livre-bt:hover{background:var(--track)}
+.pl-livre-bt:hover{color:var(--ink)}
+.pl-livre-bt:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pl-pe{margin:0}
+.pl-vazio{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.pl-vazio p{margin:0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+/* Cartao da aba Estudos */
+.est-plano{gap:10px}
+.est-plano:empty{display:none}
+.pl-topo{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pl-topo h2{margin:0;font-size:15px;font-weight:600}
+.pl-faixa{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.pl-dia{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--ink-2)}
+.pl-cel{box-sizing:border-box;width:100%;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+  background:var(--track);color:var(--ink-2);overflow:hidden}
+.pl-cel.ok{background:var(--accent);color:var(--on-accent)}
+.pl-cel.livre{background:transparent;border:2px dashed var(--line)}
+.pl-cel.hoje{border:2px solid var(--ink);color:var(--ink);background:var(--card)}
+.pl-cel.ok.hoje{background:var(--accent);color:var(--on-accent)}
+.pl-hoje{display:flex;flex-direction:column;gap:2px;padding:4px 8px;border-radius:12px;background:var(--area-estudos-soft)}
+.pl-livre{margin:0}
+/* Chip "Hoje no seu quadro" no cabecalho de Estudos */
+.est-materia{align-self:center;display:inline-flex;align-items:center;gap:2px;min-height:34px;padding:0 4px 0 14px;border-radius:99px;
+  background:var(--brand-veil);color:var(--on-brand);font-size:13px;max-width:100%}
+.est-materia[hidden]{display:none}
+.est-materia b{font-weight:700}
+.est-materia-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:4px}
+.est-materia-x{all:unset;cursor:pointer;width:30px;height:30px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center}
+.est-materia-x:hover{background:var(--brand-veil)}
+.est-materia-x:focus-visible,.est-materia-bt:focus-visible{outline:3px solid var(--on-brand);outline-offset:2px}
+.est-materia-bt{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:34px;margin-left:-14px;padding:0 14px;border-radius:99px;
+  font-family:var(--font-sans);font-size:13px;color:var(--on-brand);max-width:100%}
+.est-materia-bt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.est-materia:has(.est-materia-bt){padding-right:0}
+
+/* ── Lista da semana ──────────────────────────────────────────────────── */
+.sm-dias{display:flex;flex-direction:column}
+.sm-dia{padding:6px 8px;border-top:1px solid var(--line)}
+.sm-dia:first-child{border-top:0}
+.sm-dia.hoje{background:var(--accent-soft);border-radius:12px;border-top-color:transparent}
+.sm-dia.hoje+.sm-dia{border-top-color:transparent}
+.sm-dia-h{display:flex;align-items:center;gap:8px;min-height:34px}
+.sm-dia-h b{font-size:14px;font-weight:600}
+.sm-dia.passado .sm-dia-h b{color:var(--ink-2)}
+.sm-conta{margin-left:auto}
+.sm-dia-h .qd-ic{margin-left:auto}
+.sm-conta+.qd-ic{margin-left:0}
+.sm-itens{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:2px}
+.sm-it{display:flex;align-items:center;gap:10px;min-height:40px}
+.sm-it .md-check{margin-left:0}
+.sm-txt{flex:1;min-width:0;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.sm-it.feito .sm-txt{color:var(--ink-2);text-decoration:line-through;text-decoration-thickness:1.5px}
+.sm-tirar,.rt-tirar{display:none}
+.qd-org .sm-tirar,.qd-org .rt-tirar{display:inline-flex}
+
+/* ── Post-its ─────────────────────────────────────────────────────────── */
+.pt-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 2px 6px}
+.pt{all:unset;box-sizing:border-box;cursor:pointer;min-height:112px;padding:12px;border-radius:14px;display:flex;align-items:flex-start;
+  font-family:var(--font-sans);font-size:14px;font-weight:600;line-height:1.38;text-align:left;box-shadow:var(--tactile-block);
+  transform:rotate(var(--giro,0deg));transition:transform .18s var(--ease-out,cubic-bezier(.16,1,.3,1))}
+.pt span{white-space:pre-wrap;overflow-wrap:anywhere;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical}
+.pt:hover{transform:rotate(0deg) translateY(-2px)}
+.pt:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.pt--laranja{background:var(--accent-soft);color:var(--on-accent-soft)}
+.pt--amarelo{background:var(--area-metas-soft);color:var(--ink)}
+.pt--azul{background:var(--area-estudos-soft);color:var(--ink)}
+.pt--verde{background:var(--area-dinheiro-soft);color:var(--ink)}
+.pt--rosa{background:var(--area-leitura-soft);color:var(--ink)}
+.pt-vazio{all:unset;box-sizing:border-box;cursor:pointer;min-height:64px;border-radius:14px;border:2px dashed var(--line);display:flex;align-items:center;
+  justify-content:center;gap:8px;font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--ink-2)}
+.pt-vazio:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.qt-cores{display:flex;gap:10px;flex-wrap:wrap}
+.pt-cor{all:unset;cursor:pointer;box-sizing:border-box;width:40px;height:40px;border-radius:99px;border:2px solid var(--line)}
+.pt-cor[aria-pressed="true"]{box-shadow:0 0 0 3px var(--page),0 0 0 6px var(--ink)}
+.pt-cor:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+.qt-texto{min-height:96px;resize:vertical}
+@media (prefers-reduced-motion:reduce){ .pt{transition:none} .pt:hover{transform:rotate(var(--giro,0deg))} .pl-play{transition:none} }
+
+/* ── Rotina da semana ─────────────────────────────────────────────────── */
+.rt{display:flex;flex-direction:column;gap:6px}
+.rt-l{display:grid;grid-template-columns:minmax(0,1fr) repeat(7,28px);gap:4px;align-items:center}
+@media (max-width:370px){ .rt-l{grid-template-columns:minmax(0,1fr) repeat(7,24px)} .rt-q{width:24px!important;height:24px!important} }
+.rt-dd{font-size:10px;font-weight:700;text-align:center;color:var(--ink-2)}
+.rt-dd.hoje{color:var(--ink)}
+.rt-n{display:flex;align-items:center;gap:2px;min-width:0;font-size:13px;font-weight:500}
+.rt-n-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rt-n--auto{color:var(--ink-2)}
+.rt-q{box-sizing:border-box;display:block;width:28px;height:28px;border-radius:8px;background:var(--track)}
+.rt-q.on{background:var(--accent)}
+.rt-q.hoje{box-shadow:inset 0 0 0 2px var(--ink)}
+.rt-q.on.hoje{box-shadow:inset 0 0 0 2px var(--accent-shade)}
+.rt-q.futuro{background:transparent;border:2px dashed var(--line)}
+.rt-q--bt{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:28px;height:28px;border-radius:8px;background:var(--track);
+  transition:background .15s ease,transform 90ms ease}
+.rt-q--bt.on{background:var(--accent)}
+.rt-q--bt:active{transform:scale(.9)}
+.rt-q--bt:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.rt-auto{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4;color:var(--ink-2);cursor:pointer}
+.rt-auto input{margin:2px 0 0;width:16px;height:16px;accent-color:var(--accent);flex:none}
+
+/* ── Gastos ───────────────────────────────────────────────────────────── */
+.gb-total{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.gb-cats{display:flex;flex-direction:column;gap:8px}
+.gb-cat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 8px;align-items:center;font-size:13px}
+.gb-cat span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb-cat .md-pb{grid-column:1 / -1}
+.gb-ult{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.gb-ult li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;min-height:38px;border-top:1px solid var(--line);font-size:13px}
+.gb-ult li:first-child{border-top:0}
+.gb-ult-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb-fonte{display:flex;align-items:center;gap:6px;margin:0;font-size:11.5px;color:var(--ink-2)}
+
+/* ── Modal: adicionar bloco ───────────────────────────────────────────── */
+.ab-lista{display:flex;flex-direction:column;gap:8px}
+.ab-op{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;padding:8px 10px;background:var(--card);
+  border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;font-family:var(--font-sans);transition:transform 90ms ease}
+.ab-op:active:not(:disabled){transform:translateY(2px)}
+.ab-op:disabled{opacity:.55;cursor:not-allowed}
+.ab-op:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ab-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.ab-txt b{font-size:15px;font-weight:600;color:var(--ink)}
+.ab-txt span{font-size:12px;line-height:1.35;color:var(--ink-2)}
+.ab-mais{flex:none;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--brand-ink);
+  color:var(--brand-ink-hi);box-shadow:var(--tactile-ink)}
+.ab-nota{margin:14px 0 0}
+
+/* ── Modal: bloco de gastos ───────────────────────────────────────────── */
+.bg-seg{margin:6px 0 16px}
+.bg-radios{display:flex;flex-direction:column;gap:6px;margin:6px 0 14px}
+.bg-radios button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:46px;padding:0 12px;border-radius:14px;
+  background:var(--card);border:2px solid var(--line);font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--ink)}
+.bg-radios button i{box-sizing:border-box;width:22px;height:22px;border-radius:99px;border:2px solid var(--control-line);flex:none}
+.bg-radios button[aria-checked="true"]{border-color:var(--ink);font-weight:600}
+.bg-radios button[aria-checked="true"] i{border:7px solid var(--accent)}
+.bg-radios button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.bg-priv{display:flex;gap:10px;align-items:flex-start;margin:0;padding:10px 12px;border-radius:14px;background:var(--area-dinheiro-soft);color:var(--ink);
+  font-size:12.5px;line-height:1.45}
+.bg-priv svg{color:var(--area-dinheiro);margin-top:2px}
+
+/* ── Modal: editar um dia do plano ────────────────────────────────────── */
+.pd-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.pd-dias .md-chip{justify-content:center;min-height:40px;padding:0;font-size:13px}
+.pd-ajuda{margin:8px 0 12px}
+.pd-lista{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.pd-item{display:flex;flex-direction:column;gap:2px;padding:12px;background:var(--card);border:2px solid var(--line);border-radius:16px}
+.pd-item .form-group{margin-bottom:8px}
+.pd-linha{display:flex;gap:8px;align-items:flex-end}
+.pd-mat{flex:1;min-width:0}
+.pd-linha--3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.pd-tirar{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:46px;height:46px;margin-bottom:8px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;color:var(--danger);border:2px solid var(--line);background:var(--card-muted)}
+.pd-tirar:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.pd-opc{text-transform:none;letter-spacing:0;font-weight:400}
+.pd-add{margin-bottom:6px}
+
+/* Heroi em frase (quadro sem nada planejado): menor que o numero. */
+.md-hdr-hero.qd-hero-txt{font-size:32px;letter-spacing:-.03em}
+.qd-vazio p b{color:var(--ink);font-weight:600}
