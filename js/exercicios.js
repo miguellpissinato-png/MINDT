@@ -124,18 +124,18 @@ function exIniciarTreino(){
   if(exRodando()) return;
   if(e.cronometro) e.cronometro.inicio=Date.now();
   else e.cronometro={modId:e.ativa, inicio:Date.now(), acumulado:0};
-  exLigarRelogio(); saveState(); renderExercicios();
+  exLigarRelogio(); saveState(); renderExercicios(); ligarTituloDaAba();
 }
 function exPausarTreino(){
   var e=garantirExercicios();
   if(!exRodando()) return;
   e.cronometro.acumulado=exDecorrido();
   e.cronometro.inicio=null;
-  exDesligarRelogio(); saveState(); renderExercicios();
+  exDesligarRelogio(); saveState(); renderExercicios(); pintarTituloDaAba();
 }
 function exResetarTreino(){
   var e=garantirExercicios();
-  e.cronometro=null; exDesligarRelogio(); saveState(); renderExercicios();
+  e.cronometro=null; exDesligarRelogio(); saveState(); renderExercicios(); pintarTituloDaAba();
 }
 function exFinalizarTreino(){
   var e=garantirExercicios();
@@ -144,7 +144,7 @@ function exFinalizarTreino(){
   if(dur<10){ toast('⚠️ Treino curto demais para registrar. O mínimo são 10 segundos.'); return; }
   e.treinos.unshift({id:'t'+Date.now(), data:hojeStr(), modId:modId, dur:dur});
   e.ultimo={dur:dur, modId:modId};
-  e.cronometro=null; exDesligarRelogio();
+  e.cronometro=null; exDesligarRelogio(); pintarTituloDaAba();
   var xp=exFecharDia();       // o check do dia na Home fecha junto
   e.ultimo.xp=xp;
   saveState(); renderExercicios();

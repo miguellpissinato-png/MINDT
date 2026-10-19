@@ -286,6 +286,7 @@ function startTimer() {
   document.getElementById('timer-pause-btn').style.display = 'inline-flex';
   document.getElementById('timer-label').textContent = 'Estudando…';
   pintarBotoesTimer();
+  ligarTituloDaAba();
   timerInterval = setInterval(function() {
     var elapsed = Math.floor((Date.now() - timerStartedAt) / 1000);
     timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
@@ -311,6 +312,7 @@ function pauseTimer() {
   document.getElementById('timer-pause-btn').style.display = 'none';
   document.getElementById('timer-label').textContent = 'Pausado';
   pintarBotoesTimer('Continuar', 'pausa');
+  pintarTituloDaAba();
   updateTimerDisplay();
   updateTimerRing();
 }
@@ -325,6 +327,7 @@ function resetTimer() {
   updateTimerDisplay();
   updateTimerRing();
   pintarBotoesTimer('Iniciar sessão');
+  pintarTituloDaAba();
 }
 
 function timerFinished() {
@@ -332,6 +335,7 @@ function timerFinished() {
   document.getElementById('timer-pause-btn').style.display = 'none';
   document.getElementById('timer-label').textContent = 'Sessão concluída!';
   pintarBotoesTimer('Iniciar sessão', 'orgulhoso');
+  pintarTituloDaAba();
   timerRemaining = 0;
   updateTimerDisplay();
   updateTimerRing();

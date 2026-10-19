@@ -74,6 +74,8 @@ function entrarNoApp(){
   passo('lembrete', function(){ if (typeof carregarLembrete === 'function') carregarLembrete(); });
   passo('grupos', function(){ updateGroupSelects(); updateGroupFilters(); });
   passo('home', renderHome);
+  // Um treino que ja estava contando quando o app abriu volta para o titulo da aba.
+  passo('titulo', function(){ if (typeof ligarTituloDaAba === 'function') ligarTituloDaAba(); });
   passo('categorias', function(){ if (migrarCoresCategorias()) saveState(); });   // categorias antigas nasceram roxas
   // Entradas recorrentes (salario e afins) que venceram enquanto o app
   // estava fechado. Roda aqui, e nao so na pagina de dinheiro, para o

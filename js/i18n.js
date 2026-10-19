@@ -19,6 +19,8 @@ var TEXTOS = {
   vencemEsteMes:{pt:'vencem este mês',en:'due this month'},
   metasAtivas:{pt:'Metas ativas',en:'Active goals'},
   voce:{pt:'Você',en:'You'},
+  abaEstudando:{pt:'Estudando',en:'Studying'},
+  abaTreinando:{pt:'Treinando',en:'Working out'},
   semTarefas:{pt:'Nenhuma tarefa por aqui. O Ticolino aprova a folga.',en:'No tasks here. Ticolino approves the break.'},
   novaTarefa:{pt:'Nova tarefa',en:'New task'},
   semPendencias:{pt:'Nada em aberto. Dia limpo.',en:'Nothing open. Clear day.'},

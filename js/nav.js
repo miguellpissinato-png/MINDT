@@ -39,6 +39,56 @@ function pintarTicosDosModais(){
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pintarTicosDosModais);
 else pintarTicosDosModais();
 
+// ─── Tempo no titulo da aba ────────────────────────────────────────────
+// Com o timer de Estudos ou o cronometro de treino contando, o tempo vai para
+// o titulo da aba do navegador ("24:13 · Estudando · Mindt"), para a pessoa
+// ver de outra aba quanto falta. Pausou, zerou ou acabou: volta a "Mindt".
+//
+// O tique vem de um Web Worker: o navegador segura os timers de uma aba em
+// segundo plano (depois de alguns minutos, um por minuto), e o titulo existe
+// justamente para quem esta em outra aba. Sem Worker, vale um setInterval.
+var TITULO_PADRAO = 'Mindt';
+var tituloTique = null;
+
+// O texto do tempo, calculado do relogio (nao do mostrador da pagina, que
+// pode estar parado com a pagina fora de vista); '' sem nada contando.
+function tempoNaAba(){
+  if(typeof timerRunning !== 'undefined' && timerRunning && timerStartedAt){
+    var resta = Math.max(0, timerBaseRemaining - Math.floor((Date.now() - timerStartedAt) / 1000));
+    return pad(Math.floor(resta / 60)) + ':' + pad(resta % 60) + ' · ' + T('abaEstudando');
+  }
+  if(typeof exRodando === 'function' && exRodando()){
+    return exTempo(exDecorrido()) + ' · ' + T('abaTreinando');
+  }
+  return '';
+}
+function pintarTituloDaAba(){
+  var t = tempoNaAba();
+  document.title = t ? t + ' · ' + TITULO_PADRAO : TITULO_PADRAO;
+  if(!t) desligarTituloDaAba();
+}
+// Chamado quando um timer comeca (e ao abrir o app, para um treino que ja
+// estava contando). Sem nada contando, so deixa o titulo como "Mindt".
+function ligarTituloDaAba(){
+  pintarTituloDaAba();
+  if(tituloTique || !tempoNaAba()) return;
+  tituloTique = criarTique(pintarTituloDaAba);
+}
+function desligarTituloDaAba(){
+  if(tituloTique){ tituloTique.parar(); tituloTique = null; }
+}
+function criarTique(fn){
+  try {
+    var url = URL.createObjectURL(new Blob(['setInterval(function(){ postMessage(0); }, 1000);'], { type: 'text/javascript' }));
+    var w = new Worker(url);
+    w.onmessage = function(){ fn(); };
+    return { parar: function(){ w.terminate(); URL.revokeObjectURL(url); } };
+  } catch(e) {
+    var id = setInterval(fn, 1000);
+    return { parar: function(){ clearInterval(id); } };
+  }
+}
+
 function goToGrupo(grupo){
   var pagina = navUltima[grupo] || NAV_INICIO[grupo];
   if(pagina) goToPage(pagina);
