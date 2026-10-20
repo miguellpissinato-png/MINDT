@@ -1310,13 +1310,13 @@ function renderGeralUltimosGastos(){
   el.innerHTML = lista.map(function(g){
     var cat = getCat(g.categoriaId);
     var cor = cat ? corDaCategoria(cat) : corParaTema(COR_OUTROS);
-    var pag = getPagamento(g.pagamento);
+    var pag = getPagamento(g.pagamento), tipo = getTipoGasto(g.tipo);
     return '<div class="fin-mini-item">'
       + '<span class="fin-mini-dot" style="background:' + cor + '"></span>'
       + '<div class="fin-mini-info">'
         + '<div class="fin-mini-nome">' + esc(g.desc) + '</div>'
         + '<div class="fin-mini-meta">' + esc(cat ? cat.nome : 'Sem categoria') + ' • ' + dataBR(g.data)
-          + (pag ? ' • ' + pag.emoji + ' ' + esc(pag.nome) : '') + '</div>'
+          + (pag ? ' • ' + pag.emoji + ' ' + esc(pag.nome) : '') + (tipo ? ' • ' + esc(tipo.nome) : '') + '</div>'
       + '</div>'
       + '<div class="fin-mini-valor negativo">− ' + moeda(parseFloat(g.valor)||0) + '</div>'
     + '</div>';

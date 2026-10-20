@@ -1154,3 +1154,29 @@ button.md-lista-item.pf-sair{color:var(--danger)}
 .ds2 .progress-label{font-size:11px;color:var(--ink-2)}
 .tranca-icone .md-ico,.tranca-chip .md-ico{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px}
 .ds2 .tranca-icone{display:flex;justify-content:center;color:var(--accent-ink)}
+
+/* ══ TIPO DE GASTO (necessário, emergência, desnecessário, criado) ═════ */
+.tipo-opcoes{align-items:center}
+.tipo-ponto{width:9px;height:9px;border-radius:99px;flex:none;background:var(--tipo-cor)}
+[data-tipo="necessario"]{--tipo-cor:var(--area-dinheiro)}
+[data-tipo="emergencia"]{--tipo-cor:var(--area-tarefas)}
+[data-tipo="desnecessario"]{--tipo-cor:var(--danger)}
+[data-tipo="outro"]{--tipo-cor:var(--area-estudos)}
+.ds2 .tipo-opcao{min-height:40px}
+.ds2 .tipo-opcao.active{background:var(--chip-on);border-color:var(--chip-on);color:var(--on-chip-on);font-weight:600}
+.ds2 .tipo-opcao.active .tipo-ponto{box-shadow:0 0 0 2px var(--card)}
+.ds2 .tipo-opcao:focus-visible,.tipo-x:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.tipo-mais{border-style:dashed}
+.tipo-criado{display:inline-flex;align-items:center;gap:2px}
+.tipo-x{all:unset;box-sizing:border-box;cursor:pointer;width:28px;height:28px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:16px;line-height:1;color:var(--ink-2)}
+.tipo-x:hover{background:var(--track);color:var(--ink)}
+.tipo-apagar{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;padding:6px 6px 6px 12px;border-radius:14px;
+  background:var(--card-muted);border:2px solid var(--line);font-size:13px;color:var(--ink)}
+.tipo-novo{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.tipo-novo[hidden]{display:none}
+.tipo-novo .form-input{flex:1 1 180px;min-width:0}
+.tipo-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.04em;line-height:1.6;
+  padding:1px 8px;border-radius:99px;margin:0 0 3px;background:color-mix(in srgb,var(--tipo-cor) 14%,var(--card));
+  color:var(--tipo-cor);border:1px solid color-mix(in srgb,var(--tipo-cor) 35%,transparent)}
+.gasto-pag-topo .pag-badge+.tipo-badge{margin-left:4px}

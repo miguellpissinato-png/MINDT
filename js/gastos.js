@@ -25,14 +25,40 @@ function getPagamento(id){
   return PAGAMENTOS.find(function(p){ return p.id === id; }) || null;
 }
 
-// O topico que aparece em cima do gasto, dentro da abinha dele. Sem forma
-// de pagamento escolhida o lugar continua existindo mas fica vazio: no
-// celular a linha e uma grade, e uma celula que some desmonta o resto.
+// ─── TIPO DE GASTO ───────────────────────────────────────
+//
+// Diz se o gasto foi necessario, de emergencia ou desnecessario, ou um tipo
+// que a propria pessoa criou ("Outro"). E opcional, como a forma de
+// pagamento. Os ids fixos nunca mudam: sao eles que ficam gravados no gasto
+// (`g.tipo`). Os tipos criados ficam em state.tiposGasto, como { id, nome }.
+var TIPOS_GASTO = [
+  { id:'necessario',    chave:'tipoNecessario' },
+  { id:'emergencia',    chave:'tipoEmergencia' },
+  { id:'desnecessario', chave:'tipoDesnecessario' }
+];
+var TIPOS_CRIADOS_MAX = 20;
+
+function tiposDeGasto(){
+  var fixos = TIPOS_GASTO.map(function(t){ return { id:t.id, nome:T(t.chave), fixo:true }; });
+  var criados = (state.tiposGasto || []).map(function(t){ return { id:t.id, nome:t.nome, fixo:false }; });
+  return fixos.concat(criados);
+}
+function getTipoGasto(id){
+  if(!id) return null;
+  return tiposDeGasto().find(function(t){ return t.id === id; }) || null;
+}
+
+// O topico que aparece em cima do gasto, dentro da abinha dele: a forma de
+// pagamento e o tipo. Sem nenhum dos dois o lugar continua existindo mas
+// fica vazio: no celular a linha e uma grade, e uma celula que some
+// desmonta o resto.
 function pagamentoTopoHTML(g){
-  var p = getPagamento(g && g.pagamento);
-  if(!p) return '<div class="gasto-pag-topo"></div>';
-  return '<div class="gasto-pag-topo"><span class="pag-badge" data-pag="' + p.id + '">'
-    + p.emoji + ' ' + esc(p.nome) + '</span></div>';
+  var p = getPagamento(g && g.pagamento), t = getTipoGasto(g && g.tipo);
+  if(!p && !t) return '<div class="gasto-pag-topo"></div>';
+  return '<div class="gasto-pag-topo">'
+    + (p ? '<span class="pag-badge" data-pag="' + p.id + '">' + p.emoji + ' ' + esc(p.nome) + '</span>' : '')
+    + (t ? '<span class="tipo-badge" data-tipo="' + (t.fixo ? t.id : 'outro') + '">' + esc(t.nome) + '</span>' : '')
+    + '</div>';
 }
 
 // ─── PIZZA CHART ─────────────────────────────────────────
@@ -587,6 +613,100 @@ function setPagamento(id){
   renderPagamentoChips();
 }
 
+// Os chips do tipo de gasto: os tres fixos, os criados pela pessoa (com um
+// x para apagar, que pede confirmacao ali mesmo) e o "+ Outro", que abre o
+// campo para criar um tipo novo.
+var _tipoSel = '';        // tipo escolhido no modal
+var _tipoApagando = '';   // tipo criado esperando o "Apagar?" ser confirmado
+function renderTipoChips(){
+  var el = document.getElementById('gasto-tipo');
+  if(!el) return;
+  var html = tiposDeGasto().map(function(t){
+    var ativo = t.id === _tipoSel;
+    var ponto = '<span class="tipo-ponto" data-tipo="' + (t.fixo ? t.id : 'outro') + '" aria-hidden="true"></span>';
+    if(!t.fixo && _tipoApagando === t.id){
+      var usados = (state.gastos || []).filter(function(g){ return g.tipo === t.id; }).length;
+      return '<span class="tipo-apagar">'
+        + '<span>Apagar “' + esc(t.nome) + '”?' + (usados ? ' ' + usados + (usados === 1 ? ' gasto fica' : ' gastos ficam') + ' sem tipo.' : '') + '</span>'
+        + '<button type="button" class="btn btn-danger btn-sm" onclick="apagarTipoGasto(\'' + t.id + '\')">Apagar</button>'
+        + '<button type="button" class="btn btn-ghost btn-sm" onclick="pedirApagarTipo(\'\')">Manter</button>'
+        + '</span>';
+    }
+    var chip = '<button type="button" class="pag-opcao tipo-opcao' + (ativo ? ' active' : '') + '" '
+      + 'aria-pressed="' + (ativo ? 'true' : 'false') + '" onclick="setTipoGasto(\'' + t.id + '\')">'
+      + ponto + '<span>' + esc(t.nome) + '</span></button>';
+    if(t.fixo) return chip;
+    return '<span class="tipo-criado">' + chip
+      + '<button type="button" class="tipo-x" onclick="pedirApagarTipo(\'' + t.id + '\')" aria-label="Apagar o tipo ' + esc(t.nome) + '" title="Apagar tipo">×</button>'
+      + '</span>';
+  }).join('');
+  html += '<button type="button" class="pag-opcao tipo-opcao tipo-mais" onclick="abrirNovoTipo()" aria-expanded="'
+    + (document.getElementById('gasto-tipo-novo') && !document.getElementById('gasto-tipo-novo').hidden ? 'true' : 'false') + '">+ ' + esc(T('tipoOutro')) + '</button>';
+  el.innerHTML = html;
+}
+
+function setTipoGasto(id){
+  _tipoSel = (_tipoSel === id) ? '' : id;
+  _tipoApagando = '';
+  renderTipoChips();
+}
+
+function abrirNovoTipo(){
+  var box = document.getElementById('gasto-tipo-novo');
+  if((state.tiposGasto || []).length >= TIPOS_CRIADOS_MAX){
+    toast('Você já criou ' + TIPOS_CRIADOS_MAX + ' tipos. Apague um para criar outro.');
+    return;
+  }
+  box.hidden = false;
+  renderTipoChips();
+  var inp = document.getElementById('gasto-tipo-nome');
+  inp.value = '';
+  inp.focus();
+}
+function fecharNovoTipo(){
+  var box = document.getElementById('gasto-tipo-novo');
+  if(box) box.hidden = true;
+  renderTipoChips();
+}
+
+// Cria o tipo e ja deixa ele escolhido. Um nome que ja existe (de um tipo
+// fixo ou criado, sem diferenca de maiusculas) so escolhe o que ja existe.
+function criarTipoGasto(){
+  var inp = document.getElementById('gasto-tipo-nome');
+  var nome = (inp.value || '').trim().replace(/\s+/g, ' ');
+  if(!nome){ toast('Dê um nome ao tipo de gasto.'); inp.focus(); return; }
+  if(!state.tiposGasto) state.tiposGasto = [];
+  var igual = tiposDeGasto().find(function(t){ return t.nome.toLowerCase() === nome.toLowerCase(); });
+  if(igual){
+    _tipoSel = igual.id;
+  } else {
+    if(state.tiposGasto.length >= TIPOS_CRIADOS_MAX){ toast('Você já criou ' + TIPOS_CRIADOS_MAX + ' tipos. Apague um para criar outro.'); return; }
+    var novo = { id:'t' + uid(), nome:nome };
+    state.tiposGasto.push(novo);
+    _tipoSel = novo.id;
+    saveState();
+  }
+  document.getElementById('gasto-tipo-novo').hidden = true;
+  renderTipoChips();
+}
+
+function pedirApagarTipo(id){
+  _tipoApagando = id;
+  renderTipoChips();
+}
+// Apaga um tipo criado. Os gastos que usavam esse tipo ficam sem tipo
+// (nenhum gasto e apagado).
+function apagarTipoGasto(id){
+  state.tiposGasto = (state.tiposGasto || []).filter(function(t){ return t.id !== id; });
+  (state.gastos || []).forEach(function(g){ if(g.tipo === id) delete g.tipo; });
+  if(_tipoSel === id) _tipoSel = '';
+  _tipoApagando = '';
+  saveState();
+  renderTipoChips();
+  if(typeof renderFinancas === 'function') renderFinancas(); else renderGastos();
+  toast('Tipo apagado.');
+}
+
 function updateCategoriaSelect() {
   var sel = document.getElementById('gasto-categoria');
   if(!sel) return;
@@ -615,6 +735,9 @@ function openModal_addGasto() {
   document.getElementById('installment-preview').textContent = 'Preencha o valor e número de parcelas para visualizar.';
   _pagamentoSel = '';
   renderPagamentoChips();
+  _tipoSel = ''; _tipoApagando = '';
+  document.getElementById('gasto-tipo-novo').hidden = true;
+  renderTipoChips();
   updateCategoriaSelect();
   openModal('modal-add-gasto');
 }
@@ -710,21 +833,28 @@ function saveGasto() {
     // parcela de fevereiro sumia.
     for(var i=0;i<n;i++){
       var dStr = recSomaMeses(data, i);
-      state.gastos.push({
+      var parcela = {
         id:uid(), desc:desc, valor:valorParcela, categoriaId:catId,
         data:dStr, parcelas:n, parcelaAtual:i+1,
         juros:taxa, jurosTipo:tipo, pagamento:_pagamentoSel,
         createdAt:new Date().toISOString()
-      });
+      };
+      if(_tipoSel) parcela.tipo = _tipoSel;
+      state.gastos.push(parcela);
     }
     toast('💳 '+n+' parcelas criadas!');
   } else {
     if(editId) {
       var g = state.gastos.find(function(x){return x.id===editId;});
-      if(g){ g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; g.pagamento=_pagamentoSel; }
+      if(g){
+        g.desc=desc; g.valor=valor; g.categoriaId=catId; g.data=data; g.pagamento=_pagamentoSel;
+        if(_tipoSel) g.tipo=_tipoSel; else delete g.tipo;
+      }
       toast('✏️ Gasto atualizado!');
     } else {
-      state.gastos.push({id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,pagamento:_pagamentoSel,createdAt:new Date().toISOString()});
+      var novo = {id:uid(),desc:desc,valor:valor,categoriaId:catId,data:data,pagamento:_pagamentoSel,createdAt:new Date().toISOString()};
+      if(_tipoSel) novo.tipo = _tipoSel;
+      state.gastos.push(novo);
       toast('💸 Gasto registrado!');
     }
   }
@@ -753,6 +883,9 @@ function editGasto(id) {
   document.getElementById('juros-wrap').style.display = 'none';
   _pagamentoSel = g.pagamento || '';
   renderPagamentoChips();
+  _tipoSel = getTipoGasto(g.tipo) ? g.tipo : ''; _tipoApagando = '';
+  document.getElementById('gasto-tipo-novo').hidden = true;
+  renderTipoChips();
   updateCategoriaSelect();
   document.getElementById('gasto-categoria').value = g.categoriaId||'';
   openModal('modal-add-gasto');
