@@ -5,7 +5,7 @@
 // Tocar num grupo volta para a ultima pagina vista nele.
 var NAV_GRUPO = {
   home: 'hoje',
-  tarefas: 'rotina', agenda: 'rotina', exercicios: 'rotina', notas: 'rotina',
+  tarefas: 'rotina', agenda: 'rotina', quadro: 'rotina', exercicios: 'rotina', notas: 'rotina',
   gastos: 'dinheiro',
   metas: 'evolucao', estudos: 'evolucao', leitura: 'evolucao', resumo: 'evolucao',
   perfil: 'voce', amizades: 'voce', conhecer: 'voce'
@@ -13,7 +13,7 @@ var NAV_GRUPO = {
 var NAV_INICIO = { hoje: 'home', rotina: 'tarefas', dinheiro: 'gastos', evolucao: 'metas', voce: 'perfil' };
 var navUltima = {};
 var NAV_ROTULO = {
-  tarefas: 'Tarefas', agenda: 'Agenda', exercicios: 'Exercícios', notas: 'Notas',
+  tarefas: 'Tarefas', agenda: 'Agenda', quadro: 'Quadro', exercicios: 'Exercícios', notas: 'Notas',
   metas: 'Metas', estudos: 'Estudos', leitura: 'Leitura', resumo: 'Resumo',
   perfil: 'Perfil', amizades: 'Amizades'
 };
@@ -139,6 +139,7 @@ function goToPage(name){
   else if(name==='notas')renderNotas();
   else if(name==='resumo')renderResumo();
   else if(name==='agenda')renderAgenda();
+  else if(name==='quadro')renderQuadro();
   else if(name==='exercicios')renderExercicios();
   else if(name==='leitura')renderLeitura();
   else if(name==='perfil')renderPerfil();

@@ -33,6 +33,9 @@
 <link rel="stylesheet" href="styles/amizades.css">
 <link rel="stylesheet" href="styles/nozes.css">
 <link rel="stylesheet" href="styles/ds2.css">
+<link rel="stylesheet" href="styles/atalhos.css">
+<link rel="stylesheet" href="styles/quadro.css">
+<link rel="stylesheet" href="styles/mural.css">
 </head>
 <body class="na-home">
 <!-- TICOLINO — sprite do mascote (pecas combinaveis por humor) -->
@@ -439,6 +442,9 @@
           </div>
           <div class="hoje-anel" id="home-anel" role="img" aria-label="Anel do dia"></div>
         </div>
+        <!-- Chamado do Ticolino: uma coisa que falta hoje. Pintado por
+             renderChamado() em js/atalhos.js. -->
+        <div class="hoje-chamado" id="home-chamado" role="status" aria-live="polite" hidden></div>
       </header>
 
       <div class="md-in hoje-in">
@@ -447,20 +453,9 @@
           <div class="hoje-lista" id="home-today-list"></div>
         </div>
         <div class="hoje-col">
-          <div class="hoje-minis">
-            <button type="button" class="hoje-mini a-dinheiro" onclick="goToPage('gastos')">
-              <span class="md-label md-a-txt" id="home-gastos-rotulo">Dinheiro</span>
-              <span class="hoje-mini-val md-num" id="home-stat-gastos">R$ 0,00</span>
-              <span id="home-gastos-barra"></span>
-              <span class="md-meta" id="home-stat-gastos-sub"></span>
-            </button>
-            <button type="button" class="hoje-mini a-exercicio" onclick="goToPage('exercicios')">
-              <span class="md-label md-a-txt">Treinos · semana</span>
-              <span class="hoje-mini-val md-num" id="home-stat-treinos">0 de 5</span>
-              <span id="home-treinos-barra"></span>
-              <span class="md-meta" id="home-stat-treinos-sub"></span>
-            </button>
-          </div>
+          <!-- Atalhos: ate 4 cartoes escolhidos pela pessoa (js/atalhos.js). -->
+          <div class="md-sec at-sec"><h2>Seus atalhos</h2><button type="button" class="md-link" onclick="abrirPersonalizarAtalhos()">Editar</button></div>
+          <div class="at-grade" id="home-atalhos"></div>
 
           <div class="hoje-andamento">
             <div class="md-sec"><h2 data-i18n="inProgress">Em andamento</h2><span class="md-meta" id="home-task-count">0 itens</span></div>
@@ -540,6 +535,31 @@
         </div>
         <div id="tasks-grid"></div>
       </div>
+      </div>
+    </section>
+
+    <!-- ─────── QUADRO (Rotina) — js/quadro.js ─────── -->
+    <section class="page" id="page-quadro">
+      <header class="md-hdr">
+        <nav class="md-gt" data-abas="rotina" aria-label="Rotina"></nav>
+        <div class="md-hdr-main">
+          <div class="md-hdr-text">
+            <h1 class="md-hdr-title">Meu quadro</h1>
+            <span class="md-hdr-hero md-num" id="qd-hero">—</span>
+            <span class="md-hdr-sub" id="qd-sub"></span>
+          </div>
+          <span class="md-hdr-tico" id="qd-tico"></span>
+        </div>
+        <div class="md-hdr-acoes">
+          <button type="button" class="md-btn md-btn--header" onclick="abrirAdicionarBloco()"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Bloco</button>
+          <button type="button" class="md-btn md-btn--header" id="qd-organizar" onclick="alternarOrganizarQuadro()" aria-pressed="false" hidden>Organizar</button>
+          <button type="button" class="md-btn md-btn--header" id="qd-modo" onclick="alternarModoQuadro()" hidden>Ver como lista</button>
+        </div>
+      </header>
+      <div class="md-in">
+        <div class="qd-blocos" id="qd-blocos"></div>
+        <!-- Mural livre no computador (js/mural.js) -->
+        <div class="qd-mural" id="qd-mural" hidden></div>
       </div>
     </section>
 
@@ -999,6 +1019,8 @@
             <span class="noz-saldo-num">—</span> <span class="noz-saldo-rot">nozes</span>
           </span>
         </div>
+        <!-- Materia que o timer conta (plano da semana). js/estudos-plano.js -->
+        <div class="est-materia" id="est-materia" hidden></div>
 
         <!-- Timer: o anel esvazia conforme o tempo passa. -->
         <div class="est-anel">
@@ -1037,6 +1059,9 @@
           <button type="button" class="md-btn md-btn--secondary" id="timer-pause-btn" onclick="pauseTimer()" style="display:none"></button>
           <button type="button" class="md-btn md-btn--secondary md-btn--icon" onclick="resetTimer()" aria-label="Recomeçar o tempo"><svg class="md-ico" viewBox="0 0 24 24" width="20" height="20" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
         </div>
+
+        <!-- Plano desta semana (o mesmo do Quadro). js/estudos-plano.js -->
+        <section class="md-card est-plano" id="est-plano" aria-label="Plano de estudos da semana"></section>
 
         <div class="md-rcs">
           <div class="md-rc t-brand"><span>XP total</span><b class="md-num" id="estudos-xp-display">0</b></div>
@@ -1911,6 +1936,106 @@
   <div class="modal modal-sm amz-modal" id="amz-modal" role="dialog" aria-modal="true" aria-label="Amigo"></div>
 </div>
 
+<!-- ─────── ATALHOS DA HOME (js/atalhos.js) ─────── -->
+<div class="modal-overlay" id="modal-atalhos">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="at-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-atalhos')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="at-titulo">Seus atalhos</div>
+    <p class="md-meta at-conta" id="at-conta"></p>
+    <div class="at-grupo">Na tela Hoje</div>
+    <div class="at-lista" id="at-na-home"></div>
+    <div class="at-grupo">Pôr na tela Hoje</div>
+    <p class="md-meta" id="at-cheio" hidden>Já são 4. Tire um para pôr outro.</p>
+    <div class="at-lista" id="at-disponiveis"></div>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="salvarAtalhos()">Salvar atalhos</button><button class="btn btn-ghost" onclick="closeModal('modal-atalhos')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- ─────── QUADRO (js/quadro.js) ─────── -->
+<div class="modal-overlay" id="modal-add-bloco">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="ab-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-add-bloco')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="ab-titulo">Adicionar bloco</div>
+    <p class="md-meta" id="ab-cheio" hidden>O quadro já tem 12 blocos. Tire um para pôr outro.</p>
+    <div class="ab-lista" id="ab-lista"></div>
+    <p class="md-meta ab-nota">Os blocos de dados só leem o que está nas outras abas. Nada é copiado e ninguém mais vê.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-quadro-texto">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="qt-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-quadro-texto')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="qt-titulo">Novo item</div>
+    <div class="form-group"><label class="form-label" for="qt-texto" id="qt-label">Texto</label>
+      <textarea class="form-textarea qt-texto" id="qt-texto" rows="3"></textarea></div>
+    <div class="form-group" id="qt-dia-wrap" hidden><label class="form-label" for="qt-dia">Dia</label><select class="form-select" id="qt-dia"></select></div>
+    <div class="form-group" id="qt-cores-wrap" hidden><span class="form-label">Cor</span><div class="qt-cores" id="qt-cores" role="group" aria-label="Cor do post-it"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="salvarTextoQuadro()">Salvar</button>
+      <button class="btn btn-danger" id="qt-apagar" onclick="apagarTextoQuadro()" hidden>Apagar</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-quadro-texto')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-bloco-gastos">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="bg-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-bloco-gastos')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="bg-titulo">Bloco de gastos</div>
+    <span class="form-label">Período</span>
+    <div class="md-seg bg-seg" id="bg-periodo" role="group" aria-label="Período">
+      <button type="button" data-v="semana" aria-pressed="true" onclick="escolherConfigGastos('periodo','semana')">Semana</button>
+      <button type="button" data-v="mes" aria-pressed="false" onclick="escolherConfigGastos('periodo','mes')">Mês</button>
+    </div>
+    <span class="form-label">Mostrar</span>
+    <div class="bg-radios" id="bg-mostrar" role="radiogroup" aria-label="O que mostrar">
+      <button type="button" role="radio" data-v="categorias" aria-checked="true" onclick="escolherConfigGastos('mostrar','categorias')"><i aria-hidden="true"></i>Total e categorias</button>
+      <button type="button" role="radio" data-v="total" aria-checked="false" onclick="escolherConfigGastos('mostrar','total')"><i aria-hidden="true"></i>Só o total</button>
+      <button type="button" role="radio" data-v="ultimos" aria-checked="false" onclick="escolherConfigGastos('mostrar','ultimos')"><i aria-hidden="true"></i>Últimos 5 lançamentos</button>
+    </div>
+    <p class="bg-priv"><svg class="md-ico" viewBox="0 0 24 24" width="16" height="16" stroke-width="2.4" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>O bloco só lê os seus lançamentos da aba Dinheiro. Nada é copiado e ninguém mais vê. Mudou lá, muda aqui.</p>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="salvarConfigGastos()">Salvar</button><button class="btn btn-ghost" onclick="closeModal('modal-bloco-gastos')">Cancelar</button></div>
+  </div>
+</div>
+
+<!-- ─────── MURAL: paineis (js/mural.js) ─────── -->
+<div class="modal-overlay" id="modal-paineis">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="pn-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-paineis')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="pn-titulo">Painéis</div>
+    <p class="md-meta">Cada painel é um mural. Os blocos com dados ficam no Principal.</p>
+    <div class="pn-lista" id="pn-lista" role="radiogroup" aria-label="Escolher painel"></div>
+    <div class="pn-sec" id="pn-editar" hidden>
+      <div class="pn-linha">
+        <div class="form-group"><label class="form-label" for="pn-nome">Nome deste painel</label><input class="form-input" id="pn-nome" maxlength="30" autocomplete="off"></div>
+        <button type="button" class="md-btn md-btn--secondary" onclick="renomearPainel()">Renomear</button>
+      </div>
+      <button type="button" class="btn btn-danger pn-apagar" onclick="pedirApagarPainel()">Apagar este painel</button>
+    </div>
+    <div class="pn-sec">
+      <div class="pn-linha" id="pn-novo-wrap">
+        <div class="form-group"><label class="form-label" for="pn-novo">Novo painel</label><input class="form-input" id="pn-novo" maxlength="30" placeholder="Ex.: Faculdade" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();criarPainel();}"></div>
+        <button type="button" class="md-btn md-btn--primary" onclick="criarPainel()">Criar</button>
+      </div>
+      <p class="md-meta" id="pn-cheio" hidden>Já são 8 painéis além do Principal. Apague um para criar outro.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─────── PLANO DE ESTUDOS: editar um dia (js/estudos-plano.js) ─────── -->
+<div class="modal-overlay" id="modal-plano-dia">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="pd-titulo">
+    <button type="button" class="modal-close" onclick="closeModal('modal-plano-dia')" aria-label="Fechar">✕</button>
+    <div class="modal-title" id="pd-titulo">Toda segunda</div>
+    <div class="md-chips pd-dias" id="pd-dias" role="group" aria-label="Dia da semana"></div>
+    <p class="md-meta pd-ajuda">O plano se repete toda semana. Marque os dias para estudar a mesma matéria em vários. Trocar de dia já salva o dia aberto.</p>
+    <div class="pd-lista" id="pd-lista"></div>
+    <datalist id="pd-materias"></datalist>
+    <button type="button" class="md-btn md-btn--secondary md-btn--block pd-add" onclick="pdAdicionar()"><svg class="md-ico" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.6" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar matéria</button>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="pdSalvar()">Salvar plano</button><button class="btn btn-ghost" onclick="closeModal('modal-plano-dia')">Fechar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal modal-sm">
     <div class="confirm-icon" id="confirm-icon" aria-hidden="true"></div>
@@ -1958,6 +2083,10 @@
 <script src="js/estudos.js"></script>
 <script src="js/exercicios.js"></script>
 <script src="js/leitura.js"></script>
+<script src="js/estudos-plano.js"></script>
+<script src="js/quadro.js"></script>
+<script src="js/atalhos.js"></script>
+<script src="js/mural.js"></script>
 <script src="js/amizades.js"></script>
 <script src="js/nozes.js"></script>
 <script src="js/notificacoes.js"></script>
