@@ -767,6 +767,19 @@
           <div class="pag-opcoes" id="gasto-pagamento"></div>
         </div>
 
+        <!-- TIPO DE GASTO: necessário, emergência, desnecessário ou um criado
+             pela pessoa. Montado por renderTipoChips() (js/gastos.js). -->
+        <div class="form-group">
+          <label class="form-label" id="gasto-tipo-rotulo">Tipo de gasto</label>
+          <div class="pag-opcoes tipo-opcoes" id="gasto-tipo" role="group" aria-labelledby="gasto-tipo-rotulo"></div>
+          <div class="tipo-novo" id="gasto-tipo-novo" hidden>
+            <input class="form-input" id="gasto-tipo-nome" maxlength="30" placeholder="Ex: Investimento, Presente, Lazer" aria-label="Nome do novo tipo de gasto"
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();criarTipoGasto();}else if(event.key==='Escape'){event.stopPropagation();fecharNovoTipo();}">
+            <button type="button" class="btn btn-primary btn-sm" onclick="criarTipoGasto()">Criar</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="fecharNovoTipo()">Cancelar</button>
+          </div>
+        </div>
+
         <!-- PARCELAMENTO -->
         <div class="installment-toggle" onclick="toggleInstallment()">
           <div style="display:flex;align-items:center;gap:10px">
