@@ -161,8 +161,12 @@ function goToPage(name){
 }
 
 
-// O rosto do Ticolino no destino "Voce" acompanha a cor escolhida.
+// O icone do destino "Voce" (familia Toca, js/icones.js) acompanha a cor do
+// Ticolino que a pessoa escolheu: o rosto pega a pelagem (--tp) e os olhos
+// e listras pegam o traco (--tc). As cores vem da tabela fixa TICO_CORES,
+// nunca de texto digitado.
 function pintarRostoMenu(){
-  if(typeof ticolino !== 'function') return;
-  document.querySelectorAll('.nav-voce-rosto').forEach(function(el){ el.innerHTML = ticolino('feliz', 30, true); });
+  if(typeof estiloCorTico !== 'function' || typeof minhaCorTico !== 'function') return;
+  var estilo = estiloCorTico(minhaCorTico());
+  document.querySelectorAll('.nav-voce').forEach(function(el){ el.setAttribute('style', estilo); });
 }
