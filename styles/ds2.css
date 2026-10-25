@@ -1180,3 +1180,25 @@ button.md-lista-item.pf-sair{color:var(--danger)}
   padding:1px 8px;border-radius:99px;margin:0 0 3px;background:color-mix(in srgb,var(--tipo-cor) 14%,var(--card));
   color:var(--tipo-cor);border:1px solid color-mix(in srgb,var(--tipo-cor) 35%,transparent)}
 .gasto-pag-topo .pag-badge+.tipo-badge{margin-left:4px}
+
+
+/* ── Icones da familia "Toca do Ticolino" (js/icones.js) ────────────────
+   Um detalhe por icone na cor de destaque (--ico-acc). Por padrao e o
+   destaque do tema; cada lugar ajusta: */
+.md-ico--toca .ic-a{fill:var(--ico-acc,var(--accent))}
+.md-ico--toca .ic-as{stroke:var(--ico-acc,var(--accent))}
+/* Barra e menu lateral: o destaque e a cor da aba ativa. */
+.ds2 #mobile-nav,.ds2 #sidebar{--ico-acc:var(--nav-active)}
+/* Dentro do quadrado de uma area, a cor e a da area (cor e assunto). */
+.md-tile{--ico-acc:currentColor}
+/* Botao cheio: o detalhe na cor do texto, senao some no fundo. */
+.md-btn--primary,.lv-bt--pri,.btn-primary,.md-btn--header{--ico-acc:currentColor}
+/* "Voce" na barra: o rosto com a cor do Ticolino da pessoa. */
+.md-ico--toca.nav-voce .ic-rosto{fill:var(--tp,#F1C596);fill-opacity:1}
+.md-ico--toca.nav-voce .ic-olho{fill:var(--tc,#7A5240)}
+.md-ico--toca.nav-voce .ic-listra{stroke:var(--tc,#7A5240)}
+.md-ico--toca.nav-voce .ic-a{fill:var(--tn,#F0959B)}
+/* Corrige o icone apagado da barra do celular: uma regra antiga (main.css)
+   pintava o icone com --text-dim, ate na aba ativa. Agora ele segue a cor
+   da aba, como o nome embaixo. */
+.ds2 #mobile-nav .m-icon svg,.ds2 #sidebar .nav-item .nav-icon svg{color:inherit;width:24px;height:24px}
