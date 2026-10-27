@@ -18,8 +18,24 @@ var META_ASSUNTO = { aviao:['Viagem','a-metas'], leitura:['Leitura','a-leitura']
   halter:['Saúde','a-exercicio'], gastos:['Dinheiro','a-dinheiro'] };
 function mesAno(iso){
   if(!iso) return '';
-  var d = new Date(iso + 'T12:00:00');
+  // Aceita "2026-11-06" e tambem a data com hora ("2026-11-06T03:00:00Z").
+  var d = new Date(String(iso).slice(0, 10) + 'T12:00:00');
   return isNaN(d) ? '' : d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+}
+// O texto da barra: "3 de 7 etapas · 43%", ou so a porcentagem sem etapas.
+function rotuloDaMeta(m){
+  var cl = m.checklist || [], pct = calcProgress(m);
+  var feitos = cl.filter(function(c){ return c.done; }).length;
+  return cl.length ? feitos + ' de ' + cl.length + ' etapas · ' + pct + '%' : pct + '%';
+}
+// Marcar uma etapa no cartao atualiza a barra dele na hora.
+function atualizarBarraDaMeta(m){
+  var card = document.querySelector('.md-goal[data-id="' + m.id + '"]');
+  var barra = card && card.querySelector('.md-goal-corpo > .md-pb');
+  if(!barra) return;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = mdBarra(calcProgress(m), rotuloDaMeta(m), 'md-pb--lg');
+  barra.replaceWith(tmp.firstChild);
 }
 var filtroMetas = 'all', grupoMetas = null;
 function renderMetas(filter,groupFilter){
@@ -58,9 +74,9 @@ function renderMetas(filter,groupFilter){
     var tom = m.done ? 'a-neutro' : (idx === 0 ? 't-brand' : (assunto ? assunto[1] : META_TONS[idx % META_TONS.length]));
     var kicker = m.done ? 'Concluída' : (m.group || (assunto ? assunto[0] : 'Meta'));
     var meta = [];
-    if(m.deadline) meta.push('Prazo ' + mesAno(m.deadline));
+    if(m.deadline && mesAno(m.deadline)) meta.push('Prazo ' + mesAno(m.deadline));
     if(m.budget && parseFloat(m.budget) > 0) meta.push(moeda(parseFloat(m.budget)) + ' previstos');
-    var rotulo = cl.length ? feitosCl + ' de ' + cl.length + ' etapas · ' + pct + '%' : pct + '%';
+    var rotulo = rotuloDaMeta(m);
     var etapas = '';
     if(cl.length){
       etapas = '<details class="md-goal-etapas" onclick="event.stopPropagation()"><summary>Etapas</summary><div class="meta-inline-checklist">'

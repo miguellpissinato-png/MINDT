@@ -352,11 +352,9 @@ document.addEventListener('change', function(e) {
       m.checklist[idx2].done = e.target.checked;
       m.progress = calcProgress(m);
       saveState();
-      // Update progress bar in card without full re-render
-      var card = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-bar-fill');
-      if(card) card.style.width = m.progress+'%';
-      var label = document.querySelector('.meta-card[data-id="'+mid+'"] .progress-label');
-      if(label) label.textContent = m.progress+'%';
+      // Atualiza so a barra do cartao, sem redesenhar a grade: redesenhar
+      // fecharia a lista de etapas que a pessoa esta marcando.
+      if(typeof atualizarBarraDaMeta === 'function') atualizarBarraDaMeta(m);
     }
   }
 });
